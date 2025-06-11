@@ -1,0 +1,2 @@
+change disclosure to abstract fda_unapproved_uses, discuss product name, fda accepted uses
+add new table for abstract category

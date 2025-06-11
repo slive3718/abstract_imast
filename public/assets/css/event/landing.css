@@ -1,0 +1,39 @@
+main {
+    margin-top: 50px;
+    margin-bottom: 75px;
+    background:transparent !important;
+}
+
+#main-banner {
+    background: url('../../images/library/1200px-Grey_background.jpeg') repeat;
+}
+
+.light-white{
+    background-color:#F5EFF4;
+}
+.submissionBtn{
+    max-width:800px
+}
+body{
+    background: #e2e2e2;
+    /*background: rgb(40,56,144);*/
+    /*background: linear-gradient(0deg, rgba(40,56,144,1) 0%, rgba(70,70,205,0.994304411217612) 6%, rgba(250,209,223,0.9438842431503851) 100%);*/
+}
+
+.glass-container {
+    background-color: rgba(255, 255, 255, 0.2); /* More transparent background */
+    backdrop-filter: blur(10px); /* Apply backdrop blur */
+    border-radius: 10px;
+    padding: 20px;
+    margin: 0 auto;
+}
+
+/* Additional styling for content within the container */
+.content {
+    color: white;
+    text-align: center;
+}
+
+.w-700{
+    width: 700px !important;
+}

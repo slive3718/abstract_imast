@@ -1,0 +1,51 @@
+<?php
+namespace App\Models;
+
+use CodeIgniter\Model;
+
+class AbstractFileUploadsModel extends Model
+{
+    protected $table = 'abstract_file_uploads';
+
+    // protected $allowedFields = ['*'];
+    // protected $allowedFields = ['title', 'description'];
+    protected $primaryKey = 'id';
+    
+      public function __construct()
+    {
+        parent::__construct();
+        $this->allowedFields = $this->db->getFieldNames($this->table);
+    }
+
+    
+    public function Get()
+    {
+    
+       try {
+            return $this->findAll();
+        } catch (\CodeIgniter\Database\Exceptions\DatabaseException $e) {
+            // Log the error or display an error message
+            $error = json_encode('Database error: ' . $e->getMessage());
+            return $error;
+        }
+    }
+
+    public function Add($data){
+        // print_r($data);exit;
+        try {
+            // $this->db->table('abstract_assigned_reviewer');
+            $this->insert($data);
+            if ($this->affectedRows() > 0) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (\Exception $e) {
+            // Handle the exception here
+            return json_encode(array('error'=>$e->getMessage()));
+            
+        }
+    }
+    
+
+}

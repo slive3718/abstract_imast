@@ -1,0 +1,29 @@
+{
+  "name": "abstract_suit_phir",
+  "version": "1.0.0",
+  "description": "Abstract Suite is an abstract management system by One World Presentation Management Ltd.",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/slive3718/abstract_suit_afs.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/slive3718/abstract_suit_afs/issues"
+  },
+  "homepage": "https://github.com/slive3718/abstract_afs#readme",
+  "dependencies": {
+    "@ckeditor/ckeditor5-enter": "^41.4.1",
+    "@toast-ui/calendar": "^2.1.3",
+    "tui-calendar": "^1.15.3",
+    "tui-date-picker": "^4.3.3",
+    "tui-time-picker": "^2.1.6"
+  }
+}
