@@ -73,20 +73,20 @@
                 <form id="formTemplate" action="" method="post">
                     <div class="mb-3">
                         <label for="templateName" class="form-label">Template Name</label>
-                        <input type="text" name="template_name" class="form-control" id="templateName" aria-describedby="emailHelp" placeholder="Template Name" required>
+                        <input type="text" name="template_name" class="form-control" id="templateName" aria-describedby="emailHelp">
 <!--                        <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>-->
                     </div>
                     <div class="mb-3">
                         <label for="emailSubject" class="form-label">Email Subject</label>
-                        <input type="text" name="email_subject" class="form-control" id="emailSubject" placeholder="Subject" required>
+                        <input type="text" name="email_subject" class="form-control" id="emailSubject">
                     </div>
                     <div class="mb-3">
                         <label class="form-check-label" for="emailDescription">Description</label>
-                        <input type="text" name="email_description" class="form-control" id="emailDescription" placeholder="Description" required>
+                        <input type="text" name="email_description" class="form-control" id="emailDescription">
                     </div>
 
                     <div class="form-check">
-                        <input class="form-check-input" type="radio" name="email_category" id="emailCategory1" value="1" placeholder="Category" required >
+                        <input class="form-check-input" type="radio" name="email_category" id="emailCategory1" value="1" >
                         <label class="form-check-label" for="emailCategory1">
                             Subscribe reviewer for the proposal
                         </label>
@@ -229,67 +229,32 @@
             $('.saveTemplateBtn').removeAttr('template_id').html('Save Template')
         })
 
-        $('.saveTemplateBtn').on('click', async function(e) {
-            e.preventDefault();
-            const $form = $('#formTemplate');
-            const formData = new FormData($form[0]);
-            const message = newEditor.getData();
-            const template_id = $(this).attr("template_id");
-
-            // Flag to track validation errors
-            let hasErrors = false;
-
-            // Validate required non-radio inputs
-            $('input[required]').not('[type="radio"]').each(function() {
-                if ($(this).val().trim() === '') {
-                    const placeholder = $(this).attr('placeholder') || 'This field is required';
-                    toastr.error(placeholder);
-                    hasErrors = true;
-                    return false; // Stop after first error
+        $('.saveTemplateBtn').on('click', function(){
+            let formData = new FormData(document.getElementById('formTemplate'));
+            let message = newEditor.getData();
+            let template_id = $(this).attr("template_id");
+            formData.append('template_id', template_id)
+            formData.append('message', message)
+            $.ajax({
+                url: base_url_admin+'save_email_template',
+                type: 'POST',
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function(response) {
+                    getTemplates();
+                    toastr.success('Form submitted successfully!');
+                    console.log(response);
+                },
+                error: function(xhr, status, error) {
+                    toastr.error('An error occurred while submitting the form.');
+                    console.error(error);
                 }
             });
 
-            // Validate required radio buttons
-            $('input[type="radio"][required]').each(function() {
-                const name = $(this).attr('name');
-                if ($(`input[name="${name}"]:checked`).length === 0) {
-                    toastr.error('Please select an option');
-                    hasErrors = true;
-                    return false; // Stop after first error
-                }
-            });
-
-            // Stop submission if validation fails
-            if (hasErrors) {
-                return;
-            }
-
-            // Append additional data
-            formData.append('template_id', template_id);
-            formData.append('message', message);
-
-            try {
-                const response = await $.ajax({
-                    url: base_url_admin + 'save_email_template',
-                    type: 'POST',
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                });
-
-                // Success handling
-                toastr.success('Template saved successfully!');
-                getTemplates(); // Refresh templates list
-                $('#templateModal').modal('hide');
-                $form[0].reset(); // Reset form
-
-                console.log(response);
-            } catch (error) {
-                // Error handling
-                toastr.error('Failed to save template. Please try again.');
-                console.error(error);
-            }
-        });
+            $('#templateModal').modal('hide');
+            $('#templateModal').modal('reset');
+        })
 
         $('#templates-content').on('click','.editTemplateBtn', function(){
             $('#formTemplate')[0].reset();

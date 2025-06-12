@@ -23,12 +23,16 @@ class Login extends BaseController
     public function index(): string
     {
 
-        $header_data = [
-            'title' => "Login"
-        ];
+        $event = (new AbstractEventsModel())->first();
+        if(!$event){
+            return ("error");
+        }
 
+        $header_data = [
+            'title' => "{$event->short_name} Login"
+        ];
         $data = [
-            'event'=> 'Asia Pacific'
+            'event'=> $event
         ];
         return
             view('event/common/header', $header_data).
@@ -42,18 +46,15 @@ class Login extends BaseController
         $result = $this->getToken($_POST);
 
 //        print_r($result);exit;
-        if($result){
+        if($result['data']){
             $session_array = array(
-                'email'=>$result['credentials']->email,
-                'token'=>$result,
-                'user_id'=>$result['credentials']->id,
+                'email'=>$result['data']['credentials']->email,
+                'token'=>$result['data'],
+                'user_id'=>$result['data']['credentials']->id,
+                'event_uri'=>$_POST['event_uri'],
                 'user_type'=>$_POST['login_type'],
-                'name'=>$result['credentials']->name,
-                'surname'=>$result['credentials']->surname,
-                'is_super_admin'=>$result['credentials']->is_super_admin ?? 0,
-                'is_regular_reviewer'=>$result['credentials']->is_regular_reviewer ?? 0,
-                'is_session_moderator'=>$result['credentials']->is_session_moderator ?? 0,
-                'is_study_group'=>$result['credentials']->is_study_group ?? 0,
+                'name'=>$result['data']['credentials']->name,
+                'surname'=>$result['data']['credentials']->surname,
             );
             $this->session->set($session_array);
 
@@ -63,7 +64,7 @@ class Login extends BaseController
             // logs data
             $userlog = [
                 'level' => 'INFO',
-                'user_id' => $result['credentials']->id,
+                'user_id' => $result['data']['credentials']->id,
                 'ref_1' => $_POST['login_type'],
                 'action' => "Login",
                 'ip_address' => $this->request->getIPAddress(),
@@ -73,10 +74,10 @@ class Login extends BaseController
             // save to logs
             $logs->save($userlog);
 
-            return  json_encode(array('status'=>"200", 'data'=>$result));
+            return  json_encode(array('status'=>"200", 'data'=>$result['data']));
 
         }else{
-            return  json_encode(array('status'=>"201", 'data'=>$result, 'message'=>'Invalid email or password'));
+            return  json_encode(array('status'=>"201", 'data'=>$result['data'], 'message'=>'Invalid email or password'));
         }
     }
 
@@ -137,6 +138,7 @@ class Login extends BaseController
 
         if($post['login_type'] == 'author'){
             $cred_check = (new UserModel())->author_cred_check($post['email']);
+//            print_r($cred_check);exit;
         }else{
             $cred_check =  (new UserModel())->cred_check($post['email'], $post['password']);
         }
@@ -164,7 +166,7 @@ class Login extends BaseController
         $data = array('token'=>$token, 'credentials'=>$cred_check);
 
 
-        return ($data);
+        return (array('data'=>$data));
     }
 
 

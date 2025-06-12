@@ -29,11 +29,15 @@ $routes->setAutoRoute(true);
  * --------------------------------------------------------------------
  */
 
-######### Routes for Admin ################
-$routes->get('admin/login', 'admin\Abstracts\AdminLogin::index');
-$routes->group('admin', ['filter' => 'authGuard:admin'],  function ($routes) {
+// We get a performance increase by specifying the default
+// route since we don't have to scan directories.
 
+//App landing page
+//$routes->get('/', 'Home::index');
 
+$routes->group('admin',['filter' => 'authGuard'], function ($routes) {
+
+    $routes->get('login', 'admin\Abstracts\AdminLogin::index');
     $routes->get('logout', 'admin\Abstracts\AdminLogin::logout/$1');
     $routes->get('papers_list', 'admin\Abstracts\AbstractController::papers_list');
     $routes->get('panels_list', 'admin\Abstracts\AbstractController::panels_list');
@@ -105,7 +109,6 @@ $routes->group('admin', ['filter' => 'authGuard:admin'],  function ($routes) {
     $routes->get('exportSample', 'ExcelController::exportSample/$1'); //Excel
 
     $routes->post('importReviewers', 'admin\UserManagerController::importReviewers');
-    $routes->post('importUsers', 'admin\UserManagerController::importUsers');
     $routes->post('user/create_user', 'admin\UserManagerController::createUser');
     $routes->post('user/update_user', 'admin\UserManagerController::updateUser');
 
@@ -136,17 +139,15 @@ $routes->group('admin', ['filter' => 'authGuard:admin'],  function ($routes) {
     $routes->get('talks', 'admin\Abstracts\SessionTalksController::get');
     $routes->get('talks/scheduled/(:any)', 'admin\Abstracts\SessionTalksController::talk_scheduled/$1');
 
+
+
 });
 
+$routes->group('reviewer', function ($routes) {
 
-######## ---------- Routes for Reviewer ------------------ ##############
-
-$routes->get('reviewer/login', 'reviewer\ReviewerLogin::index');
-$routes->post('reviewer/authenticate', 'reviewer\ReviewerLogin::authenticate');
-$routes->group('reviewer', ['filter' => 'authGuard:reviewer'],  function ($routes) {
-
-
+    $routes->get('login', 'reviewer\ReviewerLogin::index');
     $routes->get('logout', 'reviewer\ReviewerLogin::logout');
+    $routes->post('authenticate', 'reviewer\ReviewerLogin::authenticate');
     $routes->get('abstract_list', 'reviewer\ReviewerController::index');
     $routes->post('getAllReviewerAbstracts', 'reviewer\ReviewerController::getAllReviewerAbstracts');
     $routes->get('reviewAbstract/(:any)', 'reviewer\ReviewerController::reviewAbstract/$1');
@@ -159,16 +160,11 @@ $routes->group('reviewer', ['filter' => 'authGuard:reviewer'],  function ($route
 
 });
 
+$routes->group('deputy', function ($routes) {
 
-######## ---------- Routes for Deputy  ---------- ##############
-
-$routes->get('deputy/login', 'deputy\ReviewerLogin::index');
-$routes->post('deputy/authenticate', 'deputy\ReviewerLogin::authenticate');
-
-$routes->group('deputy',  ['filter' => 'authGuard:deputy'], function ($routes) {
-
-
+    $routes->get('login', 'deputy\ReviewerLogin::index');
     $routes->get('logout', 'deputy\ReviewerLogin::logout');
+    $routes->post('authenticate', 'deputy\ReviewerLogin::authenticate');
     $routes->get('menu', 'deputy\ReviewerController::index');
     $routes->get('papers_list', 'deputy\ReviewerController::papers_list');
     $routes->get('panels_list', 'deputy\ReviewerController::panels_list');
@@ -202,13 +198,11 @@ $routes->group('deputy',  ['filter' => 'authGuard:deputy'], function ($routes) {
 });
 
 
-##########  ----------  Routes for Acceptance  ----------  ################
+$routes->group('acceptance', function ($routes) {
 
-$routes->get('acceptance/login', 'acceptance\AcceptanceLogin::index');
-$routes->post('acceptance/authenticate', 'acceptance\AcceptanceLogin::authenticate');
-$routes->group('acceptance', ['filter' => 'authGuard:acceptance'],  function ($routes) {
-
+    $routes->get('login', 'acceptance\AcceptanceLogin::index');
     $routes->get('logout', 'acceptance\AcceptanceLogin::logout');
+    $routes->post('authenticate', 'acceptance\AcceptanceLogin::authenticate');
     $routes->get('abstract_list', 'acceptance\AcceptanceController::index');
     $routes->post('get_accepted_abstracts', 'acceptance\AcceptanceController::get_accepted_abstracts');
     $routes->get('acceptance_menu/(:any)', 'acceptance\AcceptanceController::acceptance_menu/$1');
@@ -216,8 +210,6 @@ $routes->group('acceptance', ['filter' => 'authGuard:acceptance'],  function ($r
     $routes->get('speaker_acceptance_finalize/(:any)', 'acceptance\AcceptanceController::speaker_acceptance_finalize/$1');
     $routes->get('presentation_data_view/(:any)', 'acceptance\AcceptanceController::presentation_data_view/$1');
     $routes->post('save_finalized_acceptance/(:any)', 'acceptance\AcceptanceController::save_finalized_acceptance/$1');
-    $routes->get('non_exclusive_license', 'acceptance\AcceptanceController::non_exclusive_license');
-    $routes->post('update_profile', 'acceptance\InvitedAcceptanceController::update_profile');
 
     $routes->post('save_acceptance_confirmation', 'acceptance\AcceptanceController::save_acceptance_confirmation');
     $routes->post('send_acceptance_confirmation/(:any)', 'acceptance\AcceptanceController::send_acceptance_confirmation');
@@ -251,47 +243,21 @@ $routes->group('acceptance', ['filter' => 'authGuard:acceptance'],  function ($r
     $routes->post('check_finalize_acceptance/(:any)', 'acceptance\AcceptanceController::check_finalize_acceptance/$1');
     // for testing
 
-    //Invited Speaker/Faculty routes/
-    $routes->get('invited_acceptance_menu/(:any)', 'acceptance\InvitedAcceptanceController::invited_acceptance_menu/$1');
-    $routes->get('invited_speaker_acceptance/(:any)', 'acceptance\InvitedAcceptanceController::invited_speaker_acceptance/$1');
-    $routes->get('invited_speaker_travel_expense/(:any)', 'acceptance\InvitedAcceptanceController::invited_speaker_travel_expense/$1');
-    $routes->get('speaker_acceptance_finalize/(:any)', 'acceptance\InvitedAcceptanceController::speaker_acceptance_finalize/$1');
-
     // $routes->get('getAcceptedAbstracts', 'acceptance\AcceptanceController::getAcceptedAbstracts/$1');
     $routes->post('getAuthorAcceptance/(:any)', 'acceptance\AcceptanceController::getAuthorAcceptance/$1');
 });
 
 
-
-#########  ----------  Routes for Authors  ----------  #################
-
-$routes->get('author/login', 'Author::validateLogin');
-$routes->group('author',  ['filter' => 'authGuard:author'], function ($routes)
-{
-
-    $routes->get('logout', 'Author::logout');
-    $routes->get('view_copyright', 'Author::view_copyright/$1');
-    $routes->get('profile', 'Author::profile/$1');
-    $routes->get('financial_relationship_disclosure', 'Author::financial_relationship_disclosure');
-    $routes->get('save_financial_relationship', 'Author::save_financial_relationship');
-    $routes->get('preview_finalize', 'Author::preview_finalize');
-    $routes->get('attestation', 'Author::attestation');
-    $routes->post('submit_attestation', 'Author::submit_attestation');
-    $routes->get('copyright_of_publication_agreement/(:num)', 'Author::copyright_of_publication_agreement/$1');
-    $routes->get('review', 'Author::conflict_of_interest_disclosure_review/$1');
-    $routes->get('finalize', 'Author::finalize_disclosure/$1');
-    $routes->get('finalize_success', 'Author::finalize_success/$1');
-    $routes->post('confirm_copyright_ajax', 'Author::confirm_copyright_ajax');
-});
-
-
-
-$routes->group('institution', function ($routes) {
-    $routes->post('add_new', 'Institution::add_new');
-});
-
 $routes->group('schedules', function ($routes) {
     $routes->get('/', 'ItineraryController::/index');
+});
+
+
+
+$routes->group('logs', function ($routes)
+{
+    $routes->post('add_seen_logs', 'LogsController::add_seen_logs');
+    $routes->post('get_logs', 'LogsController::getLogs');
 });
 
 //Other event routes
@@ -305,7 +271,7 @@ $routes->post('account/reset_password', 'Account::reset_password');
 
 $routes->get('tracksJson', 'SessionTracks::getJson');
 
-$routes->group('', function ($routes)
+$routes->group('',['filter' => 'authGuard'], function ($routes)
 {
 
     $routes->post('account/update_password', 'Account::update_password/$1');
@@ -314,7 +280,7 @@ $routes->group('', function ($routes)
     $routes->get('user/edit_papers_submission/(:any)', 'User::edit_papers_submission/$1');
 
     $routes->get('user/authors_and_copyright/(:any)', 'User::authors_and_copyright/$1');
-    $routes->get('user/level_of_evidence/(:any)', 'User::level_of_evidence/$1');
+
     $routes->get('user/submission_menu/(:any)', 'User::submission_menu/$1');
     $routes->get('user', 'User::index/$1');
     $routes->get('user/finalize_paper/(:any)', 'User::finalize_paper/$1');
@@ -322,7 +288,6 @@ $routes->group('', function ($routes)
 
     $routes->post('user/search_author_ajax', 'User::search_author_ajax');
     $routes->post('user/get_paper_authors', 'User::get_paper_authors');
-    $routes->post('user/get_designations', 'User::get_designations');
     $routes->post('user/submit_paper_ajax', 'User::submit_paper_ajax/$1');
     $routes->post('user/update_paper_ajax', 'User::update_paper_ajax');
     $routes->post('user/assign_abstract_author', 'User::assign_abstract_author');
@@ -330,6 +295,7 @@ $routes->group('', function ($routes)
     $routes->get('user/update_author_details', 'User::update_author_details');
     $routes->post('user/update_paper_authors', 'User::update_paper_authors/$1');
     $routes->post('user/get_institution', 'User::get_institution');
+    $routes->post('user/add_new_institution', 'User::add_new_institution/$1');
     $routes->post('user/resend_disclosure_email', 'User::resend_disclosure_email/$1');
     $routes->post('user/get_author_info', 'User::get_author_info/$1');
 
@@ -340,7 +306,7 @@ $routes->group('', function ($routes)
     $routes->post('user/quick_add_author', 'User::quick_add_author');
     $routes->post('user/uploadHeadShot', 'User::uploadHeadShot/$1');
     $routes->post('user/update_abstract_permission', 'User::update_abstract_permission/$1');
-    $routes->get('user/get_study_groups', 'User::get_study_groups');
+
 
 
     $routes->get('user/presentation_upload/(:num)', 'User::presentation_upload/$1');
@@ -374,6 +340,14 @@ $routes->group('', function ($routes)
 
     $routes->get('permissions/(:any)', 'User::view_permissions/$1');
 
+    $routes->get('author/login', 'Author::validateLogin');
+    $routes->get('author/view_copyright', 'Author::view_copyright/$1');
+    $routes->get('author/profile', 'Author::profile/$1');
+    $routes->get('author/copyright_of_publication_agreement/(:num)', 'Author::copyright_of_publication_agreement/$1');
+    $routes->get('author/review', 'Author::conflict_of_interest_disclosure_review/$1');
+    $routes->get('author/finalize', 'Author::finalize_disclosure/$1');
+    $routes->get('author/finalize_success', 'Author::finalize_success/$1');
+    $routes->post('author/confirm_copyright_ajax', 'Author::confirm_copyright_ajax');
 
     //Event landing page
 
@@ -398,9 +372,6 @@ $routes->group('', function ($routes)
     $routes->post('user/save_finalize_panel', 'User::save_finalize_panel');
 });
 
-
-#########  ----------  Global Routes  ----------  ##########
-
 $routes->get('author', 'Author::index');
 $routes->get('phpInfo', 'PhpInfo::index');
 
@@ -419,7 +390,6 @@ $routes->get('afs', 'Event::index');
 $routes->get('/', 'Event::index');
 
 $routes->get('testMail', 'User::testMail');
-$routes->get('truncate/(:any)', 'DBController::truncate/$1');
 
 $routes->get('(.+)', 'BaseController::show404');
 /*

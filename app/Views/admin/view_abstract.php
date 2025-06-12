@@ -149,7 +149,7 @@
                                 ?>
                                 <tr>
                                     <td class="text-end">Division : </td>
-                                    <td></td>
+                                    <td><?=$papers->division_name?></td>
                                 </tr>
                                 <tr>
                                     <td class="text-end">Paper Type : </td>
@@ -158,6 +158,14 @@
                                 <tr>
                                     <td class="text-end">Paper Title : </td>
                                     <td><?=$papers->title?></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-end">Paper Summary : </td>
+                                    <td><?=$papers->summary?></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-end">Are you interested in submitting this paper to IJMC as well ? </td>
+                                    <td><?=$papers->is_ijmc_interested == '0' ? 'I am NOT interested in submitting this paper to IJMC' ? $papers->is_ijmc_interested == '1':'I am interested in submitting this paper to IJMC':'I have already submitted this paper to IJMC' ?></td>
                                 </tr>
                             <?php endif;?>
                             </tbody>
@@ -239,7 +247,7 @@
                                 </tr>
                                 <tr>
                                     <td>Suggested Revision Comments:</td>
-                                    <td colspan="12`"><textarea class="w-100 border-0" readonly id="suggestedRevisionComment_<?=$review['id']?>"><?=$review['suggested_revision_comment']?></textarea></td>
+                                    <td colspan="12"><textarea class="w-100 border-0" readonly id="suggestedRevisionComment_<?=$review['id']?>"><?=$review['suggested_revision_comment']?></textarea></td>
 
 
 <!--                                    <td colspan="2"><input type="checkbox" --><?php //=(isset($review['display_suggestion']) && $review['display_suggestion'] == 1)?'checked':''?><!-- class="displayCheckbox displaySuggested" name="displayToSubmitter" review_id = "--><?php //=$review['id']?><!--" id="displaySuggested_--><?php //=$review['id']?><!--"> <label for="displaySuggested_--><?php //=$review['id']?><!--"> Display to Submitter</label></td>-->
@@ -299,26 +307,47 @@
             <div class="card-header" id="program-chair-info-header"  data-bs-toggle="collapse" data-bs-target="#program-chair-info-body" aria-expanded="true" aria-controls="program-chair-info-body">
                 <div class="card-title fw-bolder">
                     Program Chair Information
+<!--                    --><?php //= print_R($deputy_acceptance);exit;?>
                 </div>
             </div>
             <div class="card-body" style="overflow-x:auto">
                 <div id="program-chair-info-body" class="collapse show" aria-labelledby="program-chair-info-header" data-bs-parent=".card">
-                    <table id="abstractTable" class="table table-bordered" style="border:2px solid black;">
+                    <table id="deputyAbstractTable" class="table table-bordered" style="border:2px solid black;">
                         <thead>
                         <!-- Table headings -->
                         </thead>
                         <tbody>
                         <tr>
-                            <td>Cooper Programm Chair Comments: </td>
-                            <td></td>
+                            <td style="width: 220px">Cooper Programm Chair Comments: </td>
+                            <td ><?=$deputy_acceptance['comments'] ?? ''?></td>
                         </tr>
                         <tr>
                             <td>Acceptance Status: </td>
-                            <td></td>
+                            <td>
+                                <?php
+                                $statusMap = [
+                                    '1' => 'Approved for Proceedings',
+                                    '2' => 'Approved for Transactions',
+                                    '3' => 'Approved for inclusion in the Division\'s Program',
+                                    '4' => 'Rejected'
+                                ];
+
+                                $statusText = [];
+                                if (isset($deputy_acceptance['acceptance_status'])) {
+                                    $statuses = json_decode($deputy_acceptance['acceptance_status']) ?? [];
+                                    foreach ($statusMap as $code => $label) {
+                                        if (in_array($code, $statuses)) {
+                                            $statusText[] = $label;
+                                        }
+                                    }
+                                }
+                                echo implode('<br> ', $statusText);
+                                ?>
+                            </td>
                         </tr>
                         <tr>
                             <td>Recommended for Publications: </td>
-                            <td></td>
+                            <td><?= ($deputy_acceptance['is_suitable']== '1' ? 'Not Suitable' : '')  ?></td>
                         </tr>
                         </tbody>
                     </table>
@@ -374,11 +403,9 @@
                                         <label class="required"> <span class="text-danger">*</span>Accepted Presentation Preference:</label>
                                         <select class="form-select" name="presType" id="presType">
                                             <option value=""> -- Select -- </option>
-                                            <?php if(!empty($paper_types)): ?>
-                                            <?php foreach ($paper_types as $paper_type) : ?>
-                                                <option value="<?=$paper_type['type']?>" <?= (!empty($admin_acceptance) && $admin_acceptance['presentation_preference'] == $paper_type['type'] ? 'selected':'')?>><?=$paper_type['name']?></option>
-                                            <?php endforeach; ?>
-                                            <?php endif ?>
+                                            <option value="1" <?=!empty($admin_acceptance) && $admin_acceptance['presentation_preference'] == 1 ? 'selected':''?>>Presentation Only</option>
+                                            <option value="2" <?=!empty($admin_acceptance) && $admin_acceptance['presentation_preference'] == 2 ? 'selected':''?>>Publication Only</option>
+                                            <option value="3" <?=!empty($admin_acceptance) && $admin_acceptance['presentation_preference'] == 3 ? 'selected':''?>>Presentation and Publication</option>
                                         </select>
 <!--                                        <div id="panel_no" style="display:none; padding-top: 3px;"><br> Poster No.: <input type="text" name="PosterNo" id="PosterNo" class="form-control" size="20" value=""></div>-->
                                     </div>
@@ -453,37 +480,37 @@
             </div>
         </div>
 
-        <div class="card">
-            <div class="card-header" id="deputy-acceptance-header" data-bs-toggle="collapse" data-bs-target="#deputy-acceptance-body" aria-expanded="true" aria-controls="deputy-acceptance-body">
-                <div class="card-title fw-bold">
-                    Deputy Acceptance Information
-                    <span class="more-less fas fa-minus float-end"></span> <!-- Icon placeholder -->
-                </div>
-            </div>
-            <div class="card-body">
-                <div id="deputy-acceptance-body" class="collapse show" aria-labelledby="deputy-acceptance-header" data-bs-parent=".card">
-                    <table id="acceptanceTable" class="table table-bordered" style="border:2px solid black;">
-                        <thead>
-                        <!-- Table header content -->
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td>Cooper Programm Chair Comments:</td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>Acceptance Status:</td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>Recommended for Publications:</td>
-                            <td></td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+<!--        <div class="card">-->
+<!--            <div class="card-header" id="deputy-acceptance-header" data-bs-toggle="collapse" data-bs-target="#deputy-acceptance-body" aria-expanded="true" aria-controls="deputy-acceptance-body">-->
+<!--                <div class="card-title fw-bold">-->
+<!--                    Deputy Acceptance Information-->
+<!--                    <span class="more-less fas fa-minus float-end"></span> -->
+<!--                </div>-->
+<!--            </div>-->
+<!--            <div class="card-body">-->
+<!--                <div id="deputy-acceptance-body" class="collapse show" aria-labelledby="deputy-acceptance-header" data-bs-parent=".card">-->
+<!--                    <table id="acceptanceTable" class="table table-bordered" style="border:2px solid black;">-->
+<!--                        <thead>-->
+<!--                       -->
+<!--                        </thead>-->
+<!--                        <tbody>-->
+<!--                        <tr>-->
+<!--                            <td>Cooper Programm Chair Comments:</td>-->
+<!--                            <td></td>-->
+<!--                        </tr>-->
+<!--                        <tr>-->
+<!--                            <td>Acceptance Status:</td>-->
+<!--                            <td></td>-->
+<!--                        </tr>-->
+<!--                        <tr>-->
+<!--                            <td>Recommended for Publications:</td>-->
+<!--                            <td></td>-->
+<!--                        </tr>-->
+<!--                        </tbody>-->
+<!--                    </table>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
 
         <div class="card">
             <div class="card-header" id="author-acceptance-header" data-bs-toggle="collapse" data-bs-target="#author-acceptance-body" aria-expanded="true" aria-controls="author-acceptance-body">

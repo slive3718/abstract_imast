@@ -25,8 +25,9 @@
                                 <div class="col-3"><?=$talkStart.' - '.$talkEnd?></div>
                                 <div class="col-9">
                                     <ul style="list-style:none">
-                                        <li><?=$talk['info']['name']. ' ' .$talk['info']['surname']?></li>
-                                        <li><?=strip_tags($talk['title'])?></li>
+                                        <li class="fw-bolder"><?=strip_tags($talk['title'])?></li>
+                                        <li>Summary: <?=$talk['info']['summary'] ?></li>
+                                        <li class="fw-bolder"><?=$talk['info']['name']. ' ' .$talk['info']['surname'] . (!empty($talk['info']['deg']) ? ', '.$talk['info']['deg']:'')  . (!empty($talk['info']['institution']) ? ', '.$talk['info']['institution']:'')?></li>
                                         <li><a href="<?=$talk['info']['presentation_file_path'].'/'.$talk['info']['presentation_saved_name']?>"><?=$talk['info']['presentation_saved_name']?></a></li>
                                     </ul>
                                 </div>
@@ -40,7 +41,7 @@
                                 <div class="col-3"><?=$talkStart.' - '.$talkEnd?></div>
                                 <div class="col-9">
                                     <ul style="list-style:none">
-                                        <li><?=$talk['custom_abstract_desc']?></li>
+                                        <li class="fw-bolder"><?=$talk['custom_abstract_desc']?></li>
                                     </ul>
                                 </div>
                             </div>

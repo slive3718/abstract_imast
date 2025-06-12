@@ -106,7 +106,7 @@
 
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
-    let baseUrlAdmin = "<?=base_url().'admin/'?>";
+    let baseUrlAdmin = "<?=base_url().'/'.$event->uri.'/admin/'?>";
 
     $(function(){
         $("#submitAcceptanceForm").on('click', function(e){ 

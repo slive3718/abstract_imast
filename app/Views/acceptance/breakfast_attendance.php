@@ -15,13 +15,13 @@
             <p><span class="text-danger">*</span> Will you be attending the author/chair breakfast on the morning of your presentation? </p>
             <form id="presentation_agreement_form">
                 <div class="form-check">
-                    <input class="form-check-input" type="radio" name="breakfast_attendance" id="accept" value="Yes" <?= !empty($acceptanceDetails) && $acceptanceDetails['breakfast_attendance'] == "yes" ? 'checked' : ''?>
+                    <input class="form-check-input" type="radio" name="breakfast_attendance" id="accept" value="Yes" <?= !empty($acceptanceDetails) && $acceptanceDetails['breakfast_attendance'] == "Yes" ? 'checked' : ''?>
                     <label class="form-check-label" for="accept">
                         Yes
                     </label>
                 </div>
                 <div class="form-check mt-2">
-                    <input class="form-check-input" type="radio" name="breakfast_attendance" id="decline" value="No" <?= !empty($acceptanceDetails) && $acceptanceDetails['breakfast_attendance'] == 'no' ? 'checked' : ''?>
+                    <input class="form-check-input" type="radio" name="breakfast_attendance" id="decline" value="No" <?= !empty($acceptanceDetails) && $acceptanceDetails['breakfast_attendance'] == 'No' ? 'checked' : ''?>
                     <label class="form-check-label" for="decline">
                         No
                     </label>

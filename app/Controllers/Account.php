@@ -7,7 +7,6 @@ use App\Libraries\PhpMail;
 use App\Models\Core\Api;
 use App\Models\AbstractEventsModel;
 use App\Models\UserModel;
-use App\Models\UsersProfileModel;
 use DateTimeImmutable;
 use Firebase\JWT\JWT;
 
@@ -21,10 +20,18 @@ class Account extends BaseController
 
     public function index($event_uri): string
     {
+        $event = (new AbstractEventsModel())->first();
+
+        if(!$event){
+            return (new ErrorHandler($event))->errorPage();
+        }
+
         $header_data = [
-            'title' => "Asia Pacific Registration"
+            'title' => "{$event->short_name} Login"
         ];
-        $data = [];
+        $data = [
+            'event'=> $event
+        ];
         return
             view('event/common/header', $header_data).
             view('event/register', $data).
@@ -79,16 +86,11 @@ class Account extends BaseController
                 'password'=>password_hash($post['password'], PASSWORD_DEFAULT)
             ])->insert();
 
-        $insertID = $usersModel->insertID();
-        if($insertID){
-            (new UsersProfileModel())->set(['author_id' => $insertID])->insert();
-        }
-
         $expiry = (isset($post['expiry']))?$post['expiry']:24; // hours
 
         $cred_check = $usersModel
             ->select('id, prefix, name, surname, suffix, email, is_super_admin')
-            ->where(['id'=>$insertID])
+            ->where(['id'=>$usersModel->insertID()])
             ->first()??false;
 
 
@@ -111,6 +113,7 @@ class Account extends BaseController
                 'email'=>$cred_check['email'],
                 'token'=>$token,
                 'user_id'=>$cred_check['id'],
+                'event_uri'=>'afs',
                 'user_type'=>"user",
                 'name'=>$cred_check['name'],
                 'surname'=>$cred_check['surname'],
@@ -184,12 +187,12 @@ class Account extends BaseController
 
             $message = 'Hi '.ucfirst($user['name']) .' '.ucfirst($user['surname']).', <br> We received a request to reset the password of your account. <br><br>
                     Your new password is: '.$random_password.'<br> <br> 
-                    You can update your password by logging into submission <a href="https://ap.owpm2.com"></a>https://ap.owpm2.com, and on the top corner menu, click on settings, then password settings. <br>
+                    You can update your password by logging in to your, top corner menu, settings -> password settings. <br><br>
                     <p> If you  need further assistance, please contact <a href="support@owpm2.com">support@owpm2.com</a></p>';
 
-            $from['name']="Asia Pacific 2026";
-            $from['email'] = "AP@owpm2.com";
-            if($mail->send($from, [$user['email']],  'AP26 Password Reset', $message)){
+            $from['name']="AFS";
+            $from['email'] = "afs@owpm2.com";
+            if($mail->send($from, [$user['email']],  'PASSWORD RESET', $message, 'Password', 'Support')){
                 $this->response->setStatusCode(200, 'success');
                 return (json_encode(['status'=> 200, 'message'=>"Password sent to email", 'data'=>'']));
             }

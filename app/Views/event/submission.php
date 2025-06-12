@@ -10,15 +10,16 @@
             <div class="card-body">
                 <div class="px-2 mt-3">
                     <strong>Welcome <?= ucFirst(session('name')).' '.ucFirst(session('surname'))?></strong>
-                    <p>Please choose to add a new submission or click on View/Edit to access a previous submission.</p>
+                    <p>Please choose to add a new submission or click on a previous submission below.</p>
                 </div>
                 <div id="" class="my-3">
                     <div class="submission-page">
-                        <a href="<?=base_url().'user/papers_submission/'?>" class="btn btn-success">Add a new submission</a>
+                        <a href="<?=base_url().'user/papers_submission/'?>" class="btn btn-success addNewSubmissionBtn">Add a new submission</a>
                     </div>
+
                 </div>
-<!--                <p>or</p>-->
-<!--                <p>To edit an existing abstract, click on the submission number below:</p>-->
+                <p>or</p>
+                <p>To edit an existing abstract, click on the submission number below:</p>
             </div>
         <div class="paper-content">
             <?php if(isset($papers) && !empty($papers)):
@@ -26,25 +27,17 @@
                     $count = 0;
                     if($paper->submission_type == 'paper'): ?>
                         <div class="card bg-white">
-                            <div class="card-header"> <strong>Submission # <?=$paper->custom_id?></strong> - <?= strip_tags($paper->title)?>
+                            <div class="card-header"> <strong>Submission #</strong><?=$paper->custom_id?> - <?= strip_tags($paper->title)?>
                                 <span class="float-end"><a href="<?=base_url().'user/submission_menu/'.$paper->id?>" class="btn btn-success btn-sm" paper_id="<?=$paper->id?>">View/Edit</a></span>
                             </div>
                             <div class="card-body" >
-                                <?php
-                                $presenters = '';
-                                if(!empty($paper->authors)) {
-                                    foreach ($paper->authors as $authIndex => $author){
-                                        $presenters .= $author['name'] . ' ' . $author['surname'].(($authIndex + 1 ) < count($paper->authors) ? ', ':'');
-                                    }
-                                }
-                                ?>
-                                <?=$paper->acronym ?? ''?> Presenter(s) : <?= $presenters ?>
+                                Submitted for <?=$paper->acronym?> - Presenter : <?=Ucfirst($paper->name). ' '. Ucfirst($paper->surname)?>
                                 <span class="float-end">Submission Status: <?=isset($paper)?($paper->is_finalized == "1")? '<span class="text-success">Finalized</span>':'<span class="text-danger">Incomplete</span>':''?></span>
 
                                 <div class="mt-2">
-<!--                                    <a class="btn btn-primary btn-sm" data-bs-toggle="collapse" href="#collapse_comments_--><?php //=$paper->id?><!--" role="button" aria-expanded="false" aria-controls="collapse_comments_--><?php //=$paper->id?><!--">-->
-<!--                                        + Reviewer Comments-->
-<!--                                    </a>-->
+                                    <a class="btn btn-primary btn-sm" data-bs-toggle="collapse" href="#collapse_comments_<?=$paper->id?>" role="button" aria-expanded="false" aria-controls="collapse_comments_<?=$paper->id?>">
+                                        + Reviewer Comments
+                                    </a>
                                     <div class="collapse mt-2" id="collapse_comments_<?=$paper->id?>">
                                         <?php if($paper->reviewers):
                                             foreach($paper->reviewers as $reviewer):
@@ -86,21 +79,21 @@
 
                                 <div class="mt-2">
                                     <a class="btn btn-primary btn-sm" data-bs-toggle="collapse" href="#collapse_copyright_<?=$paper->id?>" role="button" aria-expanded="false" aria-controls="collapse_copyright_<?=$paper->id?>">
-                                        + View Disclosures
+                                        + Copyright
                                     </a>
                                     <?php foreach ($paper->authors as $author) {
                                         // Check if the value of 'is_copyright_agreement_accepted' is 1
-                                        if (!empty($author['signature_signed_date'])) {
+                                        if ($author['is_copyright_agreement_accepted'] == "1") {
                                             // Increment counter
                                             $count++;
                                         }
                                     } ?>
-                                    <span class="float-end">Disclosure Status:  <?=($count == count($paper->authors))?'<span class="text-success">Complete</span>':'<span class="text-danger">Incomplete</span>'?>  <?=$count?>/ <?=count($paper->authors)?></span>
+                                    <span class="float-end">Copyright Status:  <?=($count == count($paper->authors))?'<span class="text-success">Complete</span>':'<span class="text-danger">Incomplete</span>'?>  <?=$count?>/ <?=count($paper->authors)?></span>
 
                                     <div class="collapse mt-2" id="collapse_copyright_<?=$paper->id?>">
                                         <?php if($paper->authors):
                                             foreach($paper->authors as $author):?>
-                                                <?=Ucfirst($author['name']).' '.Ucfirst($author['surname'])?> : <?= (!empty($author['signature_signed_date']))?'<span class="text-success">Completed</span>':'<span class="text-danger">Incomplete</span>'?> <br>
+                                                <?=Ucfirst($author['name']).' '.Ucfirst($author['surname'])?> : <?= ($author['is_copyright_agreement_accepted'] == 1)?'<span class="text-success">Completed</span>':'<span class="text-danger">Incomplete</span>'?> <br>
                                             <?php endforeach; ?>
                                         <?php else: ?>
                                             <span> No Data.</span>

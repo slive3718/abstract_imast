@@ -10,6 +10,7 @@ use App\Libraries\Upload;
 use App\Models\DivisionsModel;
 use App\Models\EmailTemplatesModel;
 use App\Models\EventsModel;
+use App\Models\LogsModel;
 use App\Models\PaperAssignedReviewerModel;
 use App\Models\PaperTypeModel;
 use App\Models\PaperUploadsModel;
@@ -84,22 +85,46 @@ class ReviewerController extends Controller
             ;
     }
 
-    public function getAllReviewerAbstracts(){
-        $reviewerModel = (new ReviewerModel())->getReviewerAbstracts(session('user_id'), 'regular', 0);
-
+    public function getAllReviewerAbstracts() {
+        $reviewerAbstracts = (new ReviewerModel())->getReviewerAbstracts(session('user_id'), 'regular', 0);
         $reviewer_abstracts = array();
-        foreach($reviewerModel as $reviewer){
-            $reviewer['abstracts'] = (new PapersModel())->where('active_status', 1)->find($reviewer['paper_id']);
-//
-            if(isset($reviewer['abstracts'])){
-                $reviewer['abstracts_submitter']= (new UserModel())->find($reviewer['abstracts']->id);
-                $reviewer['division'] = (new DivisionsModel())->where('division_id', $reviewer['abstracts']->division_id)->first();
+
+        foreach ($reviewerAbstracts as $reviewer) {
+            $paper = (new PapersModel())
+                ->where(['active_status' => 1, 'id' => $reviewer['paper_id']])
+                ->asArray()->first();
+
+            if (!empty($paper)) {
+                $reviewer['abstracts'] = $paper;
+
+                // Fixed: Accessing paper properties correctly
+                $reviewer['abstracts_submitter'] = (new UserModel())->find($paper['user_id']) ?? [];
+
+                // Fixed: Proper division_id access
+                $reviewer['division'] = (new DivisionsModel())
+                    ->where('division_id', $paper['division_id'] ?? null)
+                    ->first();
             }
-            $reviewer['reviews'] = (new AbstractReviewModel())->where(array('abstract_id'=> $reviewer['paper_id'], 'reviewer_id'=>session('user_id')))->first();
+
+            $reviewer['reviews'] = (new AbstractReviewModel())
+                ->where([
+                    'abstract_id' => $reviewer['paper_id'],
+                    'reviewer_id' => session('user_id')
+                ])
+                ->first();
+
+            $reviewer['abstracts'] = $paper ?? null;
             $reviewer_abstracts[] = $reviewer;
+
         }
 
-        return json_encode(['status'=>200, 'message'=>'', 'data'=>$reviewer_abstracts]);
+//        print_r($reviewer_abstracts);exit;
+//        exit;
+        return json_encode([
+            'status' => 200,
+            'message' => '',
+            'data' => $reviewer_abstracts
+        ]);
     }
 
 
@@ -216,36 +241,66 @@ class ReviewerController extends Controller
                 'is_deleted' => '0'
             ])->findAll();
 
-        if (!empty($field_array)) {
-                if(!empty($abstractReviewModel->where(array('abstract_id'=>$_POST['abstract_id'], 'reviewer_id'=>$_POST['reviewer_id']))->get())){
-                    $where = ['abstract_id'=>$_POST['abstract_id'], 'reviewer_id'=>$_POST['reviewer_id']];
+        try {
+            if (!empty($field_array)) {
+                if (!empty($abstractReviewModel->where(array('abstract_id' => $_POST['abstract_id'], 'reviewer_id' => $_POST['reviewer_id']))->get())) {
+                    $where = ['abstract_id' => $_POST['abstract_id'], 'reviewer_id' => $_POST['reviewer_id']];
+                    $originalData  = $abstractReviewModel->where($where)->first();
                     $abstractReviewModel->where($where)->set($field_array)->update();
-                    return json_encode(array('status'=>200, 'message'=>'Review successfully updated.'));
-                }else{
+
+                    if($abstractReviewModel && (count(array_diff_assoc($field_array, $originalData)))){
+                        if(!empty($_POST['suggested_revision_comment']) && (strcmp($_POST['suggested_revision_comment'],$originalData['suggested_revision_comment']) !== 0))
+                            $this->saveRegularReviewerLogs($_POST['abstract_id'], 'INFO', 'Update Success', 'Update', 'suggested_revision_comment_added');
+                        if(!empty($_POST['required_revision_comment']) && (strcmp($_POST['required_revision_comment'],$originalData['required_revision_comment']) !== 0))
+                            $this->saveRegularReviewerLogs($_POST['abstract_id'], 'INFO', 'Update Success', 'Update', 'required_revision_comment_added');
+                        if(!empty($_POST['re_review_comment']) && (strcmp($_POST['re_review_comment'],$originalData['re_review_comment']) !== 0))
+                            $this->saveRegularReviewerLogs($_POST['abstract_id'], 'INFO', 'Update Success', 'Update', 're_review_comment_added');
+                        if(!empty($_POST['final_approval']) && (strcmp($isApproved,$originalData['is_approved']) !== 0))
+                            $this->saveRegularReviewerLogs($_POST['abstract_id'], 'INFO', 'Update Success', 'Update', 'approval');
+
+                        $this->saveRegularReviewerLogs($_POST['abstract_id'], 'INFO', 'Update Success', 'Update', 'review');
+                    }
+
+                    return json_encode(array('status' => 200, 'message' => 'Review successfully updated.'));
+                } else {
                     $siteSettings = $SiteSettingsModel->where('name', 'reviewers_reviews_to_close')->first();
-                    $abstractReviews = ($abstractReviewModel->where('abstract_id',$_POST['abstract_id']))->findAll();
-                    if(count($abstractReviews) >= $siteSettings['value']){
+                    $abstractReviews = ($abstractReviewModel->where('abstract_id', $_POST['abstract_id']))->findAll();
+                    if (count($abstractReviews) >= $siteSettings['value']) {
                         return json_encode(array('status' => 201, 'message' => "Regular Review Task Closed – Paper has been reviewed three times."));
-                    }else {
+                    } else {
                         $abstractReviewModel->insert($field_array);
                         $siteSettings = $SiteSettingsModel->where('name', 'reviewers_reviews_to_close')->first();
-                        $abstractReviews = ($abstractReviewModel->where('abstract_id',$_POST['abstract_id']))->findAll();
-                        if(count($abstractReviews) >= $siteSettings['value']){
+                        $abstractReviews = ($abstractReviewModel->where('abstract_id', $_POST['abstract_id']))->findAll();
+                        if (count($abstractReviews) >= $siteSettings['value']) {
 
-                            $emailController = New EmailController();
-                            foreach ($paperReviewers as $reviewers){
-                                $reviewed = $ReviewModel->where(['reviewer_id'=> $reviewers['reviewer_id'], 'abstract_id'=>$_POST['abstract_id']])->findAll();
-                                if(!$reviewed){
+                            $emailController = new EmailController();
+                            foreach ($paperReviewers as $reviewers) {
+                                $reviewed = $ReviewModel->where(['reviewer_id' => $reviewers['reviewer_id'], 'abstract_id' => $_POST['abstract_id']])->findAll();
+                                if (!$reviewed) {
                                     $emailController->sendCustomEmailReviewer(8, $reviewers['reviewer_id'], $_POST['abstract_id'], strip_tags($paper->title));
                                 }
                             }
                         }
+
+                        if(!empty($_POST['suggested_revision_comment']))
+                            $this->saveRegularReviewerLogs($_POST['abstract_id'], 'INFO', 'Save Success', 'Save', 'suggested_revision_comment_added');
+                        if(!empty($_POST['required_revision_comment']))
+                            $this->saveRegularReviewerLogs($_POST['abstract_id'], 'INFO', 'Save Success', 'Save', 'required_revision_comment_added');
+                        if(!empty($_POST['re_review_comment']))
+                            $this->saveRegularReviewerLogs($_POST['abstract_id'], 'INFO', 'Save Success', 'Save', 're_review_comment_added');
+                        if(!empty($_POST['is_approved']))
+                            $this->saveRegularReviewerLogs($_POST['abstract_id'], 'INFO', 'Save Success', 'Save', 'approval');
+
+                        $this->saveRegularReviewerLogs($_POST['abstract_id'], 'INFO', 'Save Success', 'Save', 'review');
                         return json_encode(array('status' => 200, 'message' => 'Review successfully added.'));
                     }
                 }
             } else {
-                return json_encode(array('status'=>500, 'message'=>'Error!'));
+                return json_encode(array('status' => 500, 'message' => 'Error!'));
             }
+        }catch (\Exception $e){
+            return json_encode(array('status' => 500, 'message' => $e->getMessage()));
+        }
     }
 
 
@@ -303,7 +358,8 @@ class ReviewerController extends Controller
                     ->insert($insertArray);
 
                 if(is_int($result)){
-                return json_encode(['status' => 200, 'message' => 'Success', 'data' => $insertArray]);
+                    $this->saveRegularReviewerLogs($post['paper_id'], 'INFO', 'Save Success', 'Save', 'upload');
+                    return json_encode(['status' => 200, 'message' => 'Success', 'data' => $insertArray]);
                 }
             } catch (\Exception $e) {
                 $this->response->setStatusCode(500); // Internal Server Error
@@ -339,6 +395,7 @@ class ReviewerController extends Controller
             ->update();
 
         if ($result !== false) {
+            $this->saveRegularReviewerLogs($post['abstract_id'], 'INFO', 'Update Success', 'Update', 'decline_assigned_abstract');
             return json_encode(['status' => 200, 'message' => 'Update success!', 'data' => '']);
         } else {
             return json_encode(['status' => 500, 'message' => 'Update failed!', 'data' => '']);
@@ -365,4 +422,23 @@ class ReviewerController extends Controller
     }
 
 
+    function saveRegularReviewerLogs($ref2, $level, $message, $action, $context){
+        try {
+            $logs = (new LogsModel());
+            $logArray = [
+                'user_id' => session('user_id'),
+                'ref_1' => 'regular',
+                'ref_2' => $ref2 ?? '',
+                'action' => $action,
+                'level' => $level ?? '',
+                'message' => $message ?? '',
+                'ip_address' => $this->request->getIPAddress(),
+                'user_agent' => $this->request->getUserAgent()->getBrowser(),
+                'context' => $context,
+            ];
+            return $logs->save($logArray);
+        }catch (\Exception $e) {
+            return $e->getMessage();
+        }
+    }
 }

@@ -3,20 +3,44 @@
 namespace App\Controllers\admin;
 
 use App\Controllers\admin\Abstracts\AbstractController;
+use App\Controllers\User;
 use App\Libraries\PhpMail;
+use App\Models\AbstractEventsModel;
+use App\Models\AdminIndividualPanelAcceptanceModel;
 use App\Models\DivisionsModel;
 use App\Models\EmailLogsModel;
 use App\Models\EmailRecipientsModel;
 use App\Models\EmailTemplatesModel;
+use App\Models\EventsModel;
+use App\Models\PanelistPaperSubModel;
 use App\Models\PaperAssignedReviewerModel;
 use App\Models\PaperAuthorsModel;
+use App\Models\PapersDeputyAcceptanceModel;
 use App\Models\PaperTypeModel;
+use App\Models\PaperUploadsModel;
+use App\Models\PaperUploadsViewsModel;
+use App\Models\ReviewerPaperUploadsModel;
 use App\Models\SchedulerModel;
+use App\Models\SchedulerSessionTalksModel;
+use App\Models\SiteSettingModel;
 use App\Models\UsersProfileModel;
 use CodeIgniter\Controller;
+use App\Models\Core\Api;
+use CodeIgniter\HTTP\ResponseInterface;
+use CodeIgniter\Database\BaseConnection;
+use CodeIgniter\Exceptions\PageNotFoundException;
+
 use App\Models\UserModel;
 use App\Models\PapersModel;
+use App\Models\ReviewerModel;
+// use App\Models\PopulationModel;
 use App\Models\AbstractReviewModel;
+use App\Models\AbstractFileUploadsModel;
+use App\Models\AbstractCategoriesModel;
+
+use App\Controllers\ExcelController;
+use PhpParser\Node\Stmt\Case_;
+use PHPUnit\TextUI\XmlConfiguration\Php;
 
 class EmailController extends Controller
 {
@@ -31,6 +55,8 @@ class EmailController extends Controller
     }
 
     public function email_templates(){
+        $event = (new EventsModel())->first();
+
         $header_data = [
             'title' => 'Email Templates'
         ];
@@ -38,6 +64,7 @@ class EmailController extends Controller
         $email_templates = (new EmailTemplatesModel())->findAll();
 
         $data = [
+            'event'=> $event,
             'email_templates'=>$email_templates
         ];
         return
@@ -82,6 +109,8 @@ class EmailController extends Controller
     }
 
     public function mass_mailer(){
+        $event = (new EventsModel())->first();
+
         $header_data = [
             'title' => 'Email Templates'
         ];
@@ -90,6 +119,7 @@ class EmailController extends Controller
         $email_recipients = (new EmailRecipientsModel())->findAll();
 
         $data = [
+            'event'=> $event,
             'email_templates'=>$email_templates,
             'email_recipients'=>$email_recipients
         ];
@@ -267,29 +297,29 @@ class EmailController extends Controller
 
 
 
-    public function recipientModerators() { // Fetch all moderators
+    public function recipientModerators() { // get all moderators assigned once.
         $post = $this->request->getPost();
 
         $UsersModel = new UserModel();
-        $events_result = (new SchedulerModel())->findAll();
+        $events_result = (new SchedulerModel())->where('is_deleted', 0)->findAll();
 
         $filtered_result = [];
+        $session_chairs = [];
 
         foreach ($events_result as &$event) {
-            $session_chair_ids = json_decode($event['session_chair_ids']);
+            $session_chair_ids = json_decode($event['session_chair_ids'], true);
 
             if (is_array($session_chair_ids) && !empty($session_chair_ids)) {
                 foreach ($session_chair_ids as $id) {
-                    // Fetch event details from PapersModel
-                    $result = (new PapersModel())->select('*, id as paper_id')->asArray()->find($event['id']);
-                    if ($result) {
-                        $paper_array = $result; // Start with event data
-                        $paper_array['details'] = $UsersModel->find($id); // Add moderator details
-                        $filtered_result[] = $paper_array; // Append to filtered results
-                    }
+                    $session_chairs[] = [
+                        'id' => $id,
+                        'details' => $UsersModel->find($id) ,// Store moderator details
+                        'paper_id' => $event['id']
+                    ];
                 }
             }
         }
+        $filtered_result = array_values($session_chairs);
 
         // Return the filtered results as JSON
         return json_encode(['status' => '200', 'message' => 'success', 'data' => $filtered_result]);
@@ -520,7 +550,9 @@ class EmailController extends Controller
                         $recipient = json_decode($recipient, true);
                         $res = $UsersModel->where('id', $recipient['author_id'])->first();
                         if (!empty($res)) {
-                            $arr[] = $res;
+                            $item = $res;
+                            $item['details'] = $recipient;
+                            $arr[] = $item;
                         }
                     }
                 }
@@ -641,51 +673,49 @@ class EmailController extends Controller
                 $email_array[] = $email_entry;
             }
 
-        }else if( $post['recipientType'] == 'moderator'){
-            foreach ($arr as $val) {
-                $PaperTemplates = $originalTemplate;  // Assuming $originalTemplate holds the original template content/**/
+        }else if ($post['recipientType'] == 'moderator') {
+            $moderators = (new UserModel())->get_moderator_ids();
+            $secondArray = $moderators;
+            $firstArray = $arr;
 
-                // Get reviewers username and password of this paper
-                $users = $UsersModel->where('id', $val['id'])->findAll();
+            $validAuthorIds = array_column(array_column($firstArray, 'details'), 'author_id');
+            $validAbstractIds = array_column(array_column($firstArray, 'details'), 'abstract_id');
 
-                $scheduleEvents = (new SchedulerModel())
-                    ->select('scheduler_events.*, r.name as room_name')
-                    ->join('scheduler_session_talks', 'scheduler_events.id = scheduler_session_talks.scheduler_event_id', 'left')
-                    ->join('scheduler_rooms r', 'scheduler_events.room_id = r.id', 'left')
-                    ->where("JSON_CONTAINS(scheduler_events.session_chair_ids, JSON_QUOTE('{$val['id']}'))")
-                    ->first();
+            $filteredModerators = array_filter($secondArray, function ($moderator) use ($validAuthorIds, $validAbstractIds) {
+                return in_array($moderator['user']['id'], $validAuthorIds) &&
+                    in_array($moderator['event']['id'], $validAbstractIds);
+            });
 
-                $PaperTemplates = str_replace('##RECIPIENTS_FULL_NAME##', $val['name'] . ' ' . $val['surname'], $PaperTemplates);
+            // Process each moderator
+            foreach ($filteredModerators as $moderator_event) {
+                $PaperTemplates = $originalTemplate; // Assuming $originalTemplate holds the original email template
+
+                $PaperTemplates = str_replace('##RECIPIENTS_FULL_NAME##', $moderator_event['user']['name'] . ' ' . $moderator_event['user']['surname'], $PaperTemplates);
                 $PaperTemplates = str_replace('##TODAY_DATE##', date('Y-m-d'), $PaperTemplates);
-                $PaperTemplates = str_replace('##RECIPIENT_FIRST_NAME##', $val['name'], $PaperTemplates);
-                $PaperTemplates = str_replace('##RECIPIENTS_LAST_NAME##', $val['surname'], $PaperTemplates);
-                $PaperTemplates = str_replace('##RECIPIENT_EMAIL_ADDRESS##', $val['email'], $PaperTemplates);
+                $PaperTemplates = str_replace('##RECIPIENT_FIRST_NAME##', $moderator_event['user']['name'], $PaperTemplates);
+                $PaperTemplates = str_replace('##RECIPIENTS_LAST_NAME##', $moderator_event['user']['surname'], $PaperTemplates);
+                $PaperTemplates = str_replace('##RECIPIENT_EMAIL_ADDRESS##', $moderator_event['user']['email'], $PaperTemplates);
 
-                $PaperTemplates = str_replace('##SCHEDULER_SESSION_TITLE##', $scheduleEvents ?strip_tags($scheduleEvents['session_title']) : '', $PaperTemplates);
-                $PaperTemplates = str_replace('##SCHEDULER_SESSION_DATE##', $scheduleEvents ? date('Y-m-d', strtotime($scheduleEvents['session_date'])) : '', $PaperTemplates);
-                $PaperTemplates = str_replace('##SCHEDULER_SESSION_START_TIME##', $scheduleEvents ? date('h:i a', strtotime($scheduleEvents['session_start_time'])) : '', $PaperTemplates);
-                $PaperTemplates = str_replace('##SCHEDULER_SESSION_END_TIME##', $scheduleEvents  ? date('h:i a', strtotime($scheduleEvents['session_end_time'])) : '', $PaperTemplates);
-                $PaperTemplates = str_replace('##SCHEDULER_SESSION_ROOM##', $scheduleEvents  ? $scheduleEvents['room_name'] : '', $PaperTemplates);
+                // Assuming the event contains session details for the moderator
+                $PaperTemplates = str_replace('##SCHEDULER_SESSION_TITLE##', isset($moderator_event['event']['session_title']) ? strip_tags($moderator_event['event']['session_title']) : '', $PaperTemplates);
+                $PaperTemplates = str_replace('##SCHEDULER_SESSION_DATE##', isset($moderator_event['event']['session_date']) ? date('Y-m-d', strtotime($moderator_event['event']['session_date'])) : '', $PaperTemplates);
+                $PaperTemplates = str_replace('##SCHEDULER_SESSION_START_TIME##', isset($moderator_event['event']['session_start_time']) ? date('h:i a', strtotime($moderator_event['event']['session_start_time'])) : '', $PaperTemplates);
+                $PaperTemplates = str_replace('##SCHEDULER_SESSION_END_TIME##', isset($moderator_event['event']['session_end_time']) ? date('h:i a', strtotime($moderator_event['event']['session_end_time'])) : '', $PaperTemplates);
+                $PaperTemplates = str_replace('##SCHEDULER_SESSION_ROOM##', isset($moderator_event['event']['room_name']) ? $moderator_event['room_name'] : '', $PaperTemplates);
 
-
-                // Add more replacements as necessary
-                $PaperTemplates = str_replace('##PRESENTATION_DATE##', '', $PaperTemplates);
-                $PaperTemplates = str_replace('##PRESENTATION_TIME##', '', $PaperTemplates);
-                $PaperTemplates = str_replace('##TODAY_DATE##', date('Y-m-d'), $PaperTemplates);
-                // Get presenting authors
-
+                // Prepare email entry
                 $email_entry = [
-                    'name' => stripslashes($val['name']),
-                    'surname' => stripslashes($val['surname']),
+                    'name' => stripslashes($moderator_event['user']['name']),
+                    'surname' => stripslashes($moderator_event['user']['surname']),
                     'email_template' => stripslashes($PaperTemplates),
-                    'email' => $val['email'],
+                    'email' => $moderator_event['user']['email'],
                     'subject' => $post['email_subject'],
                     'paper_id' => '',
-                    'author_id' => $val['id']
+                    'author_id' => $moderator_event['user']['id']
                 ];
 
                 $email_array[] = $email_entry;
-             }
+            }
         }
 
         if($post['action'] == 'preview') {
@@ -700,8 +730,8 @@ class EmailController extends Controller
     public function sendMassMail($email_array, $PaperTemplates, $post, $attachments = null){
         helper('text');
         $sendMail = new PhpMail();
-        $from['email'] = env('MAIL_FROM_ADDRESS');
-        $from['name'] = env('MAIL_FROM');
+        $from['email']= 'afs@owpm2.com';
+        $from['name']= 'AFS';
 
         $unique_code = random_string('alnum', 30);
 
@@ -831,7 +861,7 @@ class EmailController extends Controller
         $email_body = str_replace('##REVIEW_USERNAME##', ($user['email']), $email_body);
         $email_body = str_replace('##REVIEW_PASSWORD##', 'Please reset your password in case forgotten. Thank you!', $email_body);
 
-        $from = ['name'=>env('MAIL_FROM'), 'email'=>env('MAIL_FROM_ADDRESS')];
+        $from = ['name'=>'AFS', 'email'=>'afs@owpm2.com'];
         $addTo = $user['email'];
 //        $addTo = "rexterdayuta@gmail.com"; //todo: fetch all reviewers who dont have reviews yet
 
@@ -1036,13 +1066,20 @@ class EmailController extends Controller
     }
 
     public function group_email_logs(){
+
+        $event = (new EventsModel())->first();
+        if(!$event){
+            return 'error';
+        }
+
         $header_data = [
-            'title' => 'Admin'
+            'title' => $event->short_name
         ];
+
 
         $data = [
+            'event'=> $event
         ];
-
         return
             view('admin/common/header', $header_data).
             view('admin/group_mail_logs',$data).
@@ -1052,7 +1089,7 @@ class EmailController extends Controller
 
     public function email_logs($unique_code){
 
-        
+        $event = (new EventsModel())->first();
         if(!$event){
             return 'error';
         }

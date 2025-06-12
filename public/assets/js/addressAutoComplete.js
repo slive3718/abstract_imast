@@ -25,7 +25,7 @@ function autoCompleteAuthorCountries(element, url){
                     searchValue: request.term
                 },
                 success: function(data) {
-                    response($.map(data.data, function(item) {
+                    response($.map(data, function(item) {
                         return {
                             label: item.name,
                             value: item.name,
@@ -62,7 +62,7 @@ function autoCompleteAuthorState(countryId){
                     country_id: countryId
                 },
                 success: function(data) {
-                    response($.map(data.data, function(item) {
+                    response($.map(data, function(item) {
                         return {
                             label: item.name,
                             value: item.name,
@@ -109,7 +109,7 @@ function autoCompleteAuthorCity(countryId = null, stateId = null) {
                 type: "POST",
                 data: data,
                 success: function(data) {
-                    response($.map(data.data, function(item) {
+                    response($.map(data, function(item) {
                         return {
                             id: item.id,
                             label: item.completeAddress,

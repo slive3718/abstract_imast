@@ -5,7 +5,6 @@ use CodeIgniter\Model;
 
 class UserModel extends Model
 {
-    protected $DBGroup = 'shared';
     protected $table = 'users';
     protected $primaryKey = 'id';
     protected $allowedFields = [
@@ -19,24 +18,11 @@ class UserModel extends Model
         'username',
         'is_deputy_reviewer',
         'is_regular_reviewer',
-        'is_session_moderator',
-        'is_study_group'
+        'is_session_moderator'
     ];
     // protected $allowedFields = ['title', 'description'];
 
-
-    public function __construct()
-    {
-        parent::__construct();
-        $this->db = \Config\Database::connect('shared');
-    }
-
-    public function setDBConnection($connection)
-    {
-        $this->db = $connection;
-        return $this;
-    }
-
+    
     public function Get()
     {
     
@@ -86,7 +72,7 @@ class UserModel extends Model
             {
                 return $this->db
                     ->table('users')
-                    ->select('id, prefix, name, surname, suffix, email, is_super_admin, is_regular_reviewer, is_session_moderator, is_study_group')
+                    ->select('id, prefix, name, surname, suffix, email, is_super_admin')
                     ->where(['email'=>$email])
                     ->get()->getResultObject()[0]??false;
             }
@@ -106,11 +92,34 @@ class UserModel extends Model
         }else{
             return $this->db
                 ->table('users')
+                ->select('id, prefix, name, surname, suffix, email, is_super_admin')
                 ->where(['email'=>$email])
                 ->get()->getResultObject()[0]??false;
         }
     }
 
+    function get_moderator_ids(){
+        $result = $this->db->table('scheduler_events')->get()->getResultArray();
+        $moderator_ids = [];
+        if ($result) {
+            foreach ($result as $res) {
+                if (!empty($res['session_chair_ids']) && $res['session_chair_ids'] !== '0' && $res['session_chair_ids'] !== "[]") {
+                    $session_chair_ids = json_decode($res['session_chair_ids'], true);
+
+                    if (is_array($session_chair_ids)) {
+                        foreach ($session_chair_ids as $session_chair_id) {
+                            $moderator_ids[] = [
+                                'id' => $session_chair_id,
+                                'user' => (new UserModel())->find($session_chair_id),
+                                'event' => $res
+                            ];
+                        }
+                    }
+                }
+            }
+        }
+        return $moderator_ids;
+    }
 
 
 }

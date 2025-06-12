@@ -1,4 +1,3 @@
-
 <div class="card">
     <div class="card-header">
         <ol class="breadcrumb">
@@ -7,6 +6,6 @@
         </ol>
     </div>
     <div class="card-body">
-        <h5 class="fw-bold"> <?=$title?></h5>
+        <h5 class="fw-bold"> <?=$title?> #<?= $paper->id ?? '' ?>: <?= strip_tags($paper->title ?? '') ?></h5>
     </div>
 </div>

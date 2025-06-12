@@ -59,13 +59,17 @@ class SchedulerController extends Controller
     }
 
     function index($event_uri){
+        $event = (new EventsModel())->first();
+        if(!$event){
+            return (new ErrorHandler($event))->errorPage();
+        }
+
         $header_data = [
             'title' => 'AFS Scheduler'
         ];
-
         $data = [
+            'event'=> $event
         ];
-
         return
             view('admin/common/header', $header_data).
             view('admin/scheduler/scheduler_full_calendar',$data).
@@ -435,7 +439,7 @@ class SchedulerController extends Controller
 
     public function getSchedulerAllowedDate(){
         $this->response->setStatusCode(200);
-        return $this->response->setJson((new SchedulerDatesModel())->where('is_deleted', 0)->findAll() ?? []);
+        return $this->response->setJson((new SchedulerDatesModel())->where('is_deleted', 0)->findAll());
     }
 
     public function delete($id){

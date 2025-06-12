@@ -37,61 +37,42 @@
                 <div class="col-md-12">
                     <div id="landing-page-contents" class="container-fluid p-4">
                         <div class="submission-menu" style="font-family: inherit;">
-
-                            <?php $stepNumber = 1; ?>
-
-                            <a href="<?=base_url()?>user/edit_papers_submission/<?=$paper_id?>" class="btn btn-white btn-sm round-0 text-start ps-0 fw-bold" style="width:100%; border-bottom:1px solid blue">
-                                <num class="btn-sm me-2 text-white " style="background-color:#0072bb; padding:5px 10px 5px 10px"><?= $stepNumber++ ?> </num> Abstract Details
+                            <a href="<?=base_url()?>user/edit_papers_submission/<?=$paper_id?>" class="btn btn-white btn-sm round-0 text-start ps-0 fw-bold" style="width:100%; border-bottom:1px solid red">
+                                <num class="btn-sm me-2 text-white " style="background-color:#FF6600; padding:5px 10px 5px 10px">1 </num> Paper Details
                                 <?php if(!empty($incompleteStatus['paper'])):?>
-                                    <span class="float-end text-danger"><i class="fw-bold fas fa-exclamation-circle"></i> Incomplete </span>
+                                <span class="float-end text-danger"><i class="fw-bold fas fa-exclamation-circle"></i> Incomplete </span>
                                 <?php else: ?>
                                     <span class="float-end text-success"><i class="fw-bold fas fa-exclamation-circle"></i> Complete </span>
                                 <?php endif?>
                             </a>
-
-                            <a href="<?=base_url()?>user/authors_and_copyright/<?=$paper_id?>" class="btn btn-white btn-sm round-0 text-start mt-2 ps-0 fw-bold" style="width:100%; border-bottom:1px solid blue">
-                                <num class="btn-sm me-2 text-white " style="background-color:#0072bb; padding:5px 10px 5px 10px"><?= $stepNumber++ ?> </num> Authors and Disclosure Panel
+                            <a href="<?=base_url()?>user/authors_and_copyright/<?=$paper_id?>" class="btn btn-white btn-sm round-0 text-start mt-2 ps-0 fw-bold" style="width:100%; border-bottom:1px solid red">
+                                <num class="btn-sm me-2 text-white " style="background-color:#FF6600; padding:5px 10px 5px 10px">2 </num> Authors / Presenters Copyright
                                 <?php if(empty($authors) || !empty($incompleteStatus['author'])):?>
                                     <span class="float-end text-danger"><i class="fw-bold fas fa-exclamation-circle"></i> Incomplete </span>
                                 <?php else: ?>
                                     <span class="float-end text-success"><i class="fw-bold fas fa-exclamation-circle"></i> Complete </span>
                                 <?php endif?>
                             </a>
-
-                            <?php if(!empty($paper) && $paper['basic_science_format'] == 'Yes'): ?>
-                                <a href="<?=base_url()?>user/level_of_evidence/<?=$paper_id?>" class="btn btn-white btn-sm round-0 text-start mt-2 ps-0 fw-bold" style="width:100%; border-bottom:1px solid blue">
-                                    <num class="btn-sm me-2 text-white " style="background-color:#0072bb; padding:5px 10px 5px 10px"><?= $stepNumber++ ?> </num> Level of Evidence
-                                    <?php if(empty($paper) || empty($paper['min_follow_up_period'] )): ?>
-                                        <span class="float-end text-danger"><i class="fw-bold fas fa-exclamation-circle"></i> Incomplete </span>
-                                    <?php else: ?>
-                                        <span class="float-end text-success"><i class="fw-bold fas fa-exclamation-circle"></i> Complete </span>
-                                    <?php endif?>
-                                </a>
-                            <?php endif ?>
-
-                            <a href="<?=base_url()?>user/presentation_upload/<?=$paper_id?>" class="btn btn-white btn-sm round-0 text-start mt-2 ps-0 fw-bold" style="width:100%; border-bottom:1px solid blue">
-                                <num class="btn-sm me-2 text-white " style="background-color:#0072bb; padding:5px 10px 5px 10px"><?= $stepNumber++ ?> </num> Image Upload
+                            <a href="<?=base_url()?>user/presentation_upload/<?=$paper_id?>" class="btn btn-white btn-sm round-0 text-start mt-2 ps-0 fw-bold" style="width:100%; border-bottom:1px solid red">
+                                <num class="btn-sm me-2 text-white " style="background-color:#FF6600; padding:5px 10px 5px 10px">3 </num> Paper or Presentation Upload
                                 <?php if(!empty($incompleteStatus['paperUpload'])):?>
                                     <span class="float-end text-danger"><i class="fw-bold fas fa-exclamation-circle"></i> Incomplete </span>
                                 <?php else: ?>
                                     <span class="float-end text-success"><i class="fw-bold fas fa-exclamation-circle"></i> Complete </span>
                                 <?php endif?>
                             </a>
-
-                            <a href="<?=base_url()?>user/finalize_paper/<?=$paper_id?>" class="btn btn-white btn-sm round-0 text-start mt-2 ps-0 fw-bold previewFinalizeBtn" style="width:100%; border-bottom:1px solid blue">
-                                <num class="btn-sm me-2 text-white " style="background-color:#0072bb; padding:5px 10px 5px 10px"><?= $stepNumber++ ?> </num> Print/Preview/Finalize
+                            <a href="<?=base_url()?>user/finalize_paper/<?=$paper_id?>" class="btn btn-white btn-sm round-0 text-start mt-2 ps-0 fw-bold previewFinalizeBtn" style="width:100%; border-bottom:1px solid red">
+                                <num class="btn-sm me-2 text-white " style="background-color:#FF6600; padding:5px 10px 5px 10px">4 </num> Print/Preview/Finalize
                                 <?php if(!empty($incompleteStatus['finalized'])):?>
                                     <span class="float-end text-danger"><i class="fw-bold fas fa-exclamation-circle"></i> Incomplete </span>
                                 <?php else: ?>
                                     <span class="float-end text-success"><i class="fw-bold fas fa-exclamation-circle"></i> Complete </span>
                                 <?php endif?>
                             </a>
-
                         </div>
                     </div>
                 </div>
             </div>
-
         </div>
     </div>
 </main>

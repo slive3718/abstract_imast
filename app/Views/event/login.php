@@ -2,58 +2,34 @@
 
 <?php echo view('event/common/menu'); ?>
 
-<main style="margin: unset; padding-bottom:200px">
+<main>
     <div class="container-fluid">
-        <div class="m-auto text-center mb-2 fw-bolder text-primary">
-            LOGIN
-        </div>
-        <div class="text-center m-auto shadow-sm" style="width: 600px">
-            <div class="card">
-                <div class="card-header text-primary fw-bold"> NOTE FOR SUBMITTERS </div>
-                <div class="card-body text-start">
-                    <p>
-                        If you have previously submitted an abstract to a SRS Annual Meeting, please use those
-                        credentials to submit for AP2026.
-                    </p>
-                    <p>
-                        If you have previously been an author on an abstract for a SRS Annual Meeting, please
-                        use that email address and password: SRS. You can change your password once you are
-                        logged in under 'Settings'.
-                    </p>
-                </div>
-            </div>
-        </div>
 
-        <?php if(1==1) :?>
+        
+        <?php if(1==2) :?>
         <div class="form-signin w-100 m-auto text-center">
-
-            <div class="text-start my-3" style="width: 600px">
-                <span class="h5"> New Submitter? </span>
-                <br><a href="<?=base_url()?>/account"> Click here</a>
-                 to create new account
-            </div>
-            <div class="text-start mb-5" style="width: 600px">
-                <span class="h5"> Returning to the site ? </span>
-                <br>Enter your email and password and click on 'Login'
-            </div>
-
-
             <form id="formLogin" action="<?=base_url()?>/login/validateLogin" method="post" >
+                <h4 class="mb-3 fw-normal">Please sign in</h4>
+
                 <div class="form-floating">
                     <input type="email" class="form-control text-center" id="floatingInput" placeholder="name@example.com" autocomplete="username" required>
                     <label for="floatingInput">Email address <small class="text-danger">*</small></label>
                 </div>
                 <div class="form-floating">
-                    <input type="password" class="form-control text-center" id="floatingPassword" placeholder="Password " autocomplete="current-password" required>
-                    <label for="floatingPassword">Password <small class="text-danger"> (Password is case sensitive) * </small></label>
+                    <input type="password" class="form-control text-center" id="floatingPassword" placeholder="Password" autocomplete="current-password" required>
+                    <label for="floatingPassword">Password <small class="text-danger">*</small></label>
                 </div>
-                <input type="submit" class="SignInBtn btn btn-primary" value="Login ">
-
-                <div class="col-md-12 mt-3 text-start">
-                    <span class="h5">Forgot your password?</span> <br>
-                    <span> <a href="#" class="forgotPasswordBtn mt">Click here </a> to reset your password.</span>
-                </div>
+                <input type="submit" class="SignInBtn">
             </form>
+        </div>
+
+        <div class="row text-center">
+            <div class="col-md-12">
+                <span><a href="#" class="forgotPasswordBtn">Forgot password?</a></span>
+            </div>
+            <div class="col-md-12 mt-2">
+                <span>New Submitter? <a href="<?=base_url()?>/account">Register</a></span>
+            </div>
         </div>
 
         <?php else :?>
@@ -101,6 +77,7 @@
                 {
                     'email': email,
                     'password': password,
+                    'event_uri': 'afs',
                     'login_type': "user"
 
                 }, function(response){

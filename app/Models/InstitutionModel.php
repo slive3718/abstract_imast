@@ -1,38 +1,42 @@
 <?php
 namespace App\Models;
 
-use CodeIgniter\Database\ConnectionInterface;
 use CodeIgniter\Model;
-use CodeIgniter\Validation\ValidationInterface;
 
 class InstitutionModel extends Model
 {
     protected $table = 'institution';
     protected $primaryKey = 'id';
-    protected $allowedFields ;
+    protected $allowedFields = ['*'];
+    // protected $allowedFields = ['title', 'description'];
 
-    function __construct(ConnectionInterface $db = null, ValidationInterface $validation = null)
+    
+    public function Get()
     {
-        parent::__construct();
-        $this->db = $db ?? db_connect();
-        $this->validation = $validation;
-
-        $this->initializeAllowedFields();
-    }
-
-    protected function initializeAllowedFields(): void
-    {
-        $this->allowedFields = $this->db->getFieldNames($this->table);
-
-        // Optionally, you can filter or manipulate the allowed fields array
-        $excludedFields = ['id', 'created_at', 'updated_at'];
-        $this->allowedFields = array_diff($this->allowedFields, $excludedFields);
-    }
-
-    protected function excludeDeletedRecords(array $data){
-        if (isset($data['builder']) && empty($data['method'])) {
-            $data['builder']->where('deleted', 0);
+    
+       try {
+            return $this->findAll();
+        } catch (\CodeIgniter\Database\Exceptions\DatabaseException $e) {
+            // Log the error or display an error message
+            $error = json_encode('Database error: ' . $e->getMessage());
+            return $error;
         }
-        return $data;
     }
+
+    public function Add($data){
+        try {
+            $this->insert($data);
+            if ($this->affectedRows() > 0) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (\Exception $e) {
+            // Handle the exception here
+            return json_encode(array('error'=>$e->getMessage()));
+            
+        }
+    }
+
+
 }

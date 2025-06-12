@@ -198,7 +198,7 @@
 
     function renderCalendar(){
         getDateAllowed().then(function(allowedDates){
-            // console.log(allowedDates[0].date)
+            // console.log(allowedDates)
             var timeZoneSelectorEl = document.getElementById('time-zone-selector');
             var calendarEl = document.getElementById('calendar');
             let calendar =  eventCalendar = new FullCalendar.Calendar(calendarEl, {
@@ -210,7 +210,7 @@
                 selectable: true,
                 // dayMaxEvents: true, // allow "more" link when too many events
                 height: 'auto',
-                initialDate: allowedDates[0].date ?? '2025-02-05', // Navigate to April 2025
+                initialDate: '2025-04-12', // Navigate to April 2025
                 headerToolbar: {
                     left: 'customDays roomView prev,next',  // Define custom buttons
                     center: 'title',
@@ -461,14 +461,14 @@
                         text: 'Meeting Dates',
                         click: function () {
                             calendar.changeView('customWeek'); // Switch to the custom view
-                            calendar.gotoDate(allowedDates[0].date); // Navigate to April 2025
+                            calendar.gotoDate('2025-04-12'); // Navigate to April 2025
                         }
                     },
                     roomView: {
                         text: 'Day View',
                         click: function () {
                             calendar.changeView('roomView'); // Switch to the custom view
-                            calendar.gotoDate(allowedDates[0].date); // Navigate to April 2025
+                            calendar.gotoDate('2025-04-12'); // Navigate to April 2025
                         }
                     },
                 },
@@ -734,8 +734,6 @@
                     sessionTrack()
                 ]);
 
-                console.log(sessionTracks)
-                console.log(paperType)
                 if (rooms.length) {
                     populateDropdown('#floatingRooms', rooms, ' -- Select Room -- ', (fetchInfo.resource ? fetchInfo.resource._resource.id : ''));
                 }
@@ -823,7 +821,7 @@
                     if (rooms.length > 0) {
                         resolve(rooms);  // Pass events to the calendar
                     } else {
-                        reject(new Error('No Rooms found.'));  // Error handling
+                        reject(new Error('No abstracts found.'));  // Error handling
                     }
                 });
         });
@@ -836,7 +834,7 @@
                     if (sessionChairs.length > 0) {
                         resolve(sessionChairs);  // Pass events to the calendar
                     } else {
-                        reject(new Error('No Session Chair found.'));  // Error handling
+                        reject(new Error('No abstracts found.'));  // Error handling
                     }
                 });
         });
@@ -849,7 +847,7 @@
                     if (paperTypes.length > 0) {
                         resolve(paperTypes);  // Pass events to the calendar
                     } else {
-                        reject(new Error('No Paper or Abstract found.'));  // Error handling
+                        reject(new Error('No abstracts found.'));  // Error handling
                     }
                 });
         });
@@ -862,7 +860,7 @@
                     if (sessionTracks.length > 0) {
                         resolve(sessionTracks);  // Pass events to the calendar
                     } else {
-                        reject(new Error('No Session Track found.'));  // Error handling
+                        reject(new Error('No abstracts found.'));  // Error handling
                     }
                 });
         });
@@ -896,12 +894,7 @@
             $.get(baseUrlAdmin + 'scheduler/get', function(response) {
                 const events = [];
 
-                if(!response){
-                    events.push({})
-                }
-
                 $.each(response, function(index, res) {
-                    console.log(res)
                     if (res.presentation_date !== null) {
                         let talkTimeSummary = '';
                         let talkPresenters = [];
@@ -1130,7 +1123,6 @@
                     data.forEach((res, i) => {
 
                         let presenters = getPresenters(res.authors);
-                        console.log(presenters)
                         let endTime = addDuration(startTime, (durationInMinutes + breakDuration));
 
                         // Validate end time
@@ -1161,7 +1153,6 @@
                         if (res.paper.submission_type == 'panel') {
                             createPanelTalkRows(res.paper, talkDetail, presenters, formattedStartTime, formattedEndTime)
                                 .then(function() {
-                                    console.log(getTimeOfDate(new Date(info.startStr)))
                                     // Only call updateTalkDuration after the rows are created
                                     updateTalkDuration(getTimeOfDate(new Date(info.startStr)));
                                 })
@@ -1229,7 +1220,7 @@
                     // console.log(sessionDuration)
 
                     let talksTable = $('#tableAddedAbstract')
-                    let talk_duration = 0;
+                    let talk_duration
                     let added_talk_details = [];
                     talksTable.find('tr').each(function(){
                         let abstract_id = $(this).attr('id')
@@ -1395,12 +1386,27 @@
             return newTime;
         }
 
-        function addTimeDuration(startTime, duration) {
-            let [startHours, startMinutes] = startTime.split(':').map(parseFloat);
+      function addTimeDuration(startTime, duration) {
+            // Convert 12-hour format to 24-hour format
+            let [time, modifier] = startTime.split(' ');
+            let [startHours, startMinutes] = time.split(':').map(Number);
+
+            if (modifier === 'PM' && startHours !== 12) {
+                startHours += 12;
+            } else if (modifier === 'AM' && startHours === 12) {
+                startHours = 0;
+            }
+
             let totalMinutes = startMinutes + duration;
             let endHours = startHours + Math.floor(totalMinutes / 60);
             let endMinutes = totalMinutes % 60;
-            return `${endHours.toString().padStart(2, '0')}:${endMinutes.toString().padStart(2, '0')}`;
+
+            // Convert back to 12-hour format
+            let endModifier = endHours >= 12 ? 'PM' : 'AM';
+            endHours = endHours % 12;
+            endHours = endHours ? endHours : 12; // the hour '0' should be '12'
+
+            return `${endHours.toString().padStart(2, '0')}:${endMinutes.toString().padStart(2, '0')} ${endModifier}`;
         }
 
 

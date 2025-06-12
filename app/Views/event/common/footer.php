@@ -25,7 +25,6 @@
 <script src="https://cdn.datatables.net/buttons/2.3.6/js/buttons.print.min.js"></script>
 
 <script  type="text/javascript" src="<?=base_url('assets/js/submissionFunction.js?v=1')?>"></script>
-<script  type="text/javascript" src="<?=base_url('assets/js/sessionExpiration.js')?>"></script>
 
 </body>
 </html>

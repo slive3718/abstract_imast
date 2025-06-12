@@ -16,10 +16,6 @@ class AuthorAcceptanceModel extends Model
     protected $returnType = 'object'; 
     private $error;
 
-    protected $useTimestamps = true;
-    protected $createdField = 'created_at';
-    protected $updatedField = 'updated_at';
-
     public function __construct()
     {
         parent::__construct();
@@ -250,13 +246,7 @@ class AuthorAcceptanceModel extends Model
                 ->join('users_profile up', 'users.id = up.author_id', 'left')
                 ->findAll();
             $paper['paper_data'] = (new PapersModel())->find($paper['paper_id']);
-            $paper['admin_acceptance_data'] = (new AdminAcceptanceModel())->where('abstract_id', $paper['paper_id'])->first();
-            $paper['author_acceptance_data'] = (new AuthorAcceptanceModel())->where(
-                [
-                    'abstract_id' => $paper['paper_id'],
-                    'author_id' => session('user_id')
-                ]
-                )->first();
+            $paper['acceptance_data'] = (new AdminAcceptanceModel())->where('abstract_id', $paper['paper_id'])->first();
             $paper['schedule'] = (new SchedulerSessionTalksModel())->get_talk_schedule_query($paper['paper_id'])->first();
             $paper['room'] = [];
             if($paper['schedule']) {
@@ -285,7 +275,6 @@ class AuthorAcceptanceModel extends Model
             $paper['paper_data'] = (new PanelistPaperSubModel())->join('papers p', 'panelist_paper_sub.paper_id = p.id', 'left')
             ->where('panelist_id', session('user_id'))
             ->where('paper_id', $paper['paper_id'])
-            ->where('p.active_status', '1')
                 ->first();
             $paper['acceptance_data'] = (new PanelistPaperSubModel())->join('admin_individual_panel_acceptance aipa', 'panelist_paper_sub.id = aipa.individual_panel_id', 'left')
                 ->where('panelist_paper_sub.paper_id', $paper['paper_id'])

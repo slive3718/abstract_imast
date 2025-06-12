@@ -9,6 +9,7 @@ use App\Models\EmailLogsModel;
 use App\Models\EmailTemplatesModel;
 use App\Models\EventsModel;
 use App\Models\InstitutionModel;
+use App\Models\LogsModel;
 use App\Models\PanelistPaperSubModel;
 use App\Models\PaperAssignedReviewerModel;
 use App\Models\PaperAuthorsModel;
@@ -36,6 +37,7 @@ use App\Models\AbstractFileUploadModel;
 
 use App\Controllers\admin\Abstracts\AbstractController;
 use stdClass;
+use CodeIgniter\Database\BaseBuilder;
 
 class ReviewerController extends Controller
 {
@@ -44,19 +46,20 @@ class ReviewerController extends Controller
     public function __construct()
     {
         $this->db = db_connect();
-        if(empty(session('user_type')) || session('user_type') !== 'reviewer'){
-            header('Location:'.base_url().'deputy/logout');
+        if (empty(session('user_type')) || session('user_type') !== 'reviewer') {
+            header('Location:' . base_url() . 'deputy/logout');
             exit;
         }
 
-        if(empty(session('email')) || session('email') == ''){
-            header('Location:'.base_url().'deputy');
+        if (empty(session('email')) || session('email') == '') {
+            header('Location:' . base_url() . 'deputy');
             exit;
         }
     }
 
 
-    public function index(){
+    public function index()
+    {
 
         $event = (new EventsModel())->first();
 
@@ -65,26 +68,26 @@ class ReviewerController extends Controller
             'title' => 'Deputy Review'
         ];
         $data = [
-            'event'=> $event,
+            'event' => $event,
         ];
         return
-            view('deputy/common/header', $header_data).
-            view('deputy/reviewer_menu', $data).
-            view('deputy/common/footer')
-            ;
+            view('deputy/common/header', $header_data) .
+            view('deputy/reviewer_menu', $data) .
+            view('deputy/common/footer');
     }
 
-    public function papers_list(){
+    public function papers_list()
+    {
 
         $event = (new EventsModel())->first();
         $divisions = (new UsersProfileModel())->where('author_id', session('user_id'))->findAll();
 
         $divisions_array = array();
-        foreach ($divisions as $division){
-            $divisions_array= (new DivisionsModel())->whereIn('division_id', json_decode($division['division_id']))->findall();
+        foreach ($divisions as $division) {
+            $divisions_array = (new DivisionsModel())->whereIn('division_id', json_decode($division['division_id']))->findall();
         }
 
-        $div = array_map(function($e) {
+        $div = array_map(function ($e) {
             return $e->name;
         }, $divisions_array);
 
@@ -94,17 +97,17 @@ class ReviewerController extends Controller
             'title' => 'Paper List'
         ];
         $data = [
-            'event'=> $event,
-            'divisions'=>$divisions
+            'event' => $event,
+            'divisions' => $divisions
         ];
         return
-            view('deputy/common/header', $header_data).
-            view('deputy/papers_list', $data).
-            view('deputy/common/footer')
-            ;
+            view('deputy/common/header', $header_data) .
+            view('deputy/papers_list', $data) .
+            view('deputy/common/footer');
     }
 
-    public function panels_list(){
+    public function panels_list()
+    {
 
         $event = (new EventsModel())->first();
 
@@ -112,16 +115,16 @@ class ReviewerController extends Controller
             'title' => 'Panel List'
         ];
         $data = [
-            'event'=> $event,
+            'event' => $event,
         ];
         return
-            view('deputy/common/header', $header_data).
-            view('deputy/panels_list', $data).
-            view('deputy/common/footer')
-            ;
+            view('deputy/common/header', $header_data) .
+            view('deputy/panels_list', $data) .
+            view('deputy/common/footer');
     }
 
-    public function reviewers_and_progress(){
+    public function reviewers_and_progress()
+    {
 
         $event = (new EventsModel())->first();
         $UserModel = (new UserModel());
@@ -130,9 +133,9 @@ class ReviewerController extends Controller
 
         $deputyUserDivision = (new UsersProfileModel())->select('division_id')->where('author_id', $user['id'])->first();
         $UsersProfileModel = (new UsersProfileModel());
-        $AbstractReviewModel =(new AbstractReviewModel());
+        $AbstractReviewModel = (new AbstractReviewModel());
         $regularReviewersInDeputyDivision = array();
-        if($deputyUserDivision) {
+        if ($deputyUserDivision) {
             $deputyUserDivision = json_decode($deputyUserDivision['division_id']);
 
             //todo: get all regular reviewers on divisions
@@ -194,18 +197,18 @@ class ReviewerController extends Controller
             'title' => 'Reviewers and Progress'
         ];
         $data = [
-            'event'=> $event,
-            'divisionReviewerReviews'=>($divisionReviewerReviews)?:''
+            'event' => $event,
+            'divisionReviewerReviews' => ($divisionReviewerReviews) ?: ''
         ];
         return
-            view('deputy/common/header', $header_data).
-            view('deputy/reviewers_and_progress', $data).
-            view('deputy/common/footer')
-            ;
+            view('deputy/common/header', $header_data) .
+            view('deputy/reviewers_and_progress', $data) .
+            view('deputy/common/footer');
     }
 
 
-    public function getAllReviewerPapers(){
+    public function getAllReviewerPapers()
+    {
         $reviewerModel = (new ReviewerModel())->getReviewerAbstracts(session('user_id'), 'deputy');
         $reviewer_abstracts = array();
         try {
@@ -218,21 +221,22 @@ class ReviewerController extends Controller
                     $reviewer['type'] = (new PaperTypeModel())->where('type', $reviewer['papers']->type_id)->first();
                 }
                 $reviewer['rating'] = (new AbstractReviewModel())->where(['abstract_id' => $reviewer['paper_id'], 'reviewer_id' => session('user_id')])->first();
-                if($reviewer['papers'] )
-                $reviewer_abstracts[] = $reviewer;
+                if ($reviewer['papers'])
+                    $reviewer_abstracts[] = $reviewer;
             }
 
 
 //            $reviewer_abstracts[] =
 
-            return json_encode(['status'=>200, 'msg'=>'success', 'data'=>$reviewer_abstracts]);
-        }catch (\Exception $e){
-            return json_encode(['status'=>500, 'msg'=>$e->getMessage(), 'data'=>'']);
+            return json_encode(['status' => 200, 'msg' => 'success', 'data' => $reviewer_abstracts]);
+        } catch (\Exception $e) {
+            return json_encode(['status' => 500, 'msg' => $e->getMessage(), 'data' => '']);
         }
 
     }
 
-    public function getAllDeputyReviewerPapersByDivision(){
+    public function getAllDeputyReviewerPapersByDivision()
+    {
         $DivisionModel = (new DivisionsModel());
         $UsersProfileModel = (new UsersProfileModel());
         $PapersModel = (new PapersModel());
@@ -241,18 +245,18 @@ class ReviewerController extends Controller
         $reviewer_abstracts = array();
         $AbstractReviewModel = (new AbstractReviewModel());
         $PapersDeputyAcceptanceModel = (new PapersDeputyAcceptanceModel());
+        $LogsModel = (new LogsModel());
 
-
-        try{
+        try {
             $deputyDivison = $UsersProfileModel
-                ->select($UsersProfileModel->getTable().'.*,'.$DivisionModel->getTable().'.name as division_name')
-                ->join($DivisionModel->getTable(), $UsersProfileModel->getTable().'.division_id = '.$DivisionModel->getTable().'.id', 'left')
+                ->select($UsersProfileModel->getTable() . '.*,' . $DivisionModel->getTable() . '.name as division_name')
+                ->join($DivisionModel->getTable(), $UsersProfileModel->getTable() . '.division_id = ' . $DivisionModel->getTable() . '.id', 'left')
                 ->where('author_id', session('user_id'))
                 ->first();
 
             $division_ids = json_decode($deputyDivison['division_id']);
 
-            if(!empty($division_ids)) {
+            if (!empty($division_ids)) {
                 $deputyDivison['papers'] = $PapersModel->whereIn('division_id', $division_ids)->where('submission_type', 'paper')->findAll();
 
                 foreach ($deputyDivison['papers'] as $papers) {
@@ -261,20 +265,41 @@ class ReviewerController extends Controller
                     $papers->division = (new DivisionsModel())->where('division_id', $papers->division_id)->first(); // Fetching division information of paper
                     $papers->reviewer_division = (new DivisionsModel())->whereIn('division_id', $division_ids)->first(); // Fetching division information of reviewer
                     $papers->type = (new PaperTypeModel())->where('type', $papers->type_id)->first(); // Fetching paper type information
-                    $papers->uploads = (new PaperUploadsModel())->where(['paper_id'=>$papers->id])->findAll();
+                    $papers->uploads = (new PaperUploadsModel())->where(['paper_id' => $papers->id])->findAll();
                     $papers->upload_views = (new PaperUploadsViewsModel())->where('viewer_id', session('user_id'))->findAll();
+                    $papers->submitter_logs = $LogsModel->getCompiledUnseenLogs(
+                        'submitter', $papers->id, $papers->user_id,
+                        [
+                            'submitter_comment',
+                            'upload_comment',
+                            'upload_presentation'
+                        ],
+                        []
+                    );
 
                     // Fetching reviewers assigned to the paper
                     $papers->reviewers = $PaperAssignedReviewerModel
                         ->join($UsersModel->getTable(), $PaperAssignedReviewerModel->getTable() . '.reviewer_id = ' . $UsersModel->getTable() . '.id', 'left')
-                        ->where(['paper_id' => $papers->id, 'reviewer_type' => 'regular', 'is_deleted'=>0])->findAll();
+                        ->where(['paper_id' => $papers->id, 'reviewer_type' => 'regular', 'is_deleted' => 0])->findAll();
 
                     // Checking if each reviewer has submitted a review
-                    foreach ($papers->reviewers as $index=>$rev) {
+                    foreach ($papers->reviewers as $index => $rev) {
                         $reviews = $AbstractReviewModel->where(['reviewer_id' => $rev['id'], 'abstract_id' => $papers->id])->first();
                         if (!empty($reviews)) {
                             $papers->reviewers[$index]['review'] = $reviews;
                         }
+
+                        $papers->reviewers[$index]['logs'] = $LogsModel->getCompiledUnseenLogs(
+                            'regular', $papers->id, $rev['id'],
+                            [
+                                'suggested_revision_comment_added',
+                                'review',
+                                'decline_assigned_abstract',
+                                're_review_comment_added',
+                                'upload',
+                            ],
+                            []
+                        );;
                     }
 
                     $uploadsWithViews = [];
@@ -290,17 +315,19 @@ class ReviewerController extends Controller
                     $papers->uploadsWithViews = $uploadsWithViews;
 
                     $papers->deputyAcceptance = ($PapersDeputyAcceptanceModel
-                        ->where(['paper_id'=> $papers->id,'reviewer_id'=>session('user_id')]))->first()??new StdClass();
+                        ->where(['paper_id' => $papers->id, 'reviewer_id' => session('user_id')]))->first() ?? new StdClass();
                     // Adding the processed paper to an array
                     $reviewer_abstracts[] = $papers;
                 }
 
             }
-            return json_encode(['status'=>200, 'msg'=>'success', 'data'=>$reviewer_abstracts]);
-        }catch (\Exception $e){
-            return json_encode(['status'=>500, 'msg'=>$e->getMessage(), 'data'=>'']);
+            return json_encode(['status' => 200, 'msg' => 'success', 'data' => $reviewer_abstracts]);
+        } catch (\Exception $e) {
+            return json_encode(['status' => 500, 'msg' => $e->getMessage(), 'data' => '']);
         }
     }
+
+
 
     public function getAllDeputyReviewerPanelsByDivision(){
         $DivisionModel = (new DivisionsModel());
@@ -529,6 +556,8 @@ class ReviewerController extends Controller
                 ->where('is_deleted', 0)
                 ->first();
 
+            $reviewer['reviews'] = ($AbstractReviewModel->where(['abstract_id'=> $post['paper_id'], 'reviewer_id'=>$reviewer['user_id']]))->first() ?? [];
+
             $reviewerDivision = json_decode($reviewer['division_id']);
 
 //            print_r($reviewerDivision);exit;
@@ -545,7 +574,7 @@ class ReviewerController extends Controller
 
             $reviewer['emailLog'][] = (new EmailLogsModel())
                 ->where('add_to', $reviewer['email'])
-//                ->orWhereIn('add_to', json_decode($reviewer['email']))
+                ->where('paper_id', $post['paper_id'])
                 ->where('send_from', 'PC')
                 ->where('send_to', 'Regular')
                 ->findAll();
@@ -606,50 +635,52 @@ class ReviewerController extends Controller
 //        print_r($MailTemplates);exit
         if(empty($alreadyAssignedReviewer)){
             //insert if not existing
-            $PaperAssignedReviewerModel->set($insertArray)->insert();
+            if($PaperAssignedReviewerModel->set($insertArray)->insert()) {
+                $user = (new UserModel())->find($post['reviewerID']);
 
-            $user = (new UserModel())->find($post['reviewerID']);
+                $email_body = $EmailTemplates['email_body'];
+                $email_body = str_replace('##ABSTRACT_ID##', $post['paperID'], $email_body);
+                $email_body = str_replace('##RECIPIENTS_FULL_NAME##', ucFirst($user['name']) . ' ' . ucFirst($user['surname']), $email_body);
+                $email_body = str_replace('##REVIEW_USERNAME##', ($user['email']), $email_body);
+                $email_body = str_replace('##REVIEW_PASSWORD##', 'Please reset your password in case forgotten. Thank you!', $email_body);
 
-            $email_body = $EmailTemplates['email_body'];
-            $email_body = str_replace('##ABSTRACT_ID##', $post['paperID'], $email_body);
-            $email_body = str_replace('##RECIPIENTS_FULL_NAME##', ucFirst($user['name']).' '.ucFirst($user['surname']), $email_body);
-            $email_body = str_replace('##REVIEW_USERNAME##', ($user['email']), $email_body);
-            $email_body = str_replace('##REVIEW_PASSWORD##', 'Please reset your password in case forgotten. Thank you!', $email_body);
+                $from = ['name' => 'AFS', 'email' => 'afs@owpm2.com'];
+                $addTo = $user['email'];
+                $subject = $EmailTemplates['email_subject'];
+                $addContent = $email_body;
+                $mailResult = $sendMail->send($from, $addTo, $subject, $addContent);
 
-            $from = ['name'=>'AFS', 'email'=>'afs@owpm2.com'];
-            $addTo = $user['email'];
-            $subject = $EmailTemplates['email_subject'];
-            $addContent = $email_body;
-            $mailResult = $sendMail->send($from, $addTo, $subject, $addContent);
+                // ###################  Save to Email logs #####################
+                $email_logs_array = [
+                    'user_id' => session('user_id'),
+                    'add_to' => ($addTo),
+                    'subject' => $subject,
+                    'ref_1' => 'assign_paper',
+                    'add_content' => $addContent,
+                    'send_from' => "PC",
+                    'send_to' => "Regular",
+                    'level' => "Info",
+                    'template_id' => $EmailTemplates['id'],
+                    'paper_id' => $post['paperID'],
+                    'user_agent' => $this->request->getUserAgent()->getBrowser(),
+                    'ip_address' => $this->request->getIPAddress(),
+                ];
 
-            // ###################  Save to Email logs #####################
-            $email_logs_array = [
-                'user_id' => session('user_id'),
-                'add_to' => ($addTo),
-                'subject' => $subject,
-                'ref_1' => 'assign_paper',
-                'add_content' => $addContent,
-                'send_from' => "PC",
-                'send_to' => "Regular",
-                'level' => "Info",
-                'template_id' => $EmailTemplates['id'],
-                'paper_id' => $post['paperID'],
-                'user_agent' => $this->request->getUserAgent()->getBrowser(),
-                'ip_address' => $this->request->getIPAddress(),
-            ];
+                if ($mailResult->statusCode == 200) {
+                    $email_logs_array['status'] = 'Success';
+                    (new EmailLogsModel())->saveToMailLogs($email_logs_array);
+                } else {
+                    $email_logs_array['status'] = 'Failed';
+                    (new EmailLogsModel())->saveToMailLogs($email_logs_array);
+                }
 
-            if($mailResult->statusCode == 200) {
-                $email_logs_array['status'] = 'Success';
-                (new EmailLogsModel())->saveToMailLogs($email_logs_array);
-            }else{
-                $email_logs_array['status'] = 'Failed';
-                (new EmailLogsModel())->saveToMailLogs($email_logs_array);
+                $this->saveDeputyLog($post['paperID'], 'INFO', 'Save Success', 'Save', 'assign_regular_reviewer');
+                return json_encode(['status' => 200, 'message' => "success", 'data' => '']);
             }
-
-            return json_encode(['status'=> 200, 'message'=> "success", 'data'=>'']);
         }else{
             //update if existing
             $PaperAssignedReviewerModel->where('id', $alreadyAssignedReviewer['id'])->set($insertArray)->update();
+            $this->saveDeputyLog($post['paperID'], 'INFO', 'Update Success', 'Update', 'assign_regular_reviewer');
             return json_encode(['status'=> 200, 'message'=> "success", 'data'=>'']);
         }
 
@@ -684,6 +715,8 @@ class ReviewerController extends Controller
         $DeputyAcceptanceModel = (new PapersDeputyAcceptanceModel());
         $paper = $PaperModel->find($paper_id);
         $ReviewerPaperUploadModel = (new ReviewerPaperUploadsModel());
+        $LogsModel = (new LogsModel());
+
         $paper->uploads = ($PaperUploadModel->where('paper_id', $paper->id))->findAll()??[];
         $paper->reviews = ($AbstractReview
             ->select($AbstractReview->getTable().'.*,'.$UserModel->getTable().'.name as user_name, '.$UserModel->getTable().'.surname as user_surname' )
@@ -697,13 +730,57 @@ class ReviewerController extends Controller
             ->findAll();
 
         $paper->acceptance = $DeputyAcceptanceModel->where(['paper_id'=>$paper_id, 'reviewer_id'=>session('user_id')])->first();
+        $paper->division = (new DivisionsModel())->find($paper->division_id);
 
         foreach ($paper->reviews as &$review) { // Use reference &$review to modify the original array
             $uploads = $ReviewerPaperUploadModel
                 ->where(['paper_id' => $review['abstract_id'], 'reviewer_id' => $review['reviewer_id']])
                 ->findAll();
             $review['paper_uploads'] = $uploads;
+
+            $review['suggested_revision_comment_added_log'] = $LogsModel->getCompiledLogs(
+                'regular', $review['abstract_id'], $review['reviewer_id'],
+                [
+                    'suggested_revision_comment_added'
+                ],
+                ['save', 'update'],
+                '',
+                '',
+                [
+                    ['column' => 'logs.id', 'value' => 'DESC'],
+                ],
+
+            );
+
+            $review['required_revision_comment_added_log'] = $LogsModel->getCompiledLogs(
+                'regular', $review['abstract_id'], $review['reviewer_id'],
+                [
+                    'required_revision_comment_added'
+                ],
+                ['save', 'update'],
+                '',
+                '',
+                [
+                    ['column' => 'logs.id', 'value' => 'DESC'],
+                ],
+            );
+
+            $review['re_review_comment_added_log'] = $LogsModel->getCompiledLogs(
+                'regular', $review['abstract_id'], $review['reviewer_id'],
+                [
+                    're_review_comment_added'
+                ],
+                ['save', 'update'],
+                '',
+                '',
+                [
+                    ['column' => 'logs.id', 'value' => 'DESC'],
+                ],
+            );
         }
+
+        $divisions = (new DivisionsModel())->findAll();
+
 
 //        print_R($paper->acceptance);exit;
         $header_data = [
@@ -712,7 +789,8 @@ class ReviewerController extends Controller
 
         $data = [
             'event'=> $event,
-            'paper'=>$paper
+            'paper'=>$paper,
+            'divisions'=>$divisions
         ];
         return
             view('deputy/common/header', $header_data).
@@ -742,14 +820,18 @@ class ReviewerController extends Controller
 
         if(!empty($result)){
             $result = $PaperDeputyAcceptanceModel->where(['paper_id'=> $post['paper_id'], 'reviewer_id'=>session('user_id')])->set($insertArray)->update();
-            if($result)
-                return json_encode(['status'=> 200, 'message'=> "success", 'data'=>'']);
+            if($result) {
+                $this->saveDeputyLog($post['paper_id'], 'INFO', 'Update Success', 'Update', 'acceptance');
+                return json_encode(['status' => 200, 'message' => "success", 'data' => '']);
+            }
             else
                 return json_encode(['status'=> 500, 'message'=> "failed", 'data'=>'']);
         }else{
             $result = $PaperDeputyAcceptanceModel->insert($insertArray);
-            if($result)
-                return json_encode(['status'=> 200, 'message'=> "success", 'data'=>'']);
+            if($result) {
+                $this->saveDeputyLog($post['paper_id'], 'INFO', 'Save Success', 'Save', 'acceptance');
+                return json_encode(['status' => 200, 'message' => "success", 'data' => '']);
+            }
             else
                 return json_encode(['status'=> 500, 'message'=> "failed", 'data'=>'']);
         }
@@ -1055,4 +1137,25 @@ class ReviewerController extends Controller
         }
     }
 
+    function saveDeputyLog($ref2, $level, $message, $action, $context){
+        try {
+            $logs = (new LogsModel());
+            $logArray = [
+                'user_id' => session('user_id'),
+                'ref_1' => 'deputy',
+                'ref_2' => $ref2 ?? '',
+                'action' => $action,
+                'level' => $level ?? '',
+                'message' => $message ?? '',
+                'ip_address' => $this->request->getIPAddress(),
+                'user_agent' => $this->request->getUserAgent()->getBrowser(),
+                'context' => $context,
+            ];
+
+
+            return $logs->save($logArray);
+        }catch (\Exception $e) {
+            return $e->getMessage();
+        }
+    }
 }

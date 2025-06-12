@@ -4,7 +4,7 @@ namespace App\Controllers\admin\Abstracts;
 
 use App\Controllers\User;
 use App\Libraries\PhpMail;
-use App\Models\AbstractCategoriesModel;
+use App\Models\AbstractEventsModel;
 use App\Models\AdminAbstractCommentModel;
 use App\Models\AdminAcceptanceModel;
 use App\Models\AdminIndividualPanelAcceptanceModel;
@@ -12,15 +12,21 @@ use App\Models\AuthorAcceptanceModel;
 use App\Models\DivisionsModel;
 use App\Models\EmailLogsModel;
 use App\Models\EmailTemplatesModel;
+use App\Models\EventsModel;
 use App\Models\IndividualPanelUploads;
+use App\Models\InstitutionModel;
 use App\Models\PanelistPaperSubModel;
 use App\Models\PaperAssignedReviewerModel;
 use App\Models\PaperAuthorsModel;
 use App\Models\PapersDeputyAcceptanceModel;
 use App\Models\PaperTypeModel;
 use App\Models\PaperUploadsModel;
+use App\Models\PaperUploadsViewsModel;
 use App\Models\ReviewerPaperUploadsModel;
 use App\Models\RoomsModel;
+use App\Models\SchedulerDatesModel;
+use App\Models\SchedulerModel;
+use App\Models\SchedulerSessionTalksModel;
 use App\Models\SiteSettingModel;
 use App\Models\UsersProfileModel;
 use CodeIgniter\Controller;
@@ -38,8 +44,8 @@ class AbstractController extends Controller
         if(session('user_id')){
             $this->user_id = session('user_id');
         }
-        if(empty(session('email')) || session('email') == '' || session('is_super_admin') !== 1){
-            return redirect()->to(base_url().'ap/admin/login');
+        if(empty(session('email')) || session('email') == ''){
+            return redirect()->to(base_url().'afs/admin/login');
         }
     }
 
@@ -51,12 +57,13 @@ class AbstractController extends Controller
     }
 
     public function papers_list(){
-
+       $event = (new EventsModel())->first();
 
         $header_data = [
             'title' => ''
         ];
         $data = [
+            'event'=> $event,
         ];
         return
             view('admin/common/header', $header_data).
@@ -66,11 +73,13 @@ class AbstractController extends Controller
     }
 
     public function panels_list(){
+        $event = (new EventsModel())->first();
 
         $header_data = [
             'title' => 'Panelist'
         ];
         $data = [
+            'event'=> $event
         ];
         return
             view('admin/common/header', $header_data).
@@ -82,11 +91,13 @@ class AbstractController extends Controller
     public function view_presentation_upload($individual_panel_id){
 
         $UsersModel = (new UserModel());
+        $event = (new AbstractEventsModel())->first();
 
         $header_data = [
             'title' => "Individual Presentation Upload"
         ];
         $data = [
+            'event'=> $event,
             'individual_panel_id' => $individual_panel_id
         ];
 
@@ -98,12 +109,14 @@ class AbstractController extends Controller
     }
 
     public function view_paper_presentation_upload($paper_id){
-        
+
+        $event = (new AbstractEventsModel())->first();
 
         $header_data = [
             'title' => "Presentation Upload"
         ];
         $data = [
+            'event'=> $event,
             'paper_id' => $paper_id
         ];
 
@@ -231,9 +244,13 @@ class AbstractController extends Controller
 
 
     public function view_abstract($paper_id){
-
+        $event = (new EventsModel())->first();
+        if(!$event){
+            return (new ErrorHandler($event))->errorPage();
+        }
 
         $post = $this->request->getPost();
+        $event = (new AbstractEventsModel())->first();
 
         $UsersProfileModel = (new UsersProfileModel());
         $PapersModel = (new PapersModel());
@@ -242,11 +259,10 @@ class AbstractController extends Controller
         $UsersModel = (new UserModel());
         $PapersDeputyAcceptanceModel = (new PapersDeputyAcceptanceModel());
         $AdminAbstractCommentModel = new AdminAbstractCommentModel();
-        $PaperTypeModel = new PaperTypeModel();
 
         $papers = $PapersModel
-            ->select('papers.*, paper_type.name as paper_type_name')
-
+            ->select('papers.*, divisions.name as division_name, paper_type.name as paper_type_name')
+            ->join('divisions', 'papers.division_id = divisions.division_id', 'left')
             ->join('paper_type', 'papers.type_id = paper_type.type', 'left')
             ->where('papers.id',$paper_id)->first();
 
@@ -278,7 +294,7 @@ class AbstractController extends Controller
             $author['acceptance'] = (new AuthorAcceptanceModel())->where(['author_id'=> $author['author_id'], 'abstract_id'=>$paper_id])->first();
         }
 
-        $deputy_acceptance = $PapersDeputyAcceptanceModel->where('paper_id', $paper_id)->findAll();
+        $deputy_acceptance = $PapersDeputyAcceptanceModel->where('paper_id', $paper_id)->first();
 
         $admin_acceptance = (new AdminAcceptanceModel())->where(['user_id'=>session('user_id'), 'abstract_id'=>$paper_id])->first();
 
@@ -295,6 +311,7 @@ class AbstractController extends Controller
         $adminComment = $AdminAbstractCommentModel->where(['paper_id'=>$paper_id, 'admin_id'=>session('user_id')])->first();
 
         $data = [
+            'event'=> $event,
             'papers'=> $papers,
             'authorInfo'=> $authorInfo,
             'paper_id'=> $paper_id,
@@ -306,8 +323,7 @@ class AbstractController extends Controller
             'email_templates'=>$email_templates,
             'admin_acceptance'=>$admin_acceptance,
             'adminComment' => $adminComment,
-            'paper_reviewer_uploads'=>$paper_reviewer_uploads,
-            'paper_types' => $PaperTypeModel->asArray()->findAll()
+            'paper_reviewer_uploads'=>$paper_reviewer_uploads
         ];
 
 
@@ -322,9 +338,13 @@ class AbstractController extends Controller
     }
 
     public function view_individual_panel($individual_panel_id){
-
+        $event = (new EventsModel())->first();
+        if(!$event){
+            return (new ErrorHandler($event))->errorPage();
+        }
 
         $post = $this->request->getPost();
+        $event = (new AbstractEventsModel())->first();
         $individual_panel = (new PanelistPaperSubModel())->find($individual_panel_id);
         $paper_id = $individual_panel['paper_id'];
         $UsersProfileModel = (new UsersProfileModel());
@@ -394,6 +414,7 @@ class AbstractController extends Controller
         $adminComment = $AdminAbstractCommentModel->where(['paper_id'=>$paper_id, 'admin_id'=>session('user_id')])->first();
 
         $data = [
+            'event'=> $event,
             'papers'=> $papers,
             'authorInfo'=> $authorInfo,
             'paper_id'=> $paper_id,
@@ -422,9 +443,13 @@ class AbstractController extends Controller
     }
 
     public function view_abstract_panel($paper_id){
-
+        $event = (new EventsModel())->first();
+        if(!$event){
+            return (new ErrorHandler($event))->errorPage();
+        }
 
         $post = $this->request->getPost();
+        $event = (new AbstractEventsModel())->first();
 
         $UsersProfileModel = (new UsersProfileModel());
         $PapersModel = (new PapersModel());
@@ -498,6 +523,7 @@ class AbstractController extends Controller
         $adminComment = $AdminAbstractCommentModel->where(['paper_id'=>$paper_id, 'admin_id'=>session('user_id')])->first();
 
         $data = [
+            'event'=> $event,
             'papers'=> $papers,
             'authorInfo'=> $authorInfo,
             'paper_id'=> $paper_id,
@@ -582,6 +608,7 @@ class AbstractController extends Controller
 
         $user_id = session('user_id');
         $post = $this->request->getPost();
+        $event = (new AbstractEventsModel())->first();
 
         $UsersProfileModel = (new UsersProfileModel());
         $PapersModel = (new PapersModel());
@@ -658,7 +685,7 @@ class AbstractController extends Controller
 
     public function getAllPapers(){
         $post = $this->request->getPost();
-        return $this->response->setJSON(['status' => 200, "message" => 'success', 'data' => $this->getAllPapersArray($post['submission_type'])]??[]);
+        return json_encode(['status' => 200, "message" => 'success', 'data' => $this->getAllPapersArray($post['submission_type'])]??[]);
     }
 
     public function getAllPanels(){
@@ -710,7 +737,6 @@ class AbstractController extends Controller
         $papers = (object) $PapersModel->GetJoinedUser($submission_type)->getResult();
         $PaperAssignedReviewerModel = (new PaperAssignedReviewerModel());
         $UserModel = (new UserModel());
-        $PaperTypesModel = (new PaperTypeModel());
         $paper_array = array();
         try{
             foreach($papers as $paper){
@@ -744,17 +770,20 @@ class AbstractController extends Controller
                 $paper->dpc = (new PapersDeputyAcceptanceModel())->where(['paper_id'=>$paper->id])->findAll();
 
                 $paper->reviewers = $reviewer_array;
-                $paperType = $PaperTypesModel->where('id', ($paper->type_id))->first();
-//                $paperDivision = (new DivisionsModel())->where('id', ($paper->division_id))->first();
-//                $paper->division = ($paperDivision)?:[];
+                $paperType = (new PaperTypeModel())->where('id', ($paper->type_id))->first();
+                $paperDivision = (new DivisionsModel())->where('id', ($paper->division_id))->first();
+                $paper->division = ($paperDivision)?:[];
                 $paper->type = ($paperType)?:[];
-                $paper->types = $PaperTypesModel->findAll() ?:[];
 
                 $paper->adminOption = (new AdminAcceptanceModel())->where(['abstract_id'=>$paper->id])->first();
                 $paper->adminComment = (new AdminAbstractCommentModel())->where(['paper_id'=>$paper->id])->first();
                 $paper->uploads = (new PaperUploadsModel())->where(['paper_id'=>$paper->id])->findAll();
-                $paper->category = (new AbstractCategoriesModel())->where(['id'=>$paper->abstract_category])->first();
-//                 $abstract->rating = (new ReviewerModel())->whereIn('id', json_decode($abstract->population))->findAll();
+
+                $paper->schedule =   (new SchedulerSessionTalksModel())
+                    ->join('scheduler_events se', 'scheduler_session_talks.scheduler_event_id = se.id', 'left')
+                    ->where('abstract_id', $paper->id)
+                    ->first();
+
                 $paper_array[] = $paper;
             }
 //            print_r(array_slice($paper_array, 150, 50));exit;
@@ -850,7 +879,7 @@ class AbstractController extends Controller
         $userModel = new UserModel();
         $disclosureAuthor  = (object)($userModel->Get());
 
-    
+        $event = (new EventsModel())->first();
         $assignedReviewer = (new ReviewerModel())->get();
         // $author_institution->authors_institution = (new InstitutionsModel())->get();
         $user_array = array();
@@ -865,6 +894,7 @@ class AbstractController extends Controller
             'title' => ''
         ];
         $data = [
+            'event'=> $event,
             'authors' => $user_array,
             'abstract_id' => $abstract_id,
         ];
@@ -1082,7 +1112,7 @@ class AbstractController extends Controller
             $email_body = str_replace('##REVIEW_USERNAME##', ($user['email']), $email_body);
             $email_body = str_replace('##REVIEW_PASSWORD##', 'Please reset your password in case forgotten. Thank you!', $email_body);
 
-            $from = ['name'=>env('MAIL_FROM'), 'email'=>env('MAIL_FROM_ADDRESS')];
+            $from = ['name'=>'AFS', 'email'=>'afs@owpm2.com'];
             $addTo = $user['email'];
             $subject = $EmailTemplates['email_subject'];
             $addContent = $email_body;
@@ -1150,13 +1180,14 @@ class AbstractController extends Controller
 //        echo json_encode($reviewer_array);
 //    }
     public function reviewer_list(){
-    
+        $event = (new EventsModel())->first();
 
         $reviewerModel =
         $header_data = [
             'title' => ''
         ];
         $data = [
+            'event'=> $event,
             'divisions' => (new DivisionsModel())->findAll()
         ];
 
@@ -1171,7 +1202,7 @@ class AbstractController extends Controller
             ;
     }
 
-    public function exportScores(){
+    public function exportScores($event_uri){
         $abstracts = (new PapersModel())->get();
      
         if(isset($abstracts) && !empty($abstracts)){
@@ -1226,16 +1257,20 @@ class AbstractController extends Controller
         $excelController->export('prism',$abstract_array);
     }
     
-    public function abstract_acceptance_view($abstract_id){
+    public function abstract_acceptance_view($event_uri, $abstract_id){
+        $event = $this->api->getRequest("event/details/{$event_uri}");
         $userModel = new UserModel();
-        $abstractModel = (new PapersModel())->where('id', $abstract_id)->findALl();
-        $acceptanceRooms = (new RoomsModel())->findAll();
-
+        $abstractModel = (new PapersModel())->where('id', $abstract_id)->get();
+        $acceptanceRooms = (new AcceptanceRoomsModel())->get();
+        if(!$event){
+            return (new ErrorHandler($event))->errorPage();
+        }
 
         $header_data = [
             'title' => ''
         ];
         $data = [
+            'event'=> $event,
             'abstract_id' => $abstract_id,
         ];
 
@@ -1286,7 +1321,10 @@ class AbstractController extends Controller
         $paper = (new PapersModel())->where('id', $paper_id)->first();
         $divisions = (new DivisionsModel())->findAll();
         $paper_type = (new PaperTypeModel())->findAll();
-
+        $event = (new EventsModel())->first();
+        if(!$event){
+            return 'error';
+        }
 
         if(!$paper){
             return 'error';
@@ -1296,6 +1334,7 @@ class AbstractController extends Controller
             'title' => "Paper Details"
         ];
         $data = [
+            'event'=> $event,
             'paper' => $paper,
             'paper_id'=>$paper_id,
             'divisions' => $divisions ?? '',
@@ -1313,6 +1352,10 @@ class AbstractController extends Controller
         $paper = (new PapersModel())->where('id', $paper_id)->first();
         $divisions = (new DivisionsModel())->findAll();
         $paper_type = (new PaperTypeModel())->findAll();
+        $event = (new EventsModel())->first();
+        if(!$event){
+            return 'error';
+        }
 
         if(!$paper){
             return 'error';
@@ -1322,6 +1365,7 @@ class AbstractController extends Controller
             'title' => "Panel Overview"
         ];
         $data = [
+            'event'=> $event,
             'paper' => $paper,
             'paper_id'=>$paper_id,
             'divisions' => $divisions ?? '',
@@ -1342,7 +1386,10 @@ class AbstractController extends Controller
         $paper  = (new PapersModel())->where('id', $paper_id)->first();
         $divisions = (new DivisionsModel())->findAll();
         $paper_type = (new PaperTypeModel())->findAll();
-    
+        $event = (new EventsModel())->first();
+        if(!$event){
+            return 'error';
+        }
 
         if(!$paper){
             return 'error';
@@ -1352,6 +1399,7 @@ class AbstractController extends Controller
             'title' => "Panel Overview"
         ];
         $data = [
+            'event'=> $event,
             'paper' => $paper,
             'paper_id'=>$paper_id,
             'divisions' => $divisions ?? '',
@@ -1505,6 +1553,7 @@ class AbstractController extends Controller
         $post = $this->request->getPost();
 
         $UsersModel = (new UserModel());
+        $event = (new AbstractEventsModel())->first();
         $papersModel = (new PapersModel());
         $papers = $papersModel->find($paper_id);
         $UsersProfileModel = (new UsersProfileModel());
@@ -1519,6 +1568,7 @@ class AbstractController extends Controller
         ];
         $data = [
             'id' => $this->request->uri->getSegment(4),
+            'event'=> $event,
             'paper_id' => $paper_id,
 //            'disclosure_data' => $papers,
             'abstract_details'=>($papers)?:'',
@@ -1535,6 +1585,7 @@ class AbstractController extends Controller
 
         $post = $this->request->getPost();
 
+        $event = (new AbstractEventsModel())->first();
         $papersModel = (new PapersModel());
         $papers = $papersModel->find($paper_id);
         $UsersProfileModel = (new UsersProfileModel());
@@ -1550,6 +1601,7 @@ class AbstractController extends Controller
         ];
 
         $data = [
+            'event'=> $event,
             'paper_id' => $paper_id,
             'abstract_details'=>($papers)?:'',
             'recentAuthors'=>$recentAuthors
@@ -1567,6 +1619,7 @@ class AbstractController extends Controller
         $post = $this->request->getPost();
 
 
+        $event = (new AbstractEventsModel())->first();
         $papersModel = (new PapersModel());
         $papers = $papersModel->find($paper_id);
         $UsersModel = (new UserModel());
@@ -1582,6 +1635,7 @@ class AbstractController extends Controller
         ];
         $data = [
             'id' => $this->request->uri->getSegment(4),
+            'event' => $event,
             'paper_id' => $paper_id,
 //            'disclosure_data' => $papers,
             'abstract_details' => ($papers) ?: '',
@@ -1594,21 +1648,25 @@ class AbstractController extends Controller
     }
 
 
-    public function permissions($abstract_id){
+    public function permissions($event_uri, $abstract_id){
 
         $_POST['abstract_id'] = $abstract_id;
         // $_POST['user_id'] = session('user_id');
+        $event = (new AbstractEventsModel())->first();
         $abstract_details = (new PapersModel())->where('id', $abstract_id)->get();
 
-
+        if (!$event) {
+            return (new ErrorHandler($event))->errorPage();
+        }
         if (!$abstract_details) {
            exit;
         }
 
         $header_data = [
-            'title' => ''
+            'title' => $event->short_name
         ];
         $data = [
+            'event'=> $event,
             'abstract_id'=> $abstract_id,
             'abstract_details'=> $abstract_details[0],
             // 'permissions' =>($permissions->data)?$permissions->data[0]:array(),
@@ -1722,7 +1780,7 @@ class AbstractController extends Controller
                 $PaperTemplates = str_replace('##RECIPIENTS_FULL_NAME##', ucFirst($user['name']) . ' ' . ucFirst($user['surname']), $PaperTemplates);
                 $PaperTemplates = str_replace('##ABSTRACT_TITLE##', strip_tags($paper->title), $PaperTemplates);
 
-                $from = ['name' => env('MAIL_FROM'), 'email' => env('MAIL_FROM_ADDRESS')];
+                $from = ['name' => 'AFS', 'email' => 'afs@owpm2.com'];
                 $addTo = $user['email'];
                 $subject = $MailTemplates['email_subject'];
                 $addContent = $PaperTemplates;

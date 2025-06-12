@@ -11,7 +11,6 @@ use App\Models\PaperTypeModel;
 use App\Models\RemovedPaperAuthorModel;
 use App\Models\ReviewerPaperUploadsModel;
 use App\Models\UserModel;
-use App\Models\UsersProfileModel;
 
 class Home extends BaseController
 {
@@ -27,25 +26,31 @@ class Home extends BaseController
 
     public function index(): string
     {
-//        print_r((new UserModel()));exit;
+
+//        print_r('test');exit;
+
+        $event = (new AbstractEventsModel())->first();
 
         $PaperAuthorsModel = (new PaperAuthorsModel());
+
+        if(!$event){
+            return "Missing Even on Database";
+        }
 
         $header_data = [
             'title' => "My Submissions"
         ];
-
+        $data = [
+            'event'=> $event
+        ];
         $user_id = $_SESSION['user_id'];
         $PaperTypeModel = new PaperTypeModel();
         $papersModel =  (new PapersModel());
         $AbstractReviewModel = (new AbstractReviewModel());
-        $UserModel = (new UserModel())->setDBConnection(\Config\Database::connect('shared'));
-        $UserProfileModel = new UsersProfileModel();
+        $UserModel = new UserModel();
         $ReviewerPaperUploadsModel = (new ReviewerPaperUploadsModel());
         $RemovedPaperAuthorsModel = (new RemovedPaperAuthorModel());
-
-//        print_R($papersModel);exit;
-
+        
         $papers = $papersModel
             ->select("*, ".$papersModel->getTable().".id as id")
             ->join($PaperTypeModel->getTable(), $papersModel->getTable(). '.type_id = '.$PaperTypeModel->getTable().'.type', 'left')
@@ -54,14 +59,12 @@ class Home extends BaseController
             ->orderBy($papersModel->getTable().'.id', 'asc')
             ->findAll();
 
-        print_R('test');
 
         foreach ($papers as $paper) {
             // Fetch authors for the paper
             $paper->authors = $PaperAuthorsModel
-                ->select('u.*, up.signature_signed_date') // Select all fields from the UserModel
-                ->join($UserModel->getTable(). ' u', $PaperAuthorsModel->getTable() . '.author_id = u.id', 'left')
-                ->join($UserProfileModel->getTable(). ' up', $PaperAuthorsModel->getTable() . '.author_id = up.author_id', 'left')
+                ->select($UserModel->getTable() . '.*,'.$PaperAuthorsModel->getTable().'.is_copyright_agreement_accepted') // Select all fields from the UserModel
+                ->join($UserModel->getTable(), $PaperAuthorsModel->getTable() . '.author_id =' . $UserModel->getTable() . '.id', 'left')
                 ->where(['paper_id' => $paper->id, 'author_type' => 'author'])
                 ->whereNotIn('paper_authors.id', function ($builder) use ($RemovedPaperAuthorsModel) {
                     $builder->select('paper_author_id')->from($RemovedPaperAuthorsModel->getTable());
@@ -87,8 +90,8 @@ class Home extends BaseController
                 ->where(['paper_id' => $paper->id, 'author_type' => 'panelist'])
                 ->findAll();
         }
-
-//        print_r($paper);exit;
+//        $reviewer['uploads'] = 'test';
+//        print_r($papers);exit;
         $data['papers'] = $papers;
 
         return

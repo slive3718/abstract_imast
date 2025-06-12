@@ -9,7 +9,6 @@ use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
 
-
 use App\Models\AbstractEventsModel;
 /**
  * Class BaseController
@@ -23,9 +22,6 @@ use App\Models\AbstractEventsModel;
  */
 class BaseController extends Controller
 {
-    protected $default_db;
-    protected $shared_db;
-
     /**
      * Instance of the main Request object.
      *
@@ -57,13 +53,6 @@ class BaseController extends Controller
         $this->session->start();
         $this->uri = new \CodeIgniter\HTTP\URI();
 
-        $this->initializeDatabases();
-    }
-
-    protected function initializeDatabases()
-    {
-        $this->default_db = \Config\Database::connect();
-        $this->shared_db = \Config\Database::connect('shared');
     }
 
     protected function show404()

@@ -120,11 +120,11 @@ class Reports extends AbstractController
                 ];
 
                 $talkScheduleData = [
-                    $paper->talkSchedule['session_date'] ?? '',
-                    $paper->talkSchedule['session_start_time'] ?? '',
-                    $paper->talkSchedule['session_end_time'] ?? '',
-                    $paper->talkSchedule['time_start'] ?? '',
-                    $paper->talkSchedule['time_end'] ?? '',
+                    !empty($paper->schedule['session_date']) ? date('Y-m-d', strtotime($paper->schedule['session_date'])) : '',
+                    !empty($paper->schedule['session_start_time']) ? date('h:i a', strtotime($paper->schedule['session_start_time'])) : '',
+                    !empty($paper->schedule['session_end_time']) ? date('h:i a', strtotime($paper->schedule['session_end_time'])) : '',
+                    !empty($paper->schedule['time_start']) ? date('h:i a', strtotime($paper->schedule['time_start'])) : '',
+                    !empty($paper->schedule['time_end']) ? date('h:i a', strtotime($paper->schedule['time_end'])) : '',
                 ];
                 $exportData[$index] = array_merge($exportData[$index], $talkScheduleData);
                 // Loop through additional presenting authors

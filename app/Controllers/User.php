@@ -3,11 +3,7 @@
 namespace App\Controllers;
 
 use App\Libraries\PhpMail;
-use App\Models\AbstractCategoriesModel;
 use App\Models\AbstractReviewModel;
-use App\Models\CitiesModel;
-use App\Models\CountriesModel;
-use App\Models\DesignationsModel;
 use App\Models\EmailLogsModel;
 use App\Models\EmailTemplatesModel;
 use App\Models\PanelistPaperSubModel;
@@ -37,14 +33,16 @@ class User extends BaseController
     public function __construct()
     {
 
+
+//        print_r(session('user_id'));exit;
         if(session('user_id')){
             $this->user_id = session('user_id');
         }else{
-            return redirect()->to(base_url().'login');
+            return redirect()->to(base_url().'afs/login');
         }
 
         if(empty(session('email')) || session('email') == ''){
-            return redirect()->to(base_url().'logout');
+            return redirect()->to(base_url().'afs/logout');
         }
 
         helper('text');
@@ -53,13 +51,17 @@ class User extends BaseController
 
     public function index()
     {
-        print_r('Index User');exit;
+        $event = (new EventsModel())->first();
+        if(!$event){
+            return 'error';
+        }
+
         $header_data = [
-            'title' => 'Asia Pacific Submission'
+            'title' => $event->short_name
         ];
-
-        $data = [];
-
+        $data = [
+            'event'=> $event
+        ];
         return
             view('event/common/header', $header_data).
             view('event/login',$data).
@@ -67,18 +69,9 @@ class User extends BaseController
             ;
     }
 
-    function setSegment($segment)
-    {
-        if (ENVIRONMENT === 'production') {
-            $segment =  $segment - 1;
-        }
-
-        return $segment;
-    }
      public function submission_menu($paper_id){
 
-         $this->validate_user_access($paper_id);
-
+         $event = (new EventsModel())->first();
          $PapersModel = (new PapersModel());
          $AuthorsModel = (new PaperAuthorsModel());
          $UsersProfileModel = (new UsersProfileModel());
@@ -93,16 +86,28 @@ class User extends BaseController
              ->where('paper_authors.paper_id', $paper_id)
              ->findAll();
 
-         $paper = $PapersModel->asArray()->find($paper_id);
+         $paper = $PapersModel->find($paper_id);
 
          $authorDetailsRequiredFields = [
-             'institution_id' => 'Institution',
-             'designations' => 'Designations',
-             'signature_signed_date'=> 'Disclosure Signature'
+             'electronic_signature' => 'Copyright',
+             'is_copyright_agreement_accepted' => 'Copyright Agreement',
+             'institution' => 'Institution',
+             'country' => 'Country',
+             'city' => 'City',
+             'province' => 'Province',
+             'deg' => 'Degree'
          ];
 
 
-         $paperRequiredFields = [];
+         //         print_r($authors);exit;
+         $paperUploads = (new PaperUploadsModel())->where('paper_id', $paper_id)->findAll();
+         $paperRequiredFields = [
+             'division_id' => "Division",
+             'type_id' => 'Type',
+             'title' => 'Title',
+             'summary' => 'Summary',
+             'is_ijmc_interested' => 'Is IJMC Interested'
+         ];
 
          $incomplete = [];
          foreach ($authors as $author) {
@@ -113,8 +118,9 @@ class User extends BaseController
              }
          }
 
-         if($paper['image_upload_finished'] !== '1'){
-             $incomplete['paperUpload'][] = 'Incomplete Paper Upload.';
+
+         if(!$paperUploads){
+             $incomplete['paperUpload'][] = 'required ' . 'Uploads' . ' for paper: ' . $paper_id;
          }
 
          if($paper){
@@ -125,17 +131,21 @@ class User extends BaseController
              }
          }
 
-         if($paper['is_finalized'] !== '1'){
+         if($paper->is_finalized !== '1'){
              $incomplete['finalized'][] = 1;
          }
 
+        if(!$event){
+            return "error";
+        }
         $header_data = [
             'title' => "Submission Menu"
         ];
 
         $data = [
+            'event'=> $event,
             'paper_id'=>$paper_id,
-            'paper' => $paper ?? [],
+            'papers' => ($papers ?? array()),
             'authors' => $authors,
             'incompleteStatus' => !empty($incomplete)?$incomplete:[]
         ];
@@ -150,15 +160,20 @@ class User extends BaseController
 
     public function papers_submission(){
 
-        $categories = (new AbstractCategoriesModel())->orderBy('name', 'asc')->findAll();
+        $event = (new AbstractEventsModel())->first();
+        $divisions = (new DivisionsModel())->findAll();
         $paper_type = (new PaperTypeModel())->findAll();
 
-        $header_data = [
-            'title' => "Submission"
-        ];
+        if(!$event){
+            return ('error');
+        }
 
+        $header_data = [
+            'title' => $event->short_name
+        ];
         $data = [
-            'categories' => $categories ?? '',
+            'event'=> $event,
+            'divisions' => $divisions ?? '',
             'paper_type' => $paper_type ?? '',
             'notification' => session()->getFlashdata('notification')
         ];
@@ -170,27 +185,29 @@ class User extends BaseController
     }
 
     public function edit_papers_submission($paper_id = null){
-        $this->validate_user_access($paper_id);
 
-        $paper = (new PapersModel())->where('id', $paper_id)->asArray()->first();
-        $categories = (new AbstractCategoriesModel())->orderBy('name', 'asc')->findAll();
+        $paper = (new PapersModel())->where('id', $paper_id)->first();
+        $divisions = (new DivisionsModel())->findAll();
         $paper_type = (new PaperTypeModel())->findAll();
+        $event = (new EventsModel())->first();
+        if(!$event){
+            return 'error';
+        }
 
         if(!$paper){
             return 'error';
         }
 
         $header_data = [
-            'title' => "Abstract Details"
+            'title' => "Paper Details"
         ];
         $data = [
+            'event'=> $event,
             'paper' => $paper,
             'paper_id'=>$paper_id,
+            'divisions' => $divisions ?? '',
             'paper_type' => $paper_type ?? '',
-            'categories' => $categories ?? '',
-            'is_edit' => 1,
-            'previous_url' => previous_url(),
-            'previous_page' => service('uri')->setURI(previous_url())->getSegment($this->setSegment(3))?? '',
+            'is_edit' => 1
         ];
         return
             view('event/common/header', $header_data).
@@ -199,189 +216,163 @@ class User extends BaseController
             ;
     }
 
-    public function submit_paper_ajax()
-    {
+    public function submit_paper_ajax(){
         $post = $this->request->getPost();
 
-        if (!$post) {
-            return $this->response->setJSON(['status' => 400, 'msg' => 'No post data received']);
+//        print_r($post);exit;
+//        print_R(session('user_id'));exit;
+        if ($post) {
+            $insert_array = [
+                'division_id' => $post['division'] ?? null,
+                'user_id' => session('user_id'),
+                'type_id' => $post['paper_type'] ?? null,
+                'title' => $post['title'] ?? null,
+                'summary' => $post['summary'] ?? null,
+                'is_ijmc_interested' => $post['is_interested'] ?? null,
+            ];
+
+            if (!empty($insert_array['division_id']) && !empty($insert_array['type_id']) && !empty($insert_array['title'])) {
+                try {
+                    $papersModel = (new PapersModel());
+                    $papersModel->insert($insert_array);
+                    $insert_id = $papersModel->getInsertId();
+
+                    $newCustomId = $this->generateCustomID($insert_id);
+                    $papersModel->set('custom_id', $newCustomId)->where('id', $insert_id)->update();
+                    // Handle successful insertion
+                    if($insert_id) {
+                        session()->setFlashdata('status', 'success');
+                        session()->setFlashdata(['notification' => 'Data Inserted Successfully.']);
+                        echo json_encode(['status' => '200', 'msg' => "Data Inserted Successfully", 'data' => ['insert_id'=>$insert_id]]);
+                    }
+                } catch (\Exception $e) {
+                    // Handle insertion failure
+                    session()->setFlashdata('status', 'warning');
+                    session()->setFlashdata(['notification' => $e->getMessage()]);
+                    echo json_encode(['status'=>'404', 'msg'=> $e->getMessage()]);
+                }
+            }
+        } else {
+            echo json_encode(['status'=>'400', 'msg'=> 'No post data received']);
         }
 
-        // Define validation rules
-        $validationRules = [
-            'previous_presentation'  => 'required',
-            'basic_science_format'  => 'required',
-            'abstract_category'      => 'required',
-            'abstract_title'         => 'required',
-            'hypothesis'             => 'required',
-            'study_design'           => 'required',
-            'introduction'           => 'required',
-            'methods'                => 'required',
-            'results'                => 'required',
-            'conclusions'            => 'required',
-        ];
-
-        if (!$this->validate($validationRules)) {
-            return $this->response->setJSON(['status' => 'failed', 'msg' => $this->validator->getErrors()]);
-        }
-
-        // Prepare data for insertion
-        $insert_array = [
-            'user_id'               => session('user_id'),
-            'previous_presentation' => $post['previous_presentation'] ?? null,
-            'basic_science_format'   => $post['basic_science_format'] ?? null,
-            'abstract_category'      => $post['abstract_category'] ?? null,
-            'title'                  => $post['abstract_title'] ?? null,
-            'hypothesis'             => $post['hypothesis'] ?? null,
-            'study_design'           => $post['study_design'] ?? null,
-            'introduction'           => $post['introduction'] ?? null,
-            'methods'                => $post['methods'] ?? null,
-            'results'                => $post['results'] ?? null,
-            'conclusions'            => $post['conclusions'] ?? null,
-            'additional_notes'       => $post['additional_notes'] ?? null,
-            'abstract_body_count'       => $post['abstract_body_count'] ?? null,
-        ];
-
-        try {
-            $papersModel = new PapersModel();
-            $papersModel->insert($insert_array);
-            $insert_id = $papersModel->getInsertID();
-
-            // Generate and update custom ID
-            $newCustomId = $this->generateCustomID($insert_id);
-            $papersModel->update($insert_id, ['custom_id' => $newCustomId]);
-
-            return $this->response->setJSON([
-                'status' => 200,
-                'msg' => 'Data Inserted Successfully',
-                'data' => ['abstract_id' => $insert_id]
-            ]);
-        } catch (\Exception $e) {
-            return $this->response->setJSON([
-                'status' => 500,
-                'msg' => 'Database Insertion Failed',
-                'error' => $e->getMessage()
-            ]);
-        }
     }
-
 
     public function update_paper_ajax()
     {
+        // Get the POST data
         $post = $this->request->getPost();
+        $papersModel = (new PapersModel());
+        $update_array = array(
+            'division_id' => intVal($post['division']) ?? null,
+            'type_id' => isset($post['paper_type']) ? intVal($post['paper_type']) ?? null: null,
+            'title' => $post['title'] ?? null,
+            'summary' => $post['summary'] ?? null,
+            'is_ijmc_interested' => intVal($post['is_interested']) ?? null,
+            'custom_id'=>$this->generateCustomID($post['paper_id'])
+        );
 
-        // Ensure paper_id is provided
-        if (empty($post['paper_id'])) {
-            return $this->response->setJSON(['status' => 400, 'msg' => "Paper ID is required", 'data' => '']);
-        }
-
-        $papersModel = new PapersModel();
-
-        // Fetch existing data to prevent overwriting with null
-        $existingPaper = $papersModel->asArray()->find($post['paper_id']);
-        if (!$existingPaper) {
-            return $this->response->setJSON(['status' => 404, 'msg' => "Paper not found", 'data' => '']);
-        }
-
-        // Prepare the update array
-        $update_array = [
-            'previous_presentation'  => isset($post['previous_presentation']) ? trim($post['previous_presentation']) : $existingPaper['previous_presentation'],
-            'basic_science_format'   => isset($post['basic_science_format']) ? trim($post['basic_science_format']) : $existingPaper['basic_science_format'],
-            'abstract_category'      => isset($post['abstract_category']) ? trim($post['abstract_category']) : $existingPaper['abstract_category'],
-            'title'                  => isset($post['abstract_title']) ? trim($post['abstract_title']) : $existingPaper['title'],
-            'hypothesis'             => isset($post['hypothesis']) ? trim($post['hypothesis']) : $existingPaper['hypothesis'],
-            'study_design'           => isset($post['study_design']) ? trim($post['study_design']) : $existingPaper['study_design'],
-            'introduction'           => isset($post['introduction']) ? trim($post['introduction']) : $existingPaper['introduction'],
-            'methods'                => isset($post['methods']) ? trim($post['methods']) : $existingPaper['methods'],
-            'results'                => isset($post['results']) ? trim($post['results']) : $existingPaper['results'],
-            'conclusions'            => isset($post['conclusions']) ? trim($post['conclusions']) : $existingPaper['conclusions'],
-            'additional_notes'       => isset($post['additional_notes']) ? trim($post['additional_notes']) : $existingPaper['additional_notes'],
-            'abstract_body_count'      => isset($post['abstract_body_count']) ? trim($post['abstract_body_count']) : $existingPaper['abstract_body_count'],
-            'min_follow_up_period'   => isset($post['min_follow_up_period']) ? trim($post['min_follow_up_period']) : $existingPaper['min_follow_up_period'],
-            'is_srs_funded'          => isset($post['is_srs_funded']) ? trim($post['is_srs_funded']) : $existingPaper['is_srs_funded'],
-            'primary_investigator'   => isset($post['primary_investigator']) ? trim($post['primary_investigator']) : $existingPaper['primary_investigator'],
-            'grant_year'             => isset($post['grant_year']) ? trim($post['grant_year']) : $existingPaper['grant_year'],
-            'image_caption'          => isset($post['image_caption']) ? trim($post['image_caption']) : $existingPaper['image_caption'],
-            'author_q_1'          => isset($post['author_q_1']) ? trim($post['author_q_1']) : $existingPaper['author_q_1'],
-            'author_q_2'          => isset($post['author_q_2']) ? trim($post['author_q_2']) : $existingPaper['author_q_2'],
-            'image_upload_finished'  => isset($post['image_upload_finished']) ? trim($post['image_upload_finished']) : $existingPaper['image_upload_finished'],
-        ];
-
-
-        // Remove fields that haven't changed
-        $update_array = array_diff_assoc($update_array, $existingPaper);
-
-        // If no changes, return a message
-        if (empty($update_array)) {
-            return $this->response->setJSON(['status' => 200, 'msg' => "No changes made", 'data' => ['abstract_id' => $post['paper_id']]]);
-        }
-
-        // Perform the update operation
+        // Perform the update operation using the PapersModel
         try {
-            $updated = $papersModel->update($post['paper_id'], $update_array);
-
-            if ($updated) {
-                return $this->response->setJSON([
-                    'status' => 200,
-                    'msg' => "Paper updated successfully",
-                    'data' => ['abstract_id' => $post['paper_id']]
-                ]);
-            } else {
-                return $this->response->setJSON(['status' => 500, 'msg' => "Update failed", 'data' => '']);
-            }
-        } catch (\Exception $e) {
-            return $this->response->setJSON([
-                'status' => 500,
-                'msg' => "Paper update failed: " . $e->getMessage(),
-                'data' => ''
-            ]);
+            $affectedRows = $papersModel->where(['id' => $post['paper_id']])->set($update_array)->update();
+        }catch (\Exception $e){
+            session()->setFlashdata('status', 'error');
+            session()->setFlashdata(['notification' => $e->getMessage()]);
+            return json_encode(['status' => '500', 'msg' => "Paper Updated Failed", 'data' =>'']);
+        }
+        // Check if update was successful
+        if ($affectedRows > 0) {
+            // Update was successful
+            session()->setFlashdata('status', 'success');
+            session()->setFlashdata(['notification' => 'Submission Updated Successfully.']);
+            return json_encode(['status' => '200', 'msg' => "Paper Updated Successfully", 'data' => ['insert_id'=>$post['paper_id']]]);
         }
     }
 
-
     function generateCustomID($paper_id){
-        $nextYear = date('Y') < 2026 ? 2026 : date('Y');
+        $nextYear = date('Y');
         $newCustomId = sprintf('%s-%03d', $nextYear, $paper_id);
         return $newCustomId;
     }
 
     function generatePanelistCustomID($paper_id){
-        $nextYear = date('Y') < 2026 ? 2026 : date('Y');
+        $nextYear = date('Y');
         $newCustomId = sprintf('%s-%03d', $nextYear, $paper_id);
         return $newCustomId;
     }
 
 
+    public function author_copyright(){
+
+    }
+
+//    public function update_abstract_permission(){
+//        $_POST['user_id'] = session()->get('user_id');
+//        $_POST['event_uri'] = $this->event_uri;
+//        $result = $this->api->post("user/update_abstract_permission/{$this->event_uri}", $_POST);
+//
+//        if(!$result->status){
+//            return (new ErrorHandler($result->data))->errorPage();
+//        }
+//        echo json_encode($result);
+//     }
+
+//    public function view_permissions($event_uri = null, $abstract_id=null)
+//    {
+//        $_POST['abstract_id'] = $abstract_id;
+//        $_POST['user_id'] = session('user_id');
+//
+//        $abstract_details = (new Api())->post("user/get_abstract_by_id/{$this->event_uri}", $_POST);
+////        print_r($abstract_details);exit;
+//        if (!$this->event) {
+//            return (new ErrorHandler($this->event))->errorPage();
+//        }
+//        if (!$abstract_details || $abstract_details->data =='' ) {
+//           exit;
+//        }
+//
+//        $header_data = [
+//            'title' => "Permissions"
+//        ];
+//        $data = [
+//            'event'=> $this->event,
+//            'abstract_id'=> $abstract_id,
+//            'abstract_details'=> $abstract_details->data[0],
+//        ];
+//        return
+//            view('event/common/header', $header_data).
+//            view('event/permissions',$data).
+//            view('event/common/footer')
+//            ;
+//
+//    }
+
+
+
     public function authors_and_copyright($paper_id){
         $post = $this->request->getPost();
 
-        $this->validate_user_access($paper_id);
-
         $UsersModel = (new UserModel());
+        $event = (new AbstractEventsModel())->first();
         $papersModel = (new PapersModel());
-        $paper = $papersModel->asArray()->find($paper_id);
+        $papers = $papersModel->find($paper_id);
         $UsersProfileModel = (new UsersProfileModel());
         $recentAuthors = (new PaperAuthorsModel())
-            ->select('paper_authors.*, u.name, u.surname')
-            ->join($UsersModel->table. ' u', 'paper_authors.author_id = u.id', 'left')
-            ->join($papersModel->table. ' p', 'paper_authors.paper_id = p.id', 'left')
-            ->where('p.user_id', session('user_id'))
+            ->join($UsersModel->table, 'paper_authors.author_id = users.id')
+            ->where('paper_id', $paper_id)
             ->where('author_type', 'author')
             ->findAll();
 
-        $disclosure_current_date = (new SiteSettingModel())->where('name', 'disclosure_current_date')->first()['value'];
-
         $header_data = [
-            'title' => "Authors and Disclosure Panel"
+            'title' => "Authors and Copyright"
         ];
         $data = [
             'id' => $this->request->uri->getSegment(4),
+            'event'=> $event,
             'paper_id' => $paper_id,
-            'paper'=> $paper ? :'',
-            'recentAuthors'=>$recentAuthors,
-            'disclosure_current_date'=>$disclosure_current_date,
-            'previous_url' => previous_url(),
-            'previous_page' => service('uri')->setURI(previous_url())->getSegment($this->setSegment(3))?? '',
+//            'disclosure_data' => $papers,
+            'abstract_details'=>($papers)?:'',
+            'recentAuthors'=>$recentAuthors
         ];
         return
             view('event/common/header', $header_data).
@@ -389,38 +380,16 @@ class User extends BaseController
             view('event/common/footer')
             ;
     }
-
-    public function get_study_groups(){
-        $study_groups = (new UserModel())->where('is_study_group', 1)->asArray()->findAll();
-        return $this->response->setJSON([
-            'status'=> 200,
-            'message'=>'success',
-            'data'=> $study_groups ?? []
-        ]);
-    }
-
-    public function level_of_evidence($paper_id){
-        $this->validate_user_access($paper_id);
-        $paper = (new PapersModel())->asArray()->find($paper_id);
-
-        $header_data = [
-            'title' => "Level of Evidence"
-        ];
-
-        $data = [
-            'paper_id' => $paper_id,
-            'paper'=> $paper ?:'',
-            'previous_url' => previous_url(),
-            'previous_page' => service('uri')->setURI(previous_url())->getSegment($this->setSegment(3))?? '',
-        ];
-//        print_r($paper);exit;
-        return
-            view('event/common/header', $header_data).
-            view('event/level_of_evidence',$data).
-            view('event/common/footer')
-            ;
-    }
-
+//
+//    public function getDisclosureAjax(){
+//        $event = (new AbstractEventsModel())->first();
+//        if(!$event){
+//            return (new ErrorHandler($event))->errorPage();
+//        }
+//        echo json_encode(array('status'=>200, 'data'=>$event));
+//    }
+//
+//
     public function search_author_ajax(){
         $post = $this->request->getpost();
         $UsersModel = (new UserModel());
@@ -428,27 +397,11 @@ class User extends BaseController
         if($post){
             try {
                 $authors = $authorModel
-                    ->select('
-                        users_profile.*, 
-                        u.id as user_id,
-                        u.email, 
-                        u.surname, 
-                        u.name, 
-                        u.middle_name, 
-                        u.is_study_group, 
-                        i.name as institution_name, 
-                        ci.name as institution_city, 
-                        co.name as institution_country
-                    ')
-                    ->join($UsersModel->table . ' u', 'users_profile.author_id = u.id', 'right')
-                    ->join((new UsersProfileModel())->table . ' up', 'u.id = up.author_id', 'right')
-                    ->join((new InstitutionModel())->table . ' i', 'up.institution_id = i.id', 'left')
-                    ->join((new CitiesModel())->table . ' ci', 'i.city_id = ci.id', 'left')
-                    ->join((new CountriesModel())->table . ' co', 'ci.country_id = co.id', 'left')
-                    ->like('LOWER(u.surname)', strtolower($post['searchValue']['authorName']))
-                    // ->where('u.id !=', session('user_id')) // Uncomment if needed
+                    ->select('users_profile.*, users.id as user_id,users.email, users.surname, users.name, users.middle_name')
+                    ->join($UsersModel->table, 'users_profile.author_id = users.id', 'right')
+                    ->where('users.surname', $post['searchValue']['authorName'])
+//                    ->where('users.id !=', session('user_id'))
                     ->findAll();
-
                 if(($authors))
                     echo json_encode(array('status'=>'200', 'message'=>'Match found', 'data'=>$authors));
                 else{
@@ -482,8 +435,7 @@ class User extends BaseController
             ->whereNotIn('paper_authors.id', function ($builder) {
                 $builder->select('paper_author_id')->from('removed_paper_authors');
             })
-            ->orderBy('paper_authors.author_order', 'asc')
-            ->orderBy('paper_authors.id', 'asc');
+            ->orderBy('paper_authors.author_order', 'asc');
 
 // Execute the query
         $paperAuthors = $query->findAll();
@@ -516,8 +468,6 @@ class User extends BaseController
         if($post == null){
             $post = $this->request->getPost();
         }
-
-        $this->validate_user_access($post['paper_id']);
 
         $PaperAuthorModel = new PaperAuthorsModel();
         $message = array();
@@ -563,7 +513,7 @@ class User extends BaseController
         if($message)
             return json_encode($message);
         else
-            return json_encode(['status' => '200', 'message' => 'Success', 'data' => ['duplicate'=>$duplicateAuthor]]);
+            return json_encode(['status' => '200', 'message' => 'Success, You have already added this author', 'data' => ['duplicate'=>$duplicateAuthor]]);
     }
 
 
@@ -660,8 +610,7 @@ class User extends BaseController
                 'surname' => $post['authorLName'],
                 'middle_name' => $post['authorMName'],
                 'author_type'=> $post['author_type'] ?? 'author',
-                'email' => $post['authorEmail'],
-                'is_study_group' => isset($post['is_study_group']) ? 1: 0
+                'email' => $post['authorEmail']
             ];
 
             try {
@@ -671,19 +620,15 @@ class User extends BaseController
 
                 if ($userResult) {
                     $insertAuthorDetailsArray = [
-//                        'deg' => $post['authorDegree']?:'',
+                        'deg' => $post['authorDegree']?:'',
                         'phone' => $post['authorPhone']?:'',
-                        'cellphone' => $post['cellphone']?:'',
                         'institution' => $post['authorInstitution']?:'',
-                        'institution_id' => $post['authorInstitutionId']?:'',
-//                        'address' => $post['authorAddress']?:'',
-//                        'city' => $post['authorCity']?:'',
-//                        'country' => $post['authorCountry']?:'',
-//                        'province' => $post['authorProvince']?:'',
-//                        'zipcode' => $post['authorZipcode']?:'',
-                        'author_id' => $userResult,
-                        'designations' => !empty($post['designations']) ? json_encode($post['designations']) : '',
-                        'other_designation' => $post['other_designation'] ?? '',
+                        'address' => $post['authorAddress']?:'',
+                        'city' => $post['authorCity']?:'',
+                        'country' => $post['authorCountry']?:'',
+                        'province' => $post['authorProvince']?:'',
+                        'zipcode' => $post['authorZipcode']?:'',
+                        'author_id' => $userResult
                     ];
 
                     $UsersProfileModel->set($insertAuthorDetailsArray)->insert();
@@ -694,7 +639,7 @@ class User extends BaseController
             } catch (\Exception $e) {
                 // Handle the database error
                 $db->transRollback();
-                return json_encode(array('status'=>'500', 'message'=>'Error:','data'=>$e->getMessage()));
+                return json_encode(array('status'=>'200', 'message'=>'Error:','data'=>$e->getMessage()));
             }
         }
 
@@ -729,12 +674,9 @@ class User extends BaseController
         $post = $this->request->getPost();
 //        print_r($post);exit;
         $UsersProfileModel = (new UsersProfileModel());
-        $InstitutionModel = (new InstitutionModel());
         $UserModel = (new UserModel());
         $authorDetails = $UserModel
-            ->select('users.*, up.*, i.name as institution_name')
-            ->join($UsersProfileModel->getTable(). ' up', 'users.id = up.author_id', 'left')
-            ->join($InstitutionModel->getTable(). ' i', 'up.institution_id = i.id', 'left')
+            ->join($UsersProfileModel->getTable(), 'users.id = users_profile.author_id', 'left')
             ->where('users.id ', $post['author_id'])->first();
         if($authorDetails){
             echo json_encode(array('status'=>'200', 'message'=>'success','data'=>$authorDetails));
@@ -744,9 +686,6 @@ class User extends BaseController
 
     }
 
-    public function get_designations(){
-        return $this->response->setJSON((new DesignationsModel())->findAll());
-    }
 //
     public function update_author_details(){
 
@@ -769,23 +708,18 @@ class User extends BaseController
             'name' => $post['authorFName'],
             'surname' => $post['authorLName'],
             'middle_name' => $post['authorMName'],
-            'email' => $post['authorEmail'],
-            'is_study_group' => isset($post['is_study_group']) ? 1 : 0
+            'email' => $post['authorEmail']
         ];
 
         $insertAuthorDetailsArray = [
-//            'deg' => $post['authorDegree']?:'',
+            'deg' => $post['authorDegree']?:'',
             'institution' => $post['authorInstitution']?:'',
-            'institution_id' => $post['authorInstitutionId']?:'',
             'phone' => $post['authorPhone']?:'',
-            'cellphone' => $post['cellphone']?:'',
-//            'address' => $post['authorAddress']?:'',
-//            'city' => $post['authorCity']?:'',
-//            'country' => $post['authorCountry']?:'',
-//            'province' => $post['authorProvince']?:'',
-//            'zipcode' => $post['authorZipcode']?:'',
-            'designations' => !empty($post['designations']) ? json_encode($post['designations']): '',
-            'other_designation' => $post['other_designation'] ?? '',
+            'address' => $post['authorAddress']?:'',
+            'city' => $post['authorCity']?:'',
+            'country' => $post['authorCountry']?:'',
+            'province' => $post['authorProvince']?:'',
+            'zipcode' => $post['authorZipcode']?:''
         ];
 
 
@@ -799,7 +733,7 @@ class User extends BaseController
 
         try {
             // Perform your database operations using the model
-            $res1 = $UserModel->where('id', $post['author_id'])->set($insertUsersArray)->update();
+            $UserModel->where('id', $post['author_id'])->set($insertUsersArray)->update();
 
             // Start the transaction for UsersProfileModel
             $UsersProfileModel->db->transBegin();
@@ -866,8 +800,6 @@ class User extends BaseController
 
     public function update_paper_authors(){
         $post = $this->request->getPost();
-        $this->validate_user_access($post['paper_id']);
-
         $PaperAuthorsModel = new PaperAuthorsModel();
         $LogsModel = new LogsModel();
 
@@ -886,7 +818,7 @@ class User extends BaseController
             $PaperAuthorsModel
                 ->set('is_presenting_author', 'No')
                 ->set('is_correspondent', 'No')
-                ->set('is_senior_author', 'No')
+                ->set('is_coauthor', 'No')
                 ->set('author_order', null)
                 ->where('paper_id', $post['paper_id'])
                 ->update();
@@ -904,32 +836,21 @@ class User extends BaseController
                 }
             }
 
-            // Update Senior Author
-            if (isset($post['senior_author_id']) && !empty($post['senior_author_id'])) {
-                $PaperAuthorsModel
-                    ->set('is_senior_author', 'Yes')
-                    ->set('update_date_time', date('Y-m-d H:i:s'))
-                    ->where('author_id', $post['senior_author_id'])
-                    ->where('paper_id', $post['paper_id'])
-                    ->update();
-            }
-
-
             // Update correspondents
             if (isset($post['selectedCorrespondents']) && !empty($post['selectedCorrespondents'])) {
                 foreach ($post['selectedCorrespondents'] as $selectedCorrespondent) {
-//                    $logs = $LogsModel
-//                        ->where('ref_1', $selectedCorrespondent)
-//                        ->where('user_id', session('user_id'))
-//                        ->where('context', 'copyright')
-//                        ->where('action', 'email')
-//                        ->where('message', 'sent')
-//                        ->findAll();
-//
-////                    print_r($selectedCorrespondent);exit;
-//                    if (empty($logs)) {
-//                        $sendToId[] = $selectedCorrespondent;
-//                    }
+                    $logs = $LogsModel
+                        ->where('ref_1', $selectedCorrespondent)
+                        ->where('user_id', session('user_id'))
+                        ->where('context', 'copyright')
+                        ->where('action', 'email')
+                        ->where('message', 'sent')
+                        ->findAll();
+
+//                    print_r($selectedCorrespondent);exit;
+                    if (empty($logs)) {
+                        $sendToId[] = $selectedCorrespondent;
+                    }
 
                     $PaperAuthorsModel
                         ->set('is_correspondent', 'Yes')
@@ -944,17 +865,17 @@ class User extends BaseController
             if (!empty($post['presenting_authors'])) {
                 foreach ($post['presenting_authors'] as $presenting_author) {
 //                    print_r($presenting_author);exit;
-//                    $logs = $LogsModel
-//                        ->where('ref_1', $presenting_author)
-//                        ->where('user_id', session('user_id'))
-//                        ->where('context', 'copyright')
-//                        ->where('action', 'email')
-//                        ->where('message', 'sent')
-//                        ->findAll();
-////
-//                    if (empty($logs)) {
-//                        $sendToId[] = $presenting_author;
-//                    }
+                    $logs = $LogsModel
+                        ->where('ref_1', $presenting_author)
+                        ->where('user_id', session('user_id'))
+                        ->where('context', 'copyright')
+                        ->where('action', 'email')
+                        ->where('message', 'sent')
+                        ->findAll();
+//
+                    if (empty($logs)) {
+                        $sendToId[] = $presenting_author;
+                    }
 
                     $PaperAuthorsModel
                         ->set('is_presenting_author', 'Yes')
@@ -965,10 +886,30 @@ class User extends BaseController
                 }
             }
 
+            // Update correspondents
+            if (isset($post['coAut']) && !empty($post['selectedCorrespondents'])) {
+                foreach ($post['selectedCorrespondents'] as $selectedCorrespondent) {
+                    $logs = $LogsModel
+                        ->where('ref_1', $selectedCorrespondent)
+                        ->where('user_id', session('user_id'))
+                        ->where('context', 'copyright')
+                        ->where('action', 'email')
+                        ->where('message', 'sent')
+                        ->findAll();
 
-           if(!$this->update_paper_ajax()){
-                throw new \Exception('Error updating paper');
-           }
+//                    print_r($selectedCorrespondent);exit;
+                    if (empty($logs)) {
+                        $sendToId[] = $selectedCorrespondent;
+                    }
+
+                    $PaperAuthorsModel
+                        ->set('is_correspondent', 'Yes')
+                        ->set('update_date_time', date('Y-m-d H:i:s'))
+                        ->where('author_id', $selectedCorrespondent)
+                        ->where('paper_id', $post['paper_id'])
+                        ->update();
+                }
+            }
 
 
             // Check transaction status
@@ -978,15 +919,15 @@ class User extends BaseController
                 throw new \Exception('Transaction status is false');
             } else {
                 // Commit transaction
-//                $email_error = 0;
+                $email_error = 0;
                 $PaperAuthorsModel->db->transCommit();
-//                $sendToId = array_unique($sendToId);
-//                foreach ($sendToId as $id){
-//                    $emailResult = $this->send_author_email($id, 12, 'copyright');
-//                    if($emailResult == 'success'){
-//                        $email_error++;
-//                    }
-//                }
+                $sendToId = array_unique($sendToId);
+                foreach ($sendToId as $id){
+                    $emailResult = $this->send_author_email($id);
+                    if($emailResult == 'success'){
+                        $email_error++;
+                    }
+                }
                 return json_encode(array('status' => '200', 'message' => 'Success', 'data' => ''));
 
             }
@@ -1024,7 +965,7 @@ class User extends BaseController
         }
     }
 
-    function send_author_email($author_id, $template_id, $context) {
+    function send_author_email($author_id) {
         $sendMail = new PhpMail();
         try {
             $post = $this->request->getPost();
@@ -1044,7 +985,8 @@ class User extends BaseController
                 ->find($post['paper_id']);
 
 
-            $MailTemplates = (new EmailTemplatesModel())->find($template_id);
+            $sendMail = new PhpMail();
+            $MailTemplates = (new EmailTemplatesModel())->find(12);
 
             $email_body = $MailTemplates['email_body'];
             $email_body = str_replace('##ABSTRACT_ID##', $post['paper_id'], $email_body);
@@ -1053,7 +995,7 @@ class User extends BaseController
             $email_body = str_replace('##SUBMITTER_NAME##', ucFirst($papers->submitter_name), $email_body);
             $email_body = str_replace('##SUBMITTER_SURNAME##', ucFirst($papers->submitter_surname), $email_body);
 
-            $from = ['name'=>'Asia Pacific 2026', 'email'=>'ap@owpm2.com'];
+            $from = ['name'=>'AFS', 'email'=>'afs@owpm2.com'];
             $addTo = $paperAuthors['email'];
             $subject = $MailTemplates['email_subject'];
             $addContent = $email_body;
@@ -1086,7 +1028,7 @@ class User extends BaseController
                     'user_agent' => $this->request->getUserAgent()->getBrowser(),
                     'level'=> 'INFO',
                     'message' => 'sent',
-                    'context' => $context
+                    'context' => 'copyright'
                 ];
 
                ($logs->save($emailLogs));
@@ -1107,151 +1049,20 @@ class User extends BaseController
         }
     }
 
-    function send_confirmation_email($author_id, $template_id, $paper_id, $post, $context) {
-
-        $html = $post['html'];
-
-        $attachments = [
-            'name' => [],
-            'type' => [],
-            'tmp_name' => [],
-            'error' => [],
-            'size' => []
-        ];
-
-        $sendMail = new PhpMail();
-        try {
-            $post = $this->request->getPost();
-            // Initialize configuration
-            $UsersModel = (new UserModel());
-            $user = $UsersModel->find($author_id);
-            $uploadedFiles = (new PaperUploadsModel())->where('paper_id', $post['paper_id'])->findAll();
-
-            $MailTemplates = (new EmailTemplatesModel())->find($template_id);
-
-            $email_body = $MailTemplates['email_body'];
-
-            $from = ['name'=>env('MAIL_FROM'), 'email'=>env('MAIL_FROM_ADDRESS')];
-            $addTo = $user['email'];
-
-            $email_header = '<img id="main-banner" src="https://ap.owpm2.com/main_banner.png" class=" figure-img" alt="Main Banner" style="width: 100% !important;object-fit: cover; mix-blend-mode: multiply;">';
-
-            $subject = $MailTemplates['email_subject'];
-            $addContent = $email_header;
-            $addContent .= $email_body;
-
-            $embeded_images = [];
-            if (!empty($_POST['preview_image'])) {
-                $imageData = $_POST['preview_image'];
-
-                // Decode the base64 string
-                $imageData = str_replace('data:image/png;base64,', '', $imageData);
-                $imageData = str_replace(' ', '+', $imageData);
-                $decodedImage = base64_decode($imageData);
-
-                // Create a temporary file
-                $tempFile = tempnam(WRITEPATH, 'canvas_');
-                file_put_contents($tempFile, $decodedImage);
-
-                // Add to $attachments
-                $attachments['name'][] = 'submission_details.png';
-                $attachments['type'][] = 'image/png';
-                $attachments['tmp_name'][] = $tempFile;
-                $attachments['error'][] = 0;
-                $attachments['size'][] = strlen($decodedImage);
-
-                $embeded_images = [
-                    [
-                        'tmp_name' => $tempFile,  // Temporary file path
-                        'name'     => 'submission_details.png',  // Image name
-                    ],
-                ];
-            }
-
-            $addContent .= '<p>Here are the submission details: <img src="{image0}" alt="Embedded Image" /></p>';
-
-            if(!empty($uploadedFiles)) {
-                foreach ($uploadedFiles as $uploadedFile) {
-                    $filePath = FCPATH.$uploadedFile['file_path'].'/'.$uploadedFile['file_name'];
-                    $relativePath = parse_url($filePath, PHP_URL_PATH);
-
-                    if (file_exists($filePath)) {
-                        $attachments['name'][] = $uploadedFile['file_preview_name'];
-                        $attachments['type'][] = mime_content_type($filePath);
-                        $attachments['tmp_name'][] = $filePath;
-                        $attachments['error'][] = UPLOAD_ERR_OK;
-                        $attachments['size'][] = filesize($filePath);
-                    }
-                }
-            }
-
-            $response = $sendMail->send($from, $addTo, $subject, $addContent, $attachments, $embeded_images);
-
-            // Clean up
-            if(!empty($tempFile))
-                unlink($tempFile);
-
-            $email_logs_array = [
-                'user_id' => session('user_id'),
-                'add_to' => ($addTo),
-                'subject' => $subject,
-                'add_content' => $addContent,
-                'send_from' => "Submitter",
-                'send_to' => "Author",
-                'level' => "Info",
-                'template_id' => $MailTemplates['id'],
-                'paper_id' => $post['paper_id'],
-                'user_agent' => $this->request->getUserAgent()->getBrowser(),
-                'ip_address' => $this->request->getIPAddress(),
-            ];
-//            print_r($response);exit;
-            if ($response->statusCode == 200) {
-                // Email sent successfully
-//                save to logs
-                $logs = new LogsModel();
-                $emailLogs = [
-                    'user_id' => session('user_id'),
-                    'ref_1' => $author_id,
-                    'ref_2' => $post['paper_id'],
-                    'action' => 'email',
-                    'ip_address' => $this->request->getIPAddress(),
-                    'user_agent' => $this->request->getUserAgent()->getBrowser(),
-                    'level'=> 'INFO',
-                    'message' => 'sent',
-                    'context' => $context
-                ];
-
-                ($logs->save($emailLogs));
-
-                $email_logs_array['status'] = 'Success';
-                $emailLogsModel = (new EmailLogsModel())->saveToMailLogs($email_logs_array);
-
-                return 'success';
-            } else {
-                // Email sending failed
-                $email_logs_array['status'] = 'Failed';
-                $emailLogsModel = (new EmailLogsModel())->saveToMailLogs($email_logs_array);
-                return 'error';
-            }
-            // Send the email
-        }catch (\Exception $e){
-            return $e->getMessage();
-        }
-    }
-
     public function presentation_upload($paper_id){
-        $this->validate_user_access($paper_id);
-        $paper = (new PapersModel())->asArray()->find($paper_id);
-        if(!$paper)
-            exit;
+
+
+        $event = (new AbstractEventsModel())->first();
+        if(!$event){
+            return (new ErrorHandler($event))->errorPage();
+        }
+
         $header_data = [
-            'title' => "Image Upload"
+            'title' => "Presentation Upload"
         ];
         $data = [
-            'paper_id'=> $paper_id,
-            'paper' => $paper,
-            'previous_url' => previous_url(),
-            'previous_page' => service('uri')->setURI(previous_url())->getSegment($this->setSegment(3))?? '',
+            'event'=> $event,
+            'paper_id'=> $paper_id
         ];
         return
             view('event/common/header', $header_data).
@@ -1260,135 +1071,120 @@ class User extends BaseController
             ;
     }
 
-    public function presentation_do_upload() {
-        $PaperUploadsModel = new PaperUploadsModel();
-        $PapersModel = new PapersModel();
+    public function presentation_do_upload(){
+
+        $PaperUploadsModel = (new PaperUploadsModel());
+        $PapersModel = (new PapersModel());
         $post = $this->request->getPost();
 
         $sendMail = new PhpMail();
 
-        // ✅ Get site settings
-        $siteSettings = (new SiteSettingModel())->findAll();
-
-        // ✅ Get allowed file types and upload limit from settings
-        $allowedTypes = [];
-        $uploadLimit = 0;
-        foreach ($siteSettings as $setting) {
-            if ($setting['name'] === 'presentation_upload') {
-                $allowedTypes = explode(',', $setting['value']);
-            }
-            if ($setting['name'] === 'presentation_upload_count') {
-                $uploadLimit = intval($setting['value']);
-            }
-        }
-
+        $siteSettings = (new SiteSettingModel())->first();
+        $allowed = explode(",", $siteSettings['value']);
         $filename = $_FILES['file']['name'];
         $file_type = $_FILES['file']['type'];
-        $file_size = $_FILES['file']['size'];
+        $file_size = $_FILES['file']['size']; // Corrected: Used 'size' instead of 'type'
         $file_extension = pathinfo($filename, PATHINFO_EXTENSION);
+        // Get the file extension
 
-        // ✅ Check if file type is allowed
-        if (!in_array($file_extension, $allowedTypes)) {
+
+        if (!in_array($file_extension, $allowed)) {
             return json_encode(['status' => 401, 'message' => 'File type not allowed!']);
         }
 
-        // ✅ Check current upload count for this paper
-        $currentUploadCount = $PaperUploadsModel->where('paper_id', $post['paper_id'])->countAllResults();
-        if ($currentUploadCount >= $uploadLimit) {
-            return json_encode(['status' => 401, 'message' => 'Upload limit reached!']);
-        }
+        $customName = $post['paper_id'].'_'.date('mdY').'_'.$filename;
 
-        $papers = $PapersModel->find($post['paper_id']);
-        if (!$papers) {
-            return json_encode(['status' => 404, 'message' => 'Paper not found!']);
-        }
-
-        $customName = $papers->custom_id . '_' . $filename;
-        $filePath = "/uploads/presentation/" . $post['paper_id'] . "/";
+        $filePath = "/uploads/presentation/".$post['paper_id']."/";
         $savePath = FCPATH . $filePath;
-
         $files = $this->request->getFiles('file');
         $uploadResult = $this->doUpload($files, $filePath, $savePath, $customName);
-
-        // ✅ Ensure upload result is valid
-        if (!empty($uploadResult) && isset($uploadResult['new_name'])) {
+//        $uploadResult = 1;
+        if(!empty($uploadResult)) {
             try {
-                $reviews = (new AbstractReviewModel())->where('abstract_id', $papers->id)->findAll();
-                $MailTemplates = (new EmailTemplatesModel())->find($reviews ? 16 : 7);
 
-                $email_body = $MailTemplates['email_body'];
+                $papers = $PapersModel->find($post['paper_id']);
+                if($papers){
+                    $reviews = (new AbstractReviewModel())->where('abstract_id', $papers->id)->findAll();
+                    if(!$reviews)
+                        $MailTemplates = (new EmailTemplatesModel())->find(7);
+                    else
+                        $MailTemplates = (new EmailTemplatesModel())->find(16);
 
-                $assignedUsers = (new PaperAssignedReviewerModel())
-                    ->join('users', 'reviewer_id = users.id')
-                    ->join('users_profile', 'users.id = users_profile.author_id')
-                    ->where([
-                        'reviewer_type' => 'regular',
-                        'paper_id' => $post['paper_id'],
-                        'is_declined' => 0,
-                        'is_deleted' => 0
-                    ])
-                    ->findAll();
+                    $email_body = $MailTemplates['email_body'];
 
-                foreach ($assignedUsers as $user) {
-                    $user_divisions = json_decode($user['division_id']);
-                    if (!empty($user_divisions) && in_array($papers->division_id, $user_divisions)) {
-                        $PaperTemplates = str_replace(
-                            ['##ABSTRACT_ID##', '##RECIPIENTS_FULL_NAME##', '##REVIEW_USERNAME##', '##REVIEW_PASSWORD##'],
-                            [
-                                $post['paper_id'],
-                                ucFirst($user['name']) . ' ' . ucFirst($user['surname']),
-                                $user['email'],
-                                'Please reset your password in case forgotten. Thank you!'
-                            ],
-                            $email_body
-                        );
+//                    $deputy_users = (new UserModel())->join('users_profile', 'users.id = users_profile.author_id')->where('is_deputy_reviewer', 1)->findAll();
+                    $assignedUsers = (new PaperAssignedReviewerModel())
+                        ->join('users', 'reviewer_id = users.id')
+                        ->join('users_profile', 'users.id = users_profile.author_id')
+                        ->where(['reviewer_type'=>'regular', 'paper_id'=>$post['paper_id'], 'is_declined'=>0, 'is_deleted'=>0])
+                        ->findAll();
 
-                        $from = ['name' => 'Asia Pacific 2026', 'email' => 'ap@owpm2.com'];
-                        $addTo = $user['email'];
-                        $subject = $MailTemplates['email_subject'];
+                    foreach ($assignedUsers as $user){
+                        $user_divisions = json_decode($user['division_id']);
+                        if(!empty($user_divisions)) {
+                            if (in_array($papers->division_id, $user_divisions)) {
+                                    $PaperTemplates = $email_body;
+                                    $PaperTemplates = str_replace('##ABSTRACT_ID##', $post['paper_id'], $PaperTemplates);
+                                    $PaperTemplates = str_replace('##RECIPIENTS_FULL_NAME##', ucFirst($user['name']).' '.ucFirst($user['surname']), $PaperTemplates);
+                                    $PaperTemplates = str_replace('##REVIEW_USERNAME##', $user['email'], $PaperTemplates);
+                                    $PaperTemplates = str_replace('##REVIEW_PASSWORD##', 'Please reset your password in case forgotten. Thank you!', $PaperTemplates);
+                                    $from = ['name'=>'AFS', 'email'=>'afs@owpm2.com'];
+                                    $addTo = $user['email'];
+                                    $subject = $MailTemplates['email_subject'];
+                                    $addContent = $PaperTemplates;
+                                    $result = $sendMail->send($from, $addTo, $subject, $addContent );
 
-                        $result = $sendMail->send($from, $addTo, $subject, $PaperTemplates);
-
-                        // ✅ Save to email logs
-                        $email_logs_array = [
-                            'user_id' => session('user_id'),
-                            'add_to' => $addTo,
-                            'subject' => $subject,
-                            'ref_1' => 'presentation_upload',
-                            'add_content' => $PaperTemplates,
-                            'send_from' => "Submitter",
-                            'send_to' => "Reviewers",
-                            'level' => "Info",
-                            'template_id' => $MailTemplates['id'],
-                            'paper_id' => $post['paper_id'],
-                            'user_agent' => $this->request->getUserAgent()->getBrowser(),
-                            'ip_address' => $this->request->getIPAddress(),
-                            'status' => ($result->statusCode == 200) ? 'Success' : 'Failed'
-                        ];
-
-                        (new EmailLogsModel())->saveToMailLogs($email_logs_array);
+                            // ###################  Save to Email logs #####################
+                                $email_logs_array = [
+                                    'user_id' => session('user_id'),
+                                    'add_to' => ($addTo),
+                                    'subject' => $subject,
+                                    'ref_1' => 'presentation_upload',
+                                    'add_content' => $addContent,
+                                    'send_from' => "Submitter",
+                                    'send_to' => "Reviewers",
+                                    'level' => "Info",
+                                    'template_id' => $MailTemplates['id'],
+                                    'paper_id' => $post['paper_id'],
+                                    'user_agent' => $this->request->getUserAgent()->getBrowser(),
+                                    'ip_address' => $this->request->getIPAddress(),
+                                ];
+                                    if($result->statusCode == 200){
+                                        $email_logs_array['status'] = 'Success';
+                                        $emailLogsModel = (new EmailLogsModel())->saveToMailLogs($email_logs_array);
+                                    }else{
+                                        $email_logs_array['status'] = 'Failed';
+                                        $emailLogsModel = (new EmailLogsModel())->saveToMailLogs($email_logs_array);
+                                    }
+                            // End Save to Email Logs        #####################################
+                            }
+                        }
                     }
+                    $result = $PaperUploadsModel
+                        ->insert([
+                            'paper_id' => $post['paper_id'],
+                            'file_preview_name' => $customName,
+                            'file_format' => $file_type,
+                            'file_size' => $file_size,
+                            'file_path' => $filePath,
+                            'file_extension' => $file_extension,
+                            'file_name' => $uploadResult['new_name'],
+                            'created_at' => date('Y-m-d H:i:s')
+                        ]);
+
+                    if($result){
+                        $this->saveSubmitterLog($post['paper_id'], 'INFO', 'Upload Success', 'Upload', 'upload_presentation');
+                    }
+
+                    return json_encode(['status' => 200, 'message' => 'success', 'data' => '']);
                 }
 
-                // ✅ Insert upload record into the database
-                $PaperUploadsModel->insert([
-                    'paper_id' => $post['paper_id'],
-                    'file_preview_name' => $customName,
-                    'file_format' => $file_type,
-                    'file_size' => $file_size,
-                    'file_path' => $filePath,
-                    'file_extension' => $file_extension,
-                    'file_name' => $uploadResult['new_name'],
-                    'created_at' => date('Y-m-d H:i:s')
-                ]);
-
-                return json_encode(['status' => 200, 'message' => 'Upload successful!', 'data' => '']);
             } catch (\Exception $e) {
+                $this->response->setStatusCode(401);
                 return json_encode(['status' => 500, 'message' => $e->getMessage(), 'data' => '']);
             }
         }
-
-        return json_encode(['status' => 500, 'message' => 'Upload failed!', 'data' => '']);
+        return json_encode(['status' => 500, 'message' => 'error', 'data' => '']);
     }
 
     function templateReplaceKewords(){
@@ -1454,7 +1250,7 @@ class User extends BaseController
     public function resend_disclosure_email(){
         $post = $this->request->getPost();
 //        print_r($post);exit;
-            $mailResult = $this->send_author_email($post['author_id'], 12, 'copyright');
+            $mailResult = $this->send_author_email($post['author_id']);
         if($mailResult){
             return json_encode(['status' => 200, 'message' => 'success', 'data' => '']);
         }else{
@@ -1462,44 +1258,27 @@ class User extends BaseController
         }
     }
 //
-    public function finalize_paper($paper_id)
-    {
-        $this->validate_user_access($paper_id);
+    public function finalize_paper($paper_id){
+
 
         $user_id = session('user_id');
         $post = $this->request->getPost();
+        $event = (new AbstractEventsModel())->first();
 
-        // Load Models
-        $UsersProfileModel = new UsersProfileModel();
-        $PapersModel = new PapersModel();
-        $PaperAuthorsModel = new PaperAuthorsModel();
-        $PaperUploadsModel = new PaperUploadsModel();
-        $UsersModel = new UserModel();
-        $InstitutionModel = new InstitutionModel();
-        $CitiesModel = new CitiesModel();
-        $CountriesModel = new CountriesModel();
-        $DesignationsModel = new DesignationsModel();
-        $AbstractCategoriesModel = new AbstractCategoriesModel();
-
-        // Fetch Paper Details
-        $paper = $PapersModel
-            ->select('papers.*, paper_type.name as paper_type_name')
+        $UsersProfileModel = (new UsersProfileModel());
+        $PapersModel = (new PapersModel());
+        $PaperAuthorsModel = (new PaperAuthorsModel());
+        $PaperUploadsModel = (new PaperUploadsModel());
+        $UsersModel = (new UserModel());
+        $papers = $PapersModel
+            ->select('papers.*, divisions.name as division_name, paper_type.name as paper_type_name')
+            ->join('divisions', 'papers.division_id = divisions.division_id', 'left')
             ->join('paper_type', 'papers.type_id = paper_type.type', 'left')
-            ->where(['user_id' => $user_id, 'papers.id' => $paper_id])
-            ->first();
+            ->where(['user_id'=> session('user_id'), 'papers.id'=>$paper_id])->first();
 
-        if (!$paper) {
-            return redirect()->back()->with('error', 'Paper not found.');
-        }
-
-        // Fetch Authors
-        $authors = $PaperAuthorsModel
-            ->select('u.*, up.*, paper_authors.*, i.name as institution_name, ci.name as institution_city, co.name as institution_country')
-            ->join($UsersModel->table . ' u', 'paper_authors.author_id = u.id', 'left')
-            ->join($UsersProfileModel->table . ' up', 'paper_authors.author_id = up.author_id', 'left')
-            ->join($InstitutionModel->table . ' i', 'up.institution_id = i.id', 'left')
-            ->join($CitiesModel->table . ' ci', 'i.city_id = ci.id', 'left')
-            ->join($CountriesModel->table . ' co', 'ci.country_id = co.id', 'left')
+        $authorInfo = $PaperAuthorsModel
+            ->join($UsersModel->table, 'paper_authors.author_id = users.id')
+            ->join($UsersProfileModel->table, 'paper_authors.author_id = users_profile.author_id')
             ->whereNotIn('paper_authors.id', function ($builder) {
                 $builder->select('paper_author_id')->from('removed_paper_authors');
             })
@@ -1507,106 +1286,101 @@ class User extends BaseController
             ->orderBy('author_order', 'asc')
             ->findAll();
 
-        // Fetch Designations for Each Author
-        foreach ($authors as &$author) {
-            $designations = !empty($author['designations']) ? json_decode($author['designations'], true) : [];
-            $author['designations'] = array_map(function($id){
-                return (new DesignationsModel())->find($id);
-            }, $designations);
-        }
+        $userInfo = $UsersModel->find(session('user_id'));
 
-        unset($author);
-
-        // Fetch User Info
-        $userInfo = $UsersModel->find($user_id);
-
-        // Fetch Paper Uploads
         $paper_uploads = $PaperUploadsModel->where('paper_id', $paper_id)->findAll();
 
-        // Fetch Categories
-        $categories = $AbstractCategoriesModel->findAll();
 
-        // Validation for Missing Fields
-        $authorDetailsRequiredFields = [
-            'institution_id' => 'Institution',
-            'signature_signed_date' => 'Disclosure'
-        ];
-
-        $paperRequiredFields = [];
-
-        $incomplete = [];
-
-        // Check Required Author Fields
-        foreach ($authors as $author) {
-            foreach ($authorDetailsRequiredFields as $field => $label) {
-                if (empty($author[$field])) {
-                    $authorName = ucwords(trim($author['name'] . ' ' . $author['surname']));
-                    $incomplete['author'][] = [
-                        'required' => "$label for Author: $authorName",
-                        'message'  => "$label for Author: $authorName"
-                    ];
-                }
-            }
-        }
-
-        // Check Required Paper Fields
-        foreach ($paperRequiredFields as $field => $label) {
-            if (empty($paper[$field])) {
-                $incomplete['paper'][] = [
-                    'required' => "$label for Paper: $paper_id",
-                    'message'  => "$label for Paper: $paper_id"
-                ];
-            }
-        }
-
-        //find users marked as study group
-        $studyGroups = $UsersModel->where('is_study_group', 1)->findAll();
-
-        // Prepare Data for View
-        $header_data = ['title' => "Preview"];
-        $data = [
-            'papers' => $paper,
-            'paper_id' => $paper_id,
-            'userInfo' => $userInfo,
-            'paper_uploads' => $paper_uploads,
-            'incompleteStatus' => $incomplete,
-            'authors' => $authors,
-            'categories' => $categories,
-            'study_groups' => $studyGroups
-        ];
-
-        return view('event/common/header', $header_data) .
-            view('event/finalize_paper', $data) .
-            view('event/common/footer');
-    }
-
-
-    public function save_finalize_paper(){
-        $post = $this->request->getPost();
-
-        // print_r($_POST);exit;
-        $paper_id = $post['paper_id'];
-        $PapersModel = (new PapersModel());
-        $PaperAuthorsModel = (new PaperAuthorsModel());
-        $RemovedPaperAuthorsModel = (new RemovedPaperAuthorModel());
-        $paper_authors = (new PaperAuthorsModel())
-            ->where('paper_id', $post['paper_id'])
-            ->whereNotIn($PaperAuthorsModel->table . '.id', function ($builder) use ($RemovedPaperAuthorsModel) {
-                $builder->select('paper_author_id')->from($RemovedPaperAuthorsModel->table);
+        $authors = $PaperAuthorsModel
+            ->join($UsersProfileModel->table, 'paper_authors.author_id = users_profile.author_id', 'left')
+            ->join($UsersModel->getTable(), $UsersProfileModel->table.'.author_id = '.$UsersModel->getTable().'.id', 'left')
+            ->where('paper_authors.paper_id', $paper_id)
+            ->whereNotIn('paper_authors.id', function ($builder) {
+                $builder->select('paper_author_id')->from('removed_paper_authors');
             })
             ->findAll();
 
-        try {
-            foreach ($paper_authors as $author){
-                if($author['is_correspondent'] == 'Yes') {
-                    $this->send_confirmation_email($author['author_id'], 1, $paper_id, $post, 'finalized');
+        $paper = $PapersModel->find($paper_id);
+
+        $authorDetailsRequiredFields = [
+            'electronic_signature' => 'Copyright',
+            'is_copyright_agreement_accepted' => 'Copyright Agreement',
+            'institution' => 'Institution',
+            'country' => 'Country',
+            'city' => 'City',
+            'province' => 'Province',
+            'deg' => 'Degree'
+        ];
+
+        //         print_r($authors);exit;
+        $paperUploads = (new PaperUploadsModel())->where('paper_id', $paper_id)->findAll();
+        $paperRequiredFields = [
+            'division_id' => "Division",
+            'type_id' => 'Type',
+            'title' => 'Title',
+            'summary' => 'Summary',
+            'is_ijmc_interested' => 'Is IJMC Interested'
+        ];
+
+        $incomplete = [];
+        foreach ($authors as $author) {
+//            print_r($author);exit;
+            foreach ($authorDetailsRequiredFields as $index => $required) {
+                if($author[$index] == '' ||$author[$index] == null ){
+                    $incomplete['author'][]= ['required' => $required . ' for Author: ' . Ucfirst($author['name']).' '. Ucfirst($author['surname'])];
+                    $incomplete['author'][]= ['message' => $required . ' for Author: ' . Ucfirst($author['name']).' '. Ucfirst($author['surname'])];
                 }
             }
+        }
 
-            if(session('user_id')){
-                $this->send_confirmation_email(session('user_id'), 1, $paper_id, $post, 'finalized');
+//        if(!$paperUploads){
+//            $incomplete['paperUpload'][] = ['required' => "Presentation Uploads" . ' for Paper: ' .$paper_id];
+//            $incomplete['paperUpload'][] = 'message' . 'Uploads' . ' for Paper Uploads: ' . $paper_id;
+//        }
+
+//        print_r($papers)
+
+        if($paper){
+            foreach ($paperRequiredFields as $index => $required) {
+                if($paper->$index == '' ||$paper->$index == null ){
+                    $incomplete['paper'][] = ['required' => $required . ' for Paper: ' .$paper_id];
+                    $incomplete['paper'][] = 'message' . $required . ' for Paper: ' . $paper->id;
+                }
             }
+        }
 
+//        print_r($incomplete)
+
+
+        $header_data = [
+            'title' => "Preview"
+        ];
+
+        $data = [
+            'event'=> $event,
+            'papers'=> $papers,
+            'authorInfo'=> $authorInfo,
+            'paper_id'=> $paper_id,
+            'userInfo'=> $userInfo,
+            'paper_uploads' => $paper_uploads,
+            'incompleteStatus' => $incomplete,
+            'authors'=>$authors
+        ];
+
+        return
+            view('event/common/header', $header_data).
+            view('event/finalize_paper',$data).
+            view('event/common/footer')
+            ;
+    }
+
+    public function save_finalize_paper(){
+        $post = $this->request->getPost();
+        // print_r($_POST);exit;
+        $paper_id = $post['paper_id'];
+        $PapersModel = (new PapersModel());
+
+        try {
             $finalize = $PapersModel->set('is_finalized', 1)->where('id', $paper_id)->update();
 
             if($finalize){
@@ -1617,21 +1391,6 @@ class User extends BaseController
         }
         return json_encode(['status' => 500, 'message' => 'error', 'data' => '']);
     }
-
-
-    function get_author_logs($id, $paper_id){
-        $LogsModel = (new LogsModel());
-        $logs = $LogsModel
-            ->where('ref_1', $id)
-            ->where('ref_2', $paper_id)
-            ->where('user_id', session('user_id'))
-            ->where('context', 'finalized')
-            ->where('action', 'email')
-            ->where('message', 'sent')
-            ->findAll();
-        return $logs;
-    }
-
 
     public function save_finalize_panel(){
 
@@ -1660,13 +1419,19 @@ class User extends BaseController
             return json_encode(['status' => 200, 'message' => 'error', 'data' => $result]);
         }
 
-        return redirect()->to(base_url().'login');
+        return redirect()->to(base_url().'afs/login');
     }
 //
 
     public function update_user_info($event_uri){
         $_POST['user_id'] = session('user_id');
-
+//        $result = $this->api->post("user/update_user_info/{$this->event_uri}", $_POST);
+//        if(!$result->status){
+//            return (new ErrorHandler($result->data))->errorPage();
+//        }
+//        if($result) {
+//            echo(json_encode(($result)));
+//        }
         return '';
     }
 
@@ -1694,7 +1459,7 @@ class User extends BaseController
         }
 
         $sendMail = new PhpMail();
-        $from = ['email' => 'ap@owpm2.com', 'name' => 'Asia Pacific 2026'];
+        $from = ['email' => 'afs@owpm2.com', 'name' => 'AFS'];
         $subject = 'Support Request From '.$post['fname']." ".$post['lname'];
         $message = "First Name: ".$post['fname']."<br>";
         $message .= "Last Name: ".$post['lname']."<br>";
@@ -1706,7 +1471,7 @@ class User extends BaseController
 
         // ###################  Save to Email logs #####################
         $email_logs_array = [
-            'user_id' => session('user_id') ?? '',
+            'user_id' => session('user_id'),
             'add_to' => (json_encode($to)),
             'subject' => $subject,
             'ref_1' => 'support',
@@ -1715,7 +1480,7 @@ class User extends BaseController
             'send_to' => "Author",
             'level' => "Info",
             'template_id' => 0,
-            'paper_id' => isset($post['abstract_id']) ?? '',
+            'paper_id' => $post['abstract_id'],
             'user_agent' => $this->request->getUserAgent()->getBrowser(),
             'ip_address' => $this->request->getIPAddress(),
         ];
@@ -1744,7 +1509,7 @@ class User extends BaseController
         $removedAuthor = $RemovedPaperAuthor
             ->join('paper_authors', 'removed_paper_authors.paper_author_id = paper_authors.id')
             ->where('paper_id', $post['paper_id'])
-            ->where('paper_author_id', $post['author_id'])
+            ->where('author_id', $post['author_id'])
             ->where('author_type', isset($post['author_type']) ?: 'author')
             ->first();
 
@@ -1753,13 +1518,13 @@ class User extends BaseController
                 $removeResult = $RemovedPaperAuthor->where('paper_author_id', $removedAuthor['id'])->delete();
 
                 if ($removeResult) {
-                    return $this->response->setJson(['status' => 200, 'message' => 'success', 'data' => '']);
+                    return json_encode(['status' => 200, 'message' => 'success', 'data' => '']);
                 }
             } catch (\Exception $e) {
-                return $this->response->setJson(['status' => 500, 'message' => 'error: ' . $e->getMessage(), 'data' => '']);
+                return json_encode(['status' => 500, 'message' => 'error: ' . $e->getMessage(), 'data' => '']);
             }
         }
-        return $this->response->setJson(['status' => 500, 'message' => 'You cannot add a duplicate author to the author list.', 'data' => '']);
+        return '';
     }
 //
 //    public function cv_upload(){
@@ -1935,7 +1700,7 @@ class User extends BaseController
         $data = [
             'event'=> $event,
             'paper_id'=>$paper_id,
-            'papers' => $paper ?? [],
+            'papers' => ($papers ?? array()),
             'incompleteStatus' => $incomplete
         ];
         return
@@ -2428,7 +2193,7 @@ class User extends BaseController
     function send_panelist_email_copyright($paper_id, $panelistCode){
 
         $sendMail = new PhpMail();
-        $from = ['email' => 'ap@owpm2.com', 'name' => 'Asia Pacific 2026'];
+        $from = ['email' => 'afs@owpm2.com', 'name' => 'AFS'];
 
         $PaperAuthorModel = (new PaperAuthorsModel());
         $PapersModel = (new PapersModel());
@@ -2444,7 +2209,7 @@ class User extends BaseController
             ->findAll();
 
         $paper = $PapersModel->find($paper_id);
-        $subject = 'AP Metalcasting Congress 2025 - Copyright Agreement';
+        $subject = 'AFS Metalcasting Congress 2025 - Copyright Agreement';
 
 
         try {
@@ -2723,8 +2488,6 @@ class User extends BaseController
 
         $AbstractReviewModel = (new AbstractReviewModel());
 
-        $this->validate_user_access($post['paper_id']);
-
         $papers = (new PapersModel())->find($post['paper_id']);
         $MailTemplates = (new EmailTemplatesModel())->find(10);
         $email_body = $MailTemplates['email_body'];
@@ -2734,6 +2497,8 @@ class User extends BaseController
 
         $result = $AbstractReviewModel->where('id', $post['review_id'])->set('submitter_comment_on_upload', $post['comment'])->update();
         if($result){
+
+            $this->saveSubmitterLog($post['paper_id'], 'INFO', 'Update Success', 'Update', 'upload_comment');
             foreach ($deputy_users as $user) {
                 $user_divisions = json_decode($user['division_id']);
                 if (!empty($user_divisions)) {
@@ -2743,7 +2508,7 @@ class User extends BaseController
                         $PaperTemplates = str_replace('##RECIPIENTS_FULL_NAME##', ucFirst($user['name']) . ' ' . ucFirst($user['surname']), $PaperTemplates);
                         $PaperTemplates = str_replace('##REVIEW_USERNAME##', $user['email'], $PaperTemplates);
                         $PaperTemplates = str_replace('##REVIEW_PASSWORD##', 'Please reset your password in case forgotten. Thank you!', $PaperTemplates);
-                        $from = ['name' => 'Asia Pacific 2026', 'email' => 'ap@owpm2.com'];
+                        $from = ['name' => 'AFS', 'email' => 'afs@owpm2.com'];
                         $addTo = $user['email'];
                         $subject = $MailTemplates['email_subject'];
                         $addContent = $PaperTemplates;
@@ -2781,19 +2546,6 @@ class User extends BaseController
 
     }
 
-    function validate_user_access($paper_id)
-    {
-        $user_paper = (new PapersModel())->where('user_id', session('user_id'))->findAll();
-
-        if (!$paper_id || !in_array($paper_id, array_column($user_paper, 'id'))) {
-            throw \CodeIgniter\Exceptions\PageNotFoundException::forPageNotFound('Invalid ID');
-        }
-
-        return true;
-    }
-
-
-
     public function testMail(){
         $mail = new PhpMail();
 //        $mail->testMail();
@@ -2804,6 +2556,26 @@ class User extends BaseController
 
     public function phpInfo(){
         phpInfo();
+    }
+
+    function saveSubmitterLog($ref2, $level, $message, $action, $context){
+        try {
+            $logs = (new LogsModel());
+            $logArray = [
+                'user_id' => session('user_id'),
+                'ref_1' => 'submitter',
+                'ref_2' => $ref2 ?? '',
+                'action' => $action,
+                'level' => $level ?? '',
+                'message' => $message ?? '',
+                'ip_address' => $this->request->getIPAddress(),
+                'user_agent' => $this->request->getUserAgent()->getBrowser(),
+                'context' => $context,
+            ];
+            return $logs->save($logArray);
+        }catch (\Exception $e) {
+            return $e->getMessage();
+        }
     }
 }
 

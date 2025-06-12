@@ -22,10 +22,14 @@ class AdminLogin extends Controller
     }
     
     public function index(){
+        $event = (new EventsModel())->first();
+
         $header_data = [
             'title' => ''
         ];
-        $data = [];
+        $data = [
+            'event'=> $event
+        ];
         return
             view('admin/common/header', $header_data).
             view('admin/login',$data).
