@@ -1,43 +1,29 @@
 <?php
 
 namespace App\Controllers\acceptance;
-
-use App\Controllers\admin\Abstracts\SchedulerController;
 use App\Libraries\PhpMail;
 use App\Models\AdminAcceptanceModel;
 use App\Models\EmailLogsModel;
-use App\Models\EmailTemplatesModel;
-use App\Models\EventsModel;
 use App\Models\LogsModel;
-use App\Models\ModeratorAcceptanceModel;
 use App\Models\PaperAuthorsModel;
+use App\Models\PaperTypeModel;
 use App\Models\RoomsModel;
 use App\Models\SchedulerModel;
 use App\Models\SchedulerSessionTalksModel;
+use App\Models\SiteSettingModel;
 use App\Models\UsersProfileModel;
 use CodeIgniter\Controller;
-use App\Models\Core\Api;
-use CodeIgniter\HTTP\ResponseInterface;
-use CodeIgniter\Database\BaseConnection;
-
 use App\Models\UserModel;
 use App\Models\PapersModel;
-use App\Models\PopulationModel;
-use App\Models\AbstractReviewModel;
 use App\Models\AuthorAcceptanceModel;
-use App\Models\InstitutionModel;
-use App\Models\UserDetailsModel;
 use App\Models\RemovedPaperAuthorModel;
-use App\Models\InstitutionCitiesModel;
-use App\Models\InstitutionCountriesModel;
-use App\Models\InstitutionStatesModel;
-use App\Models\AuthorPresentationUploadModel;
 
 use App\Controllers\admin\Abstracts\AbstractController;
+use PhpOffice\PhpWord\Settings;
+
 class AcceptanceController extends Controller
 {
-    private Api $api;
-    private BaseConnection $db;
+
 
     public function __construct()
     {
@@ -54,8 +40,7 @@ class AcceptanceController extends Controller
             header('Location:'.base_url().'acceptance/logout');
             exit;
         }
-      
-        $this->api = new Api();
+
         if(empty(session('email')) || session('email') == ''){
             header('Location:'.base_url().'acceptance');
             exit;
@@ -67,12 +52,25 @@ class AcceptanceController extends Controller
 
     public function index(){
 
-        $event = (new EventsModel())->first();
         $header_data = [
             'title' => 'My Meeting Activity'
         ];
 
-        $data['event']= $event;
+        $userData = (new UserModel())
+            ->select('*')
+            ->join((new UsersProfileModel())->getTable(). ' up', 'users.id = up.author_id', 'left')
+            ->where('users.id', session('user_id'))
+            ->first();
+
+        $disclosureCurrent = (new SiteSettingModel())->where('name', 'disclosure_current_date')->first();
+
+        $data = [
+            'paper_types' => (new PaperTypeModel())->findAll()??[],
+            'user_data' => $userData,
+            'disclosure_current' => $disclosureCurrent
+        ];
+
+
         return
             view('acceptance/common/header', $header_data).
             view('acceptance/abstract_list', $data).
@@ -88,10 +86,6 @@ class AcceptanceController extends Controller
 
 
     public function acceptance_menu($abstract_id){
-        $event = (new EventsModel())->first();
-        if(!$event)
-            exit;
-
         $removed_author  = (new RemovedPaperAuthorModel())->get();
 
         $removed_author_ids = array();
@@ -100,7 +94,16 @@ class AcceptanceController extends Controller
                 $removed_author_ids[] = $removed['paper_author_id'];
             }
         }
-        $authors = (new PaperAuthorsModel())->whereNotIn('id', $removed_author_ids)->where('paper_id', $abstract_id)->orderBy('author_order', 'asc')->orderBy('date_time', 'asc')->asArray()->findALl();
+
+        $authorsQuery = (new PaperAuthorsModel());
+        if(!empty($removed_author_ids)) {
+            $authorsQuery->whereNotIn('id', $removed_author_ids);
+        }
+        $authorsQuery->where('paper_id', $abstract_id)
+            ->orderBy('author_order', 'asc')
+            ->orderBy('date_time', 'asc')
+            ->asArray();
+        $authors = $authorsQuery->findALl();
 
         foreach($authors as $index => &$author){
             $removed_author  = (new RemovedPaperAuthorModel())->where('paper_author_id', $author['id'])->first();
@@ -114,14 +117,15 @@ class AcceptanceController extends Controller
         $abstract_details= (new PapersModel())->find($abstract_id);
         $author_acceptance = (new AuthorAcceptanceModel())->where(['abstract_id'=>$abstract_id, 'author_id'=>session('user_id')])->first();
         $abstract_preference =  (new AdminAcceptanceModel())->where('abstract_id', $abstract_id)->first();
-
+        $header_data = [
+            'title' => 'Acceptance Finalize'
+        ];
         // print_R($abstract_details);exit;
         $header_data = [
             'title' => 'Acceptance Menu'
         ];
 
         $data = [
-            'event'=> $event,
             'abstract_id' => $abstract_id,
             'author_acceptance' => $author_acceptance,
             'authors' => $authors,
@@ -142,13 +146,11 @@ class AcceptanceController extends Controller
         if(!$this->validate_abstract_id($abstract_id))
             exit;
 
-        $event = (new EventsModel())->first();
         $acceptanceDetails = (new AuthorAcceptanceModel())->where(['abstract_id'=>$abstract_id, 'author_id'=>session('user_id')])->asArray()->first();
         $header_data = [
             'title' => 'Speaker Acceptance'
         ];
         $data = [
-            'event'=> $event,
             'abstract_id' => $abstract_id,
             'acceptanceDetails' => $acceptanceDetails,
             'abstract_preference' => presentation_preferences(),
@@ -178,11 +180,18 @@ class AcceptanceController extends Controller
             }
         }
 
-        $authors = (new PaperAuthorsModel())
-            ->whereNotIn('id', $removed_paper_author_ids)
+        // Get paper authors query
+        $authorsQuery = (new PaperAuthorsModel())
             ->where('paper_id', $abstract_id)
             ->orderBy('author_order', 'asc')
-            ->orderBy('date_time', 'asc')->findAll();
+            ->orderBy('date_time', 'asc');
+
+        // Only add whereNotIn if there are removed authors
+        if (!empty($removed_paper_author_ids)) {
+            $authorsQuery->whereNotIn('id', $removed_paper_author_ids);
+        }
+
+        $authors = $authorsQuery->findAll();
 
         foreach ($authors as &$item) {
             $item['user'] = (new UserModel())->find($item['author_id']);
@@ -259,15 +268,12 @@ class AcceptanceController extends Controller
     }
 
     public function presentation_upload($abstract_id){
-        $event = (new EventsModel())->first();
-
         $header_data = [
             'title' => 'CV Upload'
         ];
 
         $acceptanceDetails = (new AuthorAcceptanceModel())->where(['abstract_id'=>$abstract_id, 'author_id'=>session('user_id')])->asArray()->first();
         $data = [
-            'event'=> $event,
             'abstract_id' => $abstract_id,
             'acceptanceDetails' => $acceptanceDetails,
             'presentation_data_view' => $this->presentation_data_view($abstract_id)
@@ -324,13 +330,11 @@ class AcceptanceController extends Controller
         if(!$this->validate_abstract_id($abstract_id))
             exit;
 
-        $event = (new EventsModel())->first();
         $acceptanceDetails = (new AuthorAcceptanceModel())->where(['abstract_id'=>$abstract_id, 'author_id'=>session('user_id')])->asArray()->first();
         $header_data = [
             'title' => 'Breakfast Attendance'
         ];
         $data = [
-            'event'=> $event,
             'abstract_id' => $abstract_id,
             'acceptanceDetails' => $acceptanceDetails,
             'abstract_preference' => presentation_preferences(),
@@ -347,13 +351,11 @@ class AcceptanceController extends Controller
         if(!$this->validate_abstract_id($abstract_id))
             exit;
 
-        $event = (new EventsModel())->first();
         $acceptanceDetails = (new AuthorAcceptanceModel())->where(['abstract_id'=>$abstract_id, 'author_id'=>session('user_id')])->asArray()->first();
         $header_data = [
             'title' => 'Biography'
         ];
         $data = [
-            'event'=> $event,
             'abstract_id' => $abstract_id,
             'acceptanceDetails' => $acceptanceDetails,
             'abstract_preference' => presentation_preferences(),
@@ -366,6 +368,42 @@ class AcceptanceController extends Controller
             ;
     }
 
+    public function non_exclusive_license()
+    {
+        $userProfile =  (new UsersProfileModel())->where('author_id', session('user_id'))->asArray()->first();
+        $header_data = [
+            'title' => 'Non-Exclusive License'
+        ];
+        $data = [
+            'abstract_preference' => presentation_preferences(),
+            'userProfile' => $userProfile
+        ];
+        return
+            view('acceptance/common/header', $header_data) .
+            view('acceptance/non_exclusive_license', $data) .
+            view('acceptance/common/footer');
+    }
+
+
+    public function update_profile(){
+        $post = $this->request->getPost();
+        $update_array = [];
+        if(!empty($post['non_exclusive_license_signature'])){
+            $update_array['non_exclusive_license_signature'] = $post['non_exclusive_license_signature'];
+            $update_array['non_exclusive_license_date'] = $post['non_exclusive_license_date'];
+            $update_array['registered_copyright'] = $post['registered_copyright'];
+        }
+
+        try {
+            $updateProfileResult = (new UsersProfileModel())->where('author_id', session('user_id'))->set($update_array)->update();
+            if($updateProfileResult === true){
+                return $this->response->setJSON(['status' => 'success', 'msg'=> 'profile updated!']);
+            }
+        }catch (\Exception $e){
+            throw new \Exception('Profile Update Error!');
+        }
+
+    }
 
     public function update_acceptance(){
         $post = $this->request->getPost();
@@ -381,6 +419,11 @@ class AcceptanceController extends Controller
         if(!empty($post['author_bio'])){
             $update_array['author_bio'] = $post['author_bio'];
         }
+
+        if(!empty($post['travel_expenses'])){
+            $update_array['travel_expenses'] = $post['travel_expenses'];
+        }
+
 
         // Check if a record already exists for the given author and abstract
         $authorAcceptanceModel = new AuthorAcceptanceModel();
@@ -398,8 +441,8 @@ class AcceptanceController extends Controller
     }
 
     public function speaker_acceptance_finalize($abstract_id){
-        $event = (new EventsModel())->first();
-        $removed_author  = (new RemovedPaperAuthorModel())->get();
+
+        $removed_author  = (new RemovedPaperAuthorModel())->findAll();
 
         $removed_author_ids = array();
         if(!empty($removed_author)){
@@ -407,7 +450,14 @@ class AcceptanceController extends Controller
                 $removed_author_ids[] = $removed['paper_author_id'];
             }
         }
-        $authors = (new PaperAuthorsModel())->whereNotIn('id', $removed_author_ids)->where('paper_id', $abstract_id)->orderBy('author_order', 'asc')->orderBy('date_time', 'asc')->asArray()->findALl();
+        $authorsQuery = (new PaperAuthorsModel());
+            if(!empty($removed_author_ids)) {
+                $authorsQuery->whereNotIn('id', $removed_author_ids);
+            }
+            $authorsQuery->where('paper_id', $abstract_id)
+            ->orderBy('author_order', 'asc')
+            ->orderBy('date_time', 'asc');
+        $authors = $authorsQuery->asArray()->findAll();
 
         foreach($authors as $index => &$author){
             $removed_author  = (new RemovedPaperAuthorModel())->where('paper_author_id', $author['id'])->first();
@@ -416,9 +466,7 @@ class AcceptanceController extends Controller
                 $author['profile'] = (new UsersProfileModel())->where('author_id', $author['author_id'])->first();
             }
         }
-        if(!$event){
-            exit;
-        }
+
         $abstract_details= (new PapersModel())->find($abstract_id);
         $author_acceptance = (new AuthorAcceptanceModel())->where(['abstract_id'=>$abstract_id, 'author_id'=>session('user_id')])->asArray()->first();
         $abstract_preference =  (new AdminAcceptanceModel())->where('abstract_id', $abstract_id)->first();
@@ -427,7 +475,6 @@ class AcceptanceController extends Controller
         ];
 
         $data = [
-            'event'=> $event,
             'abstract_id' => $abstract_id,
             'author_acceptance' => $author_acceptance,
             'authors' => $authors,
@@ -449,10 +496,10 @@ class AcceptanceController extends Controller
         $sendMail = new PhpMail();
         $email = (new UserModel())->find(session('user_id'));
         try {
-            $from = ['name'=>'AFS', 'email'=>'afs@owpm2.com'];
+            $from = ['name'=>'SRS Asia Pacific', 'email'=>'ap@owpm2.com'];
             $addTo = [$email['email']];
-            $subject = 'AFS 2025 Participation Confirmation.';
-            $addContent = "Thank you for confirming participation in the 129th AFS Metalcasting Congress held in Atlanta, Georgia, April 12-15, 2025. We look forward to seeing you in Atlanta! If you have any questions, please contact Kimberly Perna at <a href='mailto:kperna@afsinc.org'>kperna@afsinc.org </a>. ";
+            $subject = 'SRS Asia Pacific Meeting 2026';
+            $addContent = "Thank you for confirming your participation in the SRS Asia Pacific Meeting scheduled for February 6-7, 2026 in Fukuoka, Japan.   If you have any questions, please direct them to <a href='mailto:education@srs.org'>education@srs.org </a>.  ";
 
             $response = $sendMail->send($from, $addTo, $subject, $addContent);
 
@@ -488,7 +535,7 @@ class AcceptanceController extends Controller
                 $email_logs_array['status'] = 'Success';
                 $emailLogsModel = (new EmailLogsModel())->saveToMailLogs($email_logs_array);
 
-                return $this->response->setJSON(['status' => 'success', 'msg'=> 'Acceptance Email Sent Successfully, <br> We look forward to seeing you in Atlanta!.']);
+                return $this->response->setJSON(['status' => 'success', 'msg'=> 'Acceptance Email Sent Successfully, <br> We look forward to seeing you in Fukuoka, Japan!']);
             } else {
                 // Email sending failed
                 $email_logs_array['status'] = 'Failed';

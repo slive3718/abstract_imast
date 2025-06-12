@@ -113,10 +113,10 @@ class ModeratorAcceptanceModel extends Model
              $result = $this->where(['scheduler_id'=>$scheduler_id, 'author_id'=>session('user_id')])->first();
              if(!$result)
                  return ['status'=>'failed', 'msg'=> 'No result found!'];
-             if($result->breakfast_attendance == '')
-                 return  ['status'=>'failed', 'msg'=> 'breakfast status empty'];
-            if($result->is_session_previewed == '')
-                return  ['status'=>'failed', 'msg'=> 'session details preview incomplete'];
+//             if($result->breakfast_attendance == '')
+//                 return  ['status'=>'failed', 'msg'=> 'breakfast status empty'];
+//            if($result->is_session_previewed == '')
+//                return  ['status'=>'failed', 'msg'=> 'session details preview incomplete'];
             if($result->acceptance_confirmation !== ''){
                 return ['status'=>'success', 'msg'=> 'Finalized'];
             }else{

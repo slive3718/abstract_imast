@@ -6,25 +6,34 @@
     <?=$presentation_data_view ?? ''?>
     <div class="card mt-2">
         <div class="card-header bg-primary text-white p-3">
-            Session Chair Participation
+            Moderator Acceptance
         </div>
         <div class="card-body">
             <p class="fw-bold">Congratulations!</p>
-            <p>You have been scheduled as a Session Chair at the <strong>129th AFS Metalcasting Congress</strong> held in Atlanta, Georgia April 12-15, 2025. Please confirm below if you are able to participate in the 2025 AFS Metalcasting Congress.</p>
-            <p class="text-danger">
-                Once you accept/decline your presentation status, you will not be able to change your decision online. To change your participation decision, please contact Kimberly Perna at <a href="mailto:kperna@afsinc.org" class="text-danger">kperna@afsinc.org</a>.
+            <p>It is the distinct pleasure of the Scoliosis Research Society to offer you the opportunity to moderate at the SRS Asia Pacific Meeting scheduled for February 6-7, 2026 in Fukuoka, Japan.</p>
+            <p>
+                You have been invited to participate in the following session:
             </p>
+            <ul>
+                <li><span class="fw-bolder">Session Date: </span> <?=!empty($abstract_schedule['event']) ? date('F d, Y', strtotime($abstract_schedule['event']['session_date'])) : ''?></li>
+                <li><span class="fw-bolder">Session Title: </span>  <?=!empty($abstract_schedule['event']) ? ($abstract_schedule['event']['session_title']) : ''?></li>
+                <li><span class="fw-bolder">Session Time:  </span> <?=!empty($abstract_schedule) ? date('H:i', strtotime($abstract_schedule['event']['session_start_time'])) .' - '.date('H:i', strtotime($abstract_schedule['event']['session_end_time'])) : ''?></li>
+                <li><span class="fw-bolder">Moderator(s): </span>  <?= !empty($abstract_schedule['moderators'])
+                        ? implode(', ', array_map(fn($moderator) => $moderator['name'].' '.$moderator['surname'], $abstract_schedule['moderators']))
+                        : '' ?>
+                </li>
+            </ul>
             <form id="presentation_agreement_form">
                 <div class="form-check">
                     <input class="form-check-input" type="radio" name="participation" id="accept" value="1" <?= !empty($acceptanceDetails) && $acceptanceDetails['acceptance_confirmation'] == 1 ? 'checked' : ''?>>
                     <label class="form-check-label" for="accept">
-                        I will participate as a Session Chair at the 129th AFS Metalcasting Congress held in Atlanta, Georgia April 12-15, 2025.
+                        Yes, I confirm my participation, for this assignment, at the SRS Asia Pacific Meeting.
                     </label>
                 </div>
                 <div class="form-check mt-2">
                     <input class="form-check-input" type="radio" name="participation" id="decline" value="2" <?= !empty($acceptanceDetails) && $acceptanceDetails['acceptance_confirmation'] == 2 ? 'checked' : ''?>>
                     <label class="form-check-label" for="decline">
-                        I am unable to participate in the 129th AFS Metalcasting Congress held in Atlanta, Georgia April 12-15, 2025.
+                        No, I am declining this invitation for the SRS Asia Pacific Meeting.
                     </label>
                 </div>
                 <button type="submit" class="btn btn-primary mt-4" >Save and Continue</button>
@@ -78,7 +87,7 @@
     });
 
     function goNext(){
-        window.location.href = acceptanceBaseUrl+'breakfast_attendance/'+scheduler_id
+        window.location.href = acceptanceBaseUrl+'finalize/'+scheduler_id
     }
 
 </script>

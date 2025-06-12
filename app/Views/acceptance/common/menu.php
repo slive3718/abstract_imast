@@ -39,30 +39,36 @@
                     </a>
                 </li>
 
-                <?php if(session('user_id')): ?>
+            <!--    <?php /*if(session('user_id')): */?>
                     <li class="nav-item mt-2 me-5">
                         <div class="dropdown ">
                             <button class="btn btn-outline-light dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
                                 Presenter Instructions <i class="fa-solid fa-document"></i></button>
                             <ul class="btn btn-outline-light dropdown-menu dropdown-menu-end mt-3 text-white" aria-labelledby="dropdownMenuButton1" style="background-color:#2aa69c">
-                                <li><a class="dropdown-item text-white" href="<?=base_url().'public/assets/documents/submission_references/CastExpo_2025_PPT_Template.pptx'?>"target="_blank">AFS PowerPoint template is available here. </a></li>
+                                <li><a class="dropdown-item text-white" href="<?php /*=base_url().'public/assets/documents/submission_references/CastExpo_2025_PPT_Template.pptx'*/?>"target="_blank">AFS PowerPoint template is available here. </a></li>
                             </ul>
                         </div>
                     </li>
-                <?php endif ?>
+                --><?php /*endif */?>
 
                 <?php if(session('user_id')): ?>
-                <li class="nav-item mt-2 me-5">
-                    <div class="dropdown ">
-                        <button class="btn btn-outline-light dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">
-                            SETTINGS <i class="fa-solid fa-cog"></i></button>
-                        <ul class="btn btn-outline-light dropdown-menu dropdown-menu-end mt-3 text-white" aria-labelledby="dropdownMenuButton1" style="background-color:#2aa69c">
-                            <li><button class="dropdown-item text-white" id="userInfoBtn" href="#">My Information</button></li>
-                            <li><button class="dropdown-item text-white" id="changePasswordBtn" href="#">Password Setting</button></li>
-                            <li><button class="dropdown-item text-white" id="logoutBtn" href="#">Logout</button></li>
-                        </ul>
-                    </div>
-                </li>
+<!--                <li class="nav-item mt-2 me-5">-->
+<!--                    <div class="dropdown ">-->
+<!--                        <button class="btn btn-outline-light dropdown-toggle" type="button" id="dropdownMenuButton1" data-bs-toggle="dropdown" aria-expanded="false">-->
+<!--                            SETTINGS <i class="fa-solid fa-cog"></i></button>-->
+<!--                        <ul class="btn btn-outline-light dropdown-menu dropdown-menu-end mt-3 text-white" aria-labelledby="dropdownMenuButton1" style="background-color:#2aa69c">-->
+<!--                            <li><button class="dropdown-item text-white" id="userInfoBtn" href="#">My Information</button></li>-->
+<!--                            <li><button class="dropdown-item text-white" id="changePasswordBtn" href="#">Password Setting</button></li>-->
+<!--                            <li><button class="dropdown-item text-white" id="logoutBtn" href="#">Logout</button></li>-->
+<!--                        </ul>-->
+<!--                    </div>-->
+<!--                </li>-->
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" >
+                            <button type="button" class="btn btn-outline-light" id="logoutBtn" href="#">Logout <i class="fas fa-sign-out-alt"></i></button>
+                        </a>
+                    </li>
+
                 <?php endif ?>
             </ul>
         </div>
@@ -204,14 +210,10 @@
     </div>
 </div>
 
-
-
-
 <div class="pt-5">
-    <div class="text-center mt-md-4" style="width: 70% !important; margin:auto">
-        <img id="main-banner" src="<?=$event->main_banner?>" class=" figure-img" alt="Main Banner" style="width: 100% !important;object-fit: cover; mix-blend-mode: multiply;" />
+    <div class="text-center mt-md-4" style="margin:auto">
+        <img id="main-banner" src="<?=base_url()?>main_banner.png" class=" figure-img w-100" alt="Main Banner" />
     </div>
-    <hr />
 </div>
 <script>
     $(function(){

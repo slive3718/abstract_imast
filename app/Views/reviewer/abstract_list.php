@@ -151,15 +151,14 @@
             $('#abstractTable').DataTable().destroy();
         }
         $.post(baseUrlReviewer+'getAllReviewerAbstracts', function(response){
-            console.log(response);
+            // console.log(response[0]);
             $('#abstractTableBody').html('');
             $.each(response.data, function(i, val){
-                console.log(val.abstracts);
-                if(val.abstracts){
+                 console.log(val.abstracts);
                 let reviewBtn  = '<button class="btn btn-success btn-sm reviewBtn" abstract_id='+val.abstracts.id+'> Review </button>'
                 let declinedBtn  = '<button class="btn btn-danger btn-sm declineBtn" abstract_id='+val.abstracts.id+'> Decline </button>'
 
-                let approveBtn = '';
+                let approveBtn =
 
                 $('#abstractTableBody').append('<tr>'+
                     '<td>'+val.abstracts.custom_id+'</td>'+
@@ -168,7 +167,6 @@
                     '<td id="rating_'+val.abstracts.id+'">'+((val.reviews)?val.reviews.average_score:'')+'</td>'+
                     '<td>'+reviewBtn +" "+((val.reviews)?'':declinedBtn)+'</td>'+
                     '</tr>')
-                    }
             })
             $('#abstractTable').DataTable();
         },'json')

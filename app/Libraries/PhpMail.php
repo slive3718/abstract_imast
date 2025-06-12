@@ -10,60 +10,102 @@ use PHPMailer\PHPMailer\Exception;
 
 class PhpMail
 {
-    public function send($from, $addTo, $subject, $addContent, $attachment = null)
+    public function send($from, $addTo, $subject, $addContent, $attachment = null, $embeded_images = null )
     {
-//        header('Content-Type: application/json');
-//
-//// Simulate a 5-second delay
-//        sleep(2);
-//
-//        return (object)  [
-//            'success' => true,
-//            'statusCode' => 200,
-//            'message' => 'Email sent successfully.'
-//        ];
+        $isProd =  (env('CI_ENVIRONMENT') === 'production');
 
-        // Create a From object with the provided sender information
-        $mail = new PHPMailer(true); // Passing true enables exceptions
+        if ($isProd) {
+            return $this->send_mail_production($from, $addTo, $subject, $addContent, $attachment, $embeded_images);
+        }else{
+            return $this->send_mail_dev($from, $addTo, $subject, $addContent, $attachment, $embeded_images);
+        }
+    }
+
+    function send_mail_dev($from, $addTo, $subject, $addContent, $attachment, $embeded_images)
+    {
+
+        header('Content-Type: application/json');
+
+// Simulate a 5-second delay
+        sleep(2);
+
+        return (object)  [
+            'success' => true,
+            'statusCode' => 200,
+            'message' => 'Email sent successfully.'
+        ];
+
+        $mail = new PHPMailer(true); // Enable exceptions
 
         try {
-            // Server settings
+            // SMTP Settings
             $mail->isSMTP();
             $mail->Host       = 'owpm2.com';
             $mail->SMTPAuth   = true;
             $mail->Username   = 'no-reply@owpm2.com';
             $mail->Password   = 'owpm2_email#';
-            $mail->SMTPSecure = 'ssl';
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; // Use PHPMailer constant
             $mail->Port       = 465;
+            $mail->CharSet = 'UTF-8';             // Ensure proper encoding
+            $mail->Encoding = 'base64';           // Handles non-ASCII characters properly
+            $mail->isHTML(true);                  // Set email format to HTML
 
-            $from_email = ['email'=>'afs@owpm2.com', 'name'=>'AFS'];
-            $mail->setFrom( $from_email['email'], $from_email['name']);
+            // Default sender details
+            $defaultFromEmail = 'ap@owpm2.com';
+            $defaultFromName  = 'SRS Asia Pacific';
 
-            // Add recipients
-//            $mail->addAddress('rexterdayuta@gmail.com');
-            if(is_array($addTo)) {
-                foreach ($addTo as $recipient) {
-                    $mail->addAddress($recipient);
-                }
-            }else{
-                $mail->addAddress($addTo);
+            // Set sender
+            if (!empty($from)) {
+                $mail->setFrom($from['email'], $from['name']);
+            } else {
+                $mail->setFrom($defaultFromEmail, $defaultFromName);
             }
 
-            $mail->addCC('shannononeworld@gmail.com');
-            $mail->addBCC('rexterdayuta@gmail.com');
-            // Email subject
+            // Add recipients
+
+            $mail->addAddress('rexterdayuta@gmail.com');  // for testing default
+
+//            if (is_array($addTo)) {
+//                foreach ($addTo as $recipient) {
+//                    $mail->addAddress($recipient);
+//                }
+//            } else {
+//                $mail->addAddress($addTo);
+//            }
+
+            // CC & BCC
+//            $mail->addCC('shannononeworld@gmail.com');
+//            $mail->addBCC('rexterdayuta@gmail.com');
+
+            // Email Subject & Body
+            $mail->isHTML(true);
             $mail->Subject = $subject;
 
-            // Email content
-            $mail->isHTML(true);
-            $mail->Body = $addContent;
+            // Embed the images dynamically
+            $cid_references = [];
+
+            if (!empty($embeded_images)) {
+                foreach ($embeded_images as $key => $embeded_image) {
+                    $cid = 'cid:image' . $key; // Unique CID for each image
+                    $mail->AddEmbeddedImage($embeded_image['tmp_name'], $cid, basename($embeded_image['tmp_name'])); // Embed image and associate with CID
+                    $cid_references[$key] = $cid; // Save CID references to use in the email body
+                }
+            }
+
+            // Update the body content to reference the embedded images
+            foreach ($cid_references as $key => $cid) {
+                // Replace image placeholders with the CID references
+                $addContent = str_replace("{image$key}", "cid:$cid", $addContent);
+            }
+
+
+            $mail->Body    = $addContent;
 
             // Attachments
             if (!empty($attachment['name'][0])) {
-                for ($i = 0; $i < count($attachment['name']); $i++) {
-                    // Ensure there are no upload errors
-                    if ($attachment['error'][$i] === UPLOAD_ERR_OK) {
-                        $mail->addAttachment($attachment['tmp_name'][$i], $attachment['name'][$i]);
+                foreach ($attachment['name'] as $index => $filename) {
+                    if ($attachment['error'][$index] === UPLOAD_ERR_OK) {
+                        $mail->addAttachment($attachment['tmp_name'][$index], $filename);
                     }
                 }
             }
@@ -71,19 +113,112 @@ class PhpMail
             // Send email
             $mail->send();
 
-           return (object)  [
-                'success' => true,
+            return (object)[
+                'success'    => true,
                 'statusCode' => 200,
-                'message' => 'Email sent successfully.'
+                'message'    => 'Email sent successfully.'
             ];
         } catch (Exception $e) {
-           return (object)  [
-                'success' => true,
+            return (object)[
+                'success'    => false,
                 'statusCode' => 450,
-                'message' => 'Error: ' . $e->getMessage()
+                'message'    => 'Error: ' . $e->getMessage()
             ];
         }
     }
+
+    function send_mail_production($from, $addTo, $subject, $addContent, $attachment, $embeded_images)
+    {
+
+        $mail = new PHPMailer(true); // Enable exceptions
+
+        try {
+            // SMTP Settings
+            $mail->isSMTP();
+            $mail->Host       = 'owpm2.com';
+            $mail->SMTPAuth   = true;
+            $mail->Username   = 'no-reply@owpm2.com';
+            $mail->Password   = 'owpm2_email#';
+            $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; // Use PHPMailer constant
+            $mail->Port       = 465;
+            $mail->CharSet = 'UTF-8';             // Ensure proper encoding
+            $mail->Encoding = 'base64';           // Handles non-ASCII characters properly
+            $mail->isHTML(true);                  // Set email format to HTML
+
+            // Default sender details
+            $defaultFromEmail = 'ap@owpm2.com';
+            $defaultFromName  = 'SRS Asia Pacific';
+
+            // Set sender
+            if (!empty($from)) {
+                $mail->setFrom($from['email'], $from['name']);
+            } else {
+                $mail->setFrom($defaultFromEmail, $defaultFromName);
+            }
+
+            // Add recipients
+            if (is_array($addTo)) {
+                foreach ($addTo as $recipient) {
+                    $mail->addAddress($recipient);
+                }
+            } else {
+                $mail->addAddress($addTo);
+            }
+
+            // CC & BCC
+            $mail->addCC('shannononeworld@gmail.com');
+            $mail->addBCC('rexterdayuta@gmail.com');
+
+            // Email Subject & Body
+            $mail->isHTML(true);
+            $mail->Subject = $subject;
+
+            // Embed the images dynamically
+            $cid_references = [];
+
+            if (!empty($embeded_images)) {
+                foreach ($embeded_images as $key => $embeded_image) {
+                    $cid = 'cid:image' . $key; // Unique CID for each image
+                    $mail->AddEmbeddedImage($embeded_image['tmp_name'], $cid, basename($embeded_image['tmp_name'])); // Embed image and associate with CID
+                    $cid_references[$key] = $cid; // Save CID references to use in the email body
+                }
+            }
+
+            // Update the body content to reference the embedded images
+            foreach ($cid_references as $key => $cid) {
+                // Replace image placeholders with the CID references
+                $addContent = str_replace("{image$key}", "cid:$cid", $addContent);
+            }
+            
+            $mail->Body    = $addContent;
+
+            // Attachments
+            if (!empty($attachment['name'][0])) {
+                foreach ($attachment['name'] as $index => $filename) {
+                    if ($attachment['error'][$index] === UPLOAD_ERR_OK) {
+                        $mail->addAttachment($attachment['tmp_name'][$index], $filename);
+                    }
+                }
+            }
+
+            // Send email
+            $mail->send();
+
+            return (object)[
+                'success'    => true,
+                'statusCode' => 200,
+                'message'    => 'Email sent successfully.'
+            ];
+        } catch (Exception $e) {
+            return (object)[
+                'success'    => false,
+                'statusCode' => 450,
+                'message'    => 'Error: ' . $e->getMessage()
+            ];
+        }
+    }
+
+
 
 
     public function testMail(){
@@ -100,7 +235,7 @@ class PhpMail
             $mail->Port       = 465;
 
             // Set sender
-            $mail->setFrom('afs@owpm2.com', 'AFS');
+            $mail->setFrom(env('MAIL_FROM'), env('MAIL_FROM_ADDRESS'));
 
             // Add recipients
 

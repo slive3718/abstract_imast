@@ -109,7 +109,7 @@
                     <!--       Moderator Start             -->
                     <div data-for="moderator">
                         <input type="checkbox" class="recipientDesignation" id="all_moderators" name="recipientDesignation" value="all_moderators">
-                        <label for="all_moderators">All Session Chairs</label>
+                        <label for="all_moderators">All Moderators</label>
                     </div>
 
 
@@ -571,7 +571,6 @@
             previewEmail('preview', function(response){
                 Swal.close();
                 $('#emailBodyDiv').html('');
-                $('#formTemplate')[0].reset();
                 if (response.status == 200) {
                     $.each(response.data, function(i, val) {
                         $('#emailBodyDiv').append(`
@@ -673,7 +672,7 @@
             var tableHTML = '<table class="table table-striped table-bordered table-hover" id="recipientsTable">';
             tableHTML += '<thead> ' +
                 '<th><input type="checkbox" name="selectAllRecipient" id="selectAllRecipient" onclick="checkAllRecipients(this)" ><label for="selectAllRecipient"> Select All</label>' +
-                '</th><th>Recipients Name</th>'+ (selectedOption === 'all_moderators' ?  "<th>Scheduler ID</th>" :   "<th>Abstract ID</th>")+' <th>Email</th> </thead>'
+                '</th><th>Recipients Name</th> <th>Abstract ID</th> <th>Email</th>   </thead>'
 
             response.data.forEach(function(user) {
                 // console.log(user)

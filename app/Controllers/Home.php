@@ -3,22 +3,19 @@
 namespace App\Controllers;
 
 use App\Models\AbstractReviewModel;
-use App\Models\Core\Api;
-use App\Models\AbstractEventsModel;
 use App\Models\PaperAuthorsModel;
 use App\Models\PapersModel;
 use App\Models\PaperTypeModel;
 use App\Models\RemovedPaperAuthorModel;
 use App\Models\ReviewerPaperUploadsModel;
 use App\Models\UserModel;
+use App\Models\UsersProfileModel;
 
 class Home extends BaseController
 {
-
-
     public function __construct()
     {
-        if(empty(session('email')) || session('email') == ''){
+        if (empty(session('email')) || session('email') == '') {
             print_r('User must login to continue');
             exit;
         }
@@ -26,79 +23,71 @@ class Home extends BaseController
 
     public function index(): string
     {
-
-//        print_r('test');exit;
-
-        $event = (new AbstractEventsModel())->first();
-
-        $PaperAuthorsModel = (new PaperAuthorsModel());
-
-        if(!$event){
-            return "Missing Even on Database";
-        }
-
         $header_data = [
             'title' => "My Submissions"
         ];
-        $data = [
-            'event'=> $event
-        ];
-        $user_id = $_SESSION['user_id'];
-        $PaperTypeModel = new PaperTypeModel();
-        $papersModel =  (new PapersModel());
-        $AbstractReviewModel = (new AbstractReviewModel());
-        $UserModel = new UserModel();
-        $ReviewerPaperUploadsModel = (new ReviewerPaperUploadsModel());
-        $RemovedPaperAuthorsModel = (new RemovedPaperAuthorModel());
-        
-        $papers = $papersModel
-            ->select("*, ".$papersModel->getTable().".id as id")
-            ->join($PaperTypeModel->getTable(), $papersModel->getTable(). '.type_id = '.$PaperTypeModel->getTable().'.type', 'left')
-            ->join($UserModel->getTable(), $papersModel->getTable(). '.user_id = '.$UserModel->getTable().'.id', 'left')
-            ->where("user_id", $user_id)
-            ->orderBy($papersModel->getTable().'.id', 'asc')
-            ->findAll();
 
+        $user_id = $_SESSION['user_id'];
+        $db = $this->default_db;
+        $sharedDbName = 'abstract_suit_shared_db'; // Use the shared database name directly
+
+        // Fetch papers
+        $papersQuery = "
+            SELECT p.*, p.id AS id, pt.type AS paper_type, u.name AS user_name
+            FROM papers p
+            LEFT JOIN paper_type pt ON p.type_id = pt.id
+            LEFT JOIN {$sharedDbName}.users u ON p.user_id = u.id
+            WHERE p.user_id = ?
+            ORDER BY p.id ASC
+        ";
+        $papers = $db->query($papersQuery, [$user_id])->getResult();
 
         foreach ($papers as $paper) {
             // Fetch authors for the paper
-            $paper->authors = $PaperAuthorsModel
-                ->select($UserModel->getTable() . '.*,'.$PaperAuthorsModel->getTable().'.is_copyright_agreement_accepted') // Select all fields from the UserModel
-                ->join($UserModel->getTable(), $PaperAuthorsModel->getTable() . '.author_id =' . $UserModel->getTable() . '.id', 'left')
-                ->where(['paper_id' => $paper->id, 'author_type' => 'author'])
-                ->whereNotIn('paper_authors.id', function ($builder) use ($RemovedPaperAuthorsModel) {
-                    $builder->select('paper_author_id')->from($RemovedPaperAuthorsModel->getTable());
-                })
-                ->findAll();
+            $authorsQuery = "
+                SELECT u.*, up.signature_signed_date
+                FROM paper_authors pa
+                LEFT JOIN {$sharedDbName}.users u ON pa.author_id = u.id
+                LEFT JOIN {$sharedDbName}.users_profile up ON pa.author_id = up.author_id
+                WHERE pa.paper_id = ? AND pa.author_type = 'author'
+                AND pa.id NOT IN (
+                    SELECT paper_author_id FROM removed_paper_authors
+                )
+            ";
+            $paper->authors = $db->query($authorsQuery, [$paper->id])->getResultArray();
 
             // Fetch reviewers for the paper
-            $paper->reviewers = $AbstractReviewModel
-                ->where(['abstract_id' => $paper->id])
-                ->findAll();
+            $reviewersQuery = "
+                SELECT * FROM abstract_review
+                WHERE abstract_id = ?
+            ";
+            $paper->reviewers = $db->query($reviewersQuery, [$paper->id])->getResult();
 
             // Fetch uploads for each reviewer
-            foreach ($paper->reviewers as &$reviewer) { // Using "&" to make $reviewer mutable
-                $reviewer['uploads'] = $ReviewerPaperUploadsModel
-                    ->where(['paper_id'=>$paper->id, 'reviewer_id' => $reviewer['reviewer_id']])
-                    ->first(); // Assuming each reviewer has only one upload, so using "first()"
-
+            foreach ($paper->reviewers as &$reviewer) {
+                $uploadsQuery = "
+                    SELECT * FROM reviewer_paper_uploads
+                    WHERE paper_id = ? AND reviewer_id = ?
+                    LIMIT 1
+                ";
+                $reviewer->uploads = $db->query($uploadsQuery, [$paper->id, $reviewer->reviewer_id])->getRow();
             }
 
-            $paper->panelist = $PaperAuthorsModel
-                ->select($UserModel->getTable() . '.*,'.$PaperAuthorsModel->getTable().'.is_copyright_agreement_accepted') // Select all fields from the UserModel
-                ->join($UserModel->getTable(), $PaperAuthorsModel->getTable() . '.author_id =' . $UserModel->getTable() . '.id', 'left')
-                ->where(['paper_id' => $paper->id, 'author_type' => 'panelist'])
-                ->findAll();
+            // Fetch panelists for the paper
+            $panelistsQuery = "
+                SELECT u.*, pa.is_copyright_agreement_accepted
+                FROM paper_authors pa
+                LEFT JOIN {$sharedDbName}.users u ON pa.author_id = u.id
+                WHERE pa.paper_id = ? AND pa.author_type = 'panelist'
+            ";
+            $paper->panelist = $db->query($panelistsQuery, [$paper->id])->getResult();
         }
-//        $reviewer['uploads'] = 'test';
-//        print_r($papers);exit;
+
         $data['papers'] = $papers;
 
         return
-            view('event/common/header', $header_data).
-            view('event/submission',$data).
-            view('event/common/footer')
-            ;
+            view('event/common/header', $header_data) .
+            view('event/submission', $data) .
+            view('event/common/footer');
     }
-
 }

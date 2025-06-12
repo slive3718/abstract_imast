@@ -5,15 +5,33 @@ use CodeIgniter\Model;
 
 class UsersProfileModel extends Model
 {
+    protected $DBGroup = 'shared';
     protected $table = 'users_profile';
     protected $primaryKey = 'id';
-    protected $allowedFields;
-    // protected $allowedFields = ['title', 'description'];
+    protected $allowedFields = []; // Initialize as empty array
 
     public function __construct()
     {
         parent::__construct();
-        $this->allowedFields = $this->db->getFieldNames($this->table);
+        $this->db = \Config\Database::connect('shared');
+
+        $this->initializeAllowedFields();
+    }
+
+    public function setDBConnection($connection)
+    {
+        $this->db = $connection;
+        return $this;
+    }
+    /**
+     * Initialize allowed fields dynamically while excluding sensitive/auto-increment fields
+     */
+    protected function initializeAllowedFields()
+    {
+        $fields = $this->db->getFieldNames($this->table);
+        $excludedFields = ['id', 'created_at', 'updated_at', 'deleted_at']; // Add any sensitive fields here
+
+        $this->allowedFields = array_diff($fields, $excludedFields);
     }
 
     public function Get()

@@ -64,7 +64,6 @@
                 {
                     'email': email,
                     'password': password,
-                    'event_uri': "afs",
                     'login_type': "admin"
 
                 }, function(response){

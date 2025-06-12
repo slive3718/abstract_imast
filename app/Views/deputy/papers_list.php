@@ -1,46 +1,7 @@
 
 
 <?php echo view('deputy/common/menu'); ?>
-<style>
 
-    .log-trigger:hover {
-        background-color: rgba(37, 99, 235, 0.08);
-        border-color: rgba(37, 99, 235, 0.2);
-        color: #1d4ed8;
-    }
-
-    .log-trigger i {
-        font-size: 0.9em;
-    }
-
-    /* ===== Professional Tooltip Styling ===== */
-    .tippy-box {
-        font-size: 0.875rem;
-        max-width: 320px;
-        border-radius: 8px;
-        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
-        background: white;
-        color: #333;
-        border: 1px solid #f0f0f0;
-    }
-
-    .tippy-box[data-theme~='light'] {
-        background: white;
-        color: #333;
-    }
-
-
-    .tippy-content {
-        padding: 1rem;
-    }
-
-    .tippy-content .card {
-        border: none;
-        box-shadow: none;
-        padding: 0;
-    }
-
-</style>
 <main>
     <div class="container-fluid" style="padding-bottom:200px">
         <?php echo view('admin/common/shortcut_link'); ?>
@@ -98,7 +59,7 @@
                         <th class="bg-primary text-white" colspan="16">Reviewers Table</th>
                     </tr>
                         <th>ID</th>
-                        <th>Submitter</th>
+                        <th>Presenter</th>
                         <th>Paper Title</th>
                         <th>Type</th>
                         <th>Division</th>
@@ -139,7 +100,6 @@
                     <th>Reviewer Name</th>
                     <th>Reviewer Institution</th>
                     <th>Emailed</th>
-                    <th>Status</th>
                     </thead>
                     <tbody id="regularReviewerTableBody" >
 <!--    Filled with Ajax -->
@@ -160,7 +120,7 @@
         
         getPapers();
 
-        $("#papersTableBody").on('click', '#assignReviewerBtn', async function(){
+        $("#papersTableBody").on('click', '#assignReviewerBtn', function(){
             let paper_id = $(this).attr('paper_id');
             let divisionName = $(this).attr('divisionName');
             let reviewers_reviewed = $(this).attr('reviewers_reviewed')
@@ -178,15 +138,16 @@
                     confirmButtonColor: "#3085d6",
                     cancelButtonColor: "#d33",
                     confirmButtonText: "Yes, continue"
-                }).then(async (result) => {
+                }).then((result) => {
                     if (result.isConfirmed) {
-                       await getRegularReviewersByDivision(paper_id, divisionName)
-
+                        getRegularReviewersByDivision(paper_id, divisionName)
                     }
                 });
             }else{
-              await  getRegularReviewersByDivision(paper_id, divisionName)
+                getRegularReviewersByDivision(paper_id, divisionName)
             }
+
+
         });
 
 
@@ -411,7 +372,7 @@
                 if (result.isConfirmed) {
                     Swal.fire({
                         title: "Please Wait!",
-                        html: "Sending email to reviewer...",
+                        html: "Sending email to submitter...",
                         allowOutsideClick: false,
                         allowEscapeKey: false,
                         allowEnterKey: false,
@@ -440,124 +401,29 @@
                     }, 'json')
                 }
             });
+
+
+
         })
-
-        $('#papersTableBody').on('click', '.clearSeenUpdatesBtn', function() {
-            // Store reference to the clicked element
-            const $button = $(this);
-
-            Swal.fire({
-                title: "Info",
-                text: "This will remove all recent activity tags on this paper.",
-                icon: "info",
-                showCancelButton: true,
-                confirmButtonColor: "#3085d6",
-                cancelButtonColor: "#d33",
-                confirmButtonText: "Yes, continue"
-            }).then(async (result) => {
-                if (result.isConfirmed) {
-                    const swalInstance = Swal.fire({
-                        title: 'Processing',
-                        html: '',
-                        allowOutsideClick: false,
-                        didOpen: () => {
-                            Swal.showLoading();
-                        }
-                    });
-
-                    try {
-                        let paper_id = $button.data('paper-id');
-
-                        // Make the AJAX request
-                        const response = await $.post(base_url + 'logs/add_seen_logs', {
-                            'paper_id': paper_id,
-                            'ref_1': 'deputy'
-                        });
-
-                        // If successful, update the UI
-                        if (response.status === 200) {
-                            // Get the parent table row
-                            const $row = $button.closest('tr');
-
-                            $row.find('.recentUpdateNotif').fadeOut(300, function() {
-                                $(this).remove();
-                            });
-
-                            // Clear tooltip content
-                            $row.attr('data-tippy-content', '');
-
-                            // If you're using the Tippy.js library, you might need to update the instance
-                            if ($button._tippy) {
-                                $button._tippy.setContent('');
-                            }
-                        } else {
-                            Swal.fire('Error', response.message || 'Failed to clear notifications', 'error');
-                        }
-                    } catch (error) {
-                        Swal.fire('Error', 'An error occurred while processing your request', 'error');
-                        console.error(error);
-                    } finally {
-                        swalInstance.close();
-                    }
-                }
-            });
-        });
 
     })
 
     function getRegularReviewersByDivision(paper_id, divisionName){
-
-        $('#regularReviewerTableBody').html('');
-
-        Swal.fire({
-            title: 'Processing',
-            html: 'Please wait while we load reviewers...',
-            allowOutsideClick: false,
-            didOpen: () => {
-                Swal.showLoading();
-            }
-        });
-
         $.post(baseUrlDeputy + 'getRegularReviewersByDivision', {
             'paper_id': paper_id
         }, function(result){
-            swal.close()
             if(result.status == '200') {
+                $('#regularReviewerTableBody').html('');
                 $.each(result.data, function (i, val) {
                     // console.log(val)
                     let isAssigned = (val.is_assigned && val.is_assigned.is_deleted !== 1 && val.is_assigned.is_declined !== "1") ? 'checked' : '';
                     let selectReviewerBox = '<input type="checkbox" class="selectReviewerBox" name="selectReviewerBox" '+isAssigned+' id="" paperID = "'+paper_id+'" reviewerID = "'+val.user_id+'">';
                     // console.log(val.emailLog)
                     let emailLog = '';
-                    // console.log(val.emailLog)
+                    console.log(val.emailLog)
                     if (val.emailLog[0] && val.emailLog[0].length > 0) {
                         emailLog = val.emailLog[0][val.emailLog.length - 1].created_at;
                     }
-
-                    let reviewStatus= '';
-
-                    reviewStatus = (() => {
-
-                        if(isAssigned == 'checked' && val.reviews.length === 0 ){
-                            return '<span class="badge bg-secondary">Not Reviewed</span>';
-                        }
-
-                        if (val.reviews.length === 0) {
-                            return '<span class="badge bg-secondary"></span>';
-                        }
-
-
-                        switch(val.reviews.is_approved) {
-                            case '1':
-                                return '<span class="badge bg-success">Approved</span>';
-                            case '2':
-                                return '<span class="badge bg-warning text-dark">I still have concern</span>';
-                            case '3':
-                                return '<span class="badge bg-danger">Declined</span>';
-                            default:
-                                return '<span class="badge bg-info"></span>';
-                        }
-                    })();
 
                     $('#regularReviewerTableBody').append(
                         '<tr>' +
@@ -565,7 +431,6 @@
                         '<td>' + val.user_name + ' ' + val.surname + '</td>' +
                         '<td>'+((val.institution)? val.institution:'')+'</td>' +
                         '<td>'+emailLog+'</td>' +
-                        '<td>'+reviewStatus+'</td>' +
                         '</tr>'
                     );
                 });
@@ -590,7 +455,7 @@
             $('#papersTable').dataTable().fnClearTable();
             $('#papersTable').dataTable().fnDestroy();
         }
-        $.post(baseUrlDeputy + 'getAllDeputyReviewerPapersByDivision', async function (response) {
+        $.post(baseUrlDeputy + 'getAllDeputyReviewerPapersByDivision', function (response) {
             // console.log(response[0]);
             $('#papersTableBody').html('');
 
@@ -599,55 +464,27 @@
                 let isApproved = '';
                 let reviewed = 0;
                 let division_name = (val.division ? val.division.name : '')
-                let submitterRecentLogs = ''
-                let submitterLogsCount = 0
-                if(val.submitter_logs && val.submitter_logs.length > 0){
-                    $.each(val.submitter_logs, function(i , log){
-                        submitterRecentLogs +=  renderUpdateList(log)
-                        submitterLogsCount++;
-                    })
-                }
-                let reviewers = []
-                try {
-                    reviewers = $.map(val.reviewers, function (reviewer) {
-                        let reviewerRecentUpdate = ''
-
-                        let reviewerLogsCount = 0;
-                        if (reviewer.logs && reviewer.logs.length > 0) {
-                            $.each(reviewer.logs, function (i, log) {
-                                reviewerRecentUpdate += renderUpdateList(log)
-                                reviewerLogsCount++;
-                            })
+                let reviewers = $.map(val.reviewers, function(reviewer) {
+                    // console.log(reviewer)
+                    if(reviewer.review){
+                        if(reviewer.review.is_approved == 1){
+                            isApproved = '<span class="badge bg-success ms-2" style="font-size:11px !important">I approve</span>';
+                        }else{
+                            isApproved = '<span class="badge bg-warning text-dark ms-2" style="font-size:11px !important">Still have concerns</span>';
                         }
 
-                        let isApproved = '';
-
-                        if (reviewer.review?.is_approved !== undefined) {
-                            switch (reviewer.review.is_approved) {
-                                case '1':
-                                    isApproved = '<span class="badge bg-success ms-2" style="font-size:11px !important">I approve</span>';
-                                    break;
-                                case '2':
-                                    isApproved = '<span class="badge bg-warning text-dark ms-2" style="font-size:11px !important">Still have concerns</span>';
-                                    break;
-                                default:
-                                    isApproved = '';
-                            }
-                        }
-                        if (reviewer.is_declined > 0) {
-                            isApproved = '<span class="badge bg-danger ms-2" style="font-size:11px !important">Declined</span>';
-                            return '<div class="card p-1 bg-transparent shadow-sm mb-1">' + reviewer.name + ' ' + reviewer.surname + '<br>' + isApproved + '</span></div>';
-                        } else if (reviewer.review) {
-                            reviewed++;
-                            return '<div class="card p-1 bg-transparent shadow-sm mb-3 log-trigger position-relative" data-tippy-content="' + escapeHtml(reviewerRecentUpdate) + '">' +
-                                '<span> <i  class="fas fa-check text-success"></i> ' + reviewer.name + ' ' + reviewer.surname + (reviewerRecentUpdate.trim() !== "" ? `<span class="recentUpdateNotif position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">${reviewerLogsCount}<span class="visually-hidden">unread messages</span></span>` : "") + '<br>' + isApproved + '</span></div>';
-                        } else {
-                            return '<div class="card p-1 bg-transparent shadow-sm mb-3 log-trigger position-relative"><span class="">' + reviewer.name + ' ' + reviewer.surname + '</span></div>';
-                        }
-                    }).join('');
-                }catch (error){
-                    throw new Error(error);
-                }
+                    }
+                    if (reviewer.is_declined > 0) {
+                        isApproved = '<span class="badge bg-danger ms-2" style="font-size:11px !important">Declined</span>';
+                        return '<div class="card p-1 bg-transparent shadow-sm mb-1">' + reviewer.name + ' ' + reviewer.surname+'<br>'+ isApproved+'</span></div>';
+                    }
+                    else if(reviewer.review){
+                        reviewed ++;
+                        return '<div class="card p-1 bg-transparent shadow-sm mb-1"><span> <i  class="fas fa-check text-success"></i> ' + reviewer.name + ' ' + reviewer.surname+ '<br>' +isApproved+'</span></div>';
+                    }else {
+                        return '<div class="card p-1 bg-transparent shadow-sm mb-1"><span class="">' + reviewer.name + ' ' + reviewer.surname + '</span></div>';
+                    }
+                }).join('');
 
                 let isNewUpload = false; // Flag to track if there are new uploads
 
@@ -676,34 +513,23 @@
                     }
 
                 }
-                let pcStatus = '';
-                if(val.deputyAcceptance.acceptance_status) {
-                    const statusArray = JSON.parse(val.deputyAcceptance.acceptance_status);
-                    if($.inArray('1', statusArray) !== -1) {
-                        pcStatus += `<span class="badge bg-success text-white my-1">Accept for proceedings<span>`;
-                    }
-                    if($.inArray('2', statusArray) !== -1) {
-                        pcStatus += `<span class="badge bg-info text-white my-1">Approved Transactions</span>`;
-                    }
-                    if($.inArray('3', statusArray) !== -1) {
-                        pcStatus += `<span class="badge bg-primary text-white my-1">Approved for inclusion <br>in the Division’s Program </span>`
-                    }
-                    if($.inArray('4', statusArray) !== -1) {
-                        pcStatus += `<span class="badge bg-danger text-white my-1">Rejected </span>`;
-                    }
-                }
+
+                let pcStatus = val.deputyAcceptance.acceptance_status === "1" ? "Accept for proceedings" :
+                                val.deputyAcceptance.acceptance_status === "2" ? "Reject for proceedings" :
+                                 val.deputyAcceptance.acceptance_status === "3" ? "Suggested revisions" :
+                                 val.deputyAcceptance.acceptance_status === "4" ? "Required revisions" :
+                            "";
 
                 let assignBtn = '<button class="btn btn-success btn-sm assignReviewerBtn" id="assignReviewerBtn" paper_id=' + val.id + ' divisionName="' + division_name + '"  reviewers_reviewed = "'+reviewed+'"> Assign Now </button>'
                 let btnAbstractDetails = '<a class="btn btn-info btn-sm text-white text-sm small abstractDetails" paper_id="'+val.id+'"> <small>Abstract Details</small> <i class="fas fa-magnifying-glass"></i></a>'
-                let reReviewBtn = '<a class="btn btn-warning btn-sm text-dark text-sm small reReviewBtn mt-2" paper_id="'+val.id+'"> <small>Email reviewers to re-review </small> <i class="fas fa-envelope" aria-hidden="true"></i></a>'
+                let reReviewBtn = '<a class="btn btn-warning btn-sm text-dark text-sm small reReviewBtn mt-2" paper_id="'+val.id+'"> <small>Email to Re-review </small> <i class="fas fa-envelope" aria-hidden="true"></i></a>'
                 let isSuitableStatus = ((val.deputyAcceptance.is_suitable == "1") ? "checked" : '');
                 let notSuitableCheckbox = '<input type="checkbox" class="notSuitableChkbox" value="1" '+isSuitableStatus+' >'
 
-                let clearSeenUpdatesBtn = `<button class="btn btn-sm btn-info mt-2 clearSeenUpdatesBtn" data-paper-id="${val.id}" title="This will clear all notifications of this paper"> <i class="fas fa-exclamation-circle"></i> Clear Activity Tag</button>`
                 // console.log(response.data)
                 $('#papersTableBody').append('<tr paper_id="'+val.id+'")>' +
                     '<td>' + val.custom_id + '</td>' +
-                    '<td><div class="card log-trigger text-nowrap p-1" data-tippy-content="'+escapeHtml(submitterRecentLogs)+'">' + val.paper_submitter.name + ' ' + val.paper_submitter.surname +(submitterLogsCount > 0 ? '<span class="recentUpdateNotif position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">'+submitterLogsCount+'<span class="visually-hidden">unread messages</span></span>' : '')+ '</div></td>' +
+                    '<td>' + val.paper_submitter.name + ' ' + val.paper_submitter.surname + '</td>' +
                     '<td>' + (val.title).replace( /<.*?>/g, '' )+ '</td>' +
                     '<td>' + val.type.acronym + '</td>' +
                     '<td>' + division_name + '</td>' +
@@ -717,69 +543,15 @@
                     // '<td>'+isApproved+'</td>' +
                     '<td>'+btnAbstractDetails+'</td>' +
                     '<td>'+notSuitableCheckbox+'</td>' +
-                    '<td>' + assignBtn +'<br>'+reReviewBtn+ '<br>'+clearSeenUpdatesBtn+'</td>' +
+                    '<td>' + assignBtn +'<br>'+reReviewBtn+ '</td>' +
                     '</tr>')
             })
         }, 'json').then(function (r) {
 
             $('#papersTable').DataTable({})
-            $('#papersTableBody').on('mouseenter', '.log-trigger', function() {
-                // Get content and handle empty/undefined cases
-                let content = $(this).data('tippy-content') || 'No activity.';
-                content = content.trim() === '' ? 'No activity.' : content;
 
-                // Initialize or update tooltip
-                const instance = tippy(this, {
-                    content: content,
-                    allowHTML: true,
-                    interactive: true,
-                    theme: 'light-border', // Using our enhanced theme
-                    placement: 'top',
-                    arrow: true,
-                    animation: 'fade',
-                    delay: [100, 0],
-                    maxWidth: 320,
-                    onShow(instance) {
-                        if (instance.props.content === 'No activity.') {
-                            instance.setProps({
-                                theme: 'light-border no-activity' // Special styling for empty state
-                            });
-                        }
-                    },
-                    onHidden(instance) {
-                        instance.destroy(); // Clean up to prevent memory leaks
-                    }
-                }).show();
-            });
-
-            $('#papersTableBody').on('mouseenter', function() {
-                console.log('test')
-            });
         })
     }
-
-    function renderUpdateList(log) {
-        return $('<div>')
-            .addClass('card my-1 border-bottom border-lg')
-            .append(
-                $('<div>').addClass('log-item text-dark').html(`<strong>Activity:</strong> ${log.action}`),
-                $('<div>').addClass('log-item  text-dark').html(`<strong>Context:</strong> ${log.context}`),
-                $('<div>').addClass('log-item text-dark').html(`<strong>Date:</strong> ${log.created_at}`)
-            )
-            .prop('outerHTML'); // Convert to HTML string
-    }
-
-
-    // Function to escape HTML for tooltip content
-    function escapeHtml(unsafe) {
-        return unsafe
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;");
-    }
-
 
     function stripTags(html) {
         // Create a new div element
@@ -790,9 +562,4 @@
         return div.textContent || div.innerText || "";
     }
 
-
-
 </script>
-
-<script src="https://unpkg.com/@popperjs/core@2"></script>
-<script src="https://unpkg.com/tippy.js@6"></script>

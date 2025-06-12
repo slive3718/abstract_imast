@@ -1,6 +1,6 @@
 <link href="<?=base_url()?>/assets/css/event/login.css" rel="stylesheet">
 
-<?php echo view('event/common/menu'); ?>
+<?php echo view('acceptance/common/menu'); ?>
 
 <main>
     <div class="container-fluid">

@@ -43,12 +43,18 @@
                 </div>
                 <div class="card-body">
                     <table>
-                        <tr>
-                        <td style=" width:30%; vertical-align:top; text-align: right; padding-right: 30px;">Abstract ID : </td>
-                        <td><?= $abstracts->id ?? '' ?></td>
-                        <td style=" width:30%; vertical-align:top; text-align: right; padding-right: 30px;">Abstract Title : </td>
-                        <td><?= strip_tags($abstracts->title ?? '') ?></td>
-                        </tr>
+                        <div class="row">
+                            <td style=" width:30%; vertical-align:top; text-align: right; padding-right: 30px;">Abstract ID : </td>
+                            <td>
+                                <?= $abstracts->id ?>
+                            </td>
+                            </tr>
+                            <div class="row">
+                                <td style=" width:30%; vertical-align:top; text-align: right; padding-right: 30px;">Abstract Title : </td>
+                                <td>
+                                    <?= strip_tags($abstracts->title) ?>
+                                </td>
+                            </tr>
                     </table>
 
                 </div>
@@ -60,7 +66,7 @@
                 </div>
                 <div class="card-body">
                     <p>(The most recent uploaded file will appear at the top of the list) </p>
-                    <?php if(isset($abstracts) && !empty($abstracts->file_uploads)) : ?>
+                    <?php if(isset($abstracts->file_uploads) && !empty($abstracts->file_uploads)) : ?>
                         <?php foreach($abstracts->file_uploads as $file):
                             ?>
                             <a href="<?=base_url().$file['file_path'].$file['file_name'] ?>"  ><?=$file['file_preview_name']?></a><br>
@@ -383,7 +389,7 @@
 <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.js"></script>
 <script>
     let baseUrlReviewer = "<?= base_url() . '/reviewer/' ?>";
-    let reviewer_id = "<?= $reviewer_id ?? '' ?>"
+    let reviewer_id = "<?= $reviewer_id ?>"
     $(function () {
         // checkShowHide();
 

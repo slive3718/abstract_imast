@@ -14,7 +14,7 @@
 
             <!-- Right-aligned items -->
             <ul class="navbar-nav mb-2 mb-lg-0 ms-auto">
-                <?php if(session('user_id')): ?>
+                <?php if(session('user_id') && session('is_super_admin') == 1): ?>
                     <li class="nav-item">
                         <a class="nav-link" aria-current="page" href="<?=base_url()?>/admin/papers_list">
                             <button type="button" class="btn btn-outline-light">Papers List <i class="fa-solid fa-list"></i></button>
@@ -36,6 +36,7 @@
                                 <li><a class="dropdown-item" href="<?= base_url() ?>/admin/reviewer_list">All Reviewers</a></li>
                                 <li><a class="dropdown-item" href="#" onclick="searchUserBox(event)">Manage Users</a></li>
                                 <li><a class="dropdown-item" href="#" onclick="addNewUser(event)">Add New User</a></li>
+                                <li><a class="dropdown-item" href="#" onclick="importUsers()">Import Users</a></li>
                             </ul>
                         </div>
                     </li>
@@ -223,17 +224,18 @@
 </div>
 
 
-
-
-<div class="pt-5">
-    <div class="text-center mt-md-4" style="width: 70% !important; margin:auto">
-        <img id="main-banner" src="<?=$event->main_banner?>" class=" figure-img" alt="Main Banner" style="width: 100% !important;object-fit: cover; mix-blend-mode: multiply;" />
+<div class="row <?=session('is_super_admin') == '1' ? 'mt-5': ''?>" >
+    <div class="col-md-12 text-center mt-md-4" style="width: 80% !important; margin:auto">
+        <img id="main-banner" src="<?=base_url()?>main_banner.png" class=" figure-img" alt="Main Banner" style="width: 100% !important;object-fit:" />
     </div>
     <hr />
 </div>
 
 <?php echo view('admin/common/searchUsersModal'); ?>
 <?php echo view('admin/common/addNewUserModal'); ?>
+<?php echo view('admin/common/modal'); ?>
+
+<script src="<?=base_url()?>/assets/js/admin/import_users.js"></script>
 
 <script>
     $(function(){

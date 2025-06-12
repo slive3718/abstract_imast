@@ -24,15 +24,17 @@
     <div class="container-fluid">
         <div class="row">
             <div class="col-md-12 p-0">
-                <img id="main-banner" style="width:100%" src="<?=$event->main_banner?>" class="img-fluid figure-img" alt="Main Banner"/>
+                <img id="main-banner" style="width:100%" src="<?=base_url().'main_banner.png'?>" class="img-fluid figure-img" alt="Main Banner"/>
             </div>
             <hr />
         </div>
 
-
+        <div class="text-center">
+            <h4 class="mb-3 fw-normal">Author Disclosures</h4>
+        </div>
         <div class="form-signin w-100 m-auto text-center">
             <form id="formLogin" action="<?=base_url()?>/login/validateLogin" method="post" >
-                <h4 class="mb-3 fw-normal">Author</h4>
+
                 <h4 class="mb-3 fw-normal">Please sign in</h4>
 
                 <div class="form-floating">
@@ -43,17 +45,8 @@
 <!--                    <input type="password" class="form-control text-center" id="floatingPassword" placeholder="Password" autocomplete="current-password" required>-->
 <!--                    <label for="floatingPassword">Password <small class="text-danger">*</small></label>-->
 <!--                </div>-->
-                <input type="submit" class="SignInBtn">
+                <input type="submit" class="SignInBtn mt-4 btn btn-primary" value="Login">
             </form>
-        </div>
-
-        <div class="row text-center">
-            <div class="col-md-12">
-                <span><a href="#">Forgot password?</a></span>
-            </div>
-<!--            <div class="col-md-12 mt-2">-->
-<!--                <span>Not a member? <a href="--><?php //=base_url()?><!--/register">Register</a></span>-->
-<!--            </div>-->
         </div>
 
     </div>
@@ -69,7 +62,6 @@
                 {
                     'email': email,
                     'password': password,
-                    'event_uri': "afs",
                     'login_type': "author"
 
                 }, function(response){

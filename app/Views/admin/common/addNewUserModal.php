@@ -97,6 +97,29 @@
                                 <small>If Session Moderator is checked above, this new user will be available on scheduler session chair</small>
                             </div>
                         </div>
+
+                        <!-- IF checkbox is study group  hide the dropdown of study groups -->
+                        <!--                                todo: this will be move to reviewer    -->
+                        <div class="col-md-12" id="is_session_moderator_div"> <!-- Make the checkbox span the entire row -->
+                            <div class="alert alert-warning mt-3" role="alert">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="study_group_affiliation_status" id="studyGroupAffiliatedSwitch" value="1">
+                                    <label class="form-check-label fw-bolder" for="studyGroupAffiliatedSwitch">
+                                        Study Group Affiliation
+                                        <small class="text-danger d-block">Check if author has a study group affiliation</small>
+                                    </label>
+                                </div>
+                                <!-- IF checkbox is study group  hide the dropdown of study groups -->
+                                <div class="col-md-12 mb-4 studyGroupDropDownDiv" style="display: none">
+                                    <label class="form-check-label fw-bolder" for="studyGroupDropDown">Select Study Group:</label>
+                                    <select class="form-select" name="study_group_affiliation" id="studyGroupDropDown">
+                                        <option value=""> -- Select --</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+
                     </div>
 
                     <div class="mt-4">
@@ -153,17 +176,22 @@
             handleUser(action)
         });
 
-        // $('#is_regular_reviewer').on('change', function(){
-        //     console.log('here')
-        //     if($(this).prop('checked') === true){
-        //         $('#is_deputy_reviewer').prop('checked', false)
-        //     }
-        // })
-        // $('#is_deputy_reviewer').on('change', function(){
-        //     if($(this).prop('checked') === true){
-        //         $('#is_regular_reviewer').prop('checked', false)
-        //     }
-        // })
+        $('#is_regular_reviewer').on('change', function(){
+            console.log('here')
+            if($(this).prop('checked') === true){
+                $('#is_deputy_reviewer').prop('checked', false)
+            }
+        })
+        $('#is_deputy_reviewer').on('change', function(){
+            if($(this).prop('checked') === true){
+                $('#is_regular_reviewer').prop('checked', false)
+            }
+        })
+
+        // Study group switch event
+        $('#studyGroupAffiliatedSwitch').on('change', async function () {
+            await toggleStudyGroupDropdown();
+        });
     })
 
     $('#reviewerTableBody').on('click', '.manageUserBtn', function(){
@@ -175,8 +203,9 @@
 
         $.post(base_url+'admin/getUserById',{
             'user_id':reviewerID
-        }, function(data){
+        }, async function(data){
             console.log(data)
+            console.log('test')
             $('#username').val(data.username)
             $('#name').val(data.name)
             $('#middle_name').val(data.middle_name)
@@ -195,6 +224,23 @@
                 $('#is_deputy_reviewer_div').css('display', 'block')
                 $('#is_regular_reviewer_div').css('display', 'none')
             }
+
+            // Set the checkbox based on status
+            $('#studyGroupAffiliatedSwitch').prop('checked', data.profile.study_group_affiliation_status == 1);
+
+            // call to fetch dropdown
+            await toggleStudyGroupDropdown()
+
+// Show/hide and set dropdown based on affiliation status
+            if (data.profile.study_group_affiliation_status == 1) {
+                $('.studyGroupDropDownDiv').show();
+                $('#studyGroupDropDown').val(data.profile.study_group_affiliation);
+                $('#studyGroupSwitch').prop('checked', false); // optional, if needed
+            } else {
+                $('.studyGroupDropDownDiv').hide();
+                $('#studyGroupDropDown').val('');
+            }
+
             let divisions = JSON.parse(data.profile.division_id);
             $.each(divisions, function(i, val){
                 console.log(val)
@@ -270,4 +316,38 @@
             }
         });
     }
+
+    // todo: this will be move to the reviewer
+    async function toggleStudyGroupDropdown() {
+        if ($('#studyGroupAffiliatedSwitch').is(':checked')) {
+            $('.studyGroupDropDownDiv').show();
+            $('#studyGroupSwitch').prop('checked', false);
+
+            let $dropdown = $('#studyGroupDropDown');
+            $dropdown.empty().append('<option>Loading...</option>'); // Show loading text
+
+            try {
+                const response = await fetch('<?=base_url()?>/user/get_study_groups');
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const result = await response.json();
+
+                if (result.status == '200' && result.data) {
+                    $dropdown.empty().append('<option value=""> -- Select --</option>'); // Reset after loading
+                    result.data.forEach(group => {
+                        $dropdown.append(`<option value="${group.id}">${group.surname}</option>`);
+                    });
+                } else {
+                    $dropdown.append('<option value="">No groups available</option>');
+                }
+            } catch (error) {
+                alert('Failed to load study groups.');
+                console.error(error);
+            }
+        } else {
+            $('.studyGroupDropDownDiv').hide();
+        }
+    }
+
 </script>

@@ -2,47 +2,31 @@
 
 namespace App\Controllers\acceptance;
 
-use App\Controllers\admin\Abstracts\SchedulerController;
+use App\Controllers\BaseController;
 use App\Libraries\PhpMail;
 use App\Models\AdminAcceptanceModel;
 use App\Models\EmailLogsModel;
-use App\Models\EmailTemplatesModel;
 use App\Models\EventsModel;
 use App\Models\LogsModel;
 use App\Models\ModeratorAcceptanceModel;
 use App\Models\PanelistPaperSubModel;
-use App\Models\PaperAuthorsModel;
 use App\Models\RoomsModel;
 use App\Models\SchedulerModel;
 use App\Models\SchedulerSessionTalksModel;
-use App\Models\UsersProfileModel;
 use CodeIgniter\Controller;
 use App\Models\Core\Api;
-use CodeIgniter\HTTP\ResponseInterface;
-use CodeIgniter\Database\BaseConnection;
-
 use App\Models\UserModel;
 use App\Models\PapersModel;
-use App\Models\PopulationModel;
-use App\Models\AbstractReviewModel;
 use App\Models\AuthorAcceptanceModel;
-use App\Models\InstitutionModel;
-use App\Models\UserDetailsModel;
-use App\Models\RemovedPaperAuthorModel;
-use App\Models\InstitutionCitiesModel;
-use App\Models\InstitutionCountriesModel;
-use App\Models\InstitutionStatesModel;
-use App\Models\AuthorPresentationUploadModel;
 
 use App\Controllers\admin\Abstracts\AbstractController;
-class ModeratorAcceptanceController extends Controller
+class ModeratorAcceptanceController extends BaseController
 {
-    private Api $api;
-    private BaseConnection $db;
 
+    private $db;
     public function __construct()
     {
-       
+
         $this->db = db_connect();
         if(session('user_id')){
             $this->user_id = session('user_id');
@@ -68,11 +52,7 @@ class ModeratorAcceptanceController extends Controller
 
     public function schedules(){
         $schedules = (new SchedulerModel())
-            ->select('scheduler_events.*, sr.name as room_name')
-            ->select("DATE_FORMAT(session_date, '%Y-%m-%d') as session_date", false)
-            ->select("DATE_FORMAT(session_start_time, '%h:%i %p') as session_start_time", false)
-            ->select("DATE_FORMAT(session_end_time, '%h:%i %p') as session_end_time", false)
-            ->join('scheduler_rooms sr', 'scheduler_events.room_id = sr.id', 'left')
+            ->where('is_deleted', 0)
             ->findAll();
         $moderator_event = [];
         foreach ($schedules as $schedule){
@@ -83,27 +63,24 @@ class ModeratorAcceptanceController extends Controller
         }
         if(!$moderator_event)
             return false;
+
+        foreach ($moderator_event as &$event){
+            $event['acceptance']= (new ModeratorAcceptanceModel())->where(['author_id'=>session('user_id'), 'scheduler_id'=>$schedule['id']])->asArray()->first();
+        }
+
         return $this->response->setJSON(['status'=>'success', 'data'=>$moderator_event]);
     }
 
     public function acceptance_menu($scheduler_id){
-        $event = (new EventsModel())->first();
-        if(!$event)
-            exit;
-
         $abstract_details= (new PapersModel())->find($scheduler_id);
         $moderator_acceptance = (new ModeratorAcceptanceModel())->where(['scheduler_id'=>$scheduler_id, 'author_id'=>session('user_id')])->first();
         $abstract_preference =  (new AdminAcceptanceModel())->where('abstract_id', $scheduler_id)->first();
-        $header_data = [
-            'title' => 'Acceptance Finalize'
-        ];
-        // print_R($abstract_details);exit;
+
         $header_data = [
             'title' => 'Acceptance Menu'
         ];
 
         $data = [
-            'event'=> $event,
             'scheduler_id' => $scheduler_id,
             'moderator_acceptance' => $moderator_acceptance,
             'abstract_details' => $abstract_details,
@@ -124,20 +101,28 @@ class ModeratorAcceptanceController extends Controller
         if(!$this->validate_moderator_event($scheduler_id))
             exit;
 
-        $event = (new EventsModel())->first();
         $acceptanceDetails = (new ModeratorAcceptanceModel())->where(['scheduler_id'=>$scheduler_id, 'author_id'=>session('user_id')])->asArray()->first();
 
         $header_data = [
-            'title' => 'Session Chair Participation'
+            'title' => 'Moderator Acceptance'
         ];
 
+        $abstract_schedule['event']= (new SchedulerModel())->find($scheduler_id);
+        if($abstract_schedule){
+            $abstract_schedule['room']  = (new RoomsModel())->find($abstract_schedule['event']['room_id']);
+            foreach (json_decode($abstract_schedule['event']['session_chair_ids']) as &$moderator){
+                $abstract_schedule['moderators'][] = (new UserModel())->find($moderator);
+            }
+        }
+
         $data = [
-            'event'=> $event,
             'scheduler_id' => $scheduler_id,
             'acceptanceDetails' => $acceptanceDetails,
             'abstract_preference' => presentation_preferences(),
-            'presentation_data_view' => $this->moderator_scheduler_details($scheduler_id)
+            'presentation_data_view' => $this->moderator_scheduler_details($scheduler_id),
+            'abstract_schedule' => $abstract_schedule,
         ];
+
         return
             view('acceptance/common/header', $header_data).
             view('acceptance/moderator/moderator_acceptance', $data).
@@ -153,7 +138,7 @@ class ModeratorAcceptanceController extends Controller
             'room' => (new RoomsModel())->find($scheduler_data['room_id']),
         ];
 
-        return  view('acceptance/common/scheduler_details', $data);
+        return  view('acceptance/common/moderator_scheduler_details', $data);
     }
 
     public function presentation_do_upload(){
@@ -203,15 +188,12 @@ class ModeratorAcceptanceController extends Controller
     }
 
     public function presentation_upload($abstract_id){
-        $event = (new EventsModel())->first();
-
         $header_data = [
             'title' => 'CV Upload'
         ];
 
         $acceptanceDetails = (new AuthorAcceptanceModel())->where(['abstract_id'=>$abstract_id, 'author_id'=>session('user_id')])->asArray()->first();
         $data = [
-            'event'=> $event,
             'abstract_id' => $abstract_id,
             'acceptanceDetails' => $acceptanceDetails,
             'presentation_data_view' => $this->presentation_data_view($abstract_id)
@@ -266,17 +248,14 @@ class ModeratorAcceptanceController extends Controller
     }
 
     public function breakfast_attendance($scheduler_id){
-//        print_r('test');exit;
         if(!$this->validate_moderator_event($scheduler_id))
             exit;
 
-        $event = (new EventsModel())->first();
         $acceptanceDetails = (new ModeratorAcceptanceModel())->where(['scheduler_id'=>$scheduler_id, 'author_id'=>session('user_id')])->asArray()->first();
         $header_data = [
             'title' => 'Breakfast Attendance'
         ];
         $data = [
-            'event'=> $event,
             'scheduler_id' => $scheduler_id,
             'acceptanceDetails' => $acceptanceDetails,
             'abstract_preference' => presentation_preferences(),
@@ -293,7 +272,6 @@ class ModeratorAcceptanceController extends Controller
         if(!$this->validate_moderator_event($scheduler_id))
             exit;
 
-        $event = (new EventsModel())->first();
         $acceptanceDetails = (new ModeratorAcceptanceModel())->where(['scheduler_id'=>$scheduler_id, 'author_id'=>session('user_id')])->asArray()->first();
         $scheduler_event = (new SchedulerModel())->find($scheduler_id);
         $talksModel = (new SchedulerSessionTalksModel());
@@ -312,14 +290,12 @@ class ModeratorAcceptanceController extends Controller
                 $talk['info'] = $paperModel
                     ->join('paper_authors pa', 'papers.id = pa.paper_id', 'left')
                     ->join('users u', 'pa.author_id = u.id', 'left')
-                    ->join('users_profile up', 'u.id = up.author_id', 'left')
                     ->join('author_abstract_acceptance aaa', 'u.id = aaa.author_id', 'left')
                     ->asArray()->find($talk['abstract_id']);
             }else if($talk['submission_type'] == 'panel'){
                 $talk['info'] = $panelistPaperSubModel
                     ->join('papers p', 'panelist_paper_sub.paper_id = p.id', 'left')
                     ->join('users u', 'panelist_paper_sub.panelist_id = u.id', 'left')
-                    ->join('users_profile up', 'u.id = up.author_id', 'left')
                     ->join('author_abstract_acceptance aaa', 'u.id = aaa.author_id', 'left')
                     ->find($talk['paper_sub_id'] ?? '');
             }
@@ -329,7 +305,6 @@ class ModeratorAcceptanceController extends Controller
             'title' => 'Biography'
         ];
         $data = [
-            'event'=> $event,
             'scheduler_id' => $scheduler_id,
             'acceptanceDetails' => $acceptanceDetails,
             'scheduler_event' => $scheduler_event,
@@ -381,9 +356,8 @@ class ModeratorAcceptanceController extends Controller
     }
 
     public function finalize($scheduler_id){
-        $event = (new EventsModel())->first();
         $moderator_acceptance = (new ModeratorAcceptanceModel())
-            ->join('users u', 'moderator_acceptance.author_id = u.id', 'left')
+            ->join($this->shared_db_name.'.users u','moderator_acceptance.author_id = u.id', 'left')
             ->where(['scheduler_id'=> $scheduler_id, 'author_id'=>session('user_id')])
             ->asArray()->first();
         $header_data = [
@@ -392,7 +366,6 @@ class ModeratorAcceptanceController extends Controller
 
 
         $data = [
-            'event'=> $event,
             'scheduler_id' => $scheduler_id,
             'moderator_acceptance' => $moderator_acceptance,
             'presentation_data_view' => $this->moderator_scheduler_details($scheduler_id)
@@ -409,11 +382,10 @@ class ModeratorAcceptanceController extends Controller
         $sendMail = new PhpMail();
         $email = (new UserModel())->find(session('user_id'));
         try {
-            $from = ['name'=>'AFS', 'email'=>'afs@owpm2.com'];
+            $from = ['name'=>env('MAIL_FROM'), 'email'=>env('MAIL_FROM_ADDRESS')];
             $addTo = [$email['email']];
-            $subject = 'AFS 2025 Participation Confirmation.';
-            $addContent = "Thank you for confirming participation in the 129th AFS Metalcasting Congress held in Atlanta, Georgia, April 12-15, 2025. We look forward to seeing you in Atlanta! If you have any questions, please contact Kimberly Perna at <a href='mailto:kperna@afsinc.org'>kperna@afsinc.org </a>. ";
-
+            $subject = 'SRS Asia Pacific Meeting 2026';
+            $addContent = "Thank you for confirming your participation in the SRS Asia Pacific Meeting scheduled for February 6-7, 2026 in Fukuoka, Japan.   If you have any questions, please direct them to <a href='mailto:education@srs.org'>education@srs.org </a>.";
             $response = $sendMail->send($from, $addTo, $subject, $addContent);
 
             $email_logs_array = [
@@ -448,7 +420,7 @@ class ModeratorAcceptanceController extends Controller
                 $email_logs_array['status'] = 'Success';
                 $emailLogsModel = (new EmailLogsModel())->saveToMailLogs($email_logs_array);
 
-                return $this->response->setJSON(['status' => 'success', 'msg'=> 'Acceptance Email Sent Successfully, <br> We look forward to seeing you in Atlanta!.']);
+                return $this->response->setJSON(['status' => 'success', 'msg'=> 'Acceptance Email Sent Successfully, <br> We look forward to seeing you in Fukuoka, Japan!']);
             } else {
                 // Email sending failed
                 $email_logs_array['status'] = 'Failed';

@@ -4,7 +4,7 @@
 <?php //print_r($paper->declined); exit ?>
 <main>
     <div class="container-fluid" style="padding-bottom:200px">
-        <?php echo view('deputy/common/shortcut_link'); ?>
+        <?php echo view('admin/common/shortcut_link'); ?>
         <div class="card">
             <div class="card-header"> Paper Details</div>
             <div class="card-body">
@@ -66,9 +66,7 @@
                             </tr>
                             <tr>
                                 <td>Suggested Revision Comments:</td>
-                                <td colspan="9">
-                                    <?=($review['suggested_revision_comment_added_log'] ?  '<span class="text-primary fw-bolder">'.date('F d, Y H:i', strtotime($review['suggested_revision_comment_added_log'][0]['created_at'])).'</span>' : '')?>
-                                    <textarea class="w-100 border-0" readonly id="suggestedRevisionComment_<?=$review['id']?>"><?=$review['suggested_revision_comment']?></textarea></td>
+                                <td colspan="9"><textarea class="w-100 border-0" readonly id="suggestedRevisionComment_<?=$review['id']?>"><?=$review['suggested_revision_comment']?></textarea></td>
                                 <td colspan="1">
                                     <a href="#" class="editSuggestedBtn editBtn" review_id = "<?=$review['id']?>">Edit</a> <br>
                                     <a href="#" class="saveSuggestedBtn saveBtn" review_id = "<?=$review['id']?>">Save</a>
@@ -78,9 +76,7 @@
                             </tr>
                             <tr>
                                 <td>Required Revision Comments:</td>
-                                <td colspan="9">
-                                    <?=($review['required_revision_comment_added_log'] ?  '<span class="text-primary fw-bolder">'.date('F d, Y H:i', strtotime($review['required_revision_comment_added_log'][0]['created_at'])).'</span>' : '')?>
-                                    <textarea class="w-100 border-0" readonly id="requiredRevisionComment_<?=$review['id']?>"><?=$review['required_revision_comment']?></textarea></td>
+                                <td colspan="9"><textarea class="w-100 border-0" readonly id="requiredRevisionComment_<?=$review['id']?>"><?=$review['required_revision_comment']?></textarea></td>
                                 <td colspan="1">
                                     <a href="#" class="editRequiredBtn editBtn" review_id = "<?=$review['id']?>">Edit</a> <br>
                                     <a href="#" class="saveRequiredBtn saveBtn" review_id = "<?=$review['id']?>">Save</a>
@@ -90,7 +86,6 @@
                             <tr class="<?=!empty($review['submitter_comment_on_upload']) ? '':'d-none' ?>">
                                 <td>Submitter Comment :</td>
                                 <td colspan="16">
-                                    <?=($review['re_review_comment_added_log'] ? '<span class="text-primary fw-bolder">'.date('F d, Y H:i', strtotime($review['re_review_comment_added_log'][0]['created_at'])) .'</span>' : '')?>
                                     <textarea class="w-100 border-0" ><?=$review['submitter_comment_on_upload']?></textarea>
                                 </td>
                             </tr>
@@ -99,19 +94,10 @@
                                 <td colspan="12">
                                     <?php if(isset($review['paper_uploads'])):
                                         foreach ($review['paper_uploads'] as $uploads): ?>
-                                        <?= $uploads['created_at'] ? '<span class="text-primary fw-bolder">'.date('F d, Y H:i', strtotime($uploads['created_at'])).'</span><br>' : ''?>
                                                 <a href="<?=base_url($uploads['file_path'].$uploads['file_name'])?>"><?=$uploads['file_preview_name']?></a><br>
                                             <?php endforeach;
                                             endif
                                         ?>
-                                </td>
-                            </tr>
-                            <tr>
-                                <td>Final Approval:</td>
-                                <td colspan="12">
-                                    <div class="input-group" style="width: 700px;">
-                                        <?= $review['is_approved'] == '1' ? "Approved" : ($review['is_approved'] == '2' ? 'I still have concerns' : '') ?>
-                                    </div>
                                 </td>
                             </tr>
                             <tr>
@@ -160,7 +146,7 @@
                 <form id="formChairAcceptance">
                     <div>
                         <div class="form-group">
-                            <label for="comments_program"><?=ucFirst(session('name')).' '.ucFirst(session('surname'))?>, <?= $paper->division->name ?? '' ?> Program Chair Comments:</label>
+                            <label for="comments_program"><?=ucFirst(session('name')).' '.ucFirst(session('surname'))?>, Aluminum Program Chair Comments:</label>
                             <textarea id="comments_program" name="comments_program" rows="7" class="form-control" placeholder="Type here..."><?=(isset($paper->acceptance) && !empty($paper->acceptance['comments'])? $paper->acceptance['comments'] :'')?></textarea>
                         </div>
 
@@ -244,11 +230,7 @@
                             icon: "success",
                             title: "Your review has been saved",
                             showConfirmButton: true,
-                            confirmButtonText: "Return to main menu.",
-                        }).then(result => {
-                            if(result.isConfirmed){
-                                window.location.href = base_url+'deputy/papers_list';
-                            }
+                            timer: 1500
                         });
                     }
                     else {
@@ -256,6 +238,7 @@
                             icon: "error",
                             title: "Please contact administrator!",
                             showConfirmButton: true,
+                            timer: 1500
                         });
                     }
                 }

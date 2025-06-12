@@ -1,133 +1,192 @@
-
-<!--<script  type="text/javascript" src="--><?//=base_url('assets/js/submissionFunction.js')?><!--"></script>-->
-
-
-<?php // echo "<pre>"; print_r($author_details[0]);exit;?>
 <?php echo view('author/common/menu'); ?>
-<?php //print_r($papers);exit; ?>
+
 <main>
-    <div class="container-fluid pb-5">
-
-        <div class=" card p-5">
+    <div class="container py-5">
+        <div class="card p-4 shadow-sm">
             <div class="row">
-                <h4 class="fw-bold"> AFS Author's/Speaker's Copyright and Publication Agreement</h4>
-                <hr />
-                <h6 class="fw-bold"> AFS Copyright Agreement </h6>
-                <div class="container custom-container">
-                <hr/>
-                    <div>
-                        <p><span class="fw-bolder"> Submission ID: </span> <?=isset($papers) ? $papers->id:''?></p>
-                        <p><span class="fw-bolder"> Submission Title: </span> <?=isset($papers) ? strip_tags($papers->title):''?></p>
-                        <p><span class="fw-bolder"> Submitted By: </span> <?=isset($papers) ? UcFirst($papers->user_name).' '. UcFirst($papers->user_surname):''?></p>
-                    </div>
-                    <div class="mt-5">
-                        <p>
-                            The following agreement <u>must</u> be signed and returned to AFS <u>before</u> your paper or presentation can be considered for presentation and publication by AFS. Technical papers and presentations submitted to AFS are received with the understanding that they are to be judged for acceptability for verbal presentation at the annual AFS Metalcasting Congress and/or for publication in AFS Proceedings and possibly AFS Transactions. It is further understood that accepted papers, at the discretion of AFS, may be published in any other AFS publication, or entity with a publishing agreement with the Society.
-                        </p>
-                        <br>
-                        <p>
-                            Congress papers submitted to AFS shall immediately become the property of American Foundry Society, Inc., subject to Copyright Laws. AFS will willingly re-assign copyright for those desiring to publish via “open access” in the International Journal of Metalcasting at a later date. The author(s) may <u>not</u> submit such papers to any other publishers or society for their use without written prior approval of AFS or notification of the paper's rejection by the Society. This document also provides permission for AFS to include a digital version of PowerPoint presentations in the AFS Metalcasting Congress Proceedings.
-                        </p>
-                        <br>
-                        <p>
-                            <i>
-                                <strong>Note:</strong> Authors must check that any content freely accessible on search engines is open for reuse without a license. In offering this paper or presentation to the American Foundry Society, as the author, I understand its publication policy and agree to conform with its provisions. I have been duly authorized by my employer to present and publish this paper and have obtained copyright permission to use any artwork that is not my property. If applicable, use the “AFS Author Copyright Permission Form for Rightsholders.
-                            </i>
-                        </p>
+                <div class="col-md-12">
+                    <h4 class="mb-4 fw-bold">Financial Relationships</h4>
 
-                        <div class="mt-5">
-                            <input type="checkbox" id="agreementCheckBox" value="1" <?= (isset($author) && ($author['is_copyright_agreement_accepted'] == 1) ? 'checked':'')?> <label for="agreementCheckBox"> Yes, I agree to the contents of this Copyright Agreement.</label>
-                        </div>
-                        <div class="mt-2">
-                            <label for="electronicSignature"><?=isset($author) ? UcFirst($author['name']).' '. UcFirst($author['surname']):''?> Electronic Signature : </label>
-                            <input type="text" id="electronicSignature" class="form-control" value="<?= (isset($author) && !empty($author['electronic_signature']) ? $author['electronic_signature']:'')?>">
-                            <p class="small">You agree that your electronic signature is the legal equivalent of your manual signature on this Agreement. By selecting "I Agree" you consent to be legally bound by this Agreement's terms and conditions. </p>
-                            <p class="small fw-bolder">Date: <?=date('m/d/y')?></p>
+                    <form action="submit.php" method="POST" class="needs-validation" novalidate>
+                        <p>Please select the statement that applies:</p>
+
+                        <!-- Financial Relationship Options -->
+                        <div class="form-check mb-2">
+                            <input type="radio" class="form-check-input" name="financial_relationship" id="no_relationship" value="no" required>
+                            <label class="form-check-label" for="no_relationship">
+                                I have held NO financial relationship(s) with an ineligible company within the past 24 months.
+                            </label>
                         </div>
 
-                        <button class="btn btn-sm btn-success mt-5 saveCopyrightAgreementBtn">Save and Continue</button>
+                        <div class="form-check mb-4">
+                            <input type="radio" class="form-check-input" name="financial_relationship" id="yes_relationship" value="yes">
+                            <label class="form-check-label" for="yes_relationship">
+                                I have held a financial relationship with an ineligible company within the past 24 months.
+                            </label>
+                        </div>
 
-                    </div>
+                        <!-- Dynamic Organization Fields -->
+                        <div id="organization-list" class="mt-3" style="display: none;">
+                            <!-- Organization fields will be added dynamically here -->
+                        </div>
+
+                        <!-- Add Organization Button -->
+                        <button type="button" class="btn btn-outline-primary mt-3" id="add-organization-btn" style="display: none;">
+                            + Add another organization
+                        </button>
+
+
+                    </form>
                 </div>
             </div>
+
+            <!-- Financial Relationship Guidelines -->
+            <div class="mt-5">
+                <h3 class="mb-4 fw-bold">Guidelines Regarding Financial Relationships and Disclosure</h3>
+
+                <!-- Disclosure Section -->
+                <div class="mb-4">
+                    <h5 class="fw-bold">Disclosure</h5>
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            All individuals with control of content must complete and submit a financial relationship disclosure prior to planning and/or presenting a CME activity.
+                        </li>
+                        <li class="list-group-item">
+                            All individuals with control of content are required to disclose all financial relationships they have held with an ineligible company within the past 24 months, regardless of relevancy.
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Content Validation Section -->
+                <div class="mb-4">
+                    <h5 class="fw-bold">Content Validation</h5>
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            Speakers/authors are required to prepare fair and balanced presentations that are objective and scientifically rigorous.
+                            All clinical recommendations must be based on evidence accepted within the medical profession as adequate justification for their indications and contraindications.
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Unlabeled and Unapproved Uses Section -->
+                <div class="mb-4">
+                    <h5 class="fw-bold">Unlabeled and Unapproved Uses</h5>
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            Presentations that provide information in whole or in part related to non-FDA approved uses of drugs and/or devices must clearly disclose the unlabeled indications or the investigational nature of their proposed uses to the audience.
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Use of Generic vs. Trade Names Section -->
+                <div class="mb-4">
+                    <h5 class="fw-bold">Use of Generic vs. Trade Names</h5>
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            The term "hardware" should not be used in written abstract submissions, oral presentations, and E-Poster presentations. The terms "instrumentation," "implants," or "constructs" should be used instead.
+                        </li>
+                        <li class="list-group-item">
+                            SRS prefers that pharmaceuticals and proprietary software/databases be replaced by a generic term or description of the drug, software/database, or instrumentation unless it impacts learners’ understanding.
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Ineligible Company Influence Section -->
+                <div class="mb-4">
+                    <h5 class="fw-bold">Ineligible Company Influence</h5>
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            No payments or gifts after the SRS honorary policy may be given by an ineligible company to the director of the activity, planning committee members, teachers or authors.
+                        </li>
+                        <li class="list-group-item">
+                            Individuals with control over content cannot receive or accept direct input from an ineligible company regarding the content or preparation of the presentation(s).
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Declaration Section -->
+                <div class="mb-4">
+                    <h5 class="fw-bold">Declaration</h5>
+                    <p>
+                        <span class="text-danger">*</span> Check the boxes below indicating that you agree with the statement.
+                    </p>
+
+                    <div class="form-check mb-2">
+                        <input type="checkbox" class="form-check-input" id="disclosure_support" name="disclosure_support" checked>
+                        <label class="form-check-label" for="disclosure_support">
+                            Practice recommendations will be supported by the best available evidence.
+                        </label>
+                    </div>
+
+                    <div class="form-check mb-2">
+                        <input type="checkbox" class="form-check-input" id="disclosure_discussed" name="disclosure_discussed" checked>
+                        <label class="form-check-label" for="disclosure_discussed">
+                            All reasonable clinical alternatives will be discussed.
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Signature Section -->
+                <div class="mb-4">
+                    <div class="row mb-3 align-items-center">
+                        <div class="col-md-2 text-md-end">
+                            <strong>Electronic Signature:</strong>
+                        </div>
+                        <div class="col-md-8">
+                            <input type="text" class="form-control" name="disclosure_signature" value="sdm" required>
+                        </div>
+                    </div>
+
+                    <div class="row align-items-center">
+                        <div class="col-md-2 text-md-end">
+                            <strong>Date:</strong>
+                        </div>
+                        <div class="col-md-8">
+                            <?= date('m/d/Y') ?>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Submit Button -->
+                <button type="submit" class="btn btn-success mt-4">Save and Continue</button>
+            </div>
+
+        </div>
     </div>
 </main>
 
+<!-- JS Section -->
 <script>
-    $(function(){
+    $(document).ready(function () {
+        let organizationCount = 0;
 
-        let htmlSuccessMessage = "Thank you for submitting your copyright agreement to the 129th Metalcasting Congress. " +
-            "If you have any questions regarding the copyright agreement, please contact:<br><br>" +
-            "Kim Perna<br>" +
-            "AFS Abstract Administrator<br>" +
-            "Email: <a href='mailto:kperna@afsinc.org'>kperna@afsinc.org</a><br><br>" +
-            "Click <a href='"+base_url+ "author/view_copyright'>Here</a> to return to the copyright form. <br><br>"+
-            "Click <a href='"+base_url+ "home'>Here</a> or OK to return to the Submission System."
-
-        $('.saveCopyrightAgreementBtn').on('click', function(e){
-
-            let agreementCheckBox = $('#agreementCheckBox').prop('checked');
-            let signature = $('#electronicSignature').val();
-            let paper_id = `<?=$papers->id ? : ''?>`
-
-            if(agreementCheckBox === false){
-                toastr.warning("Please check  Yes, I agree to the contents of this Copyright Agreement.")
-                return false;
+        // Show fields based on radio button selection
+        $('input[name="financial_relationship"]').change(function () {
+            if ($(this).val() === 'yes') {
+                $('#organization-list').show();
+                $('#add-organization-btn').show();
+                if (organizationCount === 0) addOrganization();
+            } else {
+                $('#organization-list').empty().hide();
+                $('#add-organization-btn').hide();
+                organizationCount = 0;
             }
-            else if(signature.trim() === ''){
-                toastr.warning("Signature is required.")
-                return false;
-            }
+        });
 
-            swal.fire({
-                "title": "Saving Agreement...",
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            })
+        // Add Organization Field
+        $('#add-organization-btn').click(addOrganization);
 
-            $.ajax({
-                url: base_url+'author/confirm_copyright_ajax',
-                data: {
-                    'agreementCheckBox': agreementCheckBox,
-                    'signature': signature,
-                    'paper_id': paper_id
-                },
-                method: "POST",
-                dataType: "json",
-                success: function(response, status ) {
-                    if (response.status == "200") {
-                        swal.fire({
-                            'title': 'Success',
-                            'html': htmlSuccessMessage,
-                            'icon': 'success'
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                window.location.href = base_url + 'home';
-                            }
-                        })
-                    }else if(response.status == "201"){
-                        toastr.warning('Something went wrong on sending email. <br> Email copy fail to send. Please inform administrator')
-                        swal.fire({
-                            'title': 'Success',
-                            'html': htmlSuccessMessage,
-                            'icon': 'success'
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                window.location.href = base_url + 'author/view_copyright';
-                            }
-                        })
-                    }
-                },error: function(){
-                    swal.fire({
-                        'title': 'error',
-                        'html': 'Something went wrong',
-                        'icon': 'error'
-                    })
-                }
-            });
-        })
+        function addOrganization() {
+            organizationCount++;
+            let html = `<?=view('author/common/organization_template')?>`;
+            $('#organization-list').append(html);
+        }
 
-    })
-
+        // Remove Organization
+        $(document).on('click', '.remove-organization', function () {
+            $(this).closest('.organization-item').remove();
+            organizationCount--;
+            if (organizationCount === 0) $('#add-organization-btn').hide();
+        });
+    });
 </script>

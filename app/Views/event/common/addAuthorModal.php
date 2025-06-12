@@ -15,84 +15,85 @@
                         <li class="nav-item" role="presentation">
                             <button class="nav-link active" id="personal-tab" data-bs-toggle="tab" data-bs-target="#personal" type="button" role="tab" aria-controls="personal" aria-selected="true">Personal Information</button>
                         </li>
-                        <li class="nav-item" role="presentation">
-                            <button class="nav-link" id="author-info-tab" data-bs-toggle="tab" data-bs-target="#authorInfo" type="button" role="tab" aria-controls="authorInfo" aria-selected="false">Author Information</button>
-                        </li>
+                        <?php if (1 == 2): ?>
                         <li class="nav-item" role="presentation">
                             <button class="nav-link" id="other-details-tab" data-bs-toggle="tab" data-bs-target="#other-details" type="button" role="tab" aria-controls="other-details" aria-selected="false">Address Information</button>
                         </li>
+                        <?php endif ?>
                     </ul>
                     <!-- Tab panes -->
                     <div class="tab-content" id="myTabContent">
                         <div class="tab-pane fade show active" id="personal" role="tabpanel" aria-labelledby="personal-tab">
                             <!-- Personal Information Fields -->
                             <div class="row mb-3">
-                                <div class="row my-3">
-                                    <div class="col-md-6">
-                                        <label class="form-label" for="authorFName">First Name <span class="text-danger">*</span></label>
-                                        <input type="text" name="authorFName" title="First Name" class="form-control required" id="authorFName" placeholder="">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label" for="authorMName">Middle Name</label>
-                                        <input type="text" name="authorMName" title="Middle Name" class="form-control" id="authorMName" placeholder="">
+                                <!-- First, Middle, and Last Name -->
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold" for="authorFName">First Name <span class="text-danger">*</span></label>
+                                    <input type="text" name="authorFName" id="authorFName" class="form-control required" placeholder="Enter your first name" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold" for="authorMName">Middle Name</label>
+                                    <input type="text" name="authorMName" id="authorMName" class="form-control" placeholder="Enter your middle name">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold" for="authorLName">Last Name <span class="text-danger">*</span></label>
+                                    <input type="text" name="authorLName" id="authorLName" class="form-control required" placeholder="Enter your last name" required>
+                                </div>
+
+                                <!-- Primary & Confirm Email -->
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold" for="authorEmail">Primary Email <span class="text-danger">*</span></label>
+                                    <input type="email" name="authorEmail" id="authorEmail" class="form-control required" placeholder="Enter your email" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold" for="authorConfirmEmail">Retype Email <span class="text-danger">*</span></label>
+                                    <input type="email" name="authorConfirmEmail" id="authorConfirmEmail" class="form-control required" placeholder="Retype your email" required>
+                                </div>
+
+                                <!-- Work Phone & Fax -->
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold" for="authorPhone">Work Phone </label>
+                                    <input type="tel" name="authorPhone" id="authorPhone" class="form-control shadow-none" placeholder="Enter your work phone">
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold" for="authorFax">Cell Phone</label>
+                                    <input type="text" name="cellphone" id="cellphone" class="form-control shadow-none" placeholder="Enter cellphone number">
+                                </div>
+
+                                <!-- Designations -->
+                                <div class="col-md-12 mb-4">
+                                    <label class="form-label fw-bold">Designations <span class="text-danger">*</span></label>
+                                    <div class="designationDiv d-flex flex-wrap gap-3"></div>
+
+                                    <!-- "Other" Designation Input (Hidden Initially) -->
+                                    <div id="otherDesignationContainer" class="mt-2" style="display: none;">
+                                        <input type="text" name="other_designation" id="other_designation"
+                                               class="form-control shadow-none" placeholder="Enter other designation">
                                     </div>
                                 </div>
 
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <label class="form-label" for="authorLName">Last Name <span class="text-danger">*</span></label>
-                                        <input type="text" name="authorLName" title="Last Name" class="form-control required" id="authorLName" placeholder="">
-                                    </div>
-                                    <!--                                    <div class="col-md-6">-->
-                                    <!--                                        <label class="form-label" for="authorDeg">Credentials/Degree</label>-->
-                                    <!--                                        <input type="text" name="authorDeg" title="Degree" class="form-control" id="authorDeg" placeholder="">-->
-                                    <!--                                    </div>-->
+                                <!-- IF checkbox is study group  hide the dropdown of study groups -->
+                                <div class="col-md-12 mb-3">
+                                    <input class="form-check-input" name="is_study_group" type="checkbox" role="switch" id="studyGroupSwitch">
+                                    <label class="form-check-label fw-bolder" for="studyGroupSwitch">Save as Study Group <small class="text-danger"> Check this only when the type of author is a group. </small></label>
                                 </div>
 
-                                <div class="row mb-3">
-                                    <div class="col-md-6">
-                                        <label class="form-label" for="authorEmail">Primary Email <span class="text-danger">*</span></label>
-                                        <input type="email" name="authorEmail" title="Email" class="form-control required" id="authorEmail" placeholder="">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label" for="authorConfirmEmail">Retype Email <span class="text-danger">*</span></label>
-                                        <input type="email" name="authorConfirmEmail" title="Confirm Email" class="form-control required" id="authorConfirmEmail" placeholder="">
+                                <!-- Institution  -->
+                                <div class="col-md-6 mb-3">
+                                    <label class="form-label fw-bold" for="authorInstitution">Institution <span class="text-danger">*</span></label>
+                                    <!--                                    <input type="text" name="authorInstitution" id="authorInstitution" class="form-control required" placeholder="Enter your institution" required>-->
+
+                                    <p>Please start typing the name of this presenter's affiliation. This field will auto complete after four letters have been entered. If your institution is not in the database, 'Add New", will appear.  Choose that option and follow the prompts.</p>
+                                    <div class="input-group ">
+                                        <label class="input-group-text text-white" style="background-color:#2AA69C" for="authorInstitution">Find Institution <font color="red">* </font></label>
+                                        <input name="authorInstitution" title="Institution" id="authorInstitution" class="form-control shadow-none required">
+                                        <input name="authorInstitutionId" title="Institution" type="hidden" id="searchId" class="required">
                                     </div>
                                 </div>
-
-
                             </div>
+
                         </div>
-                        <div class="tab-pane fade" id="authorInfo" role="tabpanel" aria-labelledby="author-info-tab">
-                            <!-- Affiliation Fields -->
-                            <div class="row mb-3">
-                                <!-- Your affiliation fields here -->
-                                <div class="row">
-                                    <div class="col">
-                                        <div class="mb-3">
-                                            <label class="form-label" for="authorInstitution">Institution <span class="text-danger">*</span></label>
-                                            <input name="authorInstitution" title="Institution" id="authorInstitution" class="form-control required">
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <label class="form-label" for="authorPhone">Degree </label>
-                                            <input type="text" name="authorDegree" title="Phone" class="form-control shadow-none" id="authorDegree" style="max-width:400px" placeholder="">
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <label class="form-label" for="authorPhone">Work Phone <span class="text-danger">*</span></label>
-                                            <input type="text" name="authorPhone" title="Phone" class="form-control shadow-none" id="authorPhone" style="max-width:400px" placeholder="">
-                                        </div>
-
-                                        <div class="mb-3">
-                                            <label class="form-label" for="authorPhone">Fax </label>
-                                            <input type="text" name="authorFax" title="Phone" class="form-control shadow-none" id="authorFax" style="max-width:400px" placeholder="">
-                                        </div>
-                                    </div>
-
-                                </div>
-                            </div>
-                        </div>
+                        <?php if(1 == 2): ?>
                         <div class="tab-pane fade" id="other-details" role="tabpanel" aria-labelledby="other-details-tab">
                             <!-- Other Details Fields -->
                             <div class="row my-3">
@@ -133,6 +134,7 @@
                                 </div>
                             </div>
                         </div>
+                        <?php endif ?>
                     </div>
 
             </div>
@@ -144,3 +146,79 @@
         </div>
     </div>
 </div>
+
+<script>
+
+    $(document).ready(function() {
+        function toggleOtherDesignation() {
+            let isChecked = $('input[name="designations[]"][value="13"]').is(':checked');
+            $('#otherDesignationContainer').toggle(isChecked);
+
+            // Check if "None" (value = 12) is selected
+            let isNoneChecked = $('input[name="designations[]"][value="12"]').is(':checked');
+
+            if (isNoneChecked) {
+                // Uncheck and disable all other checkboxes except "None"
+                $('input[name="designations[]"]').not('[value="12"]').prop('checked', false).prop('disabled', true);
+            } else {
+                // Enable all checkboxes when "None" is unchecked
+                $('input[name="designations[]"]').prop('disabled', false);
+            }
+        }
+        // Run on modal load
+        $('#addAuthorModal').on('shown.bs.modal', function() {
+            toggleOtherDesignation(); // Check status on modal load
+        });
+
+        // Run when a checkbox is clicked
+        $(document).on('change', 'input[name="designations[]"]', function() {
+            toggleOtherDesignation();
+        });
+
+        $('#designations').prepend('<option value=""> -- Select Designation -- </option>')
+
+        fetchDesignations().then(designations => {
+            let designationHTML = `<div class="d-flex flex-wrap gap-3">`;
+
+            $.each(designations, function(i, designation) {
+                designationHTML += `
+                                <div class="form-check">
+                                    <input class="form-check-input required" type="checkbox" name="designations[]"
+                                        id="designation_${designation.designation_id}" value="${designation.designation_id}">
+                                    <label class="form-check-label fw-bold" for="designation_${designation.designation_id}">
+                                        ${designation.name}
+                                    </label>
+                                </div>
+                            `;
+            });
+
+            designationHTML += `</div>`;
+            $('.designationDiv').html(designationHTML);
+        });
+
+        $('#studyGroupSwitch').on('change', function(){
+            if($('#studyGroupAffiliatedSwitch').is(':checked')){
+                $(this).prop('checked', false)
+            }
+        })
+
+    });
+
+
+    async function fetchDesignations() {
+        try {
+            return await $.ajax({
+                url: base_url + '/user/get_designations',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+                method: "POST",
+                dataType: "json"
+            });
+
+        } catch (error) {
+            console.error("Error fetching designations:", error);
+            return []; // Return an empty array if an error occurs
+        }
+    }
+
+
+</script>

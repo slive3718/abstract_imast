@@ -1,47 +1,37 @@
 <?php
 
 namespace App\Controllers\acceptance;
-
-use App\Models\AdminAcceptanceModel;
-use App\Models\AuthorAcceptanceModel;
-use App\Models\EventsModel;
-use App\Models\PanelistPaperSubModel;
 use App\Models\PaperAuthorsModel;
-use App\Models\PapersModel;
 use App\Models\SchedulerModel;
 use CodeIgniter\Controller;
-use App\Models\Core\Api;
-use CodeIgniter\HTTP\ResponseInterface;
-use CodeIgniter\Database\BaseConnection;
+
 
 use App\Models\UserModel;
+use CodeIgniter\HTTP\RequestInterface;
+use CodeIgniter\HTTP\ResponseInterface;
+use Psr\Log\LoggerInterface;
 
 class AcceptanceLogin extends Controller
 {
-    private Api $api;
-    private BaseConnection $db;
 
     private $session;
     public function __construct()
     {
         $this->db = db_connect();
-        $this->api = new Api();
-
         $this->session = \Config\Services::session();
     }
     
     public function index(){
-        // return ('<a href="'.$this->event_uri .'/'.base_url().'/login/logOut/'.$this->event_uri .'">logout</a>');
-        $event = (new EventsModel())->first();
-        if(!$event){
-            return (new ErrorHandler($event))->errorPage();
+
+        if (!empty($this->session->get('email'))) {
+            header('Location: '.base_url('acceptance/abstract_list'));
+            exit;
         }
 
         $header_data = [
             'title' => ''
         ];
         $data = [
-            'event'=> $event
         ];
         return
             view('acceptance/common/header', $header_data).
@@ -88,13 +78,13 @@ class AcceptanceLogin extends Controller
             if($schedules){
                 foreach ($schedules as &$schedule){
                     if($schedule['session_chair_ids']){
-                        $session_chairs[] = !empty($schedule['session_chair_ids']) ? json_decode($schedule['session_chair_ids']) : [];
+                        $session_chairs = !empty($schedule['session_chair_ids']) ? json_decode($schedule['session_chair_ids']) : [];
                     }
                 }
             }
 
             $is_moderator = false;
-            if(in_array(session('user_id'), $session_chairs)){
+            if(in_array($user['id'], $session_chairs)){
                 $is_moderator = true;
             }
 
@@ -158,9 +148,8 @@ class AcceptanceLogin extends Controller
     }
 
     public function logout(){
-        $event_uri = session('event_uri');
-        session()->destroy();
-        return redirect()->to(base_url().$event_uri.'/acceptance/');
+        $this->session->destroy();
+        return redirect()->to(base_url().'/acceptance/');
     }
     
 
