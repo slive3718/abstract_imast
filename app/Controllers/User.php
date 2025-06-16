@@ -441,11 +441,11 @@ class User extends BaseController
                         ci.name as institution_city, 
                         co.name as institution_country
                     ')
-                    ->join($UsersModel->table . ' u', 'users_profile.author_id = u.id', 'right')
-                    ->join((new UsersProfileModel())->table . ' up', 'u.id = up.author_id', 'right')
-                    ->join((new InstitutionModel())->table . ' i', 'up.institution_id = i.id', 'left')
-                    ->join((new CitiesModel())->table . ' ci', 'i.city_id = ci.id', 'left')
-                    ->join((new CountriesModel())->table . ' co', 'ci.country_id = co.id', 'left')
+                    ->join($UsersModel->db->database.'.users u','users_profile.author_id = u.id', 'right')
+                    ->join($UsersModel->db->database.'.users_profile up', 'u.id = up.author_id', 'right')
+                    ->join((new InstitutionModel())->db->database . '.institution i', 'up.institution_id = i.id', 'left')
+                    ->join((new CitiesModel())->db->database . '.cities ci', 'i.city_id = ci.id', 'left')
+                    ->join((new CountriesModel())->db->database . '.countries co', 'ci.country_id = co.id', 'left')
                     ->like('LOWER(u.surname)', strtolower($post['searchValue']['authorName']))
                     // ->where('u.id !=', session('user_id')) // Uncomment if needed
                     ->findAll();
