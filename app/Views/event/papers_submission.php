@@ -1,9 +1,13 @@
 
-<!--<script  type="text/javascript" src="--><?php //=base_url('assets/js/submissionFunction.js?v=4')?><!--"></script>-->
-
 
 <?php echo view('event/common/menu'); ?>
 <?php echo view('event/common/event_details'); ?>
+<style>
+    #abstractSubmissionForm {
+        font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+    }
+
+</style>
 <main>
     <div class="container pb-5">
         <?php echo view('event/common/shortcut_link'); ?>
@@ -28,6 +32,21 @@
                                 <span class="text-danger">*</span>
                                 Session Types
                             </h5>
+                            <div class="subtitle">Please choose one of the following:</div>
+                            <div class="form-check">
+
+<!--                                --><?php //= print_r($paper);exit; ?>
+                                <!--        ##########   Options are Fetched from database Paper Type    #############      -->
+                                <?php if(!empty($paper_type)):
+                                    foreach ($paper_type as $type):
+                                        if($type->id !== '4'):
+                                            ?>
+                                            <input type="radio" value="<?=$type->id?>" id="paper_type_<?=$type->id?>" name="paper_type" class="form-check-input required" <?=(isset($paper) && $paper['type_id'] && $paper['type_id'] == $type->id? 'checked':'')?> >
+                                            <label class="form-check-label" for="paper_type_<?=$type->id?>"><?=$type->name?></label>
+                                            <br>
+                                        <?php endif; endforeach;
+                                endif?>
+                            </div>
                             <strong class="fw-bolder">All completed abstract submissions will be reviewed and considered for a podium presentation.</strong>
                         </div>
                     </div>
@@ -41,11 +60,14 @@
                                 <span class="text-danger">*</span>
                                 Previous Presentation
                             </h5>
-                            <p>Was this paper previously presented at an SRS IMAST or Annual Meeting?</p>
+                            <p>Was this paper previously published, or accepted for publication, in an English language peer-reviewed journal?</p>
                             <input type="radio" name="previous_presentation" id="previous_presentation_yes" value="Yes" class="form-input" <?=(!empty($paper) && $paper['previous_presentation'] == "Yes" ? 'checked' : '')?>>
-                            <label for="previous_presentation_yes"> Yes, this paper has previously been presented at SRS IMAST or Annual Meeting </label> <br>
+                            <label for="previous_presentation_yes"> Yes, this paper has previously been published or has been accepted for publication </label> <br>
                             <input type="radio" name="previous_presentation" id="previous_presentation_no" value="No" class="form-input" <?=(!empty($paper) && $paper['previous_presentation'] == "No" ? 'checked' : '')?>>
-                            <label for="previous_presentation_no"> No, this paper has not been previously presented at SRS IMAST or Annual Meeting </label>
+                            <label for="previous_presentation_no"> No, this paper has not been previously published or accepted for publication </label>
+                            <br>
+                            <br>
+                            <mark class="text-danger">NOTE: Abstracts that have been previously published or accepted for publication prior to the abstract submission deadline of February 3, 2025 will NOT be considered for review.</mark>
                         </div>
                     </div>
                 </div>
