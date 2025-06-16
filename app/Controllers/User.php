@@ -220,6 +220,7 @@ class User extends BaseController
             'methods'                => 'required',
             'results'                => 'required',
             'conclusions'            => 'required',
+            'type_id'            => 'required',
         ];
 
         if (!$this->validate($validationRules)) {
@@ -229,6 +230,7 @@ class User extends BaseController
         // Prepare data for insertion
         $insert_array = [
             'user_id'               => session('user_id'),
+            'type_id'            => $post['paper_type'] ?? null,
             'previous_presentation' => $post['previous_presentation'] ?? null,
             'basic_science_format'   => $post['basic_science_format'] ?? null,
             'abstract_category'      => $post['abstract_category'] ?? null,
@@ -286,6 +288,7 @@ class User extends BaseController
 
         // Prepare the update array
         $update_array = [
+            'type_id'            => isset($post['paper_type']) ? trim($post['paper_type']) : $existingPaper['paper_type'],
             'previous_presentation'  => isset($post['previous_presentation']) ? trim($post['previous_presentation']) : $existingPaper['previous_presentation'],
             'basic_science_format'   => isset($post['basic_science_format']) ? trim($post['basic_science_format']) : $existingPaper['basic_science_format'],
             'abstract_category'      => isset($post['abstract_category']) ? trim($post['abstract_category']) : $existingPaper['abstract_category'],
