@@ -76,20 +76,57 @@
                     <li>Early Onset, Neuromuscular, Congenital Scoliosis & Scheuermann's</li>
                     <li>Emerging and Enabling Technologies (Navigation, Robotics, AR, Optical Nav., Haptic)</li>
                     <li>Infection, Trauma, Tumor</li>
-                    <li>Innovations in Education and Training, Simulation</li>
+                    <li>Innovations in Education, Training & Simulation </li>
                     <li>Lumbar Diseases (including Spondylolisthesis)</li>
                     <li>Minimally Invasive Approaches (Lateral access surgery, Endoscopic, Outpatient Surgery)</li>
                     <li>Quality / Safety / Value / Complications</li>
                 </ul>
-                <p><i>*AI & Machine Learning: Abstracts eligible for this category will describe utilization of artificial intelligence, machine learning, predictive analytics, or wearable technology in the diagnosis, treatment planning, intraoperative guidance, or postoperative care of operative spine pathology.</i></p>
+                <p>
+                    <i>*AI & Machine Learning: Abstracts eligible for this category will describe utilization of artificial intelligence, machine learning,
+                        predictive analytics, or wearable technology in the diagnosis, treatment planning, intraoperative guidance, or postoperative care of
+                        operative spine pathology.
+                    </i>
+                </p>
 
                 <p>Authors can choose optional sub-categories to further classify their topic. More than one sub-category can be selected:</p>
-                <ul>
-                    <li>Minimally Invasive</li>
-                    <li>Motion Preservation</li>
-                    <li>Novel Technique</li>
-                    <li>Complications</li>
-                </ul>
+                <table class="table table-bordered" style="max-width: 900px;">
+                    <thead class="bg-secondary text-white">
+                        <tr>
+                            <th colspan="2" class="text-center">Sub-Categories</th>
+                        </thead>
+                    <tbody>
+                    <tr>
+                        <td>
+                            <ul>
+                                <li>Minimally Invasive</li>
+                            </ul>
+                        </td>
+                        <td>
+                            <ul>
+                                <li>Novel Technique</li>
+                            </ul>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <ul>
+                                <li>
+                                    Motion Preservation
+                                </li>
+                            </ul>
+                        </td>
+
+                        <td>
+                            <ul>
+                                <li>
+                                    Complications
+                                </li>
+                            </ul>
+                        </td>
+                    </tr>
+                    </tbody>
+
+                </table>
 
                 <h6 class="fw-bold mt-5">ABSTRACT SUBMISSION INSTRUCTIONS</h6>
                 <ul>
