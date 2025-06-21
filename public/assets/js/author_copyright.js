@@ -317,11 +317,11 @@ $(function(){
             toastr.error("Please select Senior Author.");
             return false;
         }
-
-        if (!author_q_1 ||  !author_q_2) {
-            toastr.error("Please answer all required questions.");
-            return false;
-        }
+        //
+        // if (!author_q_1 ||  !author_q_2) {
+        //     toastr.error("Please answer all required questions.");
+        //     return false;
+        // }
 
         if ($('.tdCompleteStatus[status="0"]').length > 0) {
             swal.fire({
