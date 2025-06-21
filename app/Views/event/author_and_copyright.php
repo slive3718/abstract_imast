@@ -27,9 +27,6 @@
                     You must select one presenting author. The presenting author will receive all notifications regarding this submission.
                 </li>
                 <li>
-                    The presenting author or senior author must be from the Asia/Oceania region.
-                </li>
-                <li>
                     Please check "Correspondent" for each author that should receive communication about this submission. The presenting author will automatically be a correspondent.
                 </li>
                 <li>
@@ -104,36 +101,36 @@
                 </div>
                 <br><br>
             </div>
-            <div class="row container">
-                <h5>  <span class="text-danger"> *</span>Is the presenting author or senior author of this paper from Asia or Oceania?</h5>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="author_q_1" id="author_q_1_yes" value="1" <?=!empty($paper) && !empty($paper['author_q_1']) && $paper['author_q_1'] == 1 ? 'checked' : ''?> required>
-                    <label class="form-check-label" for="author_q_1_yes">
-                        Yes, the presenting author and/or senior author of this paper is from Asia or Oceania
-                    </label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="author_q_1" id="author_q_1_no" value="0" <?=!empty($paper) && !empty($paper['author_q_1']) && $paper['author_q_1'] == 0 ? 'checked' : ''?> >
-                    <label class="form-check-label" for="author_q_1_no">
-                        No, the presenting author and/or senior author is <span class="fw-bolder">not</span> from Asia or Oceania
-                    </label>
-                </div>
-
-                <h5 class="mt-4">  <span class="text-danger"> *</span>Are the majority of co-authors on this paper from Asia or Oceania?</h5>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="author_q_2" id="author_q_2_yes" value="1" <?=!empty($paper) && !empty($paper['author_q_2']) && $paper['author_q_2'] == 1 ? 'checked' : ''?> required>
-                    <label class="form-check-label" for="author_q_2_yes">
-                        Yes, the majority of co-authors on this paper are from Asia or Oceania
-                    </label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="author_q_2" id="author_q_2_no" value="0" <?=!empty($paper) && !empty($paper['author_q_2']) && $paper['author_q_2'] == 0 ? 'checked' : ''?> >
-                    <label class="form-check-label" for="author_q_2_no">
-                        No, the majority of co-authors on this paper are from other continents (Europe, North America, South America)
-                    </label>
-                </div>
-            </div>
-            <div class="row">
+<!--            <div class="row container">-->
+<!--                <h5>  <span class="text-danger"> *</span>Is the presenting author or senior author of this paper from Asia or Oceania?</h5>-->
+<!--                <div class="form-check">-->
+<!--                    <input class="form-check-input" type="radio" name="author_q_1" id="author_q_1_yes" value="1" --><?php //=!empty($paper) && !empty($paper['author_q_1']) && $paper['author_q_1'] == 1 ? 'checked' : ''?><!-- required>-->
+<!--                    <label class="form-check-label" for="author_q_1_yes">-->
+<!--                        Yes, the presenting author and/or senior author of this paper is from Asia or Oceania-->
+<!--                    </label>-->
+<!--                </div>-->
+<!--                <div class="form-check">-->
+<!--                    <input class="form-check-input" type="radio" name="author_q_1" id="author_q_1_no" value="0" --><?php //=!empty($paper) && !empty($paper['author_q_1']) && $paper['author_q_1'] == 0 ? 'checked' : ''?><!-- >-->
+<!--                    <label class="form-check-label" for="author_q_1_no">-->
+<!--                        No, the presenting author and/or senior author is <span class="fw-bolder">not</span> from Asia or Oceania-->
+<!--                    </label>-->
+<!--                </div>-->
+<!---->
+<!--                <h5 class="mt-4">  <span class="text-danger"> *</span>Are the majority of co-authors on this paper from Asia or Oceania?</h5>-->
+<!--                <div class="form-check">-->
+<!--                    <input class="form-check-input" type="radio" name="author_q_2" id="author_q_2_yes" value="1" --><?php //=!empty($paper) && !empty($paper['author_q_2']) && $paper['author_q_2'] == 1 ? 'checked' : ''?><!-- required>-->
+<!--                    <label class="form-check-label" for="author_q_2_yes">-->
+<!--                        Yes, the majority of co-authors on this paper are from Asia or Oceania-->
+<!--                    </label>-->
+<!--                </div>-->
+<!--                <div class="form-check">-->
+<!--                    <input class="form-check-input" type="radio" name="author_q_2" id="author_q_2_no" value="0" --><?php //=!empty($paper) && !empty($paper['author_q_2']) && $paper['author_q_2'] == 0 ? 'checked' : ''?><!-- >-->
+<!--                    <label class="form-check-label" for="author_q_2_no">-->
+<!--                        No, the majority of co-authors on this paper are from other continents (Europe, North America, South America)-->
+<!--                    </label>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--            <div class="row">-->
 
 
 
