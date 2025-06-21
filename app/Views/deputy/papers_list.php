@@ -26,27 +26,27 @@
                             A green check mark beside the reviewer name indicates that the paper has been reviewed, a red X indicates that it has been declined and no indication means that it has not yet been reviewed.
 
                         </p>
-                    <div class="accordion" id="accordionExample" style="max-width:1200px">
-                        <div class="accordion-item">
-                            <h2 class="accordion-header" id="headingOne">
-                                <button class="accordion-button collapsed bg-primary text-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
-                                    More Paper Details? To view more details about each Paper click on  the Abstract Details button.
-                                </button>
-                            </h2>
-                            <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">
-                                <div class="accordion-body">
-                                        <div><strong>View Review Details?</strong> Click on the title to view the review details.</div>
-                                        <div><strong>More Paper Details?</strong> To view more details about each Paper click on <img src="https://s3.amazonaws.com/owpmlibs/img/stock_search_16_16.png" width="16" height="16"> .</div>
-                                        <div><strong>New Formal Proposal</strong> Click on 'Assign Now' to assign the paper to a reviewer.</div>
-                                        <div><strong>Sorting Columns?</strong> To sort columns, click on the headings at the top of each column.</div>
-                                        <div><strong>Search for Data?</strong> Use the search field to find specific data on this page. Note that this search function will only search on the text that is on this page.</div>
-                                        <div><strong>View Progress of reviewers?</strong> Go to the Program Chair options and choose the Reviewers & Progress link.</div>
-                                        <div><strong>Switch to Panels?</strong> Under the Program Chair Options icon, click on Panel Review Management</div>
-                                        <div><strong>Not suitable?</strong> If this paper is not suitable for your division please check this box for it to be reassigned</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+<!--                    <div class="accordion" id="accordionExample" style="max-width:1200px">-->
+<!--                        <div class="accordion-item">-->
+<!--                            <h2 class="accordion-header" id="headingOne">-->
+<!--                                <button class="accordion-button collapsed bg-primary text-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">-->
+<!--                                    More Paper Details? To view more details about each Paper click on  the Abstract Details button.-->
+<!--                                </button>-->
+<!--                            </h2>-->
+<!--                            <div id="collapseOne" class="accordion-collapse collapse" aria-labelledby="headingOne" data-bs-parent="#accordionExample">-->
+<!--                                <div class="accordion-body">-->
+<!--                                        <div><strong>View Review Details?</strong> Click on the title to view the review details.</div>-->
+<!--                                        <div><strong>More Paper Details?</strong> To view more details about each Paper click on <img src="https://s3.amazonaws.com/owpmlibs/img/stock_search_16_16.png" width="16" height="16"> .</div>-->
+<!--                                        <div><strong>New Formal Proposal</strong> Click on 'Assign Now' to assign the paper to a reviewer.</div>-->
+<!--                                        <div><strong>Sorting Columns?</strong> To sort columns, click on the headings at the top of each column.</div>-->
+<!--                                        <div><strong>Search for Data?</strong> Use the search field to find specific data on this page. Note that this search function will only search on the text that is on this page.</div>-->
+<!--                                        <div><strong>View Progress of reviewers?</strong> Go to the Program Chair options and choose the Reviewers & Progress link.</div>-->
+<!--                                        <div><strong>Switch to Panels?</strong> Under the Program Chair Options icon, click on Panel Review Management</div>-->
+<!--                                        <div><strong>Not suitable?</strong> If this paper is not suitable for your division please check this box for it to be reassigned</div>-->
+<!--                                </div>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                    </div>-->
 
                     <div class="mt-5 ">
                         <p>All submitted papers are listed below:</p>
