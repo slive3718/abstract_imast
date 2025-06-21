@@ -40,7 +40,7 @@
                                     <td ><?=$papers->custom_id?></td>
                                 </tr>
                                 <tr>
-                                    <td style="width:250px" class="text-end">Paper Title : </td>
+                                    <td style="width:250px" class="text-end">Submission Title : </td>
                                     <td><?=$papers->title?></td>
                                 </tr>
                             </tbody>
