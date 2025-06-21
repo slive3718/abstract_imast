@@ -1145,7 +1145,7 @@ class User extends BaseController
             $from = ['name'=>env('MAIL_FROM'), 'email'=>env('MAIL_FROM_ADDRESS')];
             $addTo = $user['email'];
 
-            $email_header = '<img id="main-banner" src="https://ap.owpm2.com/main_banner.png" class=" figure-img" alt="Main Banner" style="width: 100% !important;object-fit: cover; mix-blend-mode: multiply;">';
+            $email_header = '<img id="main-banner" src="https://imast.owpm2.com/main_banner.png" class=" figure-img" alt="Main Banner" style="width: 100% !important;object-fit: cover; mix-blend-mode: multiply;">';
 
             $subject = $MailTemplates['email_subject'];
             $addContent = $email_header;
@@ -1497,7 +1497,10 @@ class User extends BaseController
             ->select('papers.*, paper_type.name as paper_type_name')
             ->join('paper_type', 'papers.type_id = paper_type.type', 'left')
             ->where(['user_id' => $user_id, 'papers.id' => $paper_id])
+            ->asArray()
             ->first();
+
+        $paper['type'] = (new PaperTypeModel())->asArray()->find($paper['type_id']);
 
         if (!$paper) {
             return redirect()->back()->with('error', 'Paper not found.');
@@ -1543,7 +1546,12 @@ class User extends BaseController
             'signature_signed_date' => 'Disclosure'
         ];
 
-        $paperRequiredFields = [];
+        $paperRequiredFields = [
+            'is_fda_accepted' => 'Fda acceptance is incomplete',
+            'custom_id' => 'Paper Submission Custom ID is missing. Please contact administrator.',
+            'title' => 'Title is missing.',
+            'type_id' => 'Type of paper is missing.',
+            'image_upload_finished' => 'Image Upload is incomplete.'];
 
         $incomplete = [];
 
@@ -1564,8 +1572,8 @@ class User extends BaseController
         foreach ($paperRequiredFields as $field => $label) {
             if (empty($paper[$field])) {
                 $incomplete['paper'][] = [
-                    'required' => "$label for Paper: $paper_id",
-                    'message'  => "$label for Paper: $paper_id"
+                    'required' => "$label",
+                    'message'  => "$label"
                 ];
             }
         }
