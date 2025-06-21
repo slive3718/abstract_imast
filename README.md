@@ -51,5 +51,17 @@ Codeigniter v4.6
         - embeded-images -> This is a parameter that email use to embed a photo directly to the email body.
     2. File upload can be access directly to library using (new Upload())->doUpload($file, $filePath, $savePath, $fileName)
 
+## 5. : Database :
+    1. Database is using MySQL
+    2. Database name is abstract_imast
+    3. Database table prefix is 
+    4. Database table are created using directly.
 
+## 6. : Emailer :
+    1. PhpMail is a library that can be used to send email.
+    2. PhpMail can be access using class PhpMail.
+    3. PhpMail can be used to send email to user, admin, reviewer and author.
+    4. PhpMail can be used to send email with attachment and embeded images.
+
+## 
     
