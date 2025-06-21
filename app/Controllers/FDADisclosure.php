@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Models\Core\Api;
+use App\Models\PapersModel;
 
 class FDADisclosure extends User
 {
@@ -22,32 +23,22 @@ class FDADisclosure extends User
     }
 
 
-    public function view_fda($event_uri = null, $abstract_id=null)
+    public function view_fda($abstract_id=null)
     {
-        $_POST['abstract_id'] = $abstract_id;
-        $_POST['user_id'] = session('user_id');
-        $Api2 = new Api();
-        $event = (new AbstractEventsModel())->first();
-        $abstract_details = $Api2->post("user/get_abstract_by_id/{$this->event_uri}", $_POST);
-//        print_r($abstract_details);exit;
-        if (!$event) {
-            return (new ErrorHandler($event))->errorPage();
-        }
-        if (!$abstract_details || $abstract_details->data =='' ) {
-           exit;
-        }
+        $abstract_details = (new PapersModel())->asArray()->find($abstract_id);
 
         $data['controller_name'] = $this->request->uri->getSegment(1);
 
         $header_data = [
-            'title' => $event->short_name
+            'title' => "FDA Disclosure",
         ];
+
         $data = [
             'id' => $this->request->uri->getSegment(3),
-            'event'=> $event,
             'abstract_id'=> $abstract_id,
-            'abstract_details'=> $abstract_details->data[0]
+            'abstract_details'=> $abstract_details
         ];
+
         return
             view('event/common/header', $header_data).
             view('event/fda_disclosure',$data).
@@ -56,13 +47,29 @@ class FDADisclosure extends User
 
     }
 
-    public function save_fda_disclosure($event_uri){
+    public function save_fda_disclosure(){
+        $post = $this->request->getPost();
 
-        $result = $this->api->post("user/save_fda_disclosure/{$this->event_uri}", $_POST);
-        if(!$result->status){
-            return (new ErrorHandler($result->data))->errorPage();
+        $fda_fields = [
+            'is_fda_accepted' => isset($post['is_fda_accepted']) ? 1 : 0,
+            'fda_unapproved_uses' => $post['unapproved_publication'] ?? null,
+            'fda_discuss_product_name' => $post['discuss_product_name'] ?? null
+        ];
+        $result = (new PapersModel())->set($fda_fields)->where('id', $post['abstract_id'])->update();
+
+        if($result){
+            $response = [
+                'status' => 200,
+                'message' => 'FDA Disclosure saved successfully.'
+            ];
+        } else {
+            $response = [
+                'status' => 500,
+                'message' => 'Failed to save FDA Disclosure.'
+            ];
         }
-        echo (json_encode(($result)));exit;
+
+        return $this->response->setJson($response);
     }
 
 }

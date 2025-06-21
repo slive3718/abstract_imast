@@ -78,6 +78,17 @@
                                 <?php endif?>
                             </a>
 
+
+                            <a href="<?=base_url()?>fda/<?=$paper_id?>" class="btn btn-white btn-sm round-0 text-start mt-2 ps-0 fw-bold" style="width:100%; border-bottom:1px solid blue">
+                                <num class="btn-sm me-2 text-white " style="background-color:#0072bb; padding:5px 10px 5px 10px"><?= $stepNumber++ ?> </num> FDA Disclosure
+                                <?php if(!empty($incompleteStatus['fda'])):?>
+                                    <span class="float-end text-danger"><i class="fw-bold fas fa-exclamation-circle"></i> Incomplete </span>
+                                <?php else: ?>
+                                    <span class="float-end text-success"><i class="fw-bold fas fa-exclamation-circle"></i> Complete </span>
+                                <?php endif?>
+                            </a>
+
+
                             <a href="<?=base_url()?>user/finalize_paper/<?=$paper_id?>" class="btn btn-white btn-sm round-0 text-start mt-2 ps-0 fw-bold previewFinalizeBtn" style="width:100%; border-bottom:1px solid blue">
                                 <num class="btn-sm me-2 text-white " style="background-color:#0072bb; padding:5px 10px 5px 10px"><?= $stepNumber++ ?> </num> Print/Preview/Finalize
                                 <?php if(!empty($incompleteStatus['finalized'])):?>

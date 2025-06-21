@@ -118,6 +118,11 @@ class User extends BaseController
              $incomplete['paperUpload'][] = 'Incomplete Paper Upload.';
          }
 
+         if($paper['is_fda_accepted'] !== '1' || empty($paper['fda_discuss_product_name']) || empty($paper['fda_unapproved_uses'])){
+             $incomplete['fda'][] = 'Incomplete FDA Disclosure.';
+         }
+
+
          if($paper){
              foreach ($paperRequiredFields as $index => $required) {
                  if($paper->$index == '' ||$paper->$index == null ){
