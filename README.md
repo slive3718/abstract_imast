@@ -56,6 +56,26 @@ Codeigniter v4.6
     2. Database name is abstract_imast
     3. Database table prefix is 
     4. Database table are created using directly.
+   
+## 6. :Connecting a new db_user on database:
+    To connect a new db_user to the database, you need to create a new user in the database and grant them the necessary permissions on plesk server.
+    to do this you can directly go to https://plesk.owpm.com:8443/phpMyAdmin/index.php then add the username of your default db to shared db to gain access.
+    Grant privileges to the user using the following command:
+```sql
+    GRANT ALL PRIVILEGES ON abstract_shared_db.*
+    TO 'abstract_imast'@'localhost'
+    IDENTIFIED BY 'dabase_password';
+    FLUSH PRIVILEGES;
+```
+    After that you can access the database using the new user.
+    You can also use the same command to grant privileges to other users.
+
+```sql
+    GRANT ALL PRIVILEGES ON abstract_imast.*
+    TO 'abstract_shrd_db'@'localhost'
+    IDENTIFIED BY 'dabase_password';
+    FLUSH PRIVILEGES;
+```
 
 ## 6. : Emailer :
     1. PhpMail is a library that can be used to send email.
