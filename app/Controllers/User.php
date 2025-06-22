@@ -225,7 +225,7 @@ class User extends BaseController
             'methods'                => 'required',
             'results'                => 'required',
             'conclusions'            => 'required',
-            'type_id'            => 'required',
+            'paper_type'            => 'required',
         ];
 
         if (!$this->validate($validationRules)) {
