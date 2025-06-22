@@ -93,47 +93,61 @@
 <script>
     $(function(){
 
-        $('.SignInBtn').on('click', function(e){
+        $('.SignInBtn').on('click', function(e) {
             e.preventDefault();
             let email = $('#floatingInput').val();
             let password = $('#floatingPassword').val();
-            $.post(base_url+'login/validateLogin',
-                {
-                    'email': email,
-                    'password': password,
-                    'login_type': "user"
 
-                }, function(response){
+            $.post(base_url + 'login/validateLogin', {
+                'email': email,
+                'password': password,
+                'login_type': "user"
+            }, function(response) {
+                if (response.status == "200") {
+                    let timerInterval
+                    Swal.fire({
+                        title: 'Login Success',
+                        html: 'Redirecting to homepage...',
+                        timer: 1000,
+                        timerProgressBar: true,
+                        didOpen: () => {
+                            Swal.showLoading()
+                        },
+                        willClose: () => {
+                            clearInterval(timerInterval)
+                        }
+                    }).then((result) => {
+                        if (result.dismiss === Swal.DismissReason.timer) {
+                            window.location.href = "<?=base_url()?>/home";
+                        }
+                    })
+                } else {
+                    Swal.fire(
+                        '',
+                        response.message || "Invalid Username or Password",
+                        'warning'
+                    )
+                }
+            }, 'json').fail(function(xhr, status, error) {
+                // Handle AJAX errors
+                let errorMessage = "An error occurred during login. Please try again.";
 
-                    console.log(response)
-                    if(response.status == "200"){
-                        let timerInterval
-                        Swal.fire({
-                            title: 'Login Success',
-                            html: 'Redirecting to homepage...',
-                            timer: 1000,
-                            timerProgressBar: true,
-                            didOpen: () => {
-                                Swal.showLoading()
-                            },
-                            willClose: () => {
-                                clearInterval(timerInterval)
-                            }
-                        }).then((result) => {
-                            /* Read more about handling dismissals below */
-                            if (result.dismiss === Swal.DismissReason.timer) {
-                                window.location.href="<?=base_url()?>/home";
-                            }
-                        })
-                    }else{
-                        Swal.fire(
-                            '',
-                            "Invalid Username or Password",
-                            'warning'
-                        )
-                    }
-                },'json')
-        })
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    errorMessage = xhr.responseJSON.message;
+                } else if (xhr.statusText) {
+                    errorMessage = xhr.statusText;
+                }
+
+                Swal.fire(
+                    'Error',
+                    errorMessage,
+                    'error'
+                );
+
+                // Optional: Log the error for debugging
+                console.error("Login Error:", status, error, xhr.responseText);
+            });
+        });
 
         // ############### forgot password ##################
 
