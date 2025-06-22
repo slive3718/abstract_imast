@@ -293,7 +293,7 @@ class User extends BaseController
 
         // Prepare the update array
         $update_array = [
-            'type_id'            => isset($post['paper_type']) ? trim($post['paper_type']) : $existingPaper['paper_type'],
+            'type_id'            => isset($post['paper_type']) ? trim($post['paper_type']) : $existingPaper['type_id'],
             'previous_presentation'  => isset($post['previous_presentation']) ? trim($post['previous_presentation']) : $existingPaper['previous_presentation'],
             'basic_science_format'   => isset($post['basic_science_format']) ? trim($post['basic_science_format']) : $existingPaper['basic_science_format'],
             'abstract_category'      => isset($post['abstract_category']) ? trim($post['abstract_category']) : $existingPaper['abstract_category'],
