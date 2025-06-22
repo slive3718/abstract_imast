@@ -42,7 +42,7 @@ class Login extends BaseController
         $result = $this->getToken($_POST);
 
 //        print_r($result);exit;
-        if($result){
+        if($result && !empty($result['credentials'])){
             $session_array = array(
                 'email'=>$result['credentials']->email,
                 'token'=>$result,
