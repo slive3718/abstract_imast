@@ -1145,7 +1145,7 @@ class User extends BaseController
             $from = ['name'=>env('MAIL_FROM'), 'email'=>env('MAIL_FROM_ADDRESS')];
             $addTo = $user['email'];
 
-            $email_header = '<img id="main-banner" src="https://imast.owpm2.com/main_banner.png" class=" figure-img" alt="Main Banner" style="width: 100% !important;object-fit: cover; mix-blend-mode: multiply;">';
+            $email_header = '<img id="main-banner" src="https://imast.owpm2.com/main_banner.png" class=" figure-img" alt="Main Banner" style="width: 100% ">';
 
             $subject = $MailTemplates['email_subject'];
             $addContent = $email_header;
