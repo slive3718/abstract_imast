@@ -24,16 +24,16 @@ class PhpMail
     function send_mail_dev($from, $addTo, $subject, $addContent, $attachment, $embeded_images)
     {
 
-        header('Content-Type: application/json');
-
-// Simulate a 5-second delay
-        sleep(2);
-
-        return (object)  [
-            'success' => true,
-            'statusCode' => 200,
-            'message' => 'Email sent successfully.'
-        ];
+//        header('Content-Type: application/json');
+//
+//// Simulate a 5-second delay
+//        sleep(2);
+//
+//        return (object)  [
+//            'success' => true,
+//            'statusCode' => 200,
+//            'message' => 'Email sent successfully.'
+//        ];
 
         $mail = new PHPMailer(true); // Enable exceptions
 
@@ -51,8 +51,8 @@ class PhpMail
             $mail->isHTML(true);                  // Set email format to HTML
 
             // Default sender details
-            $defaultFromEmail = 'ap@owpm2.com';
-            $defaultFromName  = 'SRS Asia Pacific';
+            $defaultFromEmail = 'imast@owpm2.com';
+            $defaultFromName  = 'IMAST 2026';
 
             // Set sender
             if (!empty($from)) {
@@ -146,8 +146,8 @@ class PhpMail
             $mail->isHTML(true);                  // Set email format to HTML
 
             // Default sender details
-            $defaultFromEmail = 'ap@owpm2.com';
-            $defaultFromName  = 'SRS Asia Pacific';
+            $defaultFromEmail = 'imast@owpm2.com';
+            $defaultFromName  = 'IMAST 2026';
 
             // Set sender
             if (!empty($from)) {
