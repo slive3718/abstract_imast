@@ -3,7 +3,7 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class UserModel extends Model
+class UserModel extends BaseModel
 {
     protected $DBGroup = 'shared';
     protected $table = 'users';
@@ -97,12 +97,11 @@ class UserModel extends Model
 
     public function author_cred_check($email)
     {
-        $sql = "SELECT users.* 
-                FROM users 
-                JOIN abstract_ap_prod.paper_authors p ON users.id = p.author_id 
-                WHERE users.email = ?";
-        $query = $this->db->query($sql, [$email]);
-        $author = $query->getResultObject()[0] ?? false;
+        $author = $this->db->table('users')
+            ->join($this->defaultDB->database.'.paper_authors p', 'users.id = p.author_id')
+            ->where('email', $email)
+            ->get()
+            ->getResultObject()[0] ?? false;
 
         if (!$author) {
             return false;
