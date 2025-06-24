@@ -10,6 +10,9 @@ Codeigniter v4.6
 
 ## :bangbang: IMPORTANT
 
+    This application is an instance of the Abstract submission system.
+    This application is modified to suit the needs of the Asia Pacific region and adapt the centralized abstract submission system using single User database.
+
 
 #### :question: What is this project?
      This project is an instance of the Abstract submission which is dedicated for a particular client.
@@ -55,7 +58,18 @@ Codeigniter v4.6
     1. Database is using MySQL
     2. Database name is abstract_imast
     3. Database table prefix is 
-    4. Database table are created using directly.
+    4. Database table are created using directly.  
+    5. Database connection are set by default on ENV file. 
+    6. To call default database on model please use "$this->defaultDB", that is set on base model.
+    7. To call shared database on model please use "$this->sharedDB", that is set on base model.
+
+## 6. : Controller:
+    1. Controller are set to be accessible by default.
+    2. Controller are set to be accessible by default using base_url/controller_name
+    3. Controller can be accessed using base_url/controller_name/method_name
+    4. Controller can be accessed using base_url/controller_name/method_name/parameter
+    5. To call default database on controller please use "(new DatabaseModel())->db->database", that is set on base controller.
+    6. To call shared databasename on controller please use "$this->shared_db_name", that is set on base controller.
    
 ## 6. :Connecting a new db_user on database:
     To connect a new db_user to the database, you need to create a new user in the database and grant them the necessary permissions on plesk server.
@@ -76,6 +90,7 @@ Codeigniter v4.6
     IDENTIFIED BY 'dabase_password';
     FLUSH PRIVILEGES;
 ```
+
 
 ## 6. : Emailer :
     1. PhpMail is a library that can be used to send email.
