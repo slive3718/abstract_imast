@@ -3,7 +3,7 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class PaperAuthorsModel extends Model
+class PaperAuthorsModel extends BaseModel
 {
     protected $table = 'paper_authors'; // Set the database table name
     protected $primaryKey = 'id'; // Set the primary key field
@@ -14,13 +14,10 @@ class PaperAuthorsModel extends Model
     // Optionally, set return type as 'object' for all queries by default
     protected $returnType = 'array';
     protected $useAutoFields = true;
-    private $shared_db_name;
-
     public function __construct()
     {
         parent::__construct();
         $this->allowedFields = $this->db->getFieldNames($this->table);
-        $this->shared_db_name = ENV('abstract_suit_shared_db', 'abstract_suit_shared_db');
     }
 
     public function GetJoinedUser($paper_id)
@@ -28,7 +25,7 @@ class PaperAuthorsModel extends Model
         try {
             return $this->db->table('paper_authors')
                 ->select('paper_authors.*, u.name as user_name, u.surname as user_surname, u.middle_name as user_middle, u.email as user_email, IFNULL(rpa.id, 0) as is_removed')
-                ->join($this->shared_db_name.'.users u', 'paper_authors.author_id = u.id', 'left')
+                ->join($this->sharedDB->database.'.users u', 'paper_authors.author_id = u.id', 'left')
                 ->join('removed_paper_authors rpa', 'paper_authors.id = rpa.paper_author_id', 'left')
                 ->where('paper_authors.paper_id', $paper_id)
                 ->where('author_type', 'author')
