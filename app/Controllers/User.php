@@ -160,7 +160,7 @@ class User extends BaseController
         $paper_type = (new PaperTypeModel())->findAll();
 
         $header_data = [
-            'title' => "Submission"
+            'title' => "Abstract Details"
         ];
 
         $data = [
