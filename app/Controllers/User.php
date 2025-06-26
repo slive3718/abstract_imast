@@ -1044,17 +1044,18 @@ class User extends BaseController
             $PaperAuthorsModel = (new PaperAuthorsModel());
             $PapersModel = (new PapersModel());
             $paperAuthors = $PaperAuthorsModel
-                ->join($UsersModel->table, 'paper_authors.author_id = users.id')
-                ->join('papers', 'paper_authors.paper_id = papers.id', 'left')
+                ->join($this->shared_db->database.'.users', 'paper_authors.author_id = users.id')
+                ->join($this->default_db->database.'.papers', 'paper_authors.paper_id = papers.id', 'left')
                 ->where('author_id', $author_id)
                 ->first();
 
+
             $papers = $PapersModel
                 ->select('users.name as submitter_name, users.surname as submitter_surname')
-                ->join('users', 'papers.user_id = users.id')
+                ->join($this->shared_db->database.'.users', 'papers.user_id = users.id')
                 ->find($post['paper_id']);
 
-
+            
             $MailTemplates = (new EmailTemplatesModel())->find($template_id);
 
             $email_body = $MailTemplates['email_body'];
