@@ -52,7 +52,7 @@
                     If you are the submitter and an author, your disclosures will automatically be checked in the system.
                 </li>
                 <li>
-                    For other authors, the system will automatically check their disclosures once the author name is added. If the co-author’s disclosure is not current, you can email them by clicking <strong>'Email Author Now'</strong> displayed beside their name. This author will receive an email to complete their disclosures, and their status will be updated here.
+                    For other authors, the system will automatically check their disclosures once the author name is added. If the co-author’s disclosure is not current, you can email them by clicking <strong>'Email Now''</strong> displayed beside their name. This author will receive an email to complete their disclosures, and their status will be updated here.
                 </li>
                 <li>
                     As a submitter, you will receive an email confirmation each time an author completes their disclosure. At any time before the submission deadline, you may return to the abstract submission system to check the status of your authors’ disclosures.
