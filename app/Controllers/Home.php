@@ -40,6 +40,10 @@ class Home extends BaseController
         ";
         $papers = $this->default_db->query($papersQuery, [$user_id])->getResult();
 
+        if(!$papers){
+            return (new User())->papers_submission();
+        }
+
         foreach ($papers as $paper) {
             // Fetch authors for the paper
             $authorsQuery = "
