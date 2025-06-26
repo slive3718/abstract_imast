@@ -7,8 +7,7 @@
         <?php echo view('event/common/shortcut_link'); ?>
 
         <div class="card p-lg-5 p-md-2 p-sm-1 ">
-            <h6 class="fw-bold">Unlabeled and Unapproved Uses <span class="show_error1 text-danger d-none">* Required</span></h6>
-            <hr class="m-0" style="height: 5px; background-color:  #6390be;">
+            <h5 class="fw-bold">Unlabeled and Unapproved Uses <span class="show_error1 text-danger d-none">* Required</span></h5>
             <p>Presentations that provide information in whole or in part related to non FDA approved uses of drugs and/or devices must clearly disclose the unlabeled indications or the investigational nature of their proposed uses to the audience. Please document in the abstract FDA disclosure.</p>
             <p>* In my "work" for this educational program or publication:</p>
 
@@ -25,8 +24,7 @@
                 </tbody>
             </table>
 
-            <h6 class="fw-bold mt-5">Use of Product name <span class="show_error2 text-danger d-none">* Required</span></h6>
-            <hr class="m-0" style="height: 5px; background-color:  #6390be;">
+            <h5 class="fw-bold mt-2">Use of Product name <span class="show_error2 text-danger d-none">* Required</span></h5>
             <p>Presentations which utilize product names will receive additional scrutiny during the CME review process and presenters may be asked to remove the product name at the discretion of the CME Committee.</p>
 
             <table class="mb-4">
@@ -42,7 +40,6 @@
                 </tbody>
             </table>
 
-            <hr class="m-0 mt-5" style="height: 5px; background-color: #6390be;">
             <div class="mt-3">
                 <div class="form-check">
                     <input class="form-check-input acceptFdaBtn" type="checkbox" id="acceptFdaBtn" required <?=($abstract_details['is_fda_accepted'] ?? null) == 1 ? 'checked' : ''?>>
@@ -59,7 +56,7 @@
 
 <script>
     $(function() {
-        const abstract_id = '<?=$abstract_id?>';
+        const abstract_id = '<?=$paper_id?>';
 
         $('#saveFdaBtn').on('click', function() {
             // Reset error messages

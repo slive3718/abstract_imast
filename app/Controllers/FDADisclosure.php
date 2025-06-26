@@ -35,8 +35,10 @@ class FDADisclosure extends User
 
         $data = [
             'id' => $this->request->uri->getSegment(3),
-            'abstract_id'=> $abstract_id,
-            'abstract_details'=> $abstract_details
+            'paper_id'=> $abstract_id,
+            'abstract_details'=> $abstract_details,
+            'previous_url' => previous_url(),
+            'previous_page' => service('uri')->setURI(previous_url())->getSegment($this->setSegment(3))?? '',
         ];
 
         return
