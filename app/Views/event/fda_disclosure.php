@@ -3,10 +3,10 @@
 <?php echo view('event/common/menu'); ?>
 
 <main>
-    <div class="container-fluid" style="padding-bottom:120px">
+    <div class="container" style="padding-bottom:120px">
         <?php echo view('event/common/shortcut_link'); ?>
 
-        <div class="card p-lg-5 p-md-2 p-sm-1 ">
+        <div class="card p-lg-5 p-md-2 p-sm-1 p-xs-1 p-3 shadow">
             <h5 class="fw-bold">Unlabeled and Unapproved Uses <span class="show_error1 text-danger d-none">* Required</span></h5>
             <p>Presentations that provide information in whole or in part related to non FDA approved uses of drugs and/or devices must clearly disclose the unlabeled indications or the investigational nature of their proposed uses to the audience. Please document in the abstract FDA disclosure.</p>
             <p>* In my "work" for this educational program or publication:</p>
