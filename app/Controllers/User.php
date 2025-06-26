@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Libraries\PhpMail;
 use App\Models\AbstractCategoriesModel;
 use App\Models\AbstractReviewModel;
+use App\Models\AbstractSubCategoriesModel;
 use App\Models\CitiesModel;
 use App\Models\CountriesModel;
 use App\Models\DesignationsModel;
@@ -157,6 +158,7 @@ class User extends BaseController
     public function papers_submission(){
 
         $categories = (new AbstractCategoriesModel())->orderBy('name', 'asc')->findAll();
+        $subcategories = (new AbstractSubCategoriesModel())->orderBy('name', 'asc')->findAll();
         $paper_type = (new PaperTypeModel())->findAll();
 
         $header_data = [
@@ -165,6 +167,7 @@ class User extends BaseController
 
         $data = [
             'categories' => $categories ?? '',
+            'subcategories' => $subcategories ?? '',
             'paper_type' => $paper_type ?? '',
             'notification' => session()->getFlashdata('notification')
         ];
@@ -180,6 +183,7 @@ class User extends BaseController
 
         $paper = (new PapersModel())->where('id', $paper_id)->asArray()->first();
         $categories = (new AbstractCategoriesModel())->orderBy('name', 'asc')->findAll();
+        $subcategories = (new AbstractSubCategoriesModel())->orderBy('name', 'asc')->findAll();
         $paper_type = (new PaperTypeModel())->findAll();
 
         if(!$paper){
@@ -194,6 +198,7 @@ class User extends BaseController
             'paper_id'=>$paper_id,
             'paper_type' => $paper_type ?? '',
             'categories' => $categories ?? '',
+            'subcategories' => $subcategories ?? '',
             'is_edit' => 1,
             'previous_url' => previous_url(),
             'previous_page' => service('uri')->setURI(previous_url())->getSegment($this->setSegment(3))?? '',
@@ -247,7 +252,8 @@ class User extends BaseController
             'results'              => isset($post['results']) ? $post['results'] : '',
             'conclusions'          => isset($post['conclusions']) ? $post['conclusions'] : '',
             'additional_notes'     => isset($post['additional_notes']) ? $post['additional_notes'] : '',
-            'abstract_body_count'  => isset($post['abstract_body_count']) ? $post['abstract_body_count'] : null
+            'abstract_body_count'  => isset($post['abstract_body_count']) ? $post['abstract_body_count'] : null,
+            'abstract_subcategories'  => isset($post['abstract_subcategories']) ? json_encode($post['abstract_subcategories']) : null,
         ];
 
         try {
@@ -297,6 +303,7 @@ class User extends BaseController
             'previous_presentation'  => isset($post['previous_presentation']) ? trim($post['previous_presentation']) : $existingPaper['previous_presentation'],
             'basic_science_format'   => isset($post['basic_science_format']) ? trim($post['basic_science_format']) : $existingPaper['basic_science_format'],
             'abstract_category'      => isset($post['abstract_category']) ? trim($post['abstract_category']) : $existingPaper['abstract_category'],
+            'abstract_subcategories'  => isset($post['abstract_subcategories']) ? json_encode(($post['abstract_subcategories'])) : $existingPaper['abstract_subcategories'],
             'title'                  => isset($post['abstract_title']) ? trim($post['abstract_title']) : $existingPaper['title'],
             'hypothesis'             => isset($post['hypothesis']) ? trim($post['hypothesis']) : $existingPaper['hypothesis'],
             'study_design'           => isset($post['study_design']) ? trim($post['study_design']) : $existingPaper['study_design'],
@@ -1055,7 +1062,7 @@ class User extends BaseController
                 ->join($this->shared_db->database.'.users', 'papers.user_id = users.id')
                 ->find($post['paper_id']);
 
-            
+
             $MailTemplates = (new EmailTemplatesModel())->find($template_id);
 
             $email_body = $MailTemplates['email_body'];

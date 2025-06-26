@@ -59,14 +59,14 @@
                                 <span class="text-danger">*</span>
                                 Previous Presentation
                             </h5>
-                            <p>Was this paper previously published, or accepted for publication, in an English language peer-reviewed journal?</p>
+                            <p>Has this abstract been previously published in an online or print journal?</p>
                             <input type="radio" name="previous_presentation" id="previous_presentation_yes" value="Yes" class="form-input" <?=(!empty($paper) && $paper['previous_presentation'] == "Yes" ? 'checked' : '')?>>
-                            <label for="previous_presentation_yes"> Yes, this paper has previously been published or has been accepted for publication </label> <br>
+                            <label for="previous_presentation_yes"> Yes, this paper has previously been published </label> <br>
                             <input type="radio" name="previous_presentation" id="previous_presentation_no" value="No" class="form-input" <?=(!empty($paper) && $paper['previous_presentation'] == "No" ? 'checked' : '')?>>
-                            <label for="previous_presentation_no"> No, this paper has not been previously published or accepted for publication </label>
+                            <label for="previous_presentation_no"> No, this paper has not been previously published </label>
                             <br>
                             <br>
-                            <mark class="text-danger">NOTE: Abstracts that have been previously published or accepted for publication prior to the abstract submission deadline of February 3, 2025 will NOT be considered for review.</mark>
+                            <mark class="text-danger">NOTE: Abstracts which have been published online or in print in a journal at the time of submission are NOT eligible for submission.</mark>
                         </div>
                     </div>
                 </div>
@@ -101,11 +101,35 @@
                                 <option id="abstract_category_default" value=""> -- Select Category --</option>
                                 <?php if(!empty($categories)): ?>
                                     <?php foreach ($categories as $category) : ?>
-                                        <option id="abstract_category_<?=$category['category_id']?>" value="<?=$category['category_id']?>" <?=(!empty($paper) && $paper['abstract_category'] == $category['category_id'] ? 'selected' : '')?>  ><?=$category['name']?></option>
+                                        <option id="abstract_category_<?=$category['category_id']?>" value="<?=$category['category_id']?>" <?=(!empty($paper) && $paper['abstract_category'] == $category['category_id'] ? 'selected' : '')?>><?=$category['name']?></option>
                                     <?php endforeach; ?>
                                 <?php endif ?>
                             </select>
                         </div>
+
+                        <!-- Subcategory Selection (Optional) -->
+                        <?php
+                        // Get previously selected subcategories if editing
+                        $selectedSubcategories = !empty($paper['abstract_subcategories']) ? json_decode($paper['abstract_subcategories'], true) : [];
+                        ?>
+
+                        <?php if(!empty($subcategories) && is_array($subcategories)): ?>
+                            <div id="subcategory-container" class="mt-3">
+                                <h5 class="title">Sub-category selection</h5>
+                                <p>Please select any of the following subcategories that are associated with your abstract submission. Note: More than one subcategory may be selected. Abstracts may not solely be submitted to any subcategory.</p>
+
+                                <?php foreach ($subcategories as $key => $subcat): ?>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox"
+                                               name="abstract_subcategories[]"
+                                               id="subcategory_<?=$key?>"
+                                               value="<?=$subcat['id']?>"
+                                            <?=(in_array($subcat['id'], $selectedSubcategories) ? 'checked' : '')?>>
+                                        <label class="form-check-label" for="subcategory_<?=$key?>"><?=$subcat['name']?></label>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endif; ?>
                     </div>
                 </div>
 
