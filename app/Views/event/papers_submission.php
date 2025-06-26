@@ -47,7 +47,6 @@
                                         <?php endif; endforeach;
                                 endif?>
                             </div>
-                            <strong class="fw-bolder">All completed abstract submissions will be reviewed and considered for a podium presentation.</strong>
                         </div>
                     </div>
                 </div>
@@ -233,17 +232,17 @@
                 </div>
 
                 <!-- ##########   Question 11: Additional Notes ############### -->
-                <div class="row additional-notes">
-                    <div class="col mt-4">
-                        <div id="additional-notes-container">
-                            <label for="additional_notes" class="title">
-                                Additional Notes
-                            </label>
-                            <textarea name="additional_notes" id="additional_notes" class="form-control" rows="4" placeholder="Enter any additional notes..."><?=(!empty($paper) ? $paper['additional_notes'] : '')?></textarea>
-                            <label class="counted_words fw-bolder"></label>
-                        </div>
-                    </div>
-                </div>
+<!--                <div class="row additional-notes">-->
+<!--                    <div class="col mt-4">-->
+<!--                        <div id="additional-notes-container">-->
+<!--                            <label for="additional_notes" class="title">-->
+<!--                                Additional Notes-->
+<!--                            </label>-->
+<!--                            <textarea name="additional_notes" id="additional_notes" class="form-control" rows="4" placeholder="Enter any additional notes...">--><?php //=(!empty($paper) ? $paper['additional_notes'] : '')?><!--</textarea>-->
+<!--                            <label class="counted_words fw-bolder"></label>-->
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
 
                 <!-- ##########   Question 11: Image Caption : for counting purposes only ############### -->
                 <div class="row image_caption" style="display: none">
@@ -258,7 +257,7 @@
 
                 <div>
                     <label class="title mt-4">Image/Table Caption</label>
-                    <p>If you are adding an image Or table to your abstract submission, the caption for this will count to your total 2500 characters. Please add your caption on the upload page you have <span id="remaining_caption_count" class="fw-bolder">0</span>/2500 characters left for your caption.</p>
+                    <p>If you are adding an image or table to your abstract submission, the caption for this will count to your total 2500 characters. Please add your caption on the upload page you have <span id="remaining_caption_count" class="fw-bolder">0</span>/2500 characters left for your caption.</p>
                 </div>
 
 
