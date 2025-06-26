@@ -235,19 +235,19 @@ class User extends BaseController
         // Prepare data for insertion
         $insert_array = [
             'user_id'               => session('user_id'),
-            'type_id'            => $post['paper_type'] ?? null,
-            'previous_presentation' => $post['previous_presentation'] ?? null,
-            'basic_science_format'   => $post['basic_science_format'] ?? null,
-            'abstract_category'      => $post['abstract_category'] ?? null,
-            'title'                  => $post['abstract_title'] ?? null,
-            'hypothesis'             => $post['hypothesis'] ?? null,
-            'study_design'           => $post['study_design'] ?? null,
-            'introduction'           => $post['introduction'] ?? null,
-            'methods'                => $post['methods'] ?? null,
-            'results'                => $post['results'] ?? null,
-            'conclusions'            => $post['conclusions'] ?? null,
-            'additional_notes'       => $post['additional_notes'] ?? null,
-            'abstract_body_count'       => $post['abstract_body_count'] ?? null,
+            'type_id'              => isset($post['paper_type']) ? $post['paper_type'] : null,
+            'previous_presentation' => isset($post['previous_presentation']) ? $post['previous_presentation'] : null,
+            'basic_science_format'  => isset($post['basic_science_format']) ? $post['basic_science_format'] : null,
+            'abstract_category'     => isset($post['abstract_category']) ? $post['abstract_category'] : '',
+            'title'                => isset($post['abstract_title']) ? $post['abstract_title'] : '',
+            'hypothesis'           => isset($post['hypothesis']) ? $post['hypothesis'] : '',
+            'study_design'         => isset($post['study_design']) ? $post['study_design'] : '',
+            'introduction'         => isset($post['introduction']) ? $post['introduction'] : '',
+            'methods'              => isset($post['methods']) ? $post['methods'] : '',
+            'results'              => isset($post['results']) ? $post['results'] : '',
+            'conclusions'          => isset($post['conclusions']) ? $post['conclusions'] : '',
+            'additional_notes'     => isset($post['additional_notes']) ? $post['additional_notes'] : '',
+            'abstract_body_count'  => isset($post['abstract_body_count']) ? $post['abstract_body_count'] : null
         ];
 
         try {
