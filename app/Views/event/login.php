@@ -12,8 +12,7 @@
                 <div class="card-header text-primary fw-bold"> NOTE FOR SUBMITTERS </div>
                 <div class="card-body text-start">
                     <p>
-                        If you have previously submitted an abstract to a SRS Annual Meeting, please use those
-                        credentials to submit for AP2026.
+                        If you have previously submitted an abstract to a SRS Annual Meeting, please use those credentials to submit for IMAST 2026.
                     </p>
                     <p>
                         If you have previously been an author on an abstract for a SRS Annual Meeting, please
