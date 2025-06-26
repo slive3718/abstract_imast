@@ -184,7 +184,7 @@ class Account extends BaseController
 
             $message = 'Hi '.ucfirst($user['name']) .' '.ucfirst($user['surname']).', <br> We received a request to reset the password of your account. <br><br>
                     Your new password is: '.$random_password.'<br> <br> 
-                    You can update your password by logging into submission <a href="https://imast.owpm2.com"></a>https://imast.owpm2.com, and on the top corner menu, click on settings, then password settings. <br>
+                    You can update your password by logging into submission <a href="https://imast.owpm2.com"></a>imast.owpm2.com, and on the top corner menu, click on settings, then password settings. <br>
                     <p> If you  need further assistance, please contact <a href="support@owpm2.com">support@owpm2.com</a></p>';
 
             $from['name']="IMAST 2026";
