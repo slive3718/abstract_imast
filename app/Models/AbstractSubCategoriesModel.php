@@ -5,7 +5,7 @@ use CodeIgniter\Model;
 
 class AbstractSubCategoriesModel extends Model
 {
-    protected $table = 'sub_categories';
+    protected $table = 'abstract_sub_categories';
 
     // protected $allowedFields = [];
     protected $primaryKey = 'id';
