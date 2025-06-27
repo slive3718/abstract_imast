@@ -187,63 +187,6 @@
                                 <td style="width: 100px;"><a href="<?=base_url().'user/edit_papers_submission/'.$paper_id?>" class="float-end btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit </a></td>
                             </tr>
                             <tr>
-                                <td class="text-end">Minimum Follow-up Period :</td>
-                                <td><?= htmlspecialchars($papers['min_follow_up_period']) ?></td>
-                                <td style="width: 100px;"><a href="<?=base_url().'user/level_of_evidence/'.$paper_id?>" class="float-end btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit </a></td>
-                            </tr>
-<!--                            <tr>-->
-<!--                                <td class="text-end">SRS Grant Funded? :</td>-->
-<!--                                <td>--><?php //= htmlspecialchars($papers['is_srs_funded']) ?><!--</td>-->
-<!--                                <td style="width: 100px;"><a href="--><?php //=base_url().'user/level_of_evidence/'.$paper_id?><!--" class="float-end btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit </a></td>-->
-<!--                            </tr>-->
-<!--                            --><?php //if($papers['is_srs_funded'] == "Yes") : ?>
-<!--                                <tr>-->
-<!--                                    <td class="text-end">Primary Investigator :</td>-->
-<!--                                    <td>--><?php //= htmlspecialchars($papers['primary_investigator']) ?><!--</td>-->
-<!--                                    <td style="width: 100px;"><a href="--><?php //=base_url().'user/level_of_evidence/'.$paper_id?><!--" class="float-end btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit </a></td>-->
-<!--                                </tr>-->
-<!--                                <tr>-->
-<!--                                    <td class="text-end">Grant Year :</td>-->
-<!--                                    <td>--><?php //= htmlspecialchars($papers['grant_year']) ?><!--</td>-->
-<!--                                    <td style="width: 100px;"><a href="--><?php //=base_url().'user/level_of_evidence/'.$paper_id?><!--" class="float-end btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit </a></td>-->
-<!--                                </tr>-->
-<!--                            --><?php //endif ?>
-                            <tr>
-                                <td class="text-end">Unlabeled and Unapproved Uses:</td>
-                                <td><?=$papers['fda_unapproved_uses'] == '1' ? 'I do not plan to discuss non-FDA approved products or non-FDA approved use of any products.' : 'I plan to discuss non-FDA approved products or non-FDA approved use of any products.'?></td>
-                                <td style="width: 100px;"><a href="<?=base_url().'fda/'.$paper_id?>" class="float-end btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit </a></td>
-                            </tr>
-
-                        <?php if($papers['fda_unapproved_uses'] == '2' ): ?>
-                            <tr>
-                                <td class="text-end">Explanation:</td>
-                                <td><?=$papers['fda_unapproved_uses'] == '2' ? $papers['fda_unapproved_explanation']: ''?></td>
-                                <td style="width: 100px;"><a href="<?=base_url().'fda/'.$paper_id?>" class="float-end btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit </a></td>
-                            </tr>
-                        <?php endif; ?>
-
-                            <tr>
-                                <td class="text-end">Use of Product name:</td>
-                                <td><?=$papers['fda_discuss_product_name'] == '1' ? ' 	I plan to discuss a commercial product by name in my presentation.' : 'I do not plan to discuss a commercial product by name in my presentation.'?></td>
-                                <td style="width: 100px;"><a href="<?=base_url().'fda/'.$paper_id?>" class="float-end btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit </a></td>
-                            </tr>
-
-                        <?php if($papers['fda_discuss_product_name'] == '1' ): ?>
-                            <tr>
-                                <td class="text-end">Explanation:</td>
-                                <td><?=$papers['fda_discuss_product_name'] == '1' ? $papers['fda_product_name_explanation']: ''?></td>
-                                <td style="width: 100px;"><a href="<?=base_url().'fda/'.$paper_id?>" class="float-end btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit </a></td>
-                            </tr>
-                        <?php endif ?>
-
-
-                            <tr>
-                                <td class="text-end">FDA Acceptance:</td>
-                                <td><?=$papers['fda_unapproved_uses'] == '1' ? 'I accept the terms of participation in this CME activity as noted in the author disclosure statement.' : ''?></td>
-                                <td style="width: 100px;"><a href="<?=base_url().'fda/'.$paper_id?>" class="float-end btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit </a></td>
-                            </tr>
-
-                            <tr>
                                 <td class="text-end">Minimum time period of follow-up? </td>
                                 <td><?=$papers['min_follow_up_period'] ?? ''?></td>
                                 <td style="width: 100px;"><a href="<?=base_url().'fda/'.$paper_id?>" class="float-end btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit </a></td>
@@ -265,6 +208,42 @@
                                     <td style="width: 100px;"><a href="<?=base_url().'user/level_of_evidence/'.$paper_id?>" class="float-end btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit </a></td>
                                 </tr>
                             <?php endif ?>
+
+                            <tr>
+                                <td class="text-end">Unlabeled and Unapproved Uses:</td>
+                                <td><?=$papers['fda_unapproved_uses'] == '1' ? 'I do not plan to discuss non-FDA approved products or non-FDA approved use of any products.' : 'I plan to discuss non-FDA approved products or non-FDA approved use of any products.'?></td>
+                                <td style="width: 100px;"><a href="<?=base_url().'fda/'.$paper_id?>" class="float-end btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit </a></td>
+                            </tr>
+
+                            <?php if($papers['fda_unapproved_uses'] == '2' ): ?>
+                                <tr>
+                                    <td class="text-end">Explanation:</td>
+                                    <td><?=$papers['fda_unapproved_uses'] == '2' ? $papers['fda_unapproved_explanation']: ''?></td>
+                                    <td style="width: 100px;"><a href="<?=base_url().'fda/'.$paper_id?>" class="float-end btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit </a></td>
+                                </tr>
+                            <?php endif; ?>
+
+                            <tr>
+                                <td class="text-end">Use of Product name:</td>
+                                <td><?=$papers['fda_discuss_product_name'] == '1' ? ' 	I plan to discuss a commercial product by name in my presentation.' : 'I do not plan to discuss a commercial product by name in my presentation.'?></td>
+                                <td style="width: 100px;"><a href="<?=base_url().'fda/'.$paper_id?>" class="float-end btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit </a></td>
+                            </tr>
+
+                            <?php if($papers['fda_discuss_product_name'] == '1' ): ?>
+                                <tr>
+                                    <td class="text-end">Explanation:</td>
+                                    <td><?=$papers['fda_discuss_product_name'] == '1' ? $papers['fda_product_name_explanation']: ''?></td>
+                                    <td style="width: 100px;"><a href="<?=base_url().'fda/'.$paper_id?>" class="float-end btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit </a></td>
+                                </tr>
+                            <?php endif ?>
+
+
+                            <tr>
+                                <td class="text-end">FDA Acceptance:</td>
+                                <td><?=$papers['fda_unapproved_uses'] == '1' ? 'I accept the terms of participation in this CME activity as noted in the author disclosure statement.' : ''?></td>
+                                <td style="width: 100px;"><a href="<?=base_url().'fda/'.$paper_id?>" class="float-end btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit </a></td>
+                            </tr>
+
 
                             <tr>
                                 <td class="text-end" style="vertical-align:top">Image Caption :</td>
