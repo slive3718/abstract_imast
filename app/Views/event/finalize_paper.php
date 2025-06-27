@@ -243,6 +243,28 @@
                                 <td style="width: 100px;"><a href="<?=base_url().'fda/'.$paper_id?>" class="float-end btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit </a></td>
                             </tr>
 
+                            <tr>
+                                <td class="text-end">Minimum time period of follow-up? </td>
+                                <td><?=$papers['min_follow_up_period'] ?? ''?></td>
+                                <td style="width: 100px;"><a href="<?=base_url().'fda/'.$paper_id?>" class="float-end btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit </a></td>
+                            </tr>
+                            <tr>
+                                <td class="text-end">SRS Grant Funded? :</td>
+                                <td><?= htmlspecialchars($papers['is_srs_funded']) ?></td>
+                                <td style="width: 100px;"><a href="<?=base_url().'user/level_of_evidence/'.$paper_id?>" class="float-end btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit </a></td>
+                            </tr>
+                            <?php if($papers['is_srs_funded'] == "Yes") : ?>
+                                <tr>
+                                    <td class="text-end">Primary Investigator :</td>
+                                    <td><?= htmlspecialchars($papers['primary_investigator']) ?></td>
+                                    <td style="width: 100px;"><a href="<?=base_url().'user/level_of_evidence/'.$paper_id?>" class="float-end btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit </a></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-end">Grant Year :</td>
+                                    <td><?= htmlspecialchars($papers['grant_year']) ?></td>
+                                    <td style="width: 100px;"><a href="<?=base_url().'user/level_of_evidence/'.$paper_id?>" class="float-end btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit </a></td>
+                                </tr>
+                            <?php endif ?>
 
                             <tr>
                                 <td class="text-end" style="vertical-align:top">Image Caption :</td>
