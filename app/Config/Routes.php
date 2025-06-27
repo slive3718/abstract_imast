@@ -370,7 +370,7 @@ $routes->group('', function ($routes)
     $routes->get('disclosure', 'Disclosure::index/$1');
 
     $routes->get('fda/(:any)', 'FDADisclosure::view_fda/$1');
-    $routes->post('save_fda_disclosure', 'FDADisclosure::save_fda_disclosure/$1');
+    $routes->post('save_fda_disclosure', 'FDADisclosure::save_fda_disclosure');
 
     $routes->get('permissions/(:any)', 'User::view_permissions/$1');
 

@@ -2,22 +2,16 @@
 
 namespace App\Controllers;
 
-use App\Models\Core\Api;
 use App\Models\PapersModel;
 
 class FDADisclosure extends User
 {
 
-    private Api $api;
-
     public function __construct()
     {
         parent::__construct();
-        $this->event_uri = session('event_uri');
-
-        $this->api = new Api();
         if (empty(session('email')) || session('email') == '') {
-            return redirect()->to(base_url() . '/' . $this->event_uri . '/login');
+            return redirect()->to(base_url() . '/login');
             exit;
         }
     }
@@ -52,10 +46,13 @@ class FDADisclosure extends User
     public function save_fda_disclosure(){
         $post = $this->request->getPost();
 
+
         $fda_fields = [
             'is_fda_accepted' => isset($post['is_fda_accepted']) ? 1 : 0,
             'fda_unapproved_uses' => $post['unapproved_publication'] ?? null,
-            'fda_discuss_product_name' => $post['discuss_product_name'] ?? null
+            'fda_discuss_product_name' => $post['discuss_product_name'] ?? null,
+            'fda_unapproved_explanation' => $post['fda_unapproved_explanation'] ?? '',
+            'fda_product_name_explanation' => $post['fda_product_name_explanation'] ?? '',
         ];
         $result = (new PapersModel())->set($fda_fields)->where('id', $post['abstract_id'])->update();
 
