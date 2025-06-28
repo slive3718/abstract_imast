@@ -744,7 +744,6 @@ class User extends BaseController
     public function get_author_info(){
 
         $post = $this->request->getPost();
-//        print_r($post);exit;
         $UsersProfileModel = (new UsersProfileModel());
         $InstitutionModel = (new InstitutionModel());
         $UserModel = (new UserModel());

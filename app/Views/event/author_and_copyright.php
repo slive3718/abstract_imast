@@ -130,10 +130,7 @@
 <!--                    </label>-->
 <!--                </div>-->
 <!--            </div>-->
-<!--            <div class="row">-->
-
-
-
+            <div class="row">
                 <div class="col-8"><button class="btn btn-success" id="savePaperAuthors" style="max-width:200px"> Save and Continue</button></div>
 
                 <div class="col-4">
