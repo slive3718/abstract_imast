@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Libraries\MailGunEmail;
 use App\Libraries\PhpMail;
 use App\Models\AffiliationsModel;
+use App\Models\AttestationModel;
 use App\Models\Core\Api;
 use App\Models\EmailLogsModel;
 use App\Models\EmailTemplatesModel;
@@ -205,7 +206,9 @@ class Author extends BaseController
         }
         $UserModel = new UserModel();
         $author = $UserModel
+            ->select('users.*, up.*, at.signature as attestation_signature, at.date as attestation_date')
             ->join($this->shared_db_name.'.users_profile up', 'users.id = up.author_id', 'left')
+            ->join($this->default_db->database.'.attestation at', 'up.author_id = at.author_id', 'left')
             ->where('users.id', $user_id)
             ->asArray()
             ->first();
@@ -377,17 +380,29 @@ class Author extends BaseController
         // Assuming user ID is stored in session
         $userId = session('user_id');
 
+
+
         if (!$userId) {
             return $this->response->setJSON(['success' => false, 'message' => 'User not logged in']);
         }
 
         // Prepare data for updating user profile
         $data = [
-            'attestation_signature' => $request['attestation_signature'] ?? null,
-            'attestation_date'   => date('Y-m-d', strtotime($request['attestation_date'])) ?? null
+            'signature' => $request['attestation_signature'] ?? null,
+            'date'   => date('Y-m-d', strtotime($request['attestation_date'])) ?? null
         ];
 
-        $model = new UsersProfileModel();
+        $model = new AttestationModel();
+
+        $attestation_data = $model->where('author_id', $userId)->find();
+        if( !empty($attestation_data) && is_array($attestation_data)){
+            // If attestation record exists, update it
+            $isUpdated = $model->set($data)->where('author_id', $userId)->update();
+        } else {
+            // If no record exists, create a new one
+            $data['author_id'] = $userId;
+            $isUpdated = $model->insert($data);
+        }
 
         // Update the existing user record
         $isUpdated = $model->set($data)->where('author_id', $userId)->update();
