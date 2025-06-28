@@ -33,12 +33,10 @@
                             <a href="<?= base_url().'author/attestation/'?>"  class="btn btn-light border w-100 text-start d-flex align-items-center mb-2">
                                 <div class="bg-warning text-white px-3 py-2 fw-bold"><?= $stepNumber ++ ?></div>
                                 <div class="flex-grow-1 px-2">
-                                    <strong>Attestation for Asia Pacific 2026</strong>
+                                    <strong>Attestation for IMAST 2026</strong>
                                 </div>
                                 <div class="text-end">
-<!--                                    Current date: <span class=""> --><?php //=$author['attestation_date'] ?? ''?><!--</span> &nbsp; | &nbsp;-->
-<!--                                    Expires: <span class="">--><?php //= $author['attestation_date']  ? date('Y-m-d', strtotime($author['attestation_date'] . ' +1 year')) : ''; ?><!--</span> &nbsp; | &nbsp;-->
-                                    <?= !empty($author['attestation_signature']) && $author['attestation_date'] ? '<span class="text-success fw-bold">Completed </span>' : '<span class="text-danger fw-bold">Incomplete</span>' ?>
+                                    <?= !empty($attestation['signature']) && $attestation['date'] ? '<span class="text-success fw-bold">Completed </span>' : '<span class="text-danger fw-bold">Incomplete</span>' ?>
                                 </div>
                             </a>
 

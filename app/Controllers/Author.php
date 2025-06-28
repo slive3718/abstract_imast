@@ -59,7 +59,9 @@ class Author extends BaseController
             ->first();
 
         $disclosure_current_date = (new SiteSettingModel())->where('name', 'disclosure_current_date')->first()['value'];
-       $disclosure_expire_date = date('Y-m-d', strtotime($disclosure_current_date . ' +1 year'));
+        $disclosure_expire_date = date('Y-m-d', strtotime($disclosure_current_date . ' +1 year'));
+        $attestation = (new AttestationModel())->where('author_id', session('user_id'))->first();
+
         $header_data = [
             'title' => "Author Copyright"
         ];
@@ -67,10 +69,10 @@ class Author extends BaseController
         $data = [
             'author'=>$author,
             'disclosure_current_date' => $disclosure_current_date,
-            'disclosure_expire_date' => $disclosure_expire_date
+            'disclosure_expire_date' => $disclosure_expire_date,
+            'attestation' => !empty($attestation) ? $attestation : null
         ];
 
-//        print_r($data);exit;
         return
             view('author/common/header', $header_data).
             view('author/copyright_main', $data).
@@ -454,6 +456,8 @@ class Author extends BaseController
             }
         }
 
+        $attestation = (new AttestationModel())->where('author_id', session('user_id'))->first();
+
 
         $header_data = [
             'title' => "Print/Preview"
@@ -463,7 +467,8 @@ class Author extends BaseController
             'author' => $author,
             'organizations' => $organizations,
             'affiliations' => $affiliations,
-            'selectedOrganizations' => $selectedOrganizations
+            'selectedOrganizations' => $selectedOrganizations,
+            'attestation' => !empty($attestation) ? $attestation : null,
         ];
 
         return view('author/common/header', $header_data)

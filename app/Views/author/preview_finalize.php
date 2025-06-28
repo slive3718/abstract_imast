@@ -137,7 +137,7 @@
                         <tr>
                             <td class="fw-bold bg-light" style="width: 220px;">Completed:</td>
                             <td>
-                                <?= (!empty($author['attestation_signature'])) ? '<span class="text-success"> Completed </span>': '<span class="text-danger"> Incomplete </span>'; ?>
+                                <?= (!empty($attestation['signature'])) ? '<span class="text-success"> Completed </span>': '<span class="text-danger"> Incomplete </span>'; ?>
                             </td>
                             <td>
                                 <a href="<?=base_url().'author/financial_relationship_disclosure/#disclosure_support'?>" class="btn btn-primary btn-sm btn-edit">
@@ -149,7 +149,7 @@
                         <tr>
                             <td class="fw-bold bg-light">Signature: </td>
                             <td>
-                                <?= (!empty($author['attestation_signature'])) ? $author['attestation_signature']: ''; ?>
+                                <?= (!empty($attestation['signature'])) ? $attestation['signature'] : ''; ?>
                             </td>
                             <td style="width: 65px">
                                 <a href="<?=base_url().'author/financial_relationship_disclosure/#disclosure_discussed'?>" class="btn btn-primary btn-sm btn-edit">
