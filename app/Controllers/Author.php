@@ -504,7 +504,7 @@ class Author extends BaseController
         $email_body = str_replace('##SUBMITTER_NAME##', ucFirst($papers->submitter_name), $email_body);
         $email_body = str_replace('##SUBMITTER_SURNAME##', ucFirst($papers->submitter_surname), $email_body);
 
-        $from = ['name'=>'AFS', 'email'=>'afs@owpm2.com'];
+        $from = ['name'=> env('MAIL_FROM'), 'email'=> env('MAIL_FROM_ADDRESS')];
         $addTo = [$author['email']];
         $subject = $MailTemplates['email_subject'];
         $addContent = $email_body;

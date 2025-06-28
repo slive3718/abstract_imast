@@ -51,8 +51,8 @@ class PhpMail
             $mail->isHTML(true);                  // Set email format to HTML
 
             // Default sender details
-            $defaultFromEmail = 'imast@owpm2.com';
-            $defaultFromName  = 'IMAST 2026';
+            $defaultFromEmail = env('MAIL_FROM_ADDRESS');
+            $defaultFromName  = env('MAIL_FROM');
 
             // Set sender
             if (!empty($from)) {
