@@ -5,8 +5,9 @@ use CodeIgniter\Database\ConnectionInterface;
 use CodeIgniter\Model;
 use CodeIgniter\Validation\ValidationInterface;
 
-class InstitutionModel extends Model
+class InstitutionModel extends BaseModel
 {
+    protected $DBGroup = 'shared';
     protected $table = 'institution';
     protected $primaryKey = 'id';
     protected $allowedFields ;
@@ -14,7 +15,7 @@ class InstitutionModel extends Model
     function __construct(ConnectionInterface $db = null, ValidationInterface $validation = null)
     {
         parent::__construct();
-        $this->db = $db ?? db_connect();
+        $this->db = $db ?? \Config\Database::connect('shared');;
         $this->validation = $validation;
 
         $this->initializeAllowedFields();
