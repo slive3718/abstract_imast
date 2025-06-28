@@ -23,7 +23,7 @@
 <main>
     <div class="container-fluid">
         <div class="row">
-            <div class="col-md-12 p-0">
+            <div class="col-md-12 p-0 text-center m-auto" style="width: 80%">
                 <img id="main-banner" style="width:100%" src="<?=base_url().'main_banner.png'?>" class="img-fluid figure-img" alt="Main Banner"/>
             </div>
             <hr />
