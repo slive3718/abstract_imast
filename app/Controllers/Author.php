@@ -216,7 +216,7 @@ class Author extends BaseController
             ->first();
 
         $header_data = [
-            'title' => "Attestation for Asia Pacific 2026"
+            'title' => "Attestation for IMAST 2026"
         ];
 
         $data = [
