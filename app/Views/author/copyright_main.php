@@ -5,14 +5,12 @@
 
 <main>
     <div class="container-fluid" style="padding-bottom:200px">
-        <div class="row mt-5">
-        <h5> Abstract Disclosure System Main Menu</h5>
-        <hr />
-        </div>
-
-        <div class="row mt-5">
+        <div class="row">
             <div class="col-md-12">
                 <div id="landing-page-contents" class="container-fluid p-4">
+                    <div class="container">
+                        <h5> Abstract Disclosure System Main Menu</h5>
+                    </div>
                     <div class="submission-menu">
                         <div class="container mt-3">
                             <?php $stepNumber = 1; ?>
