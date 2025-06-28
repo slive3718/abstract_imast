@@ -751,7 +751,7 @@ class User extends BaseController
         $authorDetails = $this->db->table($this->shared_db_name . '.users')
             ->select('users.*, up.*, i.name as institution_name')
             ->join($this->shared_db_name . '.users_profile up', 'users.id = up.author_id', 'left')
-            ->join($InstitutionModel->getTable() . ' i', 'up.institution_id = i.id', 'left')
+            ->join($this->shared_db_name . '.institution i', 'up.institution_id = i.id', 'left')
             ->where('users.id', $post['author_id'])
             ->get()
             ->getRowArray();
