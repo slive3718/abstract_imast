@@ -129,7 +129,7 @@
                     </table>
 
                     <h5 class="fw-bold text-primary mb-3">
-                        Attestation for Rexter Dayuta
+                        Attestation for <?= ucfirst($author['name']) ?> <?= ucfirst($author['surname']) ?>
                     </h5>
                     <table class="table table-bordered align-middle">
                         <tbody>
