@@ -9,9 +9,9 @@
                 <div class="row">
                     <div class="col-md-12">
                         <br>
-                        <p>The following speaker/presenter has disclosed a financial relationship that may affect his/her presentations at SRS Asia Pacific 2026. Please fill out the sections below and sign the Presenter Attestation.</p>
+                        <p>The following speaker/presenter has disclosed a financial relationship that may affect his/her presentations at 2026 IMAST. Please fill out the sections below and sign the Presenter Attestation.</p>
 
-                        <p>For all presentations presented at the Annual Meeting, I attest that:</p>
+                        <p>For all presentations presented at the 2026 IMAST, I attest that:</p>
 
                         <ul>
                             <li>I will present content that is balanced in its discussion of therapeutic options and products.</li>
