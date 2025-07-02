@@ -63,7 +63,7 @@
                 <p>Abstracts can be submitted by SRS Members and non-members.</p>
 
                 <h6 class="fw-bold mt-5">MEETING THEME</h6>
-                <p>The theme for the 2026 IMAST meeting is 15-18, 2026</p>
+                <p>The Future of Spine: Driving Innovation & Cultivating Leadership</p>
 
                 <h6 class="fw-bold mt-5">ABSTRACT CATEGORIES</h6>
                 <p>Abstract submission to IMAST must fit into one of the following categories to be considered for presentation.</p>
