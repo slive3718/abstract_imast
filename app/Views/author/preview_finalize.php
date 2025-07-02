@@ -46,6 +46,7 @@
                                     ?>
 
                                     <?php foreach ($selectedOrganizations as $org): ?>
+                                        <div class="mb-3">
                                         <?php
                                         $organizationName = $organizationMap[$org['organization_id']]['name'] ?? 'N/A';
                                         $customOrganization = $org['custom_organization'] ?? 'N/A';
@@ -66,6 +67,14 @@
                                                 <?php endforeach; ?>
                                             </ul>
                                         <?php endif; ?>
+
+                                    <?php if (($org['relationship_ended']) !== null): ?>
+                                        <p class="mb-1">
+                                            <strong>Relationship ended:</strong>
+                                            <?= ($org['relationship_ended']) == '1' ? 'Yes' : 'No' ?>
+                                        </p>
+                                    <?php endif; ?>
+                                        </div>
                                     <?php endforeach; ?>
                                 <?php else: ?>
                                     <p class="text-secondary">No affiliated organizations.</p>

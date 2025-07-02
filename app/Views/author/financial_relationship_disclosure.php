@@ -272,6 +272,12 @@
                     });
                 }
 
+                if(data.relationship_ended === '1') {
+                    $(`input[name="organization[${organizationCount}][relationship_ended]"][value="1"]`).prop('checked', true);
+                } else {
+                    $(`input[name="organization[${organizationCount}][relationship_ended]"][value="0"]`).prop('checked', true);
+                }
+
                 //  If "Other" is selected, show the textbox and pre-fill value
                 if (data.organization_id === '29') {
                     $(`.other-organization-input[data-org="${organizationCount}"]`)

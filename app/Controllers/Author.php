@@ -177,7 +177,8 @@ class Author extends BaseController
                 $selectedOrganizations[$org['id']] = [
                     'organization_id' => $org['organization_id'], // Fixed ID to match organization_id
                     'affiliations' => json_decode($org['affiliation'], true) ?? [],
-                    'custom_organization' => $org['custom_organization'] ?? null
+                    'custom_organization' => $org['custom_organization'] ?? null,
+                    'relationship_ended' => $org['relationship_ended'] ?? null
                 ];
             }
         }
@@ -315,6 +316,7 @@ class Author extends BaseController
     public function save_financial_relationship() {
         $request = $this->request->getPost();
 
+//        print_r($request);exit;
         // Log the data for debugging
         log_message('debug', print_r($request, true));
 
@@ -358,6 +360,7 @@ class Author extends BaseController
                             'organization_id'      => $orgId,
                             'affiliation'          => $affiliations,
                             'custom_organization'  => ($orgId == 29) ? $otherName : '',
+                            'relationship_ended' => $organization['relationship_ended'] ?? null,
                         ];
 
                         // ✅ Directly insert without checking for existing records
@@ -451,7 +454,8 @@ class Author extends BaseController
                 $selectedOrganizations[$org['id']] = [
                     'organization_id' => $org['organization_id'], // Fixed ID to match organization_id
                     'affiliations' => json_decode($org['affiliation'], true) ?? [],
-                    'custom_organization' => $org['custom_organization'] ?? null
+                    'custom_organization' => $org['custom_organization'] ?? null,
+                    'relationship_ended' => $org['relationship_ended'] ?? null
                 ];
             }
         }

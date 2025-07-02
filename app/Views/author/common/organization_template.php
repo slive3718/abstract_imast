@@ -36,5 +36,12 @@
         <?php endif; ?>
 
     </div>
+    <div class="mb-3 mt-2">
+            <label class="form-label">Has this financial relationship ended?</label>
+        <div class="options">
+            <input type="radio" name="organization[${organizationCount}][relationship_ended]" value="1" id="relationship_ended_yes"> <label for="relationship_ended_yes"> Yes</label> <br>
+            <input type="radio" name="organization[${organizationCount}][relationship_ended]" value="0" id="relationship_ended_no"> <label for="relationship_ended_no"> No</label>
+        </div>
+    </div>
     <button type="button" class="btn btn-danger btn-sm remove-organization" data-id="${organizationCount}">Remove</button>
 </div>
