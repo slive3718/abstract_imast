@@ -62,7 +62,7 @@
                 <h6 class="fw-bold mt-5">SRS MEMBERSHIP</h6>
                 <p>Abstracts can be submitted by SRS Members and non-members.</p>
 
-                <h6 class="fw-bold mt-5">The Future of Spine: Driving Innovation & Cultivating Leadership</h6>
+                <h6 class="fw-bold mt-5">The meeting theme is The Future of Spine: Driving Innovation & Cultivating Leadership</h6>
                 <p>The theme for the 2026 IMAST meeting is 15-18, 2026</p>
 
                 <h6 class="fw-bold mt-5">ABSTRACT CATEGORIES</h6>
