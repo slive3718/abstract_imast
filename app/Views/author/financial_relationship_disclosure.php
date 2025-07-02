@@ -274,7 +274,7 @@
 
                 if(data.relationship_ended === '1') {
                     $(`input[name="organization[${organizationCount}][relationship_ended]"][value="1"]`).prop('checked', true);
-                } else {
+                } else if(data.relationship_ended === '0') {
                     $(`input[name="organization[${organizationCount}][relationship_ended]"][value="0"]`).prop('checked', true);
                 }
 
