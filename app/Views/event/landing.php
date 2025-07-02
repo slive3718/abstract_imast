@@ -30,7 +30,7 @@
             <div class="container p-5 ">
                 <p class="text-center mb-3 fw-bolder">33rd Scoliosis Research Society (SRS)</p>
                 <p class="text-center fw-bolder">International Meeting on Advanced Spine Techniques (IMAST)</p>
-                <p class="text-center fw-bolder">Toronto, ON, Canada<br>April 2-5, 2026</p>
+                <p class="text-center fw-bolder">Toronto, ON, Canada<br> April 15-18, 2026 </p>
                 <p class="text-center fw-bolder">Abstract Submission: July 1, 2025 - October 1, 2025</p>
 
                 <div class="row mt-4">
@@ -74,7 +74,7 @@
                     <li>Basic Science / Biomechanics / Genetics</li>
                     <li>Cervical Spine: Deformity & Degenerative</li>
                     <li>Early Onset, Neuromuscular, Congenital Scoliosis & Scheuermann's</li>
-                    <li>Emerging and Enabling Technologies (Navigation, Robotics, AR, Optical Nav., Haptic)</li>
+                    <li>Emerging and Enabling Technologies (Navigation, Robotics, AR, Optical Nav., Haptic, Endoscopy)</li>
                     <li>Infection, Trauma, Tumor</li>
                     <li>Innovations in Education, Training & Simulation </li>
                     <li>Lumbar Diseases (including Spondylolisthesis)</li>
