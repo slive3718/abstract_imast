@@ -78,7 +78,7 @@
                     <li>Infection, Trauma, Tumor</li>
                     <li>Innovations in Education, Training & Simulation </li>
                     <li>Lumbar Diseases (including Spondylolisthesis)</li>
-<!--                    <li>Minimally Invasive Approaches (Lateral access surgery, Endoscopic, Outpatient Surgery)</li>-->
+                    <li>Minimally Invasive Approaches (Lateral access surgery, Endoscopic, Outpatient Surgery)</li>
                     <li>Quality / Safety / Value / Complications</li>
                 </ul>
                 <p>
