@@ -96,6 +96,16 @@
                         <label for="presenting_author_and_correspondents">Paper Submissions – Presenting Authors with incomplete participation</label>
                     </div>
 
+                    <div data-for="paper">
+                        <input type="checkbox" class="recipientDesignation" id="all_authors" name="recipientDesignation" value="all_authors">
+                        <label for="all_authors">Authors - All</label>
+                    </div>
+
+                    <div data-for="paper">
+                        <input type="checkbox" class="recipientDesignation" id="all_authors_inc_disclosure" name="recipientDesignation" value="all_authors_inc_disclosure">
+                        <label for="all_authors_inc_disclosure">Authors - Incomplete Disclosures</label>
+                    </div>
+
                     <!--       PANEL Start             -->
                     <div data-for="panel">
                         <input type="checkbox" class="recipientDesignation" id="all_panel_coordinators" name="recipientDesignation" value="all_panel_coordinators">

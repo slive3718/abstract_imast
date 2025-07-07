@@ -3,6 +3,7 @@
 namespace App\Controllers\admin;
 
 use App\Controllers\admin\Abstracts\AbstractController;
+use App\Controllers\BaseController;
 use App\Libraries\PhpMail;
 use App\Models\DivisionsModel;
 use App\Models\EmailLogsModel;
@@ -18,7 +19,7 @@ use App\Models\UserModel;
 use App\Models\PapersModel;
 use App\Models\AbstractReviewModel;
 
-class EmailController extends Controller
+class EmailController extends BaseController
 {
 
     public function __construct()
@@ -149,12 +150,48 @@ class EmailController extends Controller
 
                 }
 
+                if (in_array('all_authors_inc_disclosure', $filter)) {
+                    $PaperAuthorModel = new PaperAuthorsModel();
+                    $builder = $PaperAuthorModel->builder();
+                    $query = $builder->select('paper_authors.author_id as author_id, 
+                          paper_authors.is_copyright_agreement_accepted, 
+                          u.name, 
+                          u.surname, 
+                          p.id as paper_id')
+                        ->join($this->shared_db->database. '.users u', 'paper_authors.author_id = u.id', 'left')
+                        ->join($this->shared_db->database. '.users_profile up', 'paper_authors.author_id = up.author_id', 'left')
+                        ->join('papers p', 'paper_authors.paper_id = p.id', 'left')
+                        ->where('up.disclosure_signature', '') // Better syntax for NULL check
+                        ->whereNotIn('paper_authors.id', function ($builder) {
+                            $builder->select('paper_author_id')->from('removed_paper_authors');
+                        })
+                        ->groupBy('paper_authors.author_id')
+                        ->groupBy('p.id'); // Changed to use the alias 'p' to match your join
+
+                    // Execute the query
+                    $query = $builder->get();
+
+
+                    // Fetch result as an associative array
+                    $user_ids = $query->getResultArray();
+
+                    // Add filter type to each user_id
+                    foreach ($user_ids as &$user_id) {
+                        $user_id = array_merge($user_id, ['filter' => 'all_authors_inc_disclosure']);
+                    }
+                    unset($user_id); // Break the reference with the last element
+
+                    $filteredUsers = array_merge($filteredUsers, $user_ids);
+
+                }
+
                 $filterConditions = [
                     'presenter_author_only' => ['is_presenting_author' => 'Yes'],
                     'co_author_only' => ['is_coauthor' => 'Yes'],
                     'all_correspondents' => ['paper_authors.is_correspondent' => 'Yes'],
                     'presenting_author_and_correspondents' => ['paper_authors.is_correspondent' => 'Yes'],
                     'all_presenting_authors' => ['paper_authors.is_correspondent' => 'Yes'],
+                    'all_authors' => ['author_type' => 'author'],
                 ];
 
                 foreach ($filter as $option) {
@@ -177,7 +214,7 @@ class EmailController extends Controller
                 $filtered_result = array();
                 foreach ($filteredUsers as $user) {
                     $result = $UsersModel->where('users.id', $user['author_id'])->first();
-                    $user['details'] = $result;
+                    $user['details'] = $result ?? [];
                     $filtered_result[] = $user;
                 }
 
