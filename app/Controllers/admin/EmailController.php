@@ -13,6 +13,7 @@ use App\Models\PaperAssignedReviewerModel;
 use App\Models\PaperAuthorsModel;
 use App\Models\PaperTypeModel;
 use App\Models\SchedulerModel;
+use App\Models\SiteSettingModel;
 use App\Models\UsersProfileModel;
 use CodeIgniter\Controller;
 use App\Models\UserModel;
@@ -130,8 +131,8 @@ class EmailController extends BaseController
                 if (in_array('all_submitters', $filter)) {
                     // Use Query Builder for the complex query
                     $builder = $PaperModel->builder();
-                    $query = $builder->select('users.id as author_id, users.name, users.surname, papers.id as paper_id')
-                        ->join('users', 'papers.user_id = users.id', 'left');
+                    $query = $builder->select( 'users.id as author_id, users.name, users.surname, papers.id as paper_id')
+                        ->join($this->shared_db_name . '.users', 'papers.user_id = users.id', 'left');
                     $this->filterRecipientGroup($groupFilter, $query);
 
                     // Execute the query
@@ -153,6 +154,8 @@ class EmailController extends BaseController
                 if (in_array('all_authors_inc_disclosure', $filter)) {
                     $PaperAuthorModel = new PaperAuthorsModel();
                     $builder = $PaperAuthorModel->builder();
+                    $current_disclosure_date = (new SiteSettingModel())->where('name', 'disclosure_current_date')->first()['value'] ?? null;
+                    $current_disclosure_date = date('Y-m-d H:i:s', strtotime($current_disclosure_date));
                     $query = $builder->select('paper_authors.author_id as author_id, 
                           paper_authors.is_copyright_agreement_accepted, 
                           u.name, 
@@ -161,8 +164,11 @@ class EmailController extends BaseController
                         ->join($this->shared_db->database. '.users u', 'paper_authors.author_id = u.id', 'left')
                         ->join($this->shared_db->database. '.users_profile up', 'paper_authors.author_id = up.author_id', 'left')
                         ->join('papers p', 'paper_authors.paper_id = p.id', 'left')
-                        ->where('up.disclosure_signature', '') // Better syntax for NULL check
-                        ->whereNotIn('paper_authors.id', function ($builder) {
+                        ->where('up.disclosure_signature', '');
+                        if (!empty($current_disclosure_date)) {
+                            $query->orWhere('DATE(up.signature_signed_date) <= "'.$current_disclosure_date.'"');
+                        }
+                    $query->whereNotIn('paper_authors.id', function ($builder) {
                             $builder->select('paper_author_id')->from('removed_paper_authors');
                         })
                         ->groupBy('paper_authors.author_id')
