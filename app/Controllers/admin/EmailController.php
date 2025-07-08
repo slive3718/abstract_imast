@@ -160,20 +160,22 @@ class EmailController extends BaseController
                           paper_authors.is_copyright_agreement_accepted, 
                           u.name, 
                           u.surname, 
-                          p.id as paper_id')
+                          papers.id as paper_id')
                         ->join($this->shared_db->database. '.users u', 'paper_authors.author_id = u.id', 'left')
                         ->join($this->shared_db->database. '.users_profile up', 'paper_authors.author_id = up.author_id', 'left')
-                        ->join('papers p', 'paper_authors.paper_id = p.id', 'left')
+                        ->join('papers', 'paper_authors.paper_id = papers.id', 'left')
                         ->where('up.disclosure_signature', '');
                         if (!empty($current_disclosure_date)) {
                             $query->orWhere('DATE(up.signature_signed_date) < "'.$current_disclosure_date.'"');
                         }
                     $query->whereNotIn('paper_authors.id', function ($builder) {
                             $builder->select('paper_author_id')->from('removed_paper_authors');
-                        })
-                        ->groupBy('paper_authors.author_id')
-                        ->groupBy('p.id'); // Changed to use the alias 'p' to match your join
+                        });
 
+                        $query->groupBy('paper_authors.author_id')
+                        ->groupBy('papers.id'); // Changed to use the alias 'p' to match your join
+
+                    $this->filterRecipientGroup($groupFilter, $query);
                     // Execute the query
                     $query = $builder->get();
 
