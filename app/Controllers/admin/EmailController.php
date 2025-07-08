@@ -499,24 +499,22 @@ class EmailController extends BaseController
                     if ($post['recipientType'] == 'paper' || $post['recipientType'] == 'panel') {
                         $recipient = json_decode($recipient, true);
                         if ($recipient && $recipient['filter'] !== 'all_submitter') {
-                            $PaperAuthorModel->select('*, papers.title as title,  papers.id as paper_id')
+                            $paper = $PaperAuthorModel->select('*, papers.title as title, papers.id as paper_id')
                                 ->join($PaperModel->getTable() . ' as papers', $PaperAuthorModel->getTable() . '.paper_id = papers.id', 'left')
-                                ->join($UsersModel->getTable() . ' as authors', $PaperAuthorModel->getTable() . '.author_id = authors.id', 'left'); // Use 'authors' alias here
-
-                            if (!empty($post['recipientType'])) {
-                                $PaperAuthorModel->where('papers.submission_type', $post['recipientType']);
-                            }
-
-                            $PaperAuthorModel
+                                ->join($this->shared_db_name . '.users as authors', $PaperAuthorModel->getTable() . '.author_id = authors.id', 'left')
                                 ->where($PaperAuthorModel->getTable() . '.author_id', $recipient['author_id'])
                                 ->where($PaperAuthorModel->getTable() . '.paper_id', $recipient['abstract_id']);
 
-                            $res = $PaperAuthorModel->first();
+                            if (!empty($post['recipientType'])) {
+                                $paper->where('papers.submission_type', $post['recipientType']);
+                            }
+
+                            $res = $paper->first();
                         } else {
                             $UsersModel->select('*, papers.title as title, papers.id as paper_id')
                                 ->join($PaperModel->getTable() . ' as papers', $UsersModel->getTable() . '.id = papers.user_id', 'left')
-                                ->join($UsersProfileModel->getTable() . ' as profile', $PaperModel->getTable() . '.user_id = profile.author_id', 'left')
-                                ->join($UsersModel->getTable() . ' as submitters', $PaperModel->getTable() . '.user_id = submitters.id', 'left'); // Use 'submitters' alias here
+                                ->join($this->shared_db_name  . '.users_profile as profile', $PaperModel->getTable() . '.user_id = profile.author_id', 'left')
+                                ->join($this->shared_db_name  . '.users as submitters', $PaperModel->getTable() . '.user_id = submitters.id', 'left'); // Use 'submitters' alias here
 
                             if (!empty($post['recipientType'])) {
                                 $UsersModel->where('papers.submission_type', $post['recipientType']);
@@ -577,11 +575,12 @@ class EmailController extends BaseController
 
                 // Get reviewers username and password of this paper
                 $reviewers = $ReviewersAssignedModel
-                    ->join($UsersModel->getTable() . ' as users', $ReviewersAssignedModel->getTable() . '.reviewer_id = users.id', 'left')
+                    ->join($this->shared_db_name . '.users as users', $ReviewersAssignedModel->getTable() . '.reviewer_id = users.id', 'left')
                     ->where('paper_id', $val['paper_id'])
                     ->where('reviewer_type', 'regular')
                     ->findAll();
 
+//                exit;
 
                 $scheduleEvents = (new SchedulerModel())
                     ->select('scheduler_events.*')
@@ -616,7 +615,7 @@ class EmailController extends BaseController
 
                 // Get presenting authors
                 $presentingAuthors = $PaperAuthorModel
-                    ->join($UsersModel->getTable() . ' as users', $PaperAuthorModel->getTable() . '.author_id = users.id', 'left')
+                    ->join($this->shared_db_name . '.users as users', $PaperAuthorModel->getTable() . '.author_id = users.id', 'left')
                     ->where('paper_id', $val['paper_id'])
                     ->where('is_presenting_author', 'Yes')
                     ->findAll();
