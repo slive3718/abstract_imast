@@ -166,7 +166,7 @@ class EmailController extends BaseController
                         ->join('papers p', 'paper_authors.paper_id = p.id', 'left')
                         ->where('up.disclosure_signature', '');
                         if (!empty($current_disclosure_date)) {
-                            $query->orWhere('DATE(up.signature_signed_date) <= "'.$current_disclosure_date.'"');
+                            $query->orWhere('DATE(up.signature_signed_date) < "'.$current_disclosure_date.'"');
                         }
                     $query->whereNotIn('paper_authors.id', function ($builder) {
                             $builder->select('paper_author_id')->from('removed_paper_authors');
