@@ -1523,7 +1523,7 @@ class User extends BaseController
             ->select('u.*, up.*, paper_authors.*, i.name as institution_name, ci.name as institution_city, co.name as institution_country')
             ->join($this->shared_db_name.'.users u', 'paper_authors.author_id = u.id', 'left')
             ->join($this->shared_db_name.'.users_profile up', 'paper_authors.author_id = up.author_id', 'left')
-            ->join($InstitutionModel->table . ' i', 'up.institution_id = i.id', 'left')
+            ->join($this->shared_db_name.'.institution i', 'up.institution_id = i.id', 'left')
             ->join($CitiesModel->table . ' ci', 'i.city_id = ci.id', 'left')
             ->join($CountriesModel->table . ' co', 'ci.country_id = co.id', 'left')
             ->whereNotIn('paper_authors.id', function ($builder) {
