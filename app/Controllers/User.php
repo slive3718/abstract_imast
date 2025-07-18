@@ -619,7 +619,12 @@ class User extends BaseController
        $siteSetting = $SiteSettingsModel->where('name', 'number_of_authors')->first();
 
        $PaperAuthorsModel = (new PaperAuthorsModel());
-       $paperAuthorsCount = ($PaperAuthorsModel->where('paper_id', $paper_id)->findAll());
+       $paperAuthorsCount = ($PaperAuthorsModel
+           ->where('paper_id', $paper_id)
+           ->whereNotIn('paper_authors.id', function ($builder) {
+               $builder->select('paper_author_id')->from('removed_paper_authors');
+           })
+           ->findAll());
 
         if(count($siteSetting) > 0){
             if(count($paperAuthorsCount) >= $siteSetting['value']){
