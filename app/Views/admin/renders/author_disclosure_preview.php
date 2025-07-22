@@ -96,39 +96,33 @@
                     </tr>
 
                     <!-- Signature -->
+                    <!-- Signature Row -->
                     <tr>
                         <td class="fw-bold bg-light">Signature:</td>
                         <td>
-                            <?php
-                            // Prepare variables safely
-                            $signature = htmlspecialchars($author['disclosure_signature'] ?? 'N/A');
-                            $signedDate = !empty($author['signature_signed_date'])
-                                ? date('Y-m-d', strtotime($author['signature_signed_date']))
-                                : null;
-
-                            // Determine status
-                            $isCurrent = false;
-                            if (!empty($currentDisclosureDate) && $signedDate) {
-                                $isCurrent = (strtotime($signedDate) > strtotime($currentDisclosureDate));
-                            }
-
-                            // Status badge
-                            $statusBadge = $isCurrent
-                                ? '<span class="badge bg-success p-2">Current</span>'
-                                : '<span class="badge bg-danger p-2">Outdated</span>';
-                            ?>
-
-                            <!-- Signature -->
-                            <?= $signature ?>
-                            <br>
-                            <!-- Date and Status (only show if date exists) -->
-                            <?php if ($signedDate): ?>
-                                <span class="">
-                                    <strong> <?= $statusBadge ?> </strong><?= htmlspecialchars($signedDate) ?>
-                                </span>
-                            <?php endif; ?>
+                            <?= htmlspecialchars($author['disclosure_signature'] ?? 'N/A') ?>
                         </td>
                     </tr>
+
+                    <!-- Date Row (only shown if date exists) -->
+                    <?php if (!empty($author['signature_signed_date'])): ?>
+                        <?php
+                        $signedDate = date('Y-m-d', strtotime($author['signature_signed_date']));
+                        $isCurrent = (!empty($currentDisclosureDate) && (strtotime($signedDate) > strtotime($currentDisclosureDate)));
+                        $statusClass = $isCurrent ? 'alert-success' : 'alert-danger';
+                        $statusText = $isCurrent ? 'Current' : 'Outdated';
+                        ?>
+                        <tr>
+                            <td class="fw-bold bg-light">Signature Date:</td>
+                            <td>
+                                <span class="alert <?= $statusClass ?> p-1 align-items-center">
+                                    <i class="fas <?= $isCurrent ? 'fa-circle-check' : 'fa-times-circle' ?> me-2"></i>
+                                    <strong><?= $statusText ?></strong>
+                                    <span class="ms-2"><?= htmlspecialchars($signedDate) ?></span>
+                                </span>
+                            </td>
+                        </tr>
+                    <?php endif; ?>
                     </tbody>
                 </table>
 

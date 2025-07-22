@@ -19,8 +19,8 @@
                     <a href="<?=base_url()?>admin/exportScores" class="btn btn-success text-white position-relative" title="Export all abstract scores to excel">Export All Abstract Scores</a>
                 </div>
                 <div class="">
-                    <table id="abstractTable" class="table-responsive table-bordered border-5" >
-                        <thead class="table-active sticky-top" style="">
+                    <table id="abstractTable" class="table-responsive table-bordered border-5 pt-4" >
+                        <thead class="table-active sticky-top text-white" style="background-color: #2aa69c">
                         <tr>
                             <th>ID</th>
                             <th>Author List</th>
