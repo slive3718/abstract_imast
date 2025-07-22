@@ -72,7 +72,7 @@
         </div>
     </div>
 </div>
-
+<?php echo view('admin/common/modal'); ?>
 
 <script>
     let baseUrlAdmin = "<?=base_url().'admin/'?>";
@@ -304,7 +304,8 @@
             try {
                 const response = await $.post(`${baseUrlAdmin}getAllPapers`, { submission_type: 'paper' });
 
-                $('#abstractTableBody').empty();
+                let table =  $('#abstractTableBody');
+                table.empty();
 
                 // console.log(response)
                 if (!response.data.length){
@@ -329,7 +330,7 @@
 
                     const category = paper.category.name
 
-                    $('#abstractTableBody').append(`
+                    table.append(`
                 <tr class="tableRow" style="cursor:pointer; background-color: ${color}" abstract_id="${paper.id}">
                     <td>${paper.custom_id}</td>
                     <td id="authorList_${paper.id}" class="author_td"></td>
@@ -344,11 +345,14 @@
                 </tr>
             `);
                 });
-
                 populateAdditionalData(response.data);
-
+                initialize_author_list_row_click();
                 initializeDataTable();
                 swal.close();
+
+                $('.author_list_row').on('click', function(e) {
+                    console.log($(this).text());
+                });
             } catch (error) {
                 console.error('Error fetching abstracts:', error);
                 Swal.fire({
@@ -468,7 +472,7 @@
         function populateAuthors(paper) {
             if (!paper.authors) return;
 
-            paper.authors.forEach(author => {
+            paper.authors.forEach((author, i) => {
                 if(author.is_removed === '0') {
                     const institution = author.institution ? ` <i class='badge bg-info'>(${author.institution.name})</i>` : '';
                     const copyrightStatus = (author.details && author.details.signature_signed_date !== null)
@@ -476,11 +480,11 @@
                         : "<i class='ms-2 fas fa-times text-danger'></i>";
 
                     $('#authorList_' + author.paper_id).append(`
-            <div class="text-nowrap">
-                ${author.is_presenting_author === 'Yes' ? '<span class="fw-bolder">Lead Presenter: </span>' : '<span class="fw-bolder">Co Presenter: </span>'}
-                ${author.user_name} ${author.user_surname} ${copyrightStatus}
-            </div>
-        `);
+                    <div class="text-nowrap author_list_row card p-0 d-block " data-author-id="${author.author_id}">
+                        ${author.is_presenting_author === 'Yes' ? '<span class="fw-bolder">Lead Presenter: </span>' : '<span class="fw-bolder">Co Presenter: </span>'}
+                        ${author.user_name} ${author.user_surname} ${copyrightStatus}
+                    </div>
+                `);
 
                     $('#author-acceptance-' + author.paper_id).append(`<div class="text-nowrap">${getAuthorAcceptance(paper, author)}</div>`);
                 }
@@ -530,8 +534,59 @@
                 buttons: { dom: { button: { className: 'btn btn-outline-primary' } } }
             });
         }
+    }
 
+    function initialize_author_list_row_click() {
+        $('.author_list_row').on('click', function() {
+            const $row = $(this);
+            const authorId = parseInt($row.data('author-id'));
+            const $modal = $('#custom_modal');
+            const $modalBody = $modal.find('.modal-body');
+            const $modalTitle = $modal.find('#exampleModalLabel');
 
+            // Set up modal before AJAX call
+            $modal.find('.modal-dialog')
+                .addClass('modal-xl');
+
+            $modalTitle.text(`Author Information`);
+            $modalBody.addClass('p-0')
+            $modalBody.closest('.modal-content')
+                .find('.modal-footer .btn-primary')
+                .remove();
+            $modalBody.html(`
+            <div class="text-center py-4">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2">Loading author information...</p>
+            </div>
+        `);
+            $modal.modal('show');
+
+            // Make AJAX request
+            $.ajax({
+                url: `${baseUrlAdmin}author_disclosure_preview/${authorId}`,
+                type: 'GET',
+                dataType: 'html',  // Expect HTML response
+                success: function(response) {
+                    console.log(response)
+                    $modalBody.html(response);
+                },
+                error: function(xhr, status, error) {
+                    console.error('AJAX Error:', status, error);
+                    $modalBody.html(`
+                    <div class="alert alert-danger">
+                        <h5>Error Loading Author Information</h5>
+                        <p>Could not load details for author ID: ${authorId}</p>
+                        <small>${error || 'Unknown error occurred'}</small>
+                    </div>
+                `);
+                },
+                complete: function() {
+                    // Any cleanup if needed
+                }
+            });
+        });
     }
 
     function stripTags(input) {

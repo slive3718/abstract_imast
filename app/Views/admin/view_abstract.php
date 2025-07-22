@@ -123,6 +123,23 @@
                                         <td><?=($author['is_correspondent'])?'Yes':'No'?></td>
                                     </tr>
                                     <tr>
+                                        <td class="text-end">Disclosure Status :</td>
+                                        <td>
+                                            <?php if (!empty($author['signature_signed_date'])): ?>
+                                                <?= (!empty($current_disclosure_date) && $author['signature_signed_date'] > $current_disclosure_date)
+                                                    ? '<span class="badge bg-success">Current: '.$author['signature_signed_date'].'</span>'
+                                                    : '<span class="badge bg-danger">Expired: '.$author['signature_signed_date'].'</span>' ?>
+                                                <br>
+                                                Financial Disclosure:
+                                                <?= match($author['financial_relationship']) {
+                                                    'Yes' => 'I have held a financial relationship with an ineligible company within the past 24 months.',
+                                                    'No' => 'I have held NO financial relationship(s) with an ineligible company within the past 24 months.',
+                                                    default => ''
+                                                } ?>
+                                            <?php endif; ?>
+                                        </td>
+                                    </tr>
+                                    <tr>
                                         <td colspan="2"><br></td>
                                     </tr>
 

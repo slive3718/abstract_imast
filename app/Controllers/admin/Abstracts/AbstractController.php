@@ -9,11 +9,14 @@ use App\Models\AbstractCategoriesModel;
 use App\Models\AdminAbstractCommentModel;
 use App\Models\AdminAcceptanceModel;
 use App\Models\AdminIndividualPanelAcceptanceModel;
+use App\Models\AffiliationsModel;
+use App\Models\AttestationModel;
 use App\Models\AuthorAcceptanceModel;
 use App\Models\DivisionsModel;
 use App\Models\EmailLogsModel;
 use App\Models\EmailTemplatesModel;
 use App\Models\IndividualPanelUploads;
+use App\Models\OrganizationsModel;
 use App\Models\PanelistPaperSubModel;
 use App\Models\PaperAssignedReviewerModel;
 use App\Models\PaperAuthorsModel;
@@ -23,6 +26,7 @@ use App\Models\PaperUploadsModel;
 use App\Models\ReviewerPaperUploadsModel;
 use App\Models\RoomsModel;
 use App\Models\SiteSettingModel;
+use App\Models\UserOrganizationsModel;
 use App\Models\UsersProfileModel;
 use CodeIgniter\Controller;
 use App\Models\UserModel;
@@ -242,6 +246,7 @@ class AbstractController extends BaseController
         $PapersDeputyAcceptanceModel = (new PapersDeputyAcceptanceModel());
         $AdminAbstractCommentModel = new AdminAbstractCommentModel();
         $PaperTypeModel = new PaperTypeModel();
+        $SettingsModel = new SiteSettingModel();
 
         $papers = $PapersModel
             ->select('papers.*, paper_type.name as paper_type_name')
@@ -306,7 +311,8 @@ class AbstractController extends BaseController
             'admin_acceptance'=>$admin_acceptance,
             'adminComment' => $adminComment,
             'paper_reviewer_uploads'=>$paper_reviewer_uploads,
-            'paper_types' => $PaperTypeModel->asArray()->findAll()
+            'paper_types' => $PaperTypeModel->asArray()->findAll(),
+            'current_disclosure_date' => date( 'Y-m-d', strtotime($SettingsModel->where(['name' => 'disclosure_current_date'])->first()['value'])),
         ];
 
 
@@ -638,12 +644,21 @@ class AbstractController extends BaseController
 
     }
 
-    public function getUsers(){
-        $userModel = new UserModel();
-        $result  = ($userModel->Get());
+    public function getUsers($id = null){
+        if($id){
+            $userModel = new UserModel();
+            $users = $userModel->find($id);
+        }else{
+            $userModel = new UserModel();
+            $users = $userModel->findAll();
+        }
 
-        // print_r($result->getResult());
-        echo json_encode($result->getResult());
+        if($users){
+            $user['profile'] = (new UsersProfileModel())->where('author_id', $id)->first();
+            return json_encode(['status' => 200, 'message' => 'success', 'data' => $user]);
+        }else{
+            return json_encode(['status' => 404, 'message' => 'User not found']);
+        }
     }
 
     public function getUserById(){
@@ -1887,5 +1902,63 @@ class AbstractController extends BaseController
         return $this->response->setJson((new PaperTypeModel())->findAll());
     }
 
+    public function author_disclosure_preview($author_id = NULL)
+    {
+        $user_id = $author_id;
+        if (!$user_id) {
+            exit;
+        }
+
+        $UserModel = new UserModel();
+        $OrganizationsModel = new OrganizationsModel();
+        $AffiliationsModel = new AffiliationsModel();
+        $UserOrganizationsModel = new UserOrganizationsModel(); // New model to handle user affiliations
+
+        // Get author data
+        $author = $UserModel
+            ->join($this->shared_db_name.'.users_profile up', 'users.id = up.author_id', 'left')
+            ->where('users.id', $user_id)
+            ->asArray()
+            ->first();
+
+        $organizations = $OrganizationsModel->findAll();
+        $affiliations = $AffiliationsModel->findAll();
+
+        // Get saved affiliations for the user
+        $savedOrganizations = $UserOrganizationsModel
+            ->where('user_id', $user_id)
+            ->orderBy('id', 'asc') // <-- Order by insertion order
+            ->findAll();
+
+        // Map saved affiliations to an easy-to-use array
+        $selectedOrganizations = [];
+        if (!empty($savedOrganizations)) {
+            foreach ($savedOrganizations as $org) {
+                $selectedOrganizations[$org['id']] = [
+                    'organization_id' => $org['organization_id'], // Fixed ID to match organization_id
+                    'affiliations' => json_decode($org['affiliation'], true) ?? [],
+                    'custom_organization' => $org['custom_organization'] ?? null,
+                    'relationship_ended' => $org['relationship_ended'] ?? null
+                ];
+            }
+        }
+
+        $attestation = (new AttestationModel())->where('author_id', $user_id)->first();
+
+
+        $header_data = [
+            'title' => "Print/Preview"
+        ];
+
+        $data = [
+            'author' => $author,
+            'organizations' => $organizations,
+            'affiliations' => $affiliations,
+            'selectedOrganizations' => $selectedOrganizations,
+            'attestation' => !empty($attestation) ? $attestation : null,
+        ];
+
+        return view('admin/renders/author_disclosure_preview', $data);
+    }
 
 }
