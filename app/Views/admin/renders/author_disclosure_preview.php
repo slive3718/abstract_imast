@@ -11,17 +11,6 @@
 
                 <table class="table table-bordered align-middle">
                     <tbody>
-                    <!-- Signature -->
-                    <tr>
-                        <td class="fw-bold bg-light">Signature:</td>
-                        <td>
-                            <?= !empty($author['disclosure_signature'])
-                                ? htmlspecialchars($author['disclosure_signature'])
-                                : 'N/A'; ?>
-                            <?=  !empty($author['signature_signed_date']) ? '<span class="small fw-bolder ml-5 badge  bg-info"> Date: '.date('Y-m-d', strtotime($author['signature_signed_date'])).'</span>' : '' ?>
-                        </td>
-                        </tr>
-
                     <!-- Organizations and Affiliations -->
                     <tr>
                         <td class="fw-bold bg-light">Organizations and Affiliations:</td>
@@ -40,9 +29,10 @@
                                     $customOrganization = $org['custom_organization'] ?? 'N/A';
                                     ?>
                                     <p class="mb-1">
-                                        <strong>Name of Corporate Organization:</strong>
-                                        <?= htmlspecialchars($organizationName) ?>
-                                        <?= $organizationName == 'Other' ? ($customOrganization ? " ({$customOrganization})" : '') : '' ?>
+                                        <strong>
+                                            <?= htmlspecialchars($organizationName) ?>
+                                            <?= $organizationName == 'Other' ? ($customOrganization ? " ({$customOrganization})" : '') : '' ?>
+                                        </strong>
                                     </p>
 
                                     <?php if (!empty($org['affiliations'])): ?>
@@ -105,6 +95,40 @@
                         </td>
                     </tr>
 
+                    <!-- Signature -->
+                    <tr>
+                        <td class="fw-bold bg-light">Signature:</td>
+                        <td>
+                            <?php
+                            // Prepare variables safely
+                            $signature = htmlspecialchars($author['disclosure_signature'] ?? 'N/A');
+                            $signedDate = !empty($author['signature_signed_date'])
+                                ? date('Y-m-d', strtotime($author['signature_signed_date']))
+                                : null;
+
+                            // Determine status
+                            $isCurrent = false;
+                            if (!empty($currentDisclosureDate) && $signedDate) {
+                                $isCurrent = (strtotime($signedDate) > strtotime($currentDisclosureDate));
+                            }
+
+                            // Status badge
+                            $statusBadge = $isCurrent
+                                ? '<span class="badge bg-success p-2">Current</span>'
+                                : '<span class="badge bg-danger p-2">Outdated</span>';
+                            ?>
+
+                            <!-- Signature -->
+                            <?= $signature ?>
+                            <br>
+                            <!-- Date and Status (only show if date exists) -->
+                            <?php if ($signedDate): ?>
+                                <span class="">
+                                    <strong> <?= $statusBadge ?> </strong><?= htmlspecialchars($signedDate) ?>
+                                </span>
+                            <?php endif; ?>
+                        </td>
+                    </tr>
                     </tbody>
                 </table>
 

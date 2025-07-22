@@ -1913,6 +1913,7 @@ class AbstractController extends BaseController
         $OrganizationsModel = new OrganizationsModel();
         $AffiliationsModel = new AffiliationsModel();
         $UserOrganizationsModel = new UserOrganizationsModel(); // New model to handle user affiliations
+        $currentDisclosureDate = (new SiteSettingModel())->where('name', 'disclosure_current_date')->first()['value'] ?? [];
 
         // Get author data
         $author = $UserModel
@@ -1950,12 +1951,14 @@ class AbstractController extends BaseController
             'title' => "Print/Preview"
         ];
 
+
         $data = [
             'author' => $author,
             'organizations' => $organizations,
             'affiliations' => $affiliations,
             'selectedOrganizations' => $selectedOrganizations,
             'attestation' => !empty($attestation) ? $attestation : null,
+            'currentDisclosureDate' => date('Y-m-d', strtotime($currentDisclosureDate))
         ];
 
         return view('admin/renders/author_disclosure_preview', $data);
