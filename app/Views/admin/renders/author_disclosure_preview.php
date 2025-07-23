@@ -13,6 +13,14 @@
                     <tbody>
                     <!-- Organizations and Affiliations -->
                     <tr>
+                        <td>
+                            <span class="fw-bold bg-light">Completion Status: </span>
+                        </td>
+                        <td>
+                            <?= empty($author['financial_relationship']) ? '<span class="text-danger fw-bolder">Incomplete</span>' :  '<span class="text-success fw-bolder">Completed</span>' ?>
+                        </td>
+                    </tr>
+                    <tr>
                         <td class="fw-bold bg-light">Organizations and Affiliations:</td>
                         <td>
                             <?php if (!empty($selectedOrganizations)): ?>
@@ -135,7 +143,7 @@
                     <tr>
                         <td class="fw-bold bg-light" style="width: 220px;">Completed:</td>
                         <td>
-                            <?= (!empty($attestation['signature'])) ? '<span class="text-success"> Completed </span>': '<span class="text-danger"> Incomplete </span>'; ?>
+                            <?= (!empty($attestation['signature'])) ? '<span class="text-success fw-bolder"> Completed </span>': '<span class="text-danger fw-bolder"> Incomplete </span>'; ?>
                         </td>
                     </tr>
 
