@@ -62,7 +62,13 @@ class AbstractController extends BaseController
         $header_data = [
             'title' => ''
         ];
+
+        $currentDisclosureDate = (new SiteSettingModel())->where(['name' => 'disclosure_current_date'])->first()['value'] ?? '';
+        if(!empty($currentDisclosureDate))
+            $currentDisclosureDate = date('Y-m-d', strtotime($currentDisclosureDate));
+
         $data = [
+            'currentDisclosureDate' => $currentDisclosureDate
         ];
         return
             view('admin/common/header', $header_data).
@@ -759,8 +765,6 @@ class AbstractController extends BaseController
 
                 $paper->reviewers = $reviewer_array;
                 $paperType = $PaperTypesModel->where('id', ($paper->type_id))->first();
-//                $paperDivision = (new DivisionsModel())->where('id', ($paper->division_id))->first();
-//                $paper->division = ($paperDivision)?:[];
                 $paper->type = ($paperType)?:[];
                 $paper->types = $PaperTypesModel->findAll() ?:[];
 
@@ -771,8 +775,6 @@ class AbstractController extends BaseController
 //                 $abstract->rating = (new ReviewerModel())->whereIn('id', json_decode($abstract->population))->findAll();
                 $paper_array[] = $paper;
             }
-//            print_r(array_slice($paper_array, 150, 50));exit;
-            // print_r($abstract_array);exit;
 
         }catch(\Exception $e){
              return ($e->getMessage());

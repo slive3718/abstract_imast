@@ -76,6 +76,7 @@
 
 <script>
     let baseUrlAdmin = "<?=base_url().'admin/'?>";
+    let $currentDisclosureDate = `<?=$currentDisclosureDate ?? ''?>`
     $(function(){
 
         getAbstracts();
@@ -475,7 +476,7 @@
             paper.authors.forEach((author, i) => {
                 if(author.is_removed === '0') {
                     const institution = author.institution ? ` <i class='badge bg-info'>(${author.institution.name})</i>` : '';
-                    const copyrightStatus = (author.details && author.details.signature_signed_date !== null)
+                    const copyrightStatus = (author.details && author.details.signature_signed_date !== null && $currentDisclosureDate && (author.details.signature_signed_date > $currentDisclosureDate))
                         ? "<i class='ms-2 fas fa-check text-success'></i>"
                         : "<i class='ms-2 fas fa-times text-danger'></i>";
 
