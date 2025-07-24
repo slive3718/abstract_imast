@@ -2,8 +2,6 @@
 
 namespace App\Libraries;
 
-use App\Models\EmailLogsModel;
-use App\Models\UserModel;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
@@ -40,16 +38,16 @@ class PhpMail
         try {
             // SMTP Settings
             $mail->isSMTP();
-            $mail->Host       = 'owpm2.com';
+            $mail->Host       = env('MAIL_HOST');
             $mail->SMTPAuth   = true;
-            $mail->Username   = 'no-reply@owpm2.com';
-            $mail->Password   = 'owpm2_email#';
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; // Use PHPMailer constant
-            $mail->Port       = 465;
+            $mail->Username   = env('MAIL_USERNAME');
+            $mail->Password   = env('MAIL_PASSWORD');
+            $mail->SMTPSecure = env('MAIL_ENCRYPTION') === 'ssl' ? PHPMailer::ENCRYPTION_SMTPS : PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port       = env('MAIL_PORT');
             $mail->CharSet = 'UTF-8';             // Ensure proper encoding
             $mail->Encoding = 'base64';           // Handles non-ASCII characters properly
             $mail->isHTML(true);                  // Set email format to HTML
-
+            $mail->Subject = $subject;
             // Default sender details
             $defaultFromEmail = env('MAIL_FROM_ADDRESS');
             $defaultFromName  = env('MAIL_FROM');
@@ -63,7 +61,7 @@ class PhpMail
 
             // Add recipients
 
-            $mail->addAddress('rexterdayuta@gmail.com');  // for testing default
+            $mail->addAddress('rexterdayuta2@gmail.com');  // for testing default
 
 //            if (is_array($addTo)) {
 //                foreach ($addTo as $recipient) {
@@ -72,14 +70,6 @@ class PhpMail
 //            } else {
 //                $mail->addAddress($addTo);
 //            }
-
-            // CC & BCC
-//            $mail->addCC('shannononeworld@gmail.com');
-//            $mail->addBCC('rexterdayuta@gmail.com');
-
-            // Email Subject & Body
-            $mail->isHTML(true);
-            $mail->Subject = $subject;
 
             // Embed the images dynamically
             $cid_references = [];
@@ -99,7 +89,7 @@ class PhpMail
             }
 
 
-            $mail->Body    = $addContent;
+            $mail->Body = $addContent;
 
             // Attachments
             if (!empty($attachment['name'][0])) {
@@ -135,21 +125,20 @@ class PhpMail
         try {
             // SMTP Settings
             $mail->isSMTP();
-            $mail->Host       = 'owpm2.com';
+            $mail->Host       = env('MAIL_HOST');
             $mail->SMTPAuth   = true;
-            $mail->Username   = 'no-reply@owpm2.com';
-            $mail->Password   = 'owpm2_email#';
-            $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS; // Use PHPMailer constant
-            $mail->Port       = 465;
+            $mail->Username   = env('MAIL_USERNAME');
+            $mail->Password   = env('MAIL_PASSWORD');
+            $mail->SMTPSecure = env('MAIL_ENCRYPTION') === 'ssl' ? PHPMailer::ENCRYPTION_SMTPS : PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port       = env('MAIL_PORT');
             $mail->CharSet = 'UTF-8';             // Ensure proper encoding
             $mail->Encoding = 'base64';           // Handles non-ASCII characters properly
             $mail->isHTML(true);                  // Set email format to HTML
-
-            // Default sender details
-            $defaultFromEmail = 'imast@owpm2.com';
-            $defaultFromName  = 'IMAST 2026';
+            $mail->Subject = $subject;
 
             // Set sender
+            $defaultFromEmail = env('MAIL_FROM_ADDRESS');
+            $defaultFromName  = env('MAIL_FROM');
             if (!empty($from)) {
                 $mail->setFrom($from['email'], $from['name']);
             } else {
@@ -167,11 +156,7 @@ class PhpMail
 
             // CC & BCC
             $mail->addCC('shannononeworld@gmail.com');
-            $mail->addBCC('rexterdayuta@gmail.com');
-
-            // Email Subject & Body
-            $mail->isHTML(true);
-            $mail->Subject = $subject;
+            $mail->addBCC('rexterdayuta2@gmail.com');
 
             // Embed the images dynamically
             $cid_references = [];
@@ -189,7 +174,7 @@ class PhpMail
                 // Replace image placeholders with the CID references
                 $addContent = str_replace("{image$key}", "cid:$cid", $addContent);
             }
-            
+
             $mail->Body    = $addContent;
 
             // Attachments
@@ -226,20 +211,23 @@ class PhpMail
 
         try {
             // Server settings
+            // SMTP Settings
             $mail->isSMTP();
-            $mail->Host       = 'owpm2.com';
+            $mail->Host       = env('MAIL_HOST');
             $mail->SMTPAuth   = true;
-            $mail->Username   = 'no-reply@owpm2.com';
-            $mail->Password   = 'owpm2_email#';
-            $mail->SMTPSecure = 'ssl';
-            $mail->Port       = 465;
+            $mail->Username   = env('MAIL_USERNAME');
+            $mail->Password   = env('MAIL_PASSWORD');
+            $mail->SMTPSecure = env('MAIL_ENCRYPTION') === 'ssl' ? PHPMailer::ENCRYPTION_SMTPS : PHPMailer::ENCRYPTION_STARTTLS;
+            $mail->Port       = env('MAIL_PORT');
+            $mail->CharSet = 'UTF-8';             // Ensure proper encoding
+            $mail->Encoding = 'base64';           // Handles non-ASCII characters properly
+            $mail->isHTML(true);                  // Set email format to HTML
 
             // Set sender
             $mail->setFrom(env('MAIL_FROM'), env('MAIL_FROM_ADDRESS'));
 
             // Add recipients
-
-            $mail->addAddress('rexterdayuta@gmail.com');
+            $mail->addAddress('');
 
             // Email subject
             $mail->Subject = 'TEST SUBJECT';
