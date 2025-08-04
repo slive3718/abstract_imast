@@ -128,3 +128,4 @@ nb-configuration.xml
 /vendor/
 /node_modules/
 .env
+composer.lock
