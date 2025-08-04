@@ -69,11 +69,12 @@
                     if (data.length > 0) {
                         $.each(data, function(i, val) {
                             let manageBtn = '<button class="btn btn-success btn-sm manageSearchedUserBtn text-nowrap mb-2" type="paper" user_id="'+val.id+'" > Manage </button>'
+                            let deleteBtn = '<button class="btn btn-danger btn-sm deleteUserBtn text-nowrap mb-2 ms-2" data-user_id="'+val.id+'" > Delete </button>'
                             table.row.add([
                                 val.name,
                                 val.email,
                                 val.surname,
-                                manageBtn
+                                manageBtn + deleteBtn,
                             ]).draw(false);
                         });
                     } else {
@@ -127,6 +128,56 @@
                     $('#division_'+val).prop('checked', true)
                 })
             }, 'json')
+        })
+    })
+
+    $('#searchResultsTable').on('click', '.deleteUserBtn', function(){
+        let user_id = $(this).data('user_id');
+        alert(user_id);
+
+        swal.fire({
+            title: 'Are you sure?',
+            text: "You won't be able to revert this!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                $.ajax({
+                    url: base_url+'admin/user/delete',
+                    type: 'POST',
+                    data: {user_id: user_id},
+                    success: function(response) {
+                        if (response.status === 'success') {
+                            swal.fire(   {
+                                title: 'Deleted!',
+                                text: response.message,
+                                icon: 'success'
+                            }).then((result)=>{
+                                if (result.isConfirmed) {
+                                    $('.doSearchBtn').click();
+                                }
+                            });
+                            // Optionally, refresh the search results
+                        } else {
+                            swal.fire(
+                                'Error!',
+                                response.message,
+                                'error'
+                            );
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        swal.fire(
+                            'Error!',
+                            'An error occurred while deleting the user.',
+                            'error'
+                        );
+                    }
+                });
+            }
         })
     })
 

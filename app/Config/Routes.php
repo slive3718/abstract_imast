@@ -37,9 +37,7 @@ $routes->group('admin', ['filter' => 'authGuard:admin'],  function ($routes) {
     $routes->get('logout', 'admin\Abstracts\AdminLogin::logout/$1');
     $routes->get('papers_list', 'admin\Abstracts\AbstractController::papers_list');
     $routes->get('panels_list', 'admin\Abstracts\AbstractController::panels_list');
-    $routes->get('getUsers/(:any)?', 'admin\Abstracts\AbstractController::getUsers/$1');
     $routes->get('getAllPanels', 'admin\Abstracts\AbstractController::getAllPanels');
-    $routes->get('assign_reviewer_view/(:any)', 'admin\Abstracts\AbstractController::assign_reviewer_view/$1');
     $routes->post('delete_abstract', 'admin\Abstracts\AbstractController::delete_abstract/$1');
     $routes->get('reviewer_list', 'admin\Abstracts\AbstractController::reviewer_list');
     $routes->get('getReviewerList', 'admin\Abstracts\AbstractController::getReviewerList');
@@ -47,6 +45,7 @@ $routes->group('admin', ['filter' => 'authGuard:admin'],  function ($routes) {
     $routes->get('view_abstract/(:any)', 'admin\Abstracts\AbstractController::view_abstract/$1');
     $routes->get('author_disclosure_preview/(:num)?', 'admin\Abstracts\AbstractController::author_disclosure_preview/$1');
 
+    $routes->post('user/delete', 'admin\UserManagerController::delete');
     $routes->post('getUserById', 'admin\Abstracts\AbstractController::getUserById');
     $routes->post('getAllPapers', 'admin\Abstracts\AbstractController::getAllPapers');
     $routes->post('getAllPanels', 'admin\Abstracts\AbstractController::getAllPanels');

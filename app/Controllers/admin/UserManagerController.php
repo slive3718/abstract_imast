@@ -652,4 +652,42 @@ class UserManagerController extends Controller
             (new UsersProfileModel())->where('author_id', $userId)->set($profileFields)->update();
     }
 
+    public function delete(){
+        $userId = $this->request->getPost('user_id');
+
+        if (empty($userId)) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'errors' => ['User ID is required for deletion!'],
+            ]);
+        }
+
+        try {
+            $this->db->transStart();
+            // Delete user
+            (new UsersProfileModel())->where('author_id', $userId)->delete();
+            (new UserModel())->delete($userId);
+
+            $this->db->transComplete();
+
+            if ($this->db->transStatus() === false) {
+                return $this->response->setJSON([
+                    'status' => 'error',
+                    'errors' => ['Failed to delete user!'],
+                ]);
+            }
+
+            return $this->response->setJSON([
+                'status' => 'success',
+                'message' => 'User Deleted!',
+            ]);
+        } catch (\Exception $e) {
+            log_message('error', 'Error deleting user: ' . $e->getMessage());
+            return $this->response->setJSON([
+                'status' => 'error',
+                'errors' => ['An unexpected error occurred. Please try again.'],
+            ]);
+        }
+    }
+
 }

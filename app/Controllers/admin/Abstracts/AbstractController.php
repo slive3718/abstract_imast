@@ -1006,13 +1006,12 @@ class AbstractController extends BaseController
  
     public function getReviewerList(){
        $UsersModel = (new UserModel());
-       $UsersProfileModelTable = (new UsersProfileModel())->getTable();
         $UserDivisionTable = (new DivisionsModel());
        try{
            $reviewer_array = array();
            $reviewers = $UsersModel
                ->select('*, users.id as user_id')
-               ->join($UsersProfileModelTable. ' as profile', 'users.id = profile.author_id', 'left')
+               ->join('users_profile profile', 'users.id = profile.author_id', 'left')
                ->where('is_deputy_reviewer', 1)
                ->orWhere('is_regular_reviewer', 1)
                ->findAll();

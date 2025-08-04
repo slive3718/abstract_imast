@@ -82,7 +82,7 @@
         getAbstracts();
         
 
-        $("#abstractTableBody").on('click', '#assignReviewerBtn', function(){
+        $("#abstractTableBody").on('click', '.assignReviewerBtn', function(){
             let paper_id = $(this).attr('abstract_id');
             let divisionName = $(this).attr('divisionName');
             let reviewers_reviewed = $(this).attr('reviewers_reviewed')

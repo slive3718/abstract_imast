@@ -8,28 +8,56 @@ class UserModel extends BaseModel
     protected $DBGroup = 'shared';
     protected $table = 'users';
     protected $primaryKey = 'id';
-    protected $allowedFields = [
-        'email',
-        'name',
-        'middle_name',
-        'surname',
-        'prefix',
-        'suffix',
-        'password',
-        'username',
-        'is_deputy_reviewer',
-        'is_regular_reviewer',
-        'is_session_moderator',
-        'is_study_group'
-    ];
-    // protected $allowedFields = ['title', 'description'];
+    protected $allowedFields;
+
+    protected $useAutoIncrement = true;
+
+    protected $returnType     = 'array';
+    protected $useSoftDeletes = true;
+
+
+    protected bool $allowEmptyInserts = false;
+    protected bool $updateOnlyChanged = true;
+
+    // Dates
+    protected $useTimestamps = false;
+    protected $dateFormat    = 'datetime';
+    protected $createdField  = 'created_at';
+    protected $updatedField  = 'updated_at';
+    protected $deletedField  = 'deleted_at';
+
+    // Validation
+    protected $validationRules      = [];
+    protected $validationMessages   = [];
+    protected $skipValidation       = false;
+    protected $cleanValidationRules = true;
+
+    // Callbacks
+    protected $allowCallbacks = true;
+    protected $beforeInsert   = [];
+    protected $afterInsert    = [];
+    protected $beforeUpdate   = [];
+    protected $afterUpdate    = [];
+    protected $beforeFind     = ['excludeDeleted'];
+    protected $afterFind      = [];
+    protected $beforeDelete   = [];
+    protected $afterDelete    = [];
+
 
 
     public function __construct()
     {
         parent::__construct();
         $this->db = \Config\Database::connect('shared');
+        $this->allowedFields = $this->db->getFieldNames($this->table);
     }
+
+     protected function excludeDeleted(array $data)
+     {
+         $this->builder()->where($this->table . '.deleted_at', null);
+         return $data;
+     }
+
 
     public function setDBConnection($connection)
     {
@@ -37,33 +65,6 @@ class UserModel extends BaseModel
         return $this;
     }
 
-
-    public function Get()
-    {
-    
-       try {
-            return $this->findAll();
-        } catch (\CodeIgniter\Database\Exceptions\DatabaseException $e) {
-            // Log the error or display an error message
-            $error = json_encode('Database error: ' . $e->getMessage());
-            return $error;
-        }
-    }
-
-    public function Add($data){
-        try {
-            $this->insert($data);
-            if ($this->affectedRows() > 0) {
-                return true;
-            } else {
-                return false;
-            }
-        } catch (\Exception $e) {
-            // Handle the exception here
-            return json_encode(array('error'=>$e->getMessage()));
-            
-        }
-    }
 
     function validateUser($post){
         // return $data;
