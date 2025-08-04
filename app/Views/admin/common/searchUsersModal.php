@@ -133,7 +133,6 @@
 
     $('#searchResultsTable').on('click', '.deleteUserBtn', function(){
         let user_id = $(this).data('user_id');
-        alert(user_id);
 
         swal.fire({
             title: 'Are you sure?',
