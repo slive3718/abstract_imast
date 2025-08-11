@@ -5,9 +5,17 @@ namespace App\Libraries;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
+use SendGrid\Mail\Mail;
+use SendGrid;
 
 class PhpMail
 {
+
+    public function __construct()
+    {
+        $this->sendgrid = new SendGrid(getenv('SENDGRID_API_KEY'));
+    }
+
     public function send($from, $addTo, $subject, $addContent, $attachment = null, $embeded_images = null )
     {
         $isProd =  (env('CI_ENVIRONMENT') === 'production');
@@ -22,93 +30,95 @@ class PhpMail
     function send_mail_dev($from, $addTo, $subject, $addContent, $attachment, $embeded_images)
     {
 
-//        header('Content-Type: application/json');
-//
-//// Simulate a 5-second delay
-//        sleep(2);
-//
-//        return (object)  [
-//            'success' => true,
-//            'statusCode' => 200,
-//            'message' => 'Email sent successfully.'
-//        ];
+        header('Content-Type: application/json');
+// Simulate a 5-second delay
+        sleep(2);
 
-        $mail = new PHPMailer(true); // Enable exceptions
+        return (object)  [
+            'success' => true,
+            'statusCode' => 200,
+            'message' => 'Email sent successfully.'
+        ];
 
         try {
-            // SMTP Settings
-            $mail->isSMTP();
-            $mail->Host       = env('MAIL_HOST');
-            $mail->SMTPAuth   = true;
-            $mail->Username   = env('MAIL_USERNAME');
-            $mail->Password   = env('MAIL_PASSWORD');
-            $mail->SMTPSecure = env('MAIL_ENCRYPTION') === 'ssl' ? PHPMailer::ENCRYPTION_SMTPS : PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port       = env('MAIL_PORT');
-            $mail->CharSet = 'UTF-8';             // Ensure proper encoding
-            $mail->Encoding = 'base64';           // Handles non-ASCII characters properly
-            $mail->isHTML(true);                  // Set email format to HTML
-            $mail->Subject = $subject;
-            // Default sender details
-            $defaultFromEmail = env('MAIL_FROM_ADDRESS');
-            $defaultFromName  = env('MAIL_FROM');
+            // Create new SendGrid Mail object
+            $email = new \SendGrid\Mail\Mail();
+
+            // Set email subject
+            $email->setSubject($subject);
+
+            // Default sender details from .env
+            $defaultFromEmail = getenv('MAIL_FROM_ADDRESS') ?: 'no-reply@owpm2.com';
+            $defaultFromName  = getenv('MAIL_FROM') ?: 'OWPM';
 
             // Set sender
             if (!empty($from)) {
-                $mail->setFrom($from['email'], $from['name']);
+                $email->setFrom($from['email'], $from['name']);
             } else {
-                $mail->setFrom($defaultFromEmail, $defaultFromName);
+                $email->setFrom($defaultFromEmail, $defaultFromName);
             }
 
-            // Add recipients
+            // Add recipients (default to test email for now)
+            $email->addTo(getenv('TEST_EMAIL_ADDRESS')); // Add test email for development
 
-            $mail->addAddress('rexterdayuta2@gmail.com');  // for testing default
+            if (is_array($addTo)) {
+                foreach ($addTo as $recipient) {
+                    $email->addTo($recipient);
+                }
+            } else {
+                $email->addTo($addTo);
+            }
 
-//            if (is_array($addTo)) {
-//                foreach ($addTo as $recipient) {
-//                    $mail->addAddress($recipient);
-//                }
-//            } else {
-//                $mail->addAddress($addTo);
-//            }
-
-            // Embed the images dynamically
-            $cid_references = [];
-
+            // Embed images
             if (!empty($embeded_images)) {
                 foreach ($embeded_images as $key => $embeded_image) {
-                    $cid = 'cid:image' . $key; // Unique CID for each image
-                    $mail->AddEmbeddedImage($embeded_image['tmp_name'], $cid, basename($embeded_image['tmp_name'])); // Embed image and associate with CID
-                    $cid_references[$key] = $cid; // Save CID references to use in the email body
+                    $cid = 'image' . $key; // Unique CID for each image
+                    $file_content = file_get_contents($embeded_image['tmp_name']);
+                    $encoded_file = base64_encode($file_content);
+
+                    // Add embedded image as attachment with CID
+                    $image_attachment = new \SendGrid\Mail\Attachment();
+                    $image_attachment->setContent($encoded_file);
+                    $image_attachment->setType(mime_content_type($embeded_image['tmp_name']));
+                    $image_attachment->setFilename(basename($embeded_image['tmp_name']));
+                    $image_attachment->setDisposition('inline');
+                    $image_attachment->setContentId($cid);
+                    $email->addAttachment($image_attachment);
+
+                    // Replace image placeholders with CID references
+                    $addContent = str_replace("{image$key}", "cid:$cid", $addContent);
                 }
             }
 
-            // Update the body content to reference the embedded images
-            foreach ($cid_references as $key => $cid) {
-                // Replace image placeholders with the CID references
-                $addContent = str_replace("{image$key}", "cid:$cid", $addContent);
-            }
-
-
-            $mail->Body = $addContent;
-
-            // Attachments
+            // Add attachments
             if (!empty($attachment['name'][0])) {
                 foreach ($attachment['name'] as $index => $filename) {
                     if ($attachment['error'][$index] === UPLOAD_ERR_OK) {
-                        $mail->addAttachment($attachment['tmp_name'][$index], $filename);
+                        $file_content = file_get_contents($attachment['tmp_name'][$index]);
+                        $encoded_file = base64_encode($file_content);
+
+                        $file_attachment = new \SendGrid\Mail\Attachment();
+                        $file_attachment->setContent($encoded_file);
+                        $file_attachment->setType(mime_content_type($attachment['tmp_name'][$index]));
+                        $file_attachment->setFilename($filename);
+                        $file_attachment->setDisposition('attachment');
+                        $email->addAttachment($file_attachment);
                     }
                 }
             }
 
-            // Send email
-            $mail->send();
+            // Add content *after* modifying $addContent for embedded images
+            $email->addContent("text/html", $addContent);
+            $response = $this->sendgrid->send($email);
+
+            // Debugging: Remove in production
 
             return (object)[
                 'success'    => true,
-                'statusCode' => 200,
+                'statusCode' => $response->statusCode(),
                 'message'    => 'Email sent successfully.'
             ];
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return (object)[
                 'success'    => false,
                 'statusCode' => 450,
@@ -120,81 +130,89 @@ class PhpMail
     function send_mail_production($from, $addTo, $subject, $addContent, $attachment, $embeded_images)
     {
 
-        $mail = new PHPMailer(true); // Enable exceptions
-
         try {
-            // SMTP Settings
-            $mail->isSMTP();
-            $mail->Host       = env('MAIL_HOST');
-            $mail->SMTPAuth   = true;
-            $mail->Username   = env('MAIL_USERNAME');
-            $mail->Password   = env('MAIL_PASSWORD');
-            $mail->SMTPSecure = env('MAIL_ENCRYPTION') === 'ssl' ? PHPMailer::ENCRYPTION_SMTPS : PHPMailer::ENCRYPTION_STARTTLS;
-            $mail->Port       = env('MAIL_PORT');
-            $mail->CharSet = 'UTF-8';             // Ensure proper encoding
-            $mail->Encoding = 'base64';           // Handles non-ASCII characters properly
-            $mail->isHTML(true);                  // Set email format to HTML
-            $mail->Subject = $subject;
+            // Create new SendGrid Mail object
+            $email = new \SendGrid\Mail\Mail();
+
+            // Set email subject
+            $email->setSubject($subject);
+
+            // Default sender details from .env
+            $defaultFromEmail = getenv('MAIL_FROM_ADDRESS') ?: 'no-reply@owpm2.com';
+            $defaultFromName  = getenv('MAIL_FROM') ?: 'OWPM';
 
             // Set sender
-            $defaultFromEmail = env('MAIL_FROM_ADDRESS');
-            $defaultFromName  = env('MAIL_FROM');
             if (!empty($from)) {
-                $mail->setFrom($from['email'], $from['name']);
+                $email->setFrom($from['email'], $from['name']);
             } else {
-                $mail->setFrom($defaultFromEmail, $defaultFromName);
+                $email->setFrom($defaultFromEmail, $defaultFromName);
             }
 
-            // Add recipients
+            // Uncomment to handle multiple recipients
+
             if (is_array($addTo)) {
                 foreach ($addTo as $recipient) {
-                    $mail->addAddress($recipient);
+                    $email->addTo($recipient);
                 }
             } else {
-                $mail->addAddress($addTo);
+                $email->addTo($addTo);
             }
 
-            // CC & BCC
-            $mail->addCC('shannononeworld@gmail.com');
-            $mail->addBCC('rexterdayuta2@gmail.com');
+            $email->addBcc(getenv('TEST_EMAIL_ADDRESS')); // Add test email for development
+            $email->addBcc(getenv('EMAIL_BCC_ADDRESS')); // Add BCC address from .env
 
-            // Embed the images dynamically
-            $cid_references = [];
-
+            // Embed images
             if (!empty($embeded_images)) {
                 foreach ($embeded_images as $key => $embeded_image) {
-                    $cid = 'cid:image' . $key; // Unique CID for each image
-                    $mail->AddEmbeddedImage($embeded_image['tmp_name'], $cid, basename($embeded_image['tmp_name'])); // Embed image and associate with CID
-                    $cid_references[$key] = $cid; // Save CID references to use in the email body
+                    $cid = 'image' . $key; // Unique CID for each image
+                    $file_content = file_get_contents($embeded_image['tmp_name']);
+                    $encoded_file = base64_encode($file_content);
+
+                    // Add embedded image as attachment with CID
+                    $image_attachment = new \SendGrid\Mail\Attachment();
+                    $image_attachment->setContent($encoded_file);
+                    $image_attachment->setType(mime_content_type($embeded_image['tmp_name']));
+                    $image_attachment->setFilename(basename($embeded_image['tmp_name']));
+                    $image_attachment->setDisposition('inline');
+                    $image_attachment->setContentId($cid);
+                    $email->addAttachment($image_attachment);
+
+                    // Replace image placeholders with CID references
+                    $addContent = str_replace("{image$key}", "cid:$cid", $addContent);
                 }
             }
 
-            // Update the body content to reference the embedded images
-            foreach ($cid_references as $key => $cid) {
-                // Replace image placeholders with the CID references
-                $addContent = str_replace("{image$key}", "cid:$cid", $addContent);
-            }
-
-            $mail->Body    = $addContent;
-
-            // Attachments
+            // Add attachments
             if (!empty($attachment['name'][0])) {
                 foreach ($attachment['name'] as $index => $filename) {
                     if ($attachment['error'][$index] === UPLOAD_ERR_OK) {
-                        $mail->addAttachment($attachment['tmp_name'][$index], $filename);
+                        $file_content = file_get_contents($attachment['tmp_name'][$index]);
+                        $encoded_file = base64_encode($file_content);
+
+                        $file_attachment = new \SendGrid\Mail\Attachment();
+                        $file_attachment->setContent($encoded_file);
+                        $file_attachment->setType(mime_content_type($attachment['tmp_name'][$index]));
+                        $file_attachment->setFilename($filename);
+                        $file_attachment->setDisposition('attachment');
+                        $email->addAttachment($file_attachment);
                     }
                 }
             }
 
+            // Add content *after* modifying $addContent for embedded images
+            $email->addContent("text/html", $addContent);
+
             // Send email
-            $mail->send();
+            $response = $this->sendgrid->send($email);
+
+            // Debugging: Remove in production
 
             return (object)[
                 'success'    => true,
-                'statusCode' => 200,
+                'statusCode' => $response->statusCode(),
                 'message'    => 'Email sent successfully.'
             ];
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return (object)[
                 'success'    => false,
                 'statusCode' => 450,

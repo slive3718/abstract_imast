@@ -174,6 +174,51 @@ class Account extends BaseController
 
         }else{
 
+            // Check for POST method
+            if ($this->request->getMethod() != 'post') {
+                return $this->response->setStatusCode(405, "{$this->request->getMethod(true)} method is not allowed");
+            }
+
+            // Initialize validation service
+            $validation = \Config\Services::validation();
+
+            // Set validation rules
+            $rules = [
+                'email' => 'required|valid_email|max_length[100]',
+                'password_reset_recaptcha' => 'required'
+            ];
+
+            // Custom error messages
+            $messages = [
+                'email' => [
+                    'required' => 'Email is required',
+                    'valid_email' => 'Please provide a valid email address',
+                    'max_length' => 'Email cannot exceed 100 characters'
+                ],
+                'password_reset_recaptcha' => [
+                    'required' => 'reCAPTCHA verification is required'
+                ]
+            ];
+
+            // Run validation
+            if (!$this->validate($rules, $messages)) {
+                return $this->response->setJSON([
+                    'status' => 400,
+                    'message' => 'Validation failed',
+                    'errors' => $validation->getErrors()
+                ]);
+            }
+
+
+            // Verify reCAPTCHA
+            if (!validate_recaptcha($this->request->getPost('password_reset_recaptcha'), 'password_reset')) {
+                return $this->response->setJSON([
+                    'status' => 400,
+                    'message' => 'reCAPTCHA verification failed. Please reload this page and try again.'
+                ]);
+            }
+
+
             $random_password = random_string('alnum', 6);
             $UsersModel
                 ->set('password', password_hash($random_password, PASSWORD_DEFAULT))
@@ -184,12 +229,14 @@ class Account extends BaseController
 
             $message = 'Hi '.ucfirst($user['name']) .' '.ucfirst($user['surname']).', <br> We received a request to reset the password of your account. <br><br>
                     Your new password is: '.$random_password.'<br> <br> 
-                    You can update your password by logging into submission <a href="https://imast.owpm2.com"></a>imast.owpm2.com, and on the top corner menu, click on settings, then password settings. <br>
+                    You can update your password by logging into submission <a href="https://imast.owpm2.com"></a>https://imast.owpm2.com, and on the top corner menu, click on settings, then password settings. <br>
                     <p> If you  need further assistance, please contact <a href="support@owpm2.com">support@owpm2.com</a></p>';
 
-            $from['name']="IMAST 2026";
-            $from['email'] = "IMAST@owpm2.com";
-            if($mail->send($from, [$user['email']],  'IMAST 2026 Password Reset', $message)){
+            $from['name']= env("MAIL_FROM");
+            $from['email'] = env("MAIL_FROM_ADDRESS");
+
+            $mailResult = $mail->send($from, [$user['email']],  'IMAST Password Reset', $message);
+            if($mailResult->success){
                 $this->response->setStatusCode(200, 'success');
                 return (json_encode(['status'=> 200, 'message'=>"Password sent to email", 'data'=>'']));
             }

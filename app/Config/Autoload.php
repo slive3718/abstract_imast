@@ -85,4 +85,10 @@ class Autoload extends AutoloadConfig
      * @var array<int, string>
      */
     public $files = [];
+
+
+    public $helpers = [
+        // ... other helpers
+        'recaptcha', // Loads app/Helpers/recaptcha_helper.php
+    ];
 }

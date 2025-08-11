@@ -156,77 +156,17 @@
     </div>
 </div>
 
-
-<!-- User Info Modal -->
-<div class="modal fade" id="supportemail" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-md">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Support Request</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <div class="row">
-                    <div class="col-md-12">
-
-                        <div class="form-floating mt-2">
-                            <input type="text" class="form-control" id="fnameInput" placeholder="First name" autocomplete="name" >
-                            <label for="floatingInput">First Name<small class="text-danger">*</small></label>
-                        </div>
-                        <div class="form-floating mt-2">
-                            <input type="text" class="form-control" id="lnameInput" placeholder="Last Name" autocomplete="middle" >
-                            <label for="floatingInput">Last Name<small class="text-danger">*</small></label>
-                        </div>
-                        <div class="form-floating mt-2">
-                            <input type="text" class="form-control" id="semailInput" placeholder="Email" autocomplete="middle" >
-                            <label for="floatingInput">Email<small class="text-danger">*</small></label>
-                        </div>
-                        <div class="form-floating mt-2">
-                            <input type="text" class="form-control" id="abstractIDInput" placeholder="abstract_id" autocomplete="middle" >
-                            <label for="floatingInput">Abstract ID</label>
-                        </div>
-                        <div class="form-floating mt-2">
-                             <textarea class="form-control" style="height: 104px!important;" placeholder="Support Request" rows="5" id="support_messageInput"></textarea>
-                             <label for="floatingInput">Support Request<small class="text-danger">*</small></label>
-                        </div>
-                        <!-- <div class="form-floating mt-2">
-                         
-                          <select class="form-control" id="abstract_uploads">
-                             <option value="">Select Abstract</option> 
-                            <?php  
-                         
-                      //  foreach ($abstract_ids as $key => $value) 
-                    //    {
-                           ?>   
-                      
-                       //    <?php 
-
-
-                     //   } ?>
-                          </select>
-                          <label for="floatingInput">Select Abstract<small class="text-danger">*</small></label>
-                        </div> -->
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary sendsupport">Send Email</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-
-
-
 <div class="row mt-5">
     <div class="col-md-12 text-center mt-md-4" style="width: 80% !important; margin:auto">
         <img id="main-banner" src="<?=base_url()?>main_banner.png" class=" figure-img" alt="Main Banner" style="width: 100% !important;object-fit:" />
     </div>
     <hr />
 </div>
+
+<?= view('common/support_email_modal'); ?>
+<script src="<?=base_url('assets/js/support.js')?>"></script>
 <script>
+    let recaptchaSiteKey = `<?= config("Recaptcha")->siteKey ?>` ?? '';
     $(function(){
         let user = `<?=session('user_id')?>`
 
@@ -239,15 +179,6 @@
         $('#userInfoBtn').on('click', function(){
             $('#userInfoModal').modal('show')
             fillUserInfo();
-        })
-
-        $('#opensupport').on('click', function(){
-            $('#supportemail').modal('show')
-            // if(user){
-            //
-            // }
-            //
-            // fillUserInfo();
         })
 
         $('.updateMyPasswordBtn').on('click', function(){
@@ -334,69 +265,13 @@
             })
         })
 
-        $('.sendsupport').on('click', function(){
-            let fname = $('#fnameInput').val()
-            let lname = $('#lnameInput').val()
-            let email = $('#semailInput').val()
-            let abstract_id = $('#abstractIDInput').val()
-            let message = $('#support_messageInput').val()
-
-            if(fname == ''){
-                toastr.warning('First Name cannot be empty')
-                return false;
-            }
-
-            if(lname == ''){
-                toastr.warning('Last Name cannot be empty')
-                return false;
-            }
-
-            if(email == ''){
-                toastr.warning('Email cannot be empty')
-                return false;
-            }
-
-            if(message == ''){
-                toastr.warning('Message Name cannot be empty')
-                return false;
-            }
-            $.ajax({
-                url:base_url+'/user/send_support_mail',
-                method: "POST",
-                dataType: "json",
-                data:{
-                  'abstract_id':abstract_id,
-                  'fname': fname,
-                  'lname': lname,
-                  'email': email,
-                  'message':message
-                },
-                success: function(response){
-                    console.log(response);
-                    if(response.status == 200){
-                        swal.fire(
-                            'success',
-                            'Support message successfully sent',
-                            'success'
-                        )
-                        $('#supportemail').modal('hide')
-                    }else{
-                        swal.fire(
-                            'error',
-                            'Something went wrong',
-                            'error'
-                        )
-                    }
-                }
-            })
-        })
-
         $('#logoutBtn').on('click', function(e){
 
             e.preventDefault();
             window.location.href = base_url+'/logout';
         })
     })
+
     function showPassword(input_id, span_class){
         if($('#'+input_id).attr('type')=='text'){
             $('#'+input_id).attr('type', 'password')
