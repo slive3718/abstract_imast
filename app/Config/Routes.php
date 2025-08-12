@@ -299,7 +299,7 @@ $routes->get('login/backdoor', 'Login::backdoor/$1');
 $routes->get('logout', 'Login::logout/$1');
 $routes->get('account', 'Account::index/$1');
 $routes->post('register', 'Account::register');
-$routes->post('user/send_support_mail', 'User::send_support_mail');
+$routes->post('email/send_support_mail', 'EmailController::send_support_mail');
 $routes->post('account/reset_password', 'Account::reset_password');
 
 $routes->get('tracksJson', 'SessionTracks::getJson');
