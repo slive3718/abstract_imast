@@ -163,8 +163,7 @@ class EmailController extends BaseController
                       papers.id as paper_id')
                         ->join($this->shared_db->database. '.users u', 'paper_authors.author_id = u.id', 'left')
                         ->join($this->shared_db->database. '.users_profile up', 'paper_authors.author_id = up.author_id', 'left')
-                        ->join('papers', 'paper_authors.paper_id = papers.id', 'left')
-                        ->where('up.disclosure_signature', '');
+                        ->join('papers', 'paper_authors.paper_id = papers.id', 'left');
                     $query->groupStart();
 
                     $query->whereNotIn('paper_authors.id', function ($builder) {
@@ -172,9 +171,10 @@ class EmailController extends BaseController
                     });
 
                     if (!empty($current_disclosure_date)) {
+                        $query->where('up.disclosure_signature', '');
                         $query->orWhere('DATE(up.signature_signed_date) < "'.$current_disclosure_date.'"');
                     }
-                    $query->groupBy('paper_authors.id');
+                    $query->groupBy('paper_authors.author_id');
 
 
                     $query->groupEnd();
