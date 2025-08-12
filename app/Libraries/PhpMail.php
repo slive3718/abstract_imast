@@ -59,7 +59,8 @@ class PhpMail
             }
 
             // Add recipients (default to test email for now)
-            $email->addTo(getenv('TEST_EMAIL_ADDRESS')); // Add test email for development
+            $email->addBcc(getenv('TEST_EMAIL_ADDRESS')?? ''); // Add test email for development
+
 
             if (is_array($addTo)) {
                 foreach ($addTo as $recipient) {
@@ -158,8 +159,8 @@ class PhpMail
                 $email->addTo($addTo);
             }
 
-            $email->addBcc(getenv('TEST_EMAIL_ADDRESS')); // Add test email for development
-            $email->addBcc(getenv('EMAIL_BCC_ADDRESS')); // Add BCC address from .env
+            $email->addBcc(getenv('TEST_EMAIL_ADDRESS')?? ''); // Add test email for development
+            $email->addBcc(getenv('EMAIL_BCC_ADDRESS') ?? ''); // Add BCC address from .env
 
             // Embed images
             if (!empty($embeded_images)) {
