@@ -48,7 +48,7 @@ document.addEventListener('DOMContentLoaded', function() {
         })
     .then(response => response.json())
             .then(data => {
-                if (data.status === 200) {
+                if (data.status === 200 || data.status === 202) {
                     // Success
                     const modal = bootstrap.Modal.getInstance(document.getElementById('supportemail'));
                     modal.hide();
