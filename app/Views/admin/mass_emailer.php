@@ -98,12 +98,12 @@
 
                     <div data-for="paper">
                         <input type="checkbox" class="recipientDesignation" id="all_authors" name="recipientDesignation" value="all_authors">
-                        <label for="all_authors">Authors - All</label>
+                        <label for="all_authors">Paper Authors - All</label>
                     </div>
 
                     <div data-for="paper">
                         <input type="checkbox" class="recipientDesignation" id="all_authors_inc_disclosure" name="recipientDesignation" value="all_authors_inc_disclosure">
-                        <label for="all_authors_inc_disclosure">Authors - Incomplete Disclosures</label>
+                        <label for="all_authors_inc_disclosure">Paper Authors - Incomplete Disclosures</label>
                     </div>
 
                     <!--       PANEL Start             -->

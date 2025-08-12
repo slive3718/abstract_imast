@@ -151,46 +151,51 @@ class EmailController extends BaseController
 
                 }
 
-                if (in_array('all_authors_inc_disclosure', $filter)) {
+                elseif(in_array('all_authors_inc_disclosure', $filter)) {
                     $PaperAuthorModel = new PaperAuthorsModel();
                     $builder = $PaperAuthorModel->builder();
                     $current_disclosure_date = (new SiteSettingModel())->where('name', 'disclosure_current_date')->first()['value'] ?? null;
                     $current_disclosure_date = date('Y-m-d H:i:s', strtotime($current_disclosure_date));
                     $query = $builder->select('paper_authors.author_id as author_id, 
-                          paper_authors.is_copyright_agreement_accepted, 
-                          u.name, 
-                          u.surname, 
-                          papers.id as paper_id')
+                      paper_authors.is_copyright_agreement_accepted, 
+                      u.name, 
+                      u.surname, 
+                      papers.id as paper_id')
                         ->join($this->shared_db->database. '.users u', 'paper_authors.author_id = u.id', 'left')
                         ->join($this->shared_db->database. '.users_profile up', 'paper_authors.author_id = up.author_id', 'left')
                         ->join('papers', 'paper_authors.paper_id = papers.id', 'left')
                         ->where('up.disclosure_signature', '');
-                        if (!empty($current_disclosure_date)) {
-                            $query->orWhere('DATE(up.signature_signed_date) < "'.$current_disclosure_date.'"');
-                        }
+                    $query->groupStart();
+
                     $query->whereNotIn('paper_authors.id', function ($builder) {
-                            $builder->select('paper_author_id')->from('removed_paper_authors');
-                        });
+                        $builder->select('paper_author_id')->from('removed_paper_authors');
+                    });
 
-                        $query->groupBy('paper_authors.author_id')
-                        ->groupBy('papers.id'); // Changed to use the alias 'p' to match your join
+                    if (!empty($current_disclosure_date)) {
+                        $query->orWhere('DATE(up.signature_signed_date) < "'.$current_disclosure_date.'"');
+                    }
+                    $query->groupBy('paper_authors.id');
 
-                    $this->filterRecipientGroup($groupFilter, $query);
+
+                    $query->groupEnd();
+
+
+//                    $this->filterRecipientGroup($groupFilter, $query);
+
+
                     // Execute the query
                     $query = $builder->get();
 
 
                     // Fetch result as an associative array
                     $user_ids = $query->getResultArray();
-
                     // Add filter type to each user_id
-                    foreach ($user_ids as &$user_id) {
-                        $user_id = array_merge($user_id, ['filter' => 'all_authors_inc_disclosure']);
-                    }
+//                    foreach ($user_ids as &$user_id) {
+//                        $user_id = array_merge($user_id, ['filter' => 'all_authors_inc_disclosure']);
+//                    }
                     unset($user_id); // Break the reference with the last element
 
                     $filteredUsers = array_merge($filteredUsers, $user_ids);
-
                 }
 
                 $filterConditions = [
