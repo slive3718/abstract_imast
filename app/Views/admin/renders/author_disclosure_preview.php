@@ -9,6 +9,18 @@
                     Disclosure Information for <?= ucfirst($author['name']) ?> <?= ucfirst($author['surname']) ?>
                 </h5>
 
+                <?php
+                $isCurrent = false;
+                $statusClass = false;
+                $statusText = false;
+
+                if (!empty($author['signature_signed_date'])) {
+                    $signedDate = date('Y-m-d', strtotime($author['signature_signed_date']));
+                    $isCurrent = (!empty($currentDisclosureDate) && (strtotime($signedDate) > strtotime($currentDisclosureDate)));
+                    $statusClass = $isCurrent ? 'alert-success' : 'alert-danger';
+                    $statusText = $isCurrent ? 'Current' : 'Outdated';
+                }
+                ?>
                 <table class="table table-bordered align-middle">
                     <tbody>
                     <!-- Organizations and Affiliations -->
@@ -17,7 +29,7 @@
                             <span class="fw-bold bg-light">Completion Status: </span>
                         </td>
                         <td>
-                            <?= empty($author['financial_relationship']) ? '<span class="text-danger fw-bolder">Incomplete</span>' :  '<span class="text-success fw-bolder">Completed</span>' ?>
+                            <?= empty($author['financial_relationship'] && $isCurrent) ? '<span class="text-danger fw-bolder">Incomplete</span>' :  '<span class="text-success fw-bolder">Completed</span>' ?>
                         </td>
                     </tr>
                     <tr>
@@ -114,12 +126,6 @@
 
                     <!-- Date Row (only shown if date exists) -->
                     <?php if (!empty($author['signature_signed_date'])): ?>
-                        <?php
-                        $signedDate = date('Y-m-d', strtotime($author['signature_signed_date']));
-                        $isCurrent = (!empty($currentDisclosureDate) && (strtotime($signedDate) > strtotime($currentDisclosureDate)));
-                        $statusClass = $isCurrent ? 'alert-success' : 'alert-danger';
-                        $statusText = $isCurrent ? 'Current' : 'Outdated';
-                        ?>
                         <tr>
                             <td class="fw-bold bg-light">Signature Date:</td>
                             <td>
