@@ -1101,17 +1101,11 @@ class EmailController extends BaseController
 
     public function email_logs($unique_code){
 
-        
-        if(!$event){
-            return 'error';
-        }
-
         $header_data = [
-            'title' => $event->short_name
+            'title' => 'Email Logs'
         ];
 
         $data = [
-            'event'=> $event,
             'unique_code'=>$unique_code
         ];
         return
