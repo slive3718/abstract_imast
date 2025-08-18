@@ -525,7 +525,7 @@ class EmailController extends BaseController
                             $res = $paper->first();
                         } else {
                             $UsersModel->select('*, papers.title as title, papers.id as paper_id')
-                                ->join($PaperModel->getTable() . ' as papers', $UsersModel->getTable() . '.id = papers.user_id', 'left')
+                                ->join($this->default_db_name . '.papers', $UsersModel->getTable() . '.id = papers.user_id', 'left')
                                 ->join($this->shared_db_name  . '.users_profile as profile', $PaperModel->getTable() . '.user_id = profile.author_id', 'left')
                                 ->join($this->shared_db_name  . '.users as submitters', $PaperModel->getTable() . '.user_id = submitters.id', 'left'); // Use 'submitters' alias here
 
@@ -786,7 +786,7 @@ class EmailController extends BaseController
 
     function do_save_mail_log($result, $email_array, $post, $PaperTemplates, $unique_code, $emailCount){
         // Determine the email log status based on the mail result
-        $status = ($result->statusCode == 200) ? 'Success' : 'Failed';
+        $status = ($result->statusCode >= 200 && $result->statusCode < 300) ? 'Success' : 'Failed';
 
         $emailLogsModel = new EmailLogsModel();
 
