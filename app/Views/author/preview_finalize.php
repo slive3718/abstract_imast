@@ -171,9 +171,9 @@
 
                     <!-- Finalize and Print Buttons -->
                     <div class="mt-4 mb-5">
-<!--                        <button class="btn btn-primary finalizeAuthorDisclosureBtn me-2">-->
-<!--                            Finalize Disclosure-->
-<!--                        </button>-->
+                        <button class="btn btn-primary finalizeAuthorDisclosureBtn me-2">
+                            Finalize Disclosure
+                        </button>
                         <button class="btn btn-primary" onclick="printDiv('printSection')">
                             Print
                         </button>
@@ -183,7 +183,7 @@
         </div>
     </div>
 </main>
-
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 <!-- JavaScript -->
 <script>
     $(function () {
@@ -200,23 +200,66 @@
 
             if (hasUnchecked) return;
 
-            $.ajax({
-                url: '<?= base_url('/author/confirm_copyright_ajax') ?>',
-                method: 'POST',
-                data: {},
-                success: function (response) {
-                    if (response.status === 'success') {
-                        alert('Disclosure finalized successfully!');
-                        window.location.reload();
-                    } else {
-                        alert(response.message || 'An error occurred during finalization.');
-                    }
-                },
-                error: function (xhr) {
-                    console.error('Error:', xhr.responseText);
-                    alert('A server error occurred.');
-                }
+            const htmlContent = document.getElementById('printSection').innerHTML;
+
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = htmlContent;
+
+            const editButtons = tempDiv.querySelectorAll('a');
+            editButtons.forEach(button => {
+                button.remove()
             });
+
+            const buttons = tempDiv.querySelectorAll('button');
+            buttons.forEach(button => {
+                button.remove()
+            });
+
+            const updatedHtmlContent = tempDiv.innerHTML;
+
+            sendDivAsImage('printSection').then(function(response){
+                $.ajax({
+                    url: `<?= base_url('/author/confirm_copyright_ajax') ?>`,
+                    headers: {'X-Requested-With': 'XMLHttpRequest'},
+                    data: {
+                        'html': updatedHtmlContent,
+                        'preview_image': response
+                    },
+                    method: "POST",
+                    dataType: "json",
+                    beforeSend: function() {
+                        Swal.fire({
+                            title: 'Please Wait !',
+                            html: 'Finalizing...',// add html attribute if you want or remove
+                            allowOutsideClick: false,
+                            onOpen: () => {
+                                Swal.showLoading()
+                            }
+                        });
+                    },
+                    success: function (response, status) {
+                        if (response.status == "200") {
+                            swal.fire({
+                                title:"Submitted",
+                                text: "Your submission has been finalized and a confirmation email has been sent out",
+                                type: "success",
+                                icon: "success",
+                                confirmButtonText: 'Ok',
+                            }).then((result)=> {
+                                if(result.isConfirmed){
+                                    window.location.href = base_url+'author/view_copyright';
+                                }
+                            });
+                        }else{
+                            Swal.fire(
+                                'Sorry',
+                                'Something went wrong, please contact administrator',
+                                'warning'
+                            )
+                        }
+                    }
+                });
+            })
         });
     });
 
@@ -233,6 +276,23 @@
         // Restore after printing
         document.body.innerHTML = originalContent;
         location.reload();
+    }
+
+    function sendDivAsImage(divId) {
+        const targetDiv = document.getElementById(divId);
+
+        // Hide edit buttons before capture
+        $(targetDiv).find('a:has(i.fas.fa-edit)').hide();
+
+        return html2canvas(targetDiv).then(canvas => {
+            // Show them back after capture
+            $(targetDiv).find('a:has(i.fas.fa-edit)').show();
+
+            let imageData = canvas.toDataURL('image/png');7
+            // <div id="preview-container" style="margin-top: 20px;"></div> // for testing preview imageData
+
+            return  imageData;
+        });
     }
 </script>
 

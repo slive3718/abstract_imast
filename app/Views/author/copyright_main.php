@@ -42,7 +42,7 @@
                             <a href="<?= base_url().'author/preview_finalize/'?>" class="btn btn-light border w-100 text-start d-flex align-items-center">
                                 <div class="bg-warning text-white px-3 py-2 fw-bold"><?= $stepNumber ++ ?></div>
                                 <div class="flex-grow-1 px-2">
-                                    <strong>Print/Preview</strong>
+                                    <strong>Print/Preview/Finalize</strong>
                                 </div>
                                 <div class="text-end">
                                 </div>

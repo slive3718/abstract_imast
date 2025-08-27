@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Libraries\MailGunEmail;
 use App\Libraries\PhpMail;
+use App\Models\AbstractEventsModel;
 use App\Models\AffiliationsModel;
 use App\Models\AttestationModel;
 use App\Models\Core\Api;
@@ -464,7 +465,7 @@ class Author extends BaseController
 
 
         $header_data = [
-            'title' => "Print/Preview"
+            'title' => "Print/Preview/Finalize"
         ];
 
         $data = [
@@ -491,70 +492,82 @@ class Author extends BaseController
 
         $UsersModel = (new UserModel());
         $author = $UsersModel->find(session('user_id'));
-        $PapersModel = (new PapersModel());
-        $papers = $PapersModel
-            ->select('users.name as submitter_name, users.surname as submitter_surname, papers.title as paper_title')
-            ->join($this->shared_db_name.'.users', 'papers.user_id = users.id')
-            ->find($post['paper_id']);
-
 
         $sendMail = new PhpMail();
         $MailTemplates = (new EmailTemplatesModel())->find(11);
 
         $email_body = $MailTemplates['email_body'];
-        $email_body = str_replace('##ABSTRACT_ID##', $post['paper_id'], $email_body);
-        $email_body = str_replace('##ABSTRACT_TITLE##', strip_tags($papers->paper_title), $email_body);
+//        $email_body = str_replace('##ABSTRACT_ID##', '', $email_body);
+//        $email_body = str_replace('##ABSTRACT_TITLE##', '', $email_body);
         $email_body = str_replace('##RECIPIENTS_FULL_NAME##', ucFirst($author['name']).' '.ucFirst($author['surname']), $email_body);
-        $email_body = str_replace('##SUBMITTER_NAME##', ucFirst($papers->submitter_name), $email_body);
-        $email_body = str_replace('##SUBMITTER_SURNAME##', ucFirst($papers->submitter_surname), $email_body);
+        $email_body = str_replace('##SUBMITTER_NAME##', ucFirst($author['name']), $email_body);
+        $email_body = str_replace('##SUBMITTER_SURNAME##', ucFirst($author['surname']), $email_body);
 
         $from = ['name'=> env('MAIL_FROM'), 'email'=> env('MAIL_FROM_ADDRESS')];
         $addTo = [$author['email']];
         $subject = $MailTemplates['email_subject'];
         $addContent = $email_body;
 
+        $embeded_images = [];
+        if (!empty($_POST['preview_image'])) {
+            $imageData = $_POST['preview_image'];
+
+            // Decode the base64 string
+            $imageData = str_replace('data:image/png;base64,', '', $imageData);
+            $imageData = str_replace(' ', '+', $imageData);
+            $decodedImage = base64_decode($imageData);
+
+            // Create a temporary file
+            $tempFile = tempnam(WRITEPATH, 'canvas_');
+            file_put_contents($tempFile, $decodedImage);
+
+            // Add to $attachments
+            $attachments['name'][] = 'submission_details.png';
+            $attachments['type'][] = 'image/png';
+            $attachments['tmp_name'][] = $tempFile;
+            $attachments['error'][] = 0;
+            $attachments['size'][] = strlen($decodedImage);
+
+            $embeded_images = [
+                [
+                    'tmp_name' => $tempFile,  // Temporary file path
+                    'name'     => 'submission_details.png',  // Image name
+                ],
+            ];
+        }
+
+        $addContent .= '<p>Here are the submission details: <img src="{image0}" alt="Embedded Image" /></p>';
+
         try{
+            $mailResult = $sendMail->send($from, $addTo, $subject, $addContent, $attachments, $embeded_images);
 
-            $paperAuthors = $PaperAuthors->where(['paper_id'=>$post['paper_id'], 'author_id'=>session('user_id')])->set($insertArray)->update();
-            if($paperAuthors) {
-                $mailResult = $sendMail->send($from, $addTo, $subject, $addContent);
+            if(!empty($tempFile))
+                unlink($tempFile);
 
-                // ###################  Save to Email logs #####################
-                $email_logs_array = [
-                    'user_id' => session('user_id'),
-                    'add_to' => (json_encode($addTo)),
-                    'subject' => $subject,
-                    'ref_1' => 'copyright_confirmation',
-                    'add_content' => $addContent,
-                    'send_from' => "App",
-                    'send_to' => "Author",
-                    'level' => "Info",
-                    'template_id' => $MailTemplates['id'],
-                    'paper_id' => $post['paper_id'],
-                    'user_agent' => $this->request->getUserAgent()->getBrowser(),
-                    'ip_address' => $this->request->getIPAddress(),
-                ];
+            // ###################  Save to Email logs #####################
+            $email_logs_array = [
+                'user_id' => session('user_id'),
+                'add_to' => (json_encode($addTo)),
+                'subject' => $subject,
+                'ref_1' => 'copyright_confirmation',
+                'add_content' => $addContent,
+                'send_from' => "App",
+                'send_to' => "Author",
+                'level' => "Info",
+                'template_id' => $MailTemplates['id'],
+                'user_agent' => $this->request->getUserAgent()->getBrowser(),
+                'ip_address' => $this->request->getIPAddress(),
+            ];
 
-                if(!is_string($mailResult)) {
-                    if ($mailResult->statusCode == 200) {
-                        foreach ($addTo as $to){
-                            $email_logs_array['status'] = 'Success';
-                            $email_logs_array['add_to'] = $to;
-                            (new EmailLogsModel())->saveToMailLogs($email_logs_array);
-                        }
-                       return json_encode(array('status' => '200', 'message' => 'Success :', 'data' => $PaperAuthors->affectedRows()));
-                    }
-                    else {
-                        foreach ($addTo as $to){
-                            $email_logs_array['status'] = 'Failed';
-                            $email_logs_array['add_to'] = $to;
-                            (new EmailLogsModel())->saveToMailLogs($email_logs_array);
-                        }
-                      return json_encode(array('status' => '201', 'message' => 'Success :', 'data' => $PaperAuthors->affectedRows()));
-                    }
-                }else{
-                    return json_encode(array('status' => '201', 'message' => 'Success :', 'data' => $PaperAuthors->affectedRows()));
+            if(!is_string($mailResult)) {
+                foreach ($addTo as $to){
+                    $email_logs_array['status'] = $mailResult->statusCode;
+                    $email_logs_array['add_to'] = $to;
+                    (new EmailLogsModel())->saveToMailLogs($email_logs_array);
                 }
+               return json_encode(array('status' => '200', 'message' => 'Success :', 'data' => ''));
+            }else{
+                return json_encode(array('status' => '201', 'message' => 'Success :', 'data' => ''));
             }
         }catch (\Exception $e){
             return json_encode(array('status' => '500', 'message' => 'Error: '.$e->getMessage(), 'data' =>''));
@@ -569,18 +582,12 @@ class Author extends BaseController
 
     public function finalize_success(){
 
-        $event = (new AbstractEventsModel())->first();
-        if(!$event){
-            return (new ErrorHandler($event))->errorPage();
-        }
 
         $header_data = [
-            'title' => "{$event->short_name} Login"
+            'title' => "Finalize"
         ];
 
-        $data = [
-            'event'=> $event
-        ];
+        $data = [];
 
         return
             view('author/common/header', $header_data).
