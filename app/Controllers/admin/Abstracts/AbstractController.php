@@ -725,64 +725,166 @@ class AbstractController extends BaseController
     }
 
 
-    public function getAllPapersArray($submission_type){
-        $PapersModel = new PapersModel();
-        $papers = (object) $PapersModel->GetJoinedUser($submission_type)->getResultObject();
-        $PaperAssignedReviewerModel = (new PaperAssignedReviewerModel());
-        $UserModel = (new UserModel());
-        $PaperTypesModel = (new PaperTypeModel());
-        $paper_array = array();
-        try{
-            foreach($papers as $paper){
-                $user_array = array();
-                $reviewer_array = array();
-                $paper->authors = $this->getPaperAuthors($paper->id)->getResult();
+    public function getAllPapersArray($submission_type) {
+        try {
+            // Validate input
+            if (empty($submission_type)) {
+                return [];
+            }
 
-                foreach($paper->authors as $user){
-                    $user->details= (new UsersProfileModel())->where('author_id', $user->author_id)->first();
-                    $user->acceptance = (new AuthorAcceptanceModel())->where(['abstract_id'=> $paper->id, 'author_id'=>$user->author_id])->first();
-                    if(!empty($user->details))
-                        $user_array[] = $user;
+            // Instantiate models once
+            $PapersModel = new PapersModel();
+            $PaperAssignedReviewerModel = new PaperAssignedReviewerModel();
+            $UsersProfileModel = new UsersProfileModel();
+            $AuthorAcceptanceModel = new AuthorAcceptanceModel();
+            $PaperTypesModel = new PaperTypeModel();
+            $PapersDeputyAcceptanceModel = new PapersDeputyAcceptanceModel();
+            $AdminAcceptanceModel = new AdminAcceptanceModel();
+            $AdminAbstractCommentModel = new AdminAbstractCommentModel();
+            $PaperUploadsModel = new PaperUploadsModel();
+            $AbstractCategoriesModel = new AbstractCategoriesModel();
+            $AbstractReviewModel = new AbstractReviewModel();
+
+            // Fetch all papers with joined user data
+            $papers = $PapersModel->GetJoinedUser($submission_type)->getResultArray();
+            if (empty($papers)) {
+                return [];
+            }
+
+            // Collect paper IDs for batch queries
+            $paperIds = array_column($papers, 'id');
+
+            // Fetch all paper types once
+            $paperTypes = $PaperTypesModel->findAll();
+            $paperTypesMap = array_column($paperTypes, null, 'id'); // Map by ID for quick lookup
+
+            // Batch fetch authors for all papers
+            $allAuthors = [];
+            $authorsByPaper = [];
+            foreach ($paperIds as $paperId) {
+                $authors = $this->getPaperAuthors($paperId)->getResultArray();
+                foreach ($authors as $author) {
+                    $author['paper_id'] = $paperId; // Add paper_id reference
+                    $allAuthors[] = $author;
+                    $authorsByPaper[$paperId][] = $author; // Group by paper_id
                 }
+            }
+            $authorIds = array_unique(array_column($allAuthors, 'author_id'));
 
-                $paper->authors =   $user_array ;
+            // Batch fetch user profiles for authors
+            $userProfiles = [];
+            if (!empty($authorIds)) {
+                $userProfiles = $UsersProfileModel->whereIn('author_id', $authorIds)
+                    ->select('users_profile.*, users.name, users.surname, users.middle_name as user_middle, users.email as user_email')
+                    ->join($this->shared_db_name . '.users', 'users_profile.author_id = users.id', 'left')
+                    ->findAll();
+            }
+            $userProfilesMap = array_column($userProfiles, null, 'author_id');
 
-                $paper->reviewers = $PaperAssignedReviewerModel->where(['paper_id'=> $paper->id, 'reviewer_type'=>'regular', 'is_deleted'=>0])->findAll();
-                if(!empty($paper)) {
-                    foreach ($paper->reviewers as $reviewer) {
+            // Batch fetch author acceptances
+            $authorAcceptances = $AuthorAcceptanceModel->whereIn('abstract_id', $paperIds)->findAll();
+            $authorAcceptancesMap = [];
+            foreach ($authorAcceptances as $acceptance) {
+                $authorAcceptancesMap[$acceptance->abstract_id][$acceptance->author_id] = $acceptance;
+            }
 
-                        $reviewer['details'] = (new UsersProfileModel())->where('author_id', $reviewer['reviewer_id'])
-                            ->select('users_profile.* , users.name, users.surname, users.middle_name as user_middle, users.email as user_email')
-                            ->join($this->shared_db_name.'.users', 'users_profile.author_id = users.id', 'left')
-                            ->first();
-                        $reviewer['review'] = (new AbstractReviewModel())->where(['abstract_id'=>$paper->id, 'reviewer_id'=> $reviewer['reviewer_id']])->first();
+            // Batch fetch reviewers
+            $reviewers = $PaperAssignedReviewerModel->whereIn('paper_id', $paperIds)
+                ->where(['reviewer_type' => 'regular', 'is_deleted' => 0])
+                ->findAll();
+            $reviewerIds = array_unique(array_column($reviewers, 'reviewer_id'));
 
+            // Initialize reviewer-related maps to avoid undefined variable issues
+            $reviewerProfilesMap = [];
+            $reviewsMap = [];
+
+            // Batch fetch reviewer profiles and reviews
+            if (!empty($reviewerIds)) {
+                $reviewerProfiles = $UsersProfileModel
+                    ->select('users_profile.*, users.name, users.surname, users.middle_name as user_middle, users.email as user_email')
+                    ->join($this->shared_db_name . '.users', 'users_profile.author_id = users.id', 'left')
+                    ->whereIn('author_id', $reviewerIds)
+                    ->findAll();
+                $reviewerProfilesMap = array_column($reviewerProfiles, null, 'author_id');
+
+                // Batch fetch reviews
+                $reviews = $AbstractReviewModel->whereIn('abstract_id', $paperIds)->findAll();
+                foreach ($reviews as $review) {
+                    $reviewsMap[$review->abstract_id][$review->reviewer_id] = $review;
+                }
+            }
+
+            // Batch fetch deputy acceptances, admin options, comments, uploads, and categories
+            $deputyAcceptances = $PapersDeputyAcceptanceModel->whereIn('paper_id', $paperIds)->findAll();
+            $deputyAcceptancesMap = [];
+            foreach ($deputyAcceptances as $da) {
+                $deputyAcceptancesMap[$da->paper_id][] = $da;
+            }
+
+            $adminOptions = $AdminAcceptanceModel->whereIn('abstract_id', $paperIds)->findAll();
+            $adminOptionsMap = array_column($adminOptions, null, 'abstract_id');
+
+            $adminComments = $AdminAbstractCommentModel->whereIn('paper_id', $paperIds)->findAll();
+            $adminCommentsMap = array_column($adminComments, null, 'paper_id');
+
+            $uploads = $PaperUploadsModel->whereIn('paper_id', $paperIds)->findAll();
+            $uploadsMap = [];
+            foreach ($uploads as $upload) {
+                $uploadsMap[$upload['paper_id']][] = $upload;
+            }
+
+            $categories = $AbstractCategoriesModel->whereIn('id', array_column($papers, 'abstract_category'))->findAll();
+            $categoriesMap = array_column($categories, null, 'id');
+
+            // Build the final paper array
+            $paper_array = [];
+            foreach ($papers as $paper) {
+                // Initialize arrays for authors and reviewers
+                $user_array = [];
+                $reviewer_array = [];
+
+                // Assign authors (using pre-grouped authorsByPaper)
+                if (isset($authorsByPaper[$paper['id']])) {
+                    foreach ($authorsByPaper[$paper['id']] as $author) {
+                        $author['details'] = $userProfilesMap[$author['author_id']] ?? null;
+                        $author['acceptance'] = $authorAcceptancesMap[$paper['id']][$author['author_id']] ?? null;
+                        if (!empty($author['details'])) {
+                            $user_array[] = $author;
+                        }
+                    }
+                }
+                $paper['authors'] = $user_array;
+
+                // Assign reviewers
+                foreach ($reviewers as $reviewer) {
+                    if ($reviewer->paper_id == $paper['id']) {
+                        $reviewer->details = $reviewerProfilesMap[$reviewer->reviewer_id] ?? null;
+                        $reviewer->review = $reviewsMap[$paper['id']][$reviewer->reviewer_id] ?? null;
                         $reviewer_array[] = $reviewer;
                     }
                 }
+                $paper['reviewers'] = $reviewer_array;
 
-                $paper->dpc = (new PapersDeputyAcceptanceModel())->where(['paper_id'=>$paper->id])->findAll();
+                // Assign other data
+                $paper['dpc'] = $deputyAcceptancesMap[$paper['id']] ?? [];
+                $paper['adminOption'] = $adminOptionsMap[$paper['id']] ?? null;
+                $paper['adminComment'] = $adminCommentsMap[$paper['id']] ?? null;
+                $paper['uploads'] = $uploadsMap[$paper['id']] ?? [];
+                $paper['category'] = $categoriesMap[$paper['abstract_category']] ?? null;
+                $paper['type'] = $paperTypesMap[$paper['type_id']] ?? [];
+                $paper['types'] = $paperTypes; // All paper types
 
-                $paper->reviewers = $reviewer_array;
-                $paperType = $PaperTypesModel->where('id', ($paper->type_id))->first();
-                $paper->type = ($paperType)?:[];
-                $paper->types = $PaperTypesModel->findAll() ?:[];
-
-                $paper->adminOption = (new AdminAcceptanceModel())->where(['abstract_id'=>$paper->id])->first();
-                $paper->adminComment = (new AdminAbstractCommentModel())->where(['paper_id'=>$paper->id])->first();
-                $paper->uploads = (new PaperUploadsModel())->where(['paper_id'=>$paper->id])->findAll();
-                $paper->category = (new AbstractCategoriesModel())->where(['id'=>$paper->abstract_category])->first();
-//                 $abstract->rating = (new ReviewerModel())->whereIn('id', json_decode($abstract->population))->findAll();
                 $paper_array[] = $paper;
             }
 
-        }catch(\Exception $e){
-             return ($e->getMessage());
+            return $paper_array;
+        } catch (\Exception $e) {
+            // Log the error (use your preferred logging mechanism)
+            log_message('error', 'Error in getAllPapersArray: ' . $e->getMessage());
+            return [];
         }
-
-        return $paper_array;
     }
-
+    
     public function getAllPanelsArray($submission_type){
         $PapersModel = new PapersModel();
         $papers = (object) $PapersModel->GetJoinedUser($submission_type)->getResult();
@@ -1119,11 +1221,8 @@ class AbstractController extends BaseController
                 'ip_address' => $this->request->getIPAddress(),
             ];
 
-            if($mailResult->statusCode == 200) {
-                $email_logs_array['status'] = 'Success';
-                (new EmailLogsModel())->saveToMailLogs($email_logs_array);
-            }else{
-                $email_logs_array['status'] = 'Failed';
+            if($mailResult) {
+                $email_logs_array['status'] = $mailResult->statusCode;
                 (new EmailLogsModel())->saveToMailLogs($email_logs_array);
             }
 
@@ -1758,12 +1857,8 @@ class AbstractController extends BaseController
                     'user_agent' => $this->request->getUserAgent()->getBrowser(),
                     'ip_address' => $this->request->getIPAddress(),
                 ];
-                if($emailResult->statusCode == 200){
-                    $email_logs_array['status'] = 'Success';
-                    $emailLogsModel = (new EmailLogsModel())->saveToMailLogs($email_logs_array);
-                    return json_encode(['status' => 200, 'message' => 'success', 'data' => '']);
-                }else{
-                    $email_logs_array['status'] = 'Failed';
+                if($emailResult){
+                    $email_logs_array['status'] =  $emailResult->statusCode;
                     $emailLogsModel = (new EmailLogsModel())->saveToMailLogs($email_logs_array);
                 }
             }
