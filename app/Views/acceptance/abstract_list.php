@@ -72,7 +72,7 @@
                     </thead>
                     <tbody id="presenterFormsTableBody">
                     <tr>
-                        <?php $frdCurrent = "2025/06/30" ?>
+                        <?php $frdCurrent = "2025/07/01" ?>
                         <td> Financial Relationship Disclosure</td>
                         <td> <?= date('F d, Y',strtotime($frdCurrent)) ?></td>
                         <td> <?= ( !empty($user_data) && !empty($user_data['signature_signed_date']) ? strtotime($user_data['signature_signed_date']) >= strtotime($frdCurrent)
@@ -88,7 +88,7 @@
                         <td class="text-end"><a href="<?php /*= base_url()*/?>/acceptance/attestation" target="_blank" class="btn btn-success btn-sm w-100"> Open </a></td>
                     </tr>-->
                     <tr>
-                        <?php $NELCurrent = "2025/05/01" ?>
+                        <?php $NELCurrent = "2025/10/23" ?>
                         <td> Non-Exclusive License</td>
                         <td> <?= $NELCurrent = date('F d, Y',strtotime($NELCurrent)) ?></td>
                         <td> <?= ( !empty($user_data) && !empty($user_data['non_exclusive_license_date']) ? strtotime($user_data['non_exclusive_license_date']) > strtotime($NELCurrent)
@@ -212,6 +212,7 @@
                     const presentationStartTime =  (val.schedule ? new Date(val.schedule.session_start_time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : '')
                     const presentationEndTime =  (val.schedule ? new Date(val.schedule.session_end_time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : '')
 
+                    console.log(adminPresentationPref)
                     $('#abstractTableBody').append('<tr>' +
                         '<td>' + customId + '</td>' +
                         '<td>' + val.paper_data.title + '</td>' +
@@ -219,7 +220,7 @@
                         // '<td>' + (val.room && val.room.name ? val.room.name : '') + '</td>' +
                         '<td>' + (val.schedule ? new Date(val.schedule.session_date).toISOString    ().split('T')[0] : '') + '</td>' +
                         '<td>' + ( presentationStartTime ? presentationStartTime +' - '+ presentationEndTime : '') + '</td>' +
-                        '<td>  June 30, 2025 </td>' +
+                        '<td> '+((adminPresentationPref === 'Invited Faculty') ?  'October 23, 2025' : 'June 30, 2025')+'</td>' +
                         '<td>'+(val.author_acceptance_data ? parseInt(val.author_acceptance_data.acceptance_confirmation) == 1 ?
                             "<span class='badge bg-success text-white'>Able to participate</span>"
                             : "<span class='badge bg-warning text-dark'> Unable to Participate </span>"
