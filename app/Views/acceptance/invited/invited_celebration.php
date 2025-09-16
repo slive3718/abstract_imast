@@ -19,7 +19,8 @@
                <input type="radio" name="celebration_attendance" id="not_attending" value="0" <?= !empty($acceptanceDetails) && $acceptanceDetails['celebration_attendance'] === '0' ? 'checked' : ''?> >
                <label for="not_attending"> No, I do NOT plan to attend the Innovation Celebration. Please do not register me for this event.</label>
 
-               <p class="mt-4"><span class="text-danger">*</span> Please Note: Guests of IMAST faculty will not be registered for the Innovation Celebration. Tickets may be purchased on the <a href="https://www.srs.org/Meetings-Conferences/IMAST/IMAST2026" target="_blank"> SRS IMAST Website </a>  for $50, per guest. </p>
+               <p class="mt-4"><span class="text-danger">*</span> Please Note: Guests of IMAST faculty will not be registered for the Innovation Celebration. Tickets may be purchased on the
+                   <a href="https://www.srs.org/Meetings-Conferences/IMAST/IMAST2026#registration" target="_blank"> SRS IMAST Website </a>  for $50, per guest. </p>
                <button type="button" class="btn btn-primary mt-4 continueBtn" >Save and Continue</button>
             </form>
 
@@ -107,7 +108,7 @@
                     confirmButtonText: "OK"
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        window.location.href = `${acceptanceBaseUrl}/abstract_list`;
+                        window.location.href = `${acceptanceBaseUrl}/invited_speaker_acceptance_finalize/${abstract_id}`;
                     }
                 });
             },

@@ -63,7 +63,7 @@
         <div class="card-header bg-primary text-white p-3">Acceptance Information</div>
         <div class="card-body" style="line-height: 30px">
             <div class="row">
-                <div class="col-4 text-end fw-bolder">Participation Status:</div>
+                <div class="col-4 text-end fw-bolder">Participation Status :</div>
                 <div class="col-7">
                     <?= isset($author_acceptance) && $author_acceptance['acceptance_confirmation'] == 1 ? "I plan to present at the 129th AFS Metalcasting Congress held in Atlanta, Georgia, April 12-15, 2025. " : '' ?>
                     <?= isset($author_acceptance) && $author_acceptance['acceptance_confirmation'] == 2 ? "I am unable to participate in the 129th AFS Metalcasting Congress held in Atlanta, Georgia, April 12-15, 2025. " : '' ?>
@@ -71,18 +71,25 @@
                 <div class="col-1">
                     <span class="float-end"><a class="editBtn btn btn-primary py-0" href="<?=base_url() ?>/acceptance/speaker_acceptance/<?= $abstract_id ?>"><i class="fas fa-edit"></i> Edit</a></span>
                 </div>
-                <div class="col-4 text-end fw-bolder">Travel and Expenses </div>
-                <div class="col-7"><?= !empty($author_acceptance) && $author_acceptance['travel_expenses'] == 'yes' ? 'Agree' : ''?></div>
 
+                <div class="col-4 text-end fw-bolder">Travel and Expenses : </div>
+                <div class="col-7"><?= !empty($author_acceptance) && $author_acceptance['travel_expenses'] == 'yes' ? 'I understand the travel and expenses terms.' : ''?></div>
+                <div class="col-1">
+                    <span class="float-end"><a class="editBtn btn btn-primary py-0" href="<?=base_url() ?>/acceptance/invited_speaker_travel_expense/<?= $abstract_id ?>"><i class="fas fa-edit"></i> Edit</a></span>
+                </div>
+
+                <div class="col-4 text-end fw-bolder">Innovation Celebration : </div>
+                <div class="col-7"><?= !empty($author_acceptance) && $author_acceptance['celebration_attendance'] == '1' ? 'Yes, I plan to attend the Innovation Celebration. Please register me for this event.' : ' No, I do NOT plan to attend the Innovation Celebration. Please do not register me for this event.'?></div>
+                <div class="col-1">
+                    <span class="float-end"><a class="editBtn btn btn-primary py-0" href="<?=base_url() ?>/acceptance/invited_speaker_travel_expense/<?= $abstract_id ?>"><i class="fas fa-edit"></i> Edit</a></span>
+                </div>
 <!--                <div class="col-4 text-end fw-bolder">Presentation Upload: </div>-->
 <!--                <div class="col-7 presentationUploaded">-->
 <!--                    <a href="--><?php //= base_url().$author_acceptance['presentation_file_path'].'/'.$author_acceptance['presentation_saved_name']?><!--">-->
 <!--                        --><?php //= $author_acceptance['presentation_saved_name']?>
 <!--                    </a>-->
 <!--                </div>-->
-                <div class="col-1">
-                    <span class="float-end"><a class="editBtn btn btn-primary py-0" href="<?=base_url() ?>/acceptance/presentation_upload/<?= $abstract_id ?>"><i class="fas fa-edit"></i> Edit</a></span>
-                </div>
+
             </div>
         </div>
         <div class="mt-3 mb-2 me-3">
