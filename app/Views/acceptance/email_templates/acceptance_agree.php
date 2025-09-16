@@ -8,10 +8,10 @@
 </head>
 <body>
     <div style="text-align: center; margin-top: 20px;">
-        <h3><?=$acceptance_status?></h3>
+        <h3><?=$acceptance_status ?? ''?></h3>
         <p></p>
         <hr style="width: 80%; margin: auto; margin-top: 20px;">
-        <p style="width: 80%; margin: auto; margin-top: 20px;"><?=$acceptance_message?></p>
+        <p style="width: 80%; margin: auto; margin-top: 20px;"><?=$acceptance_message ?? ''?></p>
     </div>
 </body>
 </html>

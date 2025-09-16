@@ -1097,7 +1097,7 @@ class User extends BaseController
                 'ip_address' => $this->request->getIPAddress(),
             ];
 //            print_r($response);exit;
-            if ($response->statusCode == 200) {
+            if ($response->statusCode) {
                 // Email sent successfully
 //                save to logs
                 $logs = new LogsModel();
@@ -1114,13 +1114,13 @@ class User extends BaseController
 
                ($logs->save($emailLogs));
 
-                $email_logs_array['status'] = 'Success';
+                $email_logs_array['status'] = $response->statusCode ?? 'Failed';
                 $emailLogsModel = (new EmailLogsModel())->saveToMailLogs($email_logs_array);
 
                 return 'success';
             } else {
                 // Email sending failed
-                $email_logs_array['status'] = 'Failed';
+                $email_logs_array['status'] =  $response->statusCode ?? 'Failed';
                 $emailLogsModel = (new EmailLogsModel())->saveToMailLogs($email_logs_array);
                 return 'error';
             }

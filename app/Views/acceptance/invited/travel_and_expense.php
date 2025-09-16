@@ -11,29 +11,19 @@
         <div class="card-body">
             <p>
                 Faculty for the SRS Asia Pacific Meeting will receive the following:
-                <ul>
-                    <li><strong>Registration </strong>: Faculty will receive complimentary registration for the Asia Pacific Meeting, to be completed by SRS staff.</li>
-                    <li class="mt-3"><strong>Housing </strong>: SRS will provide up to 3 nights of hotel accommodation in Fukuoka, arranged by SRS staff.</li>
-                    <li class="mt-3"><strong>Travel Expenses </strong>:Please refer to your invitation for travel reimbursement details.</li>
+                <ul style="list-style: none">
+                    <li class="mt-3">For all faculty, excluding those who only have moderator duties, SRS will provide complimentary IMAST registration.</li>
+                    <li class="mt-3">SRS staff will register all faculty for IMAST. Instructions for housing can be found on the IMAST website. </li>
+                    <li class="mt-3">All faculty are responsible for their own housing reservations and expenses. </li>
 <!--                    <li class="mt-3"><strong> </strong>: </li>-->
                 </ul>
             </p>
-<!--            <form id="presentation_agreement_form">-->
-<!--                <div class="form-check">-->
-<!--                    <input class="form-check-input" type="radio" name="travel_expenses" id="accept" value="yes" --><?php //= !empty($acceptanceDetails) && $acceptanceDetails['travel_expenses'] == "yes" ? 'checked' : ''?>
-<!--                    <label class="form-check-label" for="accept">-->
-<!--                        Yes-->
-<!--                    </label>-->
-<!--                </div>-->
-<!--                <div class="form-check mt-2">-->
-<!--                    <input class="form-check-input" type="radio" name="travel_expenses" id="decline" value="no" --><?php //= !empty($acceptanceDetails) && $acceptanceDetails['travel_expenses'] == 'no' ? 'checked' : ''?>
-<!--                    <label class="form-check-label" for="decline">-->
-<!--                        No-->
-<!--                    </label>-->
-<!--                </div>-->
-<!--                <button type="submit" class="btn btn-primary mt-4" >Save and Continue</button>-->
-<!--            </form>-->
-            <button type="button" class="btn btn-primary mt-4 continueBtn" >Save and Continue</button>
+            <form id="agreementForm" class="p-4">
+                <input type="checkbox" name="travel_and_expense_terms" id="travel_and_expense_terms" value="yes" <?= !empty($acceptanceDetails) && $acceptanceDetails['travel_expenses'] == 'yes' ? 'checked' : ''?> >
+                <label for="travel_and_expense_terms"> I understand the travel and expenses terms.</label>
+                <br>
+                <button type="button" class="btn btn-primary mt-4 continueBtn" >Save and Continue</button>
+            </form>
         </div>
     </div>
 </div>
@@ -44,67 +34,61 @@
     $(function() {
 
         $('.continueBtn').on('click', function(){
-            goNext(abstract_id);
+            save_travel_expenses(abstract_id);
         })
-
-        // $('button[type="submit"]').on('click', function(e) {
-        //     e.preventDefault();
-        //
-        //     let travelExpenses = $('input[name="travel_expenses"]:checked').val();
-        //     if (!travelExpenses) {
-        //         toastr.error('Please answer required question.');
-        //         return false;
-        //     }
-        //
-        //     const formData = new FormData(document.getElementById('presentation_agreement_form'));
-        //     formData.append('abstract_id', abstract_id)
-        //     $.ajax({
-        //         url: acceptanceBaseUrl + 'update_acceptance', // Your server-side endpoint
-        //         method: 'POST',
-        //         data: formData,
-        //         processData: false,
-        //         contentType: false,
-        //         success: function(response) {
-        //             if(response.status === 'success') {
-        //                 goNext(abstract_id)
-        //             }
-        //         },
-        //         error: function(xhr, status, error) {
-        //             $('#response').html('<p>Error: ' + error + '</p>');
-        //         }
-        //     });
-        // });
     });
 
     async function goNext(abstract_id){
-        check_finalize()
+        window.location.href = `${acceptanceBaseUrl}invited_speaker_acceptance_finalize/${abstract_id}`;
     }
 
-    function check_finalize() {
-        swal.fire({
-            title: 'Please wait',
-            html: 'Processing your request...',
-            allowOutsideClick: false,
-            didOpen: () => {
-                swal.showLoading();
-            }
-        });
-
-        return $.post(`${base_url}acceptance/check_finalize_acceptance/${abstract_id}`)
-            .done(function(data) {
+    function save_travel_expenses(abstract_id) {
+        const travel_and_expense_terms = $('#travel_and_expense_terms:checked').val();
+        if(!travel_and_expense_terms){
+            toastr.error('Please agree to the travel and expenses terms.');
+            return false;
+        }
+        return $.ajax({
+            url: `${base_url}acceptance/update_acceptance`,
+            type: 'POST',
+            data: {
+                travel_expenses : travel_and_expense_terms,
+                abstract_id: abstract_id
+            },
+            dataType: 'json',
+            beforeSend: function(xhr) {
+                swal.fire({
+                    title: 'Please wait',
+                    html: 'Processing your request...',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        swal.showLoading();
+                    }
+                });
+                console.log('Request started...');
+            },
+            success: function(data, textStatus, xhr) {
+                if(data.status !== 'success') {
+                    let errorMessage = data.message || "Something went wrong.";
+                    swal.fire({
+                        title: "Error",
+                        html: `<p>${errorMessage}</p>`,
+                        icon: "error"
+                    });
+                    return;
+                }
                 swal.fire({
                     title: "Success",
-                    html: `<p>Thank you for confirming your participation in the SRS Asia Pacific Meeting scheduled for February 6-7, 2025 in Fukuoka, Japan.<br>
-                      If you have any questions, please direct them to <a href='mailto:education@srs.org'>education@srs.org</a></p>`,
+                    html: `${data.message}`,
                     icon: "success",
                     confirmButtonText: "OK"
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        window.location.href = `${acceptanceBaseUrl}/abstract_list`;
+                        window.location.href = `${acceptanceBaseUrl}/invited_celebration/${abstract_id}`;
                     }
                 });
-            })
-            .fail(function(xhr, status, error) {
+            },
+            error: function(xhr, status, error) {
                 let errorMessage = "Something went wrong.";
                 if (xhr.responseJSON && xhr.responseJSON.message) {
                     errorMessage = xhr.responseJSON.message;
@@ -115,7 +99,12 @@
                     html: `<p>${errorMessage}</p>`,
                     icon: "error"
                 });
-            });
+            },
+            complete: function(xhr, status) {
+                // Always executed after success or error
+                console.log('Request completed with status:', status);
+            }
+        });
     }
 
 

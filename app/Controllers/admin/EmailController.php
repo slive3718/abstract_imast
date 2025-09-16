@@ -786,7 +786,6 @@ class EmailController extends BaseController
 
     function do_save_mail_log($result, $email_array, $post, $PaperTemplates, $unique_code, $emailCount){
         // Determine the email log status based on the mail result
-        $status = ($result->statusCode >= 200 && $result->statusCode < 300) ? 'Success' : 'Failed';
 
         $emailLogsModel = new EmailLogsModel();
 
@@ -809,7 +808,7 @@ class EmailController extends BaseController
                 'paper_id' => $email_array['paper_id'],
                 'user_agent' => $this->request->getUserAgent()->getBrowser(),
                 'ip_address' => $this->request->getIPAddress(),
-                'status' => $status,  // Set the status based on the mail result
+                'status' => $result->statusCode,  // Set the status based on the mail result
             ];
 
             // Save the email log
@@ -857,7 +856,7 @@ class EmailController extends BaseController
                 $paper->type = ($paperType) ? $paperType : [];
                 $paper_array[] = $paper;
             }
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return $e->getMessage();
         }
 
@@ -905,11 +904,8 @@ class EmailController extends BaseController
             'ip_address' => $this->request->getIPAddress(),
         ];
 
-        if($mailResult->statusCode == 200) {
-            $email_logs_array['status'] = 'Success';
-            $emailLogsModel = (new EmailLogsModel())->saveToMailLogs($email_logs_array);
-        }else{
-            $email_logs_array['status'] = 'Failed';
+        if($mailResult) {
+            $email_logs_array['status'] =  $mailResult->statusCode;
             $emailLogsModel = (new EmailLogsModel())->saveToMailLogs($email_logs_array);
         }
 

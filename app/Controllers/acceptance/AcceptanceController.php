@@ -12,6 +12,7 @@ use App\Models\SchedulerModel;
 use App\Models\SchedulerSessionTalksModel;
 use App\Models\SiteSettingModel;
 use App\Models\UsersProfileModel;
+use App\Services\AcceptanceService;
 use CodeIgniter\Controller;
 use App\Models\UserModel;
 use App\Models\PapersModel;
@@ -296,6 +297,7 @@ class AcceptanceController extends Controller
         define('ACCEPTED', 1);
         define('REJECTED', 0);
 
+        $email = (new PhpMail());
         // Prepare the data for insertion or update
         $date_now = date("Y-m-d H:i:s");
         $data = [
@@ -311,6 +313,7 @@ class AcceptanceController extends Controller
             ->where('abstract_id', $abstract_id)
             ->asArray()->first();
 
+        $abstract = (new PapersModel())->asArray()->find($abstract_id);
         try {
             if ($existingRecord) {
                 // If the record exists, update it
@@ -318,6 +321,10 @@ class AcceptanceController extends Controller
                 return $this->response->setJSON(['status' => 'success', 'message' => 'Updated successfully']);
             } else {
                 // If the record does not exist, insert a new one
+                if($acceptance_confirmation == 2) { //if the author declined the acceptance this will trigger email to inform srs.
+                    if(!(new AcceptanceService())->email_declined_acceptance($abstract))
+                        return $this->response->setJSON(['status' => 'error', 'message' => 'Failed to send email to SRS. Please contact support.']);
+                }
                 $authorAcceptanceModel->insert($data);
                 return $this->response->setJSON(['status' => 'success', 'message' => 'Inserted successfully']);
             }
@@ -397,7 +404,7 @@ class AcceptanceController extends Controller
         try {
             $updateProfileResult = (new UsersProfileModel())->where('author_id', session('user_id'))->set($update_array)->update();
             if($updateProfileResult === true){
-                return $this->response->setJSON(['status' => 'success', 'msg'=> 'profile updated!']);
+                return $this->response->setJSON(['status' => 'success', 'message'=> 'profile updated!']);
             }
         }catch (\Exception $e){
             throw new \Exception('Profile Update Error!');
@@ -424,6 +431,9 @@ class AcceptanceController extends Controller
             $update_array['travel_expenses'] = $post['travel_expenses'];
         }
 
+        if(isset($post['celebration_attendance'])){
+            $update_array['celebration_attendance'] = $post['celebration_attendance'] ? 1 : 0;
+        }
 
         // Check if a record already exists for the given author and abstract
         $authorAcceptanceModel = new AuthorAcceptanceModel();
@@ -435,7 +445,10 @@ class AcceptanceController extends Controller
             exit;
         }
 
-        $authorAcceptanceModel->update($existingRecord['id'], $update_array);
+        if($update_array) {
+            $authorAcceptanceModel->update($existingRecord['id'], $update_array);
+        }
+
         return $this->response->setJSON(['status'=> 'success', 'message' => 'Updated successfully']);
 
     }
@@ -496,10 +509,12 @@ class AcceptanceController extends Controller
         $sendMail = new PhpMail();
         $email = (new UserModel())->find(session('user_id'));
         try {
-            $from = ['name'=>'SRS Asia Pacific', 'email'=>'ap@owpm2.com'];
+            $from = ['name'=>env('MAIL_FROM'), 'email'=>env('MAIL_FROM_ADDRESS')];
             $addTo = [$email['email']];
-            $subject = 'SRS Asia Pacific Meeting 2026';
-            $addContent = "Thank you for confirming your participation in the SRS Asia Pacific Meeting scheduled for February 6-7, 2026 in Fukuoka, Japan.   If you have any questions, please direct them to <a href='mailto:education@srs.org'>education@srs.org </a>.  ";
+            $subject = '33rd IMAST Meeting';
+            $acceptance_data = (new AcceptanceService())->acceptance_message($abstract_id);
+            $view = view('acceptance/email_templates/acceptance_agree', $acceptance_data);
+            $addContent = $view;
 
             $response = $sendMail->send($from, $addTo, $subject, $addContent);
 
@@ -517,7 +532,7 @@ class AcceptanceController extends Controller
                 'ip_address' => $this->request->getIPAddress(),
             ];
 
-            if ($response->statusCode == 200) {
+            if ($response->statusCode >= 200 && $response->statusCode < 300) {
                 $logs = new LogsModel();
                 $emailLogs = [
                     'user_id' => session('user_id'),
@@ -533,40 +548,21 @@ class AcceptanceController extends Controller
                 ($logs->save($emailLogs));
 
                 $email_logs_array['status'] = 'Success';
+
                 $emailLogsModel = (new EmailLogsModel())->saveToMailLogs($email_logs_array);
 
-                return $this->response->setJSON(['status' => 'success', 'msg'=> 'Acceptance Email Sent Successfully, <br> We look forward to seeing you in Fukuoka, Japan!']);
+                return $this->response->setJSON(['status' => 'success', 'message'=> $acceptance_data['acceptance_message']]);
             } else {
                 // Email sending failed
                 $email_logs_array['status'] = 'Failed';
                 $emailLogsModel = (new EmailLogsModel())->saveToMailLogs($email_logs_array);
-                return $this->response->setJSON(['status' => 'failed', 'msg'=> 'Failed to send email']);
+                return $this->response->setJSON(['status' => 'failed', 'message'=> 'Failed to send email']);
             }
             // Send the email
         }catch (\Exception $e){
             return $e->getMessage();
         }
 
-    }
-    
-    public function acceptance_message($abstract_id){
-        $acceptanceModel =  (new AuthorAcceptanceModel())->where(['abstract_id'=>$abstract_id, 'author_id'=>session('user_id')])->get();
-        if($acceptanceModel[0]->acceptance_confirmation == '1'){
-            $acceptance_status = "Acceptance Form Successfully Submitted";
-            $acceptance_message = "Thank you for confirming your participation in AFS 129th Annual Meeting, 
-            being held in Denver, Colorado For more information regarding the AFS 129th Annual Meeting ,
-            please visit our website.
-            <br>AFS Acceptance <a href=".base_url()."/acceptance> Login Page. </a> ";
-            $data['acceptance_status'] = $acceptance_status;
-            $data['acceptance_message'] = $acceptance_message;
-        }else{
-            $acceptance_status = "Acceptance Form Successfully Submitted";
-            $acceptance_message = "It is unfortunate that you cannot participate in the year's meeting. We look forward to receiving your proposal again next year.
-            <br>AFS Acceptance <a href=".base_url()."/acceptance> Login Page. </a> ";
-            $data['acceptance_status'] = $acceptance_status;
-            $data['acceptance_message'] = $acceptance_message;
-        }
-        return view('acceptance/email_templates/acceptance_agree', $data);
     }
     
     public function getAuthorAcceptance($abstract_id){
@@ -578,16 +574,24 @@ class AcceptanceController extends Controller
         if($checkAcceptance['status'] == 'success'){
             return $this->save_finalized_acceptance($abstract_id);
         }else{
-            return $checkAcceptance;
+            return $this->response->setJSON($checkAcceptance);
         }
     }
 
     public function save_finalized_acceptance($abstract_id){
+        $post = $this->request->getPost();
         $acceptanceModel = (new AuthorAcceptanceModel());
+
+        $updateField = [
+            'is_finalized' => 1
+        ];
+
         try{
-            $acceptanceModel->where(['abstract_id'=> $abstract_id, 'author_id'=>session('user_id')])->set(['is_finalized'=>1])->update();
+            $acceptanceModel
+                ->where(['abstract_id'=> $abstract_id, 'author_id'=>session('user_id')])
+                ->set($updateField)->update();
         }catch(\Exception $e){
-            return $this->response->setJSON(['status'=>'failed', 'msg'=>$e->getMessage()]);
+            return $this->response->setJSON(['status'=>'failed', 'message'=>$e->getMessage()]);
         }
 
         return $this->send_acceptance_confirmation($abstract_id);

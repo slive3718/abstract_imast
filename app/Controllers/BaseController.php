@@ -24,6 +24,7 @@ use App\Models\AbstractEventsModel;
 class BaseController extends Controller
 {
     protected $default_db;
+    protected $default_db_name;
     protected $shared_db;
     protected $shared_db_name;
 
@@ -64,6 +65,7 @@ class BaseController extends Controller
     protected function initializeDatabases()
     {
         $this->default_db = \Config\Database::connect();
+        $this->default_db_name = ENVIRONMENT === 'testing' ? 'testing_shared' : ENV('database.default.database');
         $this->shared_db = \Config\Database::connect('shared');
         $this->shared_db_name = ENVIRONMENT === 'testing' ? 'testing_shared' : ENV('database.shared.database');
     }

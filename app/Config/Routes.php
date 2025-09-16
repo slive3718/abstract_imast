@@ -254,7 +254,8 @@ $routes->group('acceptance', ['filter' => 'authGuard:acceptance'],  function ($r
     $routes->get('invited_acceptance_menu/(:any)', 'acceptance\InvitedAcceptanceController::invited_acceptance_menu/$1');
     $routes->get('invited_speaker_acceptance/(:any)', 'acceptance\InvitedAcceptanceController::invited_speaker_acceptance/$1');
     $routes->get('invited_speaker_travel_expense/(:any)', 'acceptance\InvitedAcceptanceController::invited_speaker_travel_expense/$1');
-    $routes->get('speaker_acceptance_finalize/(:any)', 'acceptance\InvitedAcceptanceController::speaker_acceptance_finalize/$1');
+    $routes->get('invited_speaker_acceptance_finalize/(:any)', 'acceptance\InvitedAcceptanceController::speaker_acceptance_finalize/$1');
+    $routes->get('invited_celebration/(:any)', 'acceptance\InvitedAcceptanceController::invited_celebration/$1');
 
     // $routes->get('getAcceptedAbstracts', 'acceptance\AcceptanceController::getAcceptedAbstracts/$1');
     $routes->post('getAuthorAcceptance/(:any)', 'acceptance\AcceptanceController::getAuthorAcceptance/$1');

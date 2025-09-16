@@ -209,20 +209,24 @@ class AuthorAcceptanceModel extends Model
     function checkAcceptance($abstract_id){
         try {
              $result = $this->where(['abstract_id'=>$abstract_id, 'author_id'=>session('user_id')])->first();
+            $adminPresPref = (new AdminAcceptanceModel())->where(['abstract_id'=>$abstract_id])->first();
              if(!$result)
-                 return ['status'=>'failed', 'msg'=> 'No result found!'];
+                 return ['status'=>'failed', 'message'=> 'No result found!'];
             if($result->acceptance_confirmation == '1'){
-                if($result->presentation_original_name == ''){
-                    return ['status'=>'failed', 'msg'=> 'Presentation not found'];
+                if($adminPresPref && $adminPresPref['presentation_preference'] == 1){
+                    if($result->presentation_original_name == ''){
+                        return ['status'=>'failed', 'message'=> 'Presentation not found'];
+                    }
+                    else if($result->presentation_saved_name == ''){
+                        return ['status'=>'failed', 'message'=> 'Presentation not found'];
+                    }
                 }
-                else if($result->presentation_saved_name == ''){
-                    return ['status'=>'failed', 'msg'=> 'Presentation not found'];
-                }
-                return ['status'=>'success', 'msg'=> ''];
+
+                return ['status'=>'success', 'message'=> ''];
             }elseif($result->acceptance_confirmation == 2){
-                return ['status'=>'success', 'msg'=> 'Finalized'];
+                return ['status'=>'success', 'message'=> 'Finalized'];
             }else{
-                return ['status'=>'failed', 'msg'=> 'No acceptance found!'];
+                return ['status'=>'failed', 'message'=> 'No acceptance found!'];
             }
 
                

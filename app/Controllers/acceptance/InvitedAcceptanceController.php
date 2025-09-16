@@ -77,6 +77,27 @@ class InvitedAcceptanceController extends AcceptanceController
             view('acceptance/common/footer');
     }
 
+    public function invited_celebration($abstract_id)
+    {
+        if (!$this->validate_abstract_id($abstract_id))
+            exit;
+
+        $acceptanceDetails = (new AuthorAcceptanceModel())->where(['abstract_id' => $abstract_id, 'author_id' => session('user_id')])->asArray()->first();
+        $header_data = [
+            'title' => 'Invited Speaker/Faculty Acceptance '
+        ];
+        $data = [
+            'abstract_id' => $abstract_id,
+            'acceptanceDetails' => $acceptanceDetails,
+            'abstract_preference' => presentation_preferences(),
+            'presentation_data_view' => $this->invited_presentation_data_view($abstract_id)
+        ];
+        return
+            view('acceptance/common/header', $header_data) .
+            view('acceptance/invited/invited_celebration', $data) .
+            view('acceptance/common/footer');
+    }
+
 
 
 
@@ -194,6 +215,57 @@ class InvitedAcceptanceController extends AcceptanceController
         ];
 
         return view('acceptance/common/invited_presentation_details', $data);
+
+    }
+
+    public function speaker_acceptance_finalize($abstract_id){
+
+        $removed_author  = (new RemovedPaperAuthorModel())->findAll();
+
+        $removed_author_ids = array();
+        if(!empty($removed_author)){
+            foreach($removed_author as $removed){
+                $removed_author_ids[] = $removed['paper_author_id'];
+            }
+        }
+        $authorsQuery = (new PaperAuthorsModel());
+        if(!empty($removed_author_ids)) {
+            $authorsQuery->whereNotIn('id', $removed_author_ids);
+        }
+        $authorsQuery->where('paper_id', $abstract_id)
+            ->orderBy('author_order', 'asc')
+            ->orderBy('date_time', 'asc');
+        $authors = $authorsQuery->asArray()->findAll();
+
+        foreach($authors as $index => &$author){
+            $removed_author  = (new RemovedPaperAuthorModel())->where('paper_author_id', $author['id'])->first();
+            if($removed_author == null){
+                $author['info'] = (new UserModel())->find($author['author_id']);
+                $author['profile'] = (new UsersProfileModel())->where('author_id', $author['author_id'])->first();
+            }
+        }
+
+        $abstract_details= (new PapersModel())->find($abstract_id);
+        $author_acceptance = (new AuthorAcceptanceModel())->where(['abstract_id'=>$abstract_id, 'author_id'=>session('user_id')])->asArray()->first();
+        $abstract_preference =  (new AdminAcceptanceModel())->where('abstract_id', $abstract_id)->first();
+        $header_data = [
+            'title' => 'Acceptance Finalize'
+        ];
+
+        $data = [
+            'abstract_id' => $abstract_id,
+            'author_acceptance' => $author_acceptance,
+            'authors' => $authors,
+            'abstract_details' => $abstract_details,
+            'abstract_preference' => $abstract_preference,
+            'presentation_data_view' => $this->presentation_data_view($abstract_id)
+        ];
+
+        return
+            view('acceptance/common/header', $header_data).
+            view('acceptance/invited/speaker_acceptance_finalize', $data).
+            view('acceptance/common/footer')
+            ;
 
     }
 

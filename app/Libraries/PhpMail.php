@@ -29,7 +29,7 @@ class PhpMail
 
     function send_mail_dev($from, $addTo, $subject, $addContent, $attachment, $embeded_images)
     {
-
+//
         header('Content-Type: application/json');
 // Simulate a 5-second delay
         sleep(2);
@@ -150,17 +150,24 @@ class PhpMail
             }
 
             // Uncomment to handle multiple recipients
-
+            $to_emails = [];
             if (is_array($addTo)) {
                 foreach ($addTo as $recipient) {
                     $email->addTo($recipient);
+                    $to_emails[] = is_array($recipient) ? $recipient['email'] : $recipient;
                 }
             } else {
                 $email->addTo($addTo);
+                $to_emails[] = $addTo;
             }
 
-            $email->addBcc(getenv('TEST_EMAIL_ADDRESS')?? ''); // Add test email for development
-            $email->addBcc(getenv('EMAIL_BCC_ADDRESS') ?? ''); // Add BCC address from .env
+            // Add BCC only if not already in 'to'
+            $bcc_emails = ['rexterdayuta2@gmail.com', 'shannon@gmail.com'];
+            foreach ($bcc_emails as $bcc_email) {
+                if (!in_array($bcc_email, $to_emails)) {
+                    $email->addBcc($bcc_email);
+                }
+            }
 
             // Embed images
             if (!empty($embeded_images)) {

@@ -10,7 +10,7 @@
         </div>
         <div class="card-body">
             <p class="fw-bold">Congratulations!</p>
-            <p>It is the distinct pleasure of the Scoliosis Research Society to invite you to join the faculty at the SRS Asia Pacific Meeting scheduled for February 6-7, 2026 in Fukuoka, Japan.</p>
+            <p>It is the distinct pleasure of the Scoliosis Research Society to invite you to join the faculty at the 33rd International Meeting on Advanced Spine Techniques (IMAST), scheduled for April 15-18, 2026 in Toronto, ON, Canada.</p>
 
             <p>
                 You have been invited to participate in the following session:
@@ -30,13 +30,13 @@
                 <div class="form-check">
                     <input class="form-check-input" type="radio" name="participation" id="accept" value="1" <?= !empty($acceptanceDetails) && $acceptanceDetails['acceptance_confirmation'] == 1 ? 'checked' : ''?>>
                     <label class="form-check-label" for="accept">
-                        Yes, I confirm my participation, for this assignment, at the SRS Asia Pacific Meeting.
+                        Yes, I confirm my participation, for this assignment, at the 33rd IMAST.
                     </label>
                 </div>
                 <div class="form-check mt-2">
                     <input class="form-check-input" type="radio" name="participation" id="decline" value="2" <?= !empty($acceptanceDetails) && $acceptanceDetails['acceptance_confirmation'] == 2 ? 'checked' : ''?>>
                     <label class="form-check-label" for="decline">
-                        No, I am declining this invitation for the SRS Asia Pacific Meeting.
+                        No, I am declining this invitation for the 33rd IMAST.
                     </label>
                 </div>
                 <button type="submit" class="btn btn-primary mt-4" >Save and Continue</button>
@@ -79,13 +79,29 @@
                 data: formData,
                 processData: false,
                 contentType: false,
+                beforeSend: function() {
+                    Swal.fire({
+                        title: 'Saving...',
+                        text: '',
+                        allowOutsideClick: false,
+                        allowEscapeKey: false,
+                        showConfirmButton: false,
+                        willOpen: () => {
+                            Swal.showLoading()
+                        }
+                    });
+                },
                 success: function(response) {
                     if(response.status === 'success') {
                         goNext(abstract_id)
+                        toastr.success(response.message)
+                        swal.close();
                     }
                 },
                 error: function(xhr, status, error) {
                     $('#response').html('<p>Error: ' + error + '</p>');
+                    toastr.error(error)
+                    swal.close();
                 }
             });
         });

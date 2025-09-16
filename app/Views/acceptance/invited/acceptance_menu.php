@@ -24,9 +24,13 @@
                                 <a id="" href="<?=base_url()?>/acceptance/invited_speaker_travel_expense/<?=$abstract_id?>" class="btn btn-white btn-sm round-0 text-start ps-0 fw-bold" style="width:80%; border-bottom:1px solid red"><num class="btn-sm me-2 text-white " style="background-color:#FF6600; padding:5px 10px 5px 10px"><?=$stepNumber++?> </num> Travel and Expenses
                                     <?=isset($author_acceptance) && (!empty($author_acceptance->breakfast_attendace)|| $author_acceptance->breakfast_attendance !== '' )? '<span class="float-end text-success"><i class="fw-bold  fas fa-check-circle"> </i> Completed </span>' :'<span class="float-end text-danger"><i class="fw-bold fas fa-exclamation-circle"></i> Incomplete </span>' ?>
                                 </a>
-<!--                                <a id="" href="--><?php //=base_url()?><!--/acceptance/invited_speaker_acceptance_finalize/--><?php //=$abstract_id?><!--" class="btn btn-white btn-sm round-0 text-start ps-0 fw-bold" style="width:80%; border-bottom:1px solid red"><num class="btn-sm me-2 text-white " style="background-color:#FF6600; padding:5px 10px 5px 10px">--><?php //=$stepNumber++?><!-- </num> Non-Exclusive License-->
-<!--                                    --><?php //=isset($author_acceptance) && (!empty($author_acceptance->breakfast_attendace)|| $author_acceptance->breakfast_attendance !== '' )? '<span class="float-end text-success"><i class="fw-bold  fas fa-check-circle"> </i> Completed </span>' :'<span class="float-end text-danger"><i class="fw-bold fas fa-exclamation-circle"></i> Incomplete </span>' ?>
-<!--                                </a>-->
+                                <a id="" href="<?=base_url()?>/acceptance/invited_celebration/<?=$abstract_id?>" class="btn btn-white btn-sm round-0 text-start ps-0 fw-bold" style="width:80%; border-bottom:1px solid red"><num class="btn-sm me-2 text-white " style="background-color:#FF6600; padding:5px 10px 5px 10px"><?=$stepNumber++?> </num> Innovation Celebration
+                                    <?=isset($author_acceptance) && (!empty($author_acceptance->breakfast_attendace)|| $author_acceptance->breakfast_attendance !== '' )? '<span class="float-end text-success"><i class="fw-bold  fas fa-check-circle"> </i> Completed </span>' :'<span class="float-end text-danger"><i class="fw-bold fas fa-exclamation-circle"></i> Incomplete </span>' ?>
+                                </a>
+                                <a href="<?=base_url()?>/acceptance/invited_speaker_acceptance_finalize/<?=$abstract_id?>" class="btn btn-white btn-sm round-0 text-start ps-0 fw-bold" style="width:80%; border-bottom:1px solid red"><num class="btn-sm me-2 text-white " style="background-color:#FF6600; padding:5px 10px 5px 10px"><?=$stepNumber++?> </num> Print/Preview/Finalize
+                                    <?=isset($author_acceptance) && (!empty($author_acceptance->is_finalized)|| $author_acceptance->is_finalized == 1 )? '<span class="float-end text-success"><i class="fw-bold  fas fa-check-circle"> </i> Completed </span>' :'<span class="float-end text-danger"><i class="fw-bold fas fa-exclamation-circle"></i> Incomplete </span>' ?>
+                                </a>
+
                             </div>
                         </div>
                     </div>
