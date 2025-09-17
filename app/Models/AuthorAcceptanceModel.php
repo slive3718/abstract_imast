@@ -24,7 +24,7 @@ class AuthorAcceptanceModel extends Model
     {
         parent::__construct();
         $this->allowedFields = $this->db->getFieldNames($this->table);
-        $this->shared_db_name = 'abstract_suit_shared_db';
+        $this->shared_db_name = ENV('database.shared.database');
     }
 
     public function Get()
