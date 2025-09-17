@@ -147,16 +147,37 @@ class AcceptanceController extends Controller
         if(!$this->validate_abstract_id($abstract_id))
             exit;
 
-        $acceptanceDetails = (new AuthorAcceptanceModel())->where(['abstract_id'=>$abstract_id, 'author_id'=>session('user_id')])->asArray()->first();
+        $acceptanceDetails = (new AuthorAcceptanceModel())->where(['abstract_id' => $abstract_id, 'author_id' => session('user_id')])->asArray()->first();
+
+        $abstract_schedule = (new SchedulerSessionTalksModel())
+            ->where('abstract_id', $abstract_id)->first();
+
+        if($abstract_schedule){
+            $abstract_schedule['event'] = (new SchedulerModel())->find($abstract_schedule['scheduler_event_id']) ?? [];
+            $abstract_schedule['room']  = (new RoomsModel())->find($abstract_schedule['event']['room_id']);
+            foreach (json_decode($abstract_schedule['event']['session_chair_ids']) as &$moderator){
+                $abstract_schedule['moderators'][] = (new UserModel())->find($moderator);
+            }
+
+        }
+
+        $abstract_details = (new PapersModel())->find($abstract_id);
         $header_data = [
             'title' => 'Speaker Acceptance'
         ];
+
         $data = [
             'abstract_id' => $abstract_id,
             'acceptanceDetails' => $acceptanceDetails,
             'abstract_preference' => presentation_preferences(),
-            'presentation_data_view' => $this->presentation_data_view($abstract_id)
+            'presentation_data_view' => $this->presentation_data_view($abstract_id),
+            'abstract_schedule' => $abstract_schedule,
+            'admin_acceptance' => (new AdminAcceptanceModel())->where('abstract_id', $abstract_id)->first(),
+            'abstract_details' => $abstract_details
         ];
+
+//        print_r($abstract_schedule);exit;
+
         return
             view('acceptance/common/header', $header_data).
             view('acceptance/speaker_acceptance', $data).

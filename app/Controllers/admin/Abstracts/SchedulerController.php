@@ -2,6 +2,7 @@
 
 namespace App\Controllers\admin\Abstracts;
 
+use App\Controllers\BaseController;
 use App\Controllers\PapersController;
 use App\Controllers\User;
 use App\Models\AdminAcceptanceModel;
@@ -42,7 +43,7 @@ use App\Models\AbstractCategoriesModel;
 use App\Controllers\ExcelController;
 use PhpOffice\PhpWord\Style\Paper;
 
-class SchedulerController extends Controller
+class SchedulerController extends BaseController
 {
     public function __construct()
     {
@@ -150,7 +151,7 @@ class SchedulerController extends Controller
             $admin_accepted_panels = (new PapersModel())->select("papers.*, u.name as user_name, u.surname as user_surname")
                 ->join('panelist_paper_sub pps', 'pps.paper_id = papers.id', 'left')
                 ->join('admin_individual_panel_acceptance aipa', 'pps.id = aipa.individual_panel_id', 'inner')
-                ->join('users u', 'papers.user_id = u.id', 'left')
+                ->join($this->shared_db_name. '.users u', 'papers.user_id = u.id', 'left')
                 ->where('aipa.acceptance_confirmation', '1')
                 ->where('aipa.presentation_preference !=', '2')
                 ->where('papers.id IS NOT NULL') // Only fetch children
@@ -159,7 +160,7 @@ class SchedulerController extends Controller
             foreach ($admin_accepted_panels as &$admin_accepted_panel){
                 //todo: fetch all the panelist abstracts that are already accepted by admin
                 $admin_accepted_panel['panelist_abstract'] = (new PanelistPaperSubModel())
-                    ->join('users u', 'panelist_paper_sub.panelist_id = u.id', 'left')
+                    ->join($this->shared_db_name. '.users u', 'panelist_paper_sub.panelist_id = u.id', 'left')
                     ->join('admin_individual_panel_acceptance aipa', 'panelist_paper_sub.id = aipa.individual_panel_id', 'inner')
                     ->where('aipa.acceptance_confirmation', '1')
                     ->where('aipa.presentation_preference !=', '2')
@@ -189,7 +190,7 @@ class SchedulerController extends Controller
             if(!empty($accepted_abstracts)){
                 foreach ($accepted_abstracts as &$accepted_abstract){
                     $accepted_abstract['details'] = (new PapersModel())->find($accepted_abstract['abstract_id']);
-                    $accepted_abstract['authors'] = (new PaperAuthorsModel())->join('users', 'paper_authors.author_id = users.id')->where(['paper_id'=> $accepted_abstract['abstract_id'], 'is_presenting_author'=>'Yes'])->orderBy('author_order', 'asc')->findAll();
+                    $accepted_abstract['authors'] = (new PaperAuthorsModel())->join($this->shared_db_name. '.users', 'paper_authors.author_id = users.id')->where(['paper_id'=> $accepted_abstract['abstract_id'], 'is_presenting_author'=>'Yes'])->orderBy('author_order', 'asc')->findAll();
                     $accepted_abstract['submitter'] = (new UserModel())->find($accepted_abstract['user_id']);
                 }
             }
