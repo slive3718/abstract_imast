@@ -43,7 +43,8 @@
                 <table id="moderatorTable" class="table table-striped">
                     <thead>
                     <tr>
-                        <th class="col-10">Title</th>
+                        <th class="col-8">Title</th>
+                        <th class="col-2">Date</th>
                         <th class="col-1">Status</th>
                         <th class="col-1"></th>
                     </tr>
@@ -251,6 +252,7 @@
 
                     $('#moderatorTableBody').append('<tr>' +
                         '<td> ' + val.session_title + ' </td>' +
+                        '<td> October 23, 2025 </td>' +
                         '<td>' + acceptanceStatus + '</td>' +
                         '<td>' + openBtn + '</td>' +
                         '</tr>')
