@@ -529,11 +529,17 @@ class AcceptanceController extends Controller
     public function send_acceptance_confirmation($abstract_id){
         $sendMail = new PhpMail();
         $email = (new UserModel())->find(session('user_id'));
+
+        $acceptanceModel =  (new AuthorAcceptanceModel())->where(['abstract_id'=>$abstract_id, 'author_id'=>session('user_id')])->first();
+        if(!$acceptanceModel){
+            return $this->response->setJSON(['status' => 'failed', 'message'=> 'Acceptance record not found']);
+        }
+
         try {
             $from = ['name'=>env('MAIL_FROM'), 'email'=>env('MAIL_FROM_ADDRESS')];
             $addTo = [$email['email']];
             $subject = '33rd IMAST Meeting';
-            $acceptance_data = (new AcceptanceService())->acceptance_message($abstract_id);
+            $acceptance_data = (new AcceptanceService())->acceptance_message($acceptanceModel->acceptance_confirmation);
             $view = view('acceptance/email_templates/acceptance_agree', $acceptance_data);
             $addContent = $view;
 

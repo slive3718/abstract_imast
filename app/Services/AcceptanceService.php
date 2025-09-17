@@ -21,9 +21,10 @@ class AcceptanceService extends BaseService
 
     }
 
-    public function acceptance_message($abstract_id) :array{
-        $acceptanceModel =  (new AuthorAcceptanceModel())->where(['abstract_id'=>$abstract_id, 'author_id'=>session('user_id')])->first();
-        if($acceptanceModel->acceptance_confirmation == 1){
+    public function acceptance_message($acceptance_confirmation) :array{
+//        $acceptanceModel =  (new AuthorAcceptanceModel())->where(['abstract_id'=>$abstract_id, 'author_id'=>session('user_id')])->first();
+//        print_R($acceptanceModel);exit;
+        if($acceptance_confirmation == 1){
             $acceptance_status = "Acceptance Form Successfully Submitted";
             $acceptance_message = "Thank you for confirming your participation in the 33rd International Meeting on Advanced Spine Techniques (IMAST), scheduled for April 15-18, 2026 in Toronto, ON, Canada.";
             $data['acceptance_status'] = $acceptance_status;

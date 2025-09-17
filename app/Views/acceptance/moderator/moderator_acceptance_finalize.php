@@ -34,8 +34,8 @@
                 <div class="row">
                     <div class="col-4 text-end fw-bolder">Participation Status:</div>
                     <div class="col-7">
-                        <?= isset($moderator_acceptance) && $moderator_acceptance['acceptance_confirmation'] == 1 ? "I will moderate at the SRS Asia Pacific Meeting scheduled for February 6-7, 2026 in Fukuoka, Japan." : '' ?>
-                        <?= isset($moderator_acceptance) && $moderator_acceptance['acceptance_confirmation'] == 2 ? "I will NOT moderate at the SRS Asia Pacific Meeting scheduled for February 6-7, 2026 in Fukuoka, Japan." : '' ?>
+                        <?= isset($moderator_acceptance) && $moderator_acceptance['acceptance_confirmation'] == 1 ? "Yes, I confirm my participation, for this assignment, at the 33rd IMAST. " : '' ?>
+                        <?= isset($moderator_acceptance) && $moderator_acceptance['acceptance_confirmation'] == 2 ? "No, I am declining this invitation for the 33rd IMAST. " : '' ?>
                     </div>
 <!--                    <div class="col-1">-->
 <!--                        <span class="float-end"><a class="editBtn btn btn-primary py-0" href="--><?php //=base_url() ?><!--/acceptance/moderator/acceptance/--><?php //= $scheduler_id ?><!--"><i class="fas fa-edit"></i> Edit</a></span>-->
@@ -64,42 +64,19 @@
 
     $(function(){
         function check_finalize() {
-            $.post(baseUrlAcceptance + 'check_finalize_acceptance/' + scheduler_id, function(response) {
+            $.post(baseUrlAcceptance + 'check_finalize_acceptance/'+scheduler_id, function(data) {
                 Swal.close();
-
-                let data;
-                try {
-                    data = typeof response === "string" ? JSON.parse(response) : response;
-                } catch (error) {
-                    console.error("Invalid JSON response", error);
-                    toastr.error("Invalid response received");
-                    return;
-                }
-
-                if (!$.isEmptyObject(data)) {
-                    if(data.status === 'failed'){
-                        swal.fire({
-                            title: 'error',
-                            icon: "error",
-                            html: data.msg,
-                        })
-                        return false;
+                console.log(data)
+                let status = (data.status === 'success') ? 'success' : 'error';
+                swal.fire({
+                    title: "Acceptance Submitted!",
+                    icon: status,
+                    html: data.message,
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = base_url + "acceptance/abstract_list";
                     }
-                    swal.fire({
-                        title: data.status === 'success' ? "Acceptance Submitted!" : "Success",
-                        icon: "success",
-                        html: data.msg,
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = "<?= base_url() ?>/acceptance/abstract_list";
-                        }
-                    });
-                } else {
-                    toastr.error("Something went wrong");
-                }
-            }).fail(function(jqXHR, textStatus, errorThrown) {
-                console.error("AJAX error:", textStatus, errorThrown);
-                toastr.error("Failed to check finalization. Please try again.");
+                });
             });
         }
 

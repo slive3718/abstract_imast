@@ -13,6 +13,7 @@ use App\Models\PanelistPaperSubModel;
 use App\Models\RoomsModel;
 use App\Models\SchedulerModel;
 use App\Models\SchedulerSessionTalksModel;
+use App\Services\AcceptanceService;
 use CodeIgniter\Controller;
 use App\Models\Core\Api;
 use App\Models\UserModel;
@@ -381,11 +382,20 @@ class ModeratorAcceptanceController extends BaseController
     public function send_acceptance_confirmation($scheduler_id){
         $sendMail = new PhpMail();
         $email = (new UserModel())->find(session('user_id'));
+
+        $acceptanceModel =  (new ModeratorAcceptanceModel())->where(['scheduler_id'=>$scheduler_id, 'author_id'=>session('user_id')])->first();
+        if(!$acceptanceModel){
+            return $this->response->setJSON(['status' => 'failed', 'message'=> 'Acceptance record not found']);
+        }
+
         try {
             $from = ['name'=>env('MAIL_FROM'), 'email'=>env('MAIL_FROM_ADDRESS')];
             $addTo = [$email['email']];
-            $subject = 'SRS Asia Pacific Meeting 2026';
-            $addContent = "Thank you for confirming your participation in the SRS Asia Pacific Meeting scheduled for February 6-7, 2026 in Fukuoka, Japan.   If you have any questions, please direct them to <a href='mailto:education@srs.org'>education@srs.org </a>.";
+            $subject = '33rd IMAST Meeting';
+            $acceptance_data = (new AcceptanceService())->acceptance_message($acceptanceModel->acceptance_confirmation);
+            $view = view('acceptance/email_templates/acceptance_agree', $acceptance_data);
+            $addContent = $view;
+
             $response = $sendMail->send($from, $addTo, $subject, $addContent);
 
             $email_logs_array = [
@@ -393,20 +403,20 @@ class ModeratorAcceptanceController extends BaseController
                 'add_to' => ($addTo),
                 'subject' => $subject,
                 'add_content' => $addContent,
-                'send_from' => "Acceptance",
-                'send_to' => "Moderator",
+                'send_from' => "Submitter",
+                'send_to' => "Author",
                 'level' => "Info",
                 'template_id' => null,
-                'paper_id' => '0',
+                'paper_id' => 0,
                 'user_agent' => $this->request->getUserAgent()->getBrowser(),
                 'ip_address' => $this->request->getIPAddress(),
             ];
 
-            if ($response->statusCode == 200) {
+            if ($response->statusCode >= 200 && $response->statusCode < 300) {
                 $logs = new LogsModel();
                 $emailLogs = [
                     'user_id' => session('user_id'),
-                    'ref_1' => $scheduler_id,
+                    'ref_1' => session('user_id'),
                     'action' => 'email',
                     'ip_address' => $this->request->getIPAddress(),
                     'user_agent' => $this->request->getUserAgent()->getBrowser(),
@@ -418,14 +428,15 @@ class ModeratorAcceptanceController extends BaseController
                 ($logs->save($emailLogs));
 
                 $email_logs_array['status'] = 'Success';
+
                 $emailLogsModel = (new EmailLogsModel())->saveToMailLogs($email_logs_array);
 
-                return $this->response->setJSON(['status' => 'success', 'msg'=> 'Acceptance Email Sent Successfully, <br> We look forward to seeing you in Fukuoka, Japan!']);
+                return $this->response->setJSON(['status' => 'success', 'message'=> $acceptance_data['acceptance_message']]);
             } else {
                 // Email sending failed
                 $email_logs_array['status'] = 'Failed';
                 $emailLogsModel = (new EmailLogsModel())->saveToMailLogs($email_logs_array);
-                return $this->response->setJSON(['status' => 'failed', 'msg'=> 'Failed to send email']);
+                return $this->response->setJSON(['status' => 'failed', 'message'=> 'Failed to send email']);
             }
             // Send the email
         }catch (\Exception $e){
@@ -433,27 +444,6 @@ class ModeratorAcceptanceController extends BaseController
         }
 
     }
-    
-    public function acceptance_message($abstract_id){
-        $acceptanceModel =  (new AuthorAcceptanceModel())->where(['abstract_id'=>$abstract_id, 'author_id'=>session('user_id')])->get();
-        if($acceptanceModel[0]->acceptance_confirmation == '1'){
-            $acceptance_status = "Acceptance Form Successfully Submitted";
-            $acceptance_message = "Thank you for confirming your participation in AFS 129th Annual Meeting, 
-            being held in Denver, Colorado For more information regarding the AFS 129th Annual Meeting ,
-            please visit our website.
-            <br>AFS Acceptance <a href=".base_url()."/acceptance> Login Page. </a> ";
-            $data['acceptance_status'] = $acceptance_status;
-            $data['acceptance_message'] = $acceptance_message;
-        }else{
-            $acceptance_status = "Acceptance Form Successfully Submitted";
-            $acceptance_message = "It is unfortunate that you cannot participate in the year's meeting. We look forward to receiving your proposal again next year.
-            <br>AFS Acceptance <a href=".base_url()."/acceptance> Login Page. </a> ";
-            $data['acceptance_status'] = $acceptance_status;
-            $data['acceptance_message'] = $acceptance_message;
-        }
-        return view('acceptance/email_templates/acceptance_agree', $data);
-    }
-
 
     public function acceptance_data($scheduler_id){
         return $this->response->setJSON((new ModeratorAcceptanceModel())->where(['scheduler_id'=> $scheduler_id, 'author_id'=>session('user_id')])->findAll());
@@ -462,7 +452,7 @@ class ModeratorAcceptanceController extends BaseController
 
     public function check_finalize_acceptance($scheduler_id){
         $checkAcceptance = (new ModeratorAcceptanceModel())->checkAcceptance($scheduler_id);
-//        print_R($checkAcceptance);exit;
+
         if($checkAcceptance['status'] == 'success'){
             return $this->save_finalized_acceptance($scheduler_id);
         }else{

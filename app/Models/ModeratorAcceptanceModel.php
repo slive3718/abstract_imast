@@ -111,6 +111,7 @@ class ModeratorAcceptanceModel extends Model
     function checkAcceptance($scheduler_id){
         try {
              $result = $this->where(['scheduler_id'=>$scheduler_id, 'author_id'=>session('user_id')])->first();
+//             print_r($result->acceptance_confirmation);exit;
              if(!$result)
                  return ['status'=>'failed', 'msg'=> 'No result found!'];
 //             if($result->breakfast_attendance == '')
