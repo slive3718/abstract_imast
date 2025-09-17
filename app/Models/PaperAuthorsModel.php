@@ -46,7 +46,7 @@ class PaperAuthorsModel extends BaseModel
             // Returning the query builder instance, don't execute the query here
             return $this->table('paper_authors')
                 ->select('paper_authors.*, u.name as user_name, u.surname as user_surname, IFNULL(rpa.id, 0) as is_removed')
-                ->join('abstract_suit_shared_db.users u', 'paper_authors.author_id = u.id', 'left')
+                ->join($this->sharedDB->database.'.users u', 'paper_authors.author_id = u.id', 'left')
                 ->join('removed_paper_authors rpa', 'paper_authors.id = rpa.paper_author_id', 'left')
                 ->where('author_type', 'panelist');
         } catch (\CodeIgniter\Database\Exceptions\DatabaseException $e) {
@@ -60,7 +60,7 @@ class PaperAuthorsModel extends BaseModel
         try {
             return $this->table('paper_authors')
                 ->select('paper_authors.*, u.name as user_name, u.surname as user_surname, IFNULL(rpa.id, 0) as is_removed')
-                ->join('abstract_suit_shared_db.users u', 'paper_authors.author_id = u.id', 'left')
+                ->join($this->sharedDB->database.'.users u', 'paper_authors.author_id = u.id', 'left')
                 ->join('removed_paper_authors rpa', 'paper_authors.id = rpa.paper_author_id', 'left')
                 ->where('paper_authors.paper_id', $paper_id)
                 ->where('author_type', 'coordinator')
@@ -79,7 +79,7 @@ class PaperAuthorsModel extends BaseModel
         try {
             $query =  $this->table('paper_authors')
                 ->select('paper_authors.*, u.name as user_name, u.surname as user_surname,  IFNULL(rpa.id, 0) as is_removed')
-                ->join('abstract_suit_shared_db.users u', 'paper_authors.author_id = u.id', 'left')
+                ->join($this->sharedDB->database.'.users u', 'paper_authors.author_id = u.id', 'left')
                 ->join('removed_paper_authors rpa', 'paper_authors.id = rpa.paper_author_id', 'left');
                 if($paper_id){
                     $query  ->where('paper_authors.paper_id', $paper_id);
