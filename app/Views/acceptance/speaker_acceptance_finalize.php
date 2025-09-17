@@ -107,27 +107,16 @@
         function check_finalize() {
             $.post(baseUrlAcceptance + 'check_finalize_acceptance/'+abstract_id, function(data) {
                 Swal.close();
-                if (data.status === 'success') {
-                    swal.fire({
-                        title: "Acceptance Submitted!",
-                        icon: "success",
-                        html: data.msg,
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = baseUrlAcceptance + "/abstract_list";
-                        }
-                    });
-                } else {
-                    swal.fire({
-                        title: "Success",
-                        icon: "success",
-                        html: data.msg,
-                    }).then((result) => {
-                        if (result.isConfirmed) {
-                            window.location.href = baseUrlAcceptance + "/abstract_list";
-                        }
-                    });
-                }
+                let status = (data.status === 'success') ? 'success' : 'error';
+                swal.fire({
+                    title: "Acceptance Submitted!",
+                    icon: status,
+                    html: data.message,
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        window.location.href = baseUrlAcceptance + "acceptance/abstract_list";
+                    }
+                });
             });
         }
 
