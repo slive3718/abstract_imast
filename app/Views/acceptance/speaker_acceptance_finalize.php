@@ -114,7 +114,7 @@
                     html: data.message,
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        window.location.href = baseUrlAcceptance + "acceptance/abstract_list";
+                        window.location.href = baseUrlAcceptance + "abstract_list";
                     }
                 });
             });
