@@ -1024,7 +1024,7 @@ class EmailController extends BaseController
 
         // Clone the query to get success counts
         $successCountQuery = clone $query;
-        $successCountQuery = $successCountQuery->select('unique_code, SUM(CASE WHEN LOWER(status) = "success" THEN 1 ELSE 0 END) as success_count')
+        $successCountQuery = $successCountQuery->select('unique_code, SUM(CASE WHEN LOWER(status) = "success" OR (status >= 200 AND status < 300) THEN 1 ELSE 0 END) as success_count')
             ->groupBy('unique_code')
             ->findAll();
 
@@ -1054,13 +1054,20 @@ class EmailController extends BaseController
             $unique_code = $log['unique_code'];
             $groupCount = isset($groupCounts[$unique_code]) ? $groupCounts[$unique_code] : 0;
             $successCount = isset($successCounts[$unique_code]) ? $successCounts[$unique_code] : 0;
+
+            if($log['is_test'] == 1 ){
+                $status = ($successCount >= 1 ? 'Success' : 'Failed' );
+            }else{
+                $status = ($successCount == $log['total_recipients'] ? 'Success' : 'Failed' );
+            }
+
             $data[] = [
                 $log['recipient_type'],
                 $log['recipient_group'],
                 ($log['is_test'] == 1 ? "<span class='text-danger'>TEST</span>" : ""),
                 $log['ref_1'],
                 $log['subject'],
-                $log['status'],
+                $status,
                 $log['template_id'],
                 $log['created_at'],
                 $groupCount,       // Total count for the group
