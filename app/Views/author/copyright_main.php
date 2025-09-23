@@ -21,8 +21,8 @@
                                     <strong>Financial Relationship Disclosure</strong>
                                 </div>
                                 <div class="text-end">
-                                    Current date: <span class=""> <?=$author['signature_signed_date'] ?? ''?></span> &nbsp; | &nbsp;
-                                    Expires: <span class=""><?= $author['signature_signed_date'] ? date('Y-m-d', strtotime($author['signature_signed_date'] . ' +1 year')) : ''; ?></span> &nbsp; | &nbsp;
+                                    Current date: <span class=""> <?=$disclosure_current_date ?? ''?></span> &nbsp; | &nbsp;
+                                    Expires: <span class=""><?= $disclosure_current_date ? date('Y-m-d', strtotime($disclosure_current_date . ' +1 year')) : ''; ?></span> &nbsp; | &nbsp;
                                    <?= !empty($author['disclosure_signature']) && $author['signature_signed_date'] ? '<span class="text-success fw-bold">Completed </span>' : '<span class="text-danger fw-bold">Incomplete</span>' ?>
                                 </div>
                             </a>
