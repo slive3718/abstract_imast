@@ -24,10 +24,14 @@ class UserManagerController extends Controller
 
     protected $helpers = ['form'];
     private $db;
+    private $userModel;
+    private $userProfileModel;
     public function __construct()
     {
 
         $this->db = \Config\Database::connect();
+        $this->userModel = new UserModel();
+        $this->userProfileModel = new UsersProfileModel();
     }
 
     public function index(){
@@ -552,7 +556,7 @@ class UserManagerController extends Controller
             'surname' => 'required|max_length[255]',
         ];
 
-        if (!$this->validate($rules)) {
+        if (!(new UserModel())->validate($rules)) {
             return $this->response->setJSON([
                 'status' => 'error',
                 'errors' => $this->validator->getErrors(),
