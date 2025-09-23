@@ -61,6 +61,8 @@ class Author extends BaseController
 
         $disclosure_current_date = (new SiteSettingModel())->where('name', 'disclosure_current_date')->first()['value'];
         $disclosure_expire_date = date('Y-m-d', strtotime($disclosure_current_date . ' +1 year'));
+        $isExpired = strtotime($disclosure_current_date) > strtotime($author['signature_signed_date']);
+
         $attestation = (new AttestationModel())->where('author_id', session('user_id'))->first();
 
         $header_data = [
@@ -71,7 +73,8 @@ class Author extends BaseController
             'author'=>$author,
             'disclosure_current_date' => $disclosure_current_date,
             'disclosure_expire_date' => $disclosure_expire_date,
-            'attestation' => !empty($attestation) ? $attestation : null
+            'attestation' => !empty($attestation) ? $attestation : null,
+            'isExpired' => $isExpired ? 1: 0
         ];
 
         return

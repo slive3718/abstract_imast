@@ -22,8 +22,8 @@
                                 </div>
                                 <div class="text-end">
                                     Current date: <span class=""> <?=$disclosure_current_date ?? ''?></span> &nbsp; | &nbsp;
-                                    Expires: <span class=""><?= $disclosure_current_date ? date('Y-m-d', strtotime($disclosure_current_date . ' +1 year')) : ''; ?></span> &nbsp; | &nbsp;
-                                   <?= !empty($author['disclosure_signature']) && $author['signature_signed_date'] ? '<span class="text-success fw-bold">Completed </span>' : '<span class="text-danger fw-bold">Incomplete</span>' ?>
+                                    Expires: <span class=""><?= $disclosure_expire_date ?? '' ?></span> &nbsp; | &nbsp;
+                                   <?= (isset($isExpired) && $isExpired == 0) ? '<span class="text-success fw-bold">Completed </span>' : '<span class="text-danger fw-bold">Incomplete</span>' ?>
                                 </div>
                             </a>
 
