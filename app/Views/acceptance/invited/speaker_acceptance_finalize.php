@@ -1,6 +1,7 @@
 <?php echo view('acceptance/common/menu'); ?>
 <body>
 <div class="container" >
+    <?= view('acceptance/common/invited_menu_shortcut'); ?>
     <?=$presentation_data_view ?? ''?>
     <?php if (1 == 2) : ?>
         <div class="card mt-2">
@@ -65,7 +66,7 @@
             <div class="row">
                 <div class="col-4 text-end fw-bolder">Participation Status :</div>
                 <div class="col-7">
-                    <?= isset($author_acceptance) && $author_acceptance['acceptance_confirmation'] == 1 ? "I plan to present at the 129th AFS Metalcasting Congress held in Atlanta, Georgia, April 12-15, 2025. " : '' ?>
+                    <?= isset($author_acceptance) && $author_acceptance['acceptance_confirmation'] == 1 ? "I plan to present at the 33rd IMAST held in Toronto, ON, Canada, April 15-18, 2026." : '' ?>
                     <?= isset($author_acceptance) && $author_acceptance['acceptance_confirmation'] == 2 ? "I am unable to participate in the 129th AFS Metalcasting Congress held in Atlanta, Georgia, April 12-15, 2025. " : '' ?>
                 </div>
                 <div class="col-1">

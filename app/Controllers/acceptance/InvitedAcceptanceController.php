@@ -259,7 +259,7 @@ class InvitedAcceptanceController extends AcceptanceController
             'authors' => $authors,
             'abstract_details' => $abstract_details,
             'abstract_preference' => $abstract_preference,
-            'presentation_data_view' => $this->presentation_data_view($abstract_id)
+            'presentation_data_view' => $this->invited_presentation_data_view($abstract_id)
         ];
         return
             view('acceptance/common/header', $header_data).
