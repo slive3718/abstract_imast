@@ -75,7 +75,7 @@
                     <tr>
                         <td> Financial Relationship Disclosure</td>
                         <td> <?= date('F d, Y',strtotime($disclosure_current)) ?></td>
-                        <td> <?= ( !empty($user_data) && !empty($user_data['signature_signed_date']) ? strtotime($user_data['signature_signed_date']) >= strtotime($disclosure_current)
+                        <td> <?= ( !empty($user_data) && !empty($user_data['signature_signed_date']) ? strtotime($user_data['signature_signed_date']) > strtotime($disclosure_current)
                                 ? '<span class="badge bg-success text-white">Current '.date('m-d-Y',strtotime($user_data['signature_signed_date'])).' </span>'
                                 : '<span class="badge bg-warning text-dark"> Outdated '.date('m-d-Y',strtotime($user_data['signature_signed_date'])).' </span>'
                                 : '<span class="badge bg-danger text-white">Incomplete</span>') ?></td>
