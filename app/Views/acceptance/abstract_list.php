@@ -74,7 +74,7 @@
                     <tbody id="presenterFormsTableBody">
                     <tr>
                         <td> Financial Relationship Disclosure</td>
-                        <td> <?= date('F d, Y',strtotime($disclosure_current)) ?></td>
+                        <td>  October 23, 2025 </td>
                         <td> <?= ( !empty($user_data) && !empty($user_data['signature_signed_date']) ? strtotime($user_data['signature_signed_date']) > strtotime($disclosure_current)
                                 ? '<span class="badge bg-success text-white">Current '.date('m-d-Y',strtotime($user_data['signature_signed_date'])).' </span>'
                                 : '<span class="badge bg-warning text-dark"> Outdated '.date('m-d-Y',strtotime($user_data['signature_signed_date'])).' </span>'
@@ -89,7 +89,7 @@
                     </tr>-->
                     <tr>
                         <td> Non-Exclusive License</td>
-                        <td> <?= $non_exclusive_current = date('F d, Y',strtotime($non_exclusive_current)) ?></td>
+                        <td> October 23, 2025 </td>
                         <td> <?= ( !empty($user_data) && !empty($user_data['non_exclusive_license_date']) ? strtotime($user_data['non_exclusive_license_date']) > strtotime($non_exclusive_current)
                                 ? '<span class="badge bg-success text-white">Current  '.date('m-d-Y', strtotime($user_data['non_exclusive_license_date'])).'</span>'
                                 : '<span class="badge bg-warning text-dark"> Outdated '.date('m-d-Y', strtotime($user_data['non_exclusive_license_date'])).'</span>'
@@ -236,7 +236,7 @@
                         // '<td>' + (val.room && val.room.name ? val.room.name : '') + '</td>' +
                         '<td>' + (val.schedule ? new Date(val.schedule.session_date).toISOString    ().split('T')[0] : '') + '</td>' +
                         '<td>' + ( presentationStartTime ? presentationStartTime +' - '+ presentationEndTime : '') + '</td>' +
-                        '<td> '+(val.type ? currentDate : '')+'</td>' +
+                        '<td> October 23, 2025</td>' +
                         '<td>'+(val.author_acceptance_data ? parseInt(val.author_acceptance_data.acceptance_confirmation) == 1 ?
                             "<span class='badge bg-success text-white'>Able to participate</span>"
                             : "<span class='badge bg-warning text-dark'> Unable to Participate </span>"
