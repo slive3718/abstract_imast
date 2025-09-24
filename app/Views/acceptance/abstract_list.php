@@ -94,7 +94,7 @@
                                 ? '<span class="badge bg-success text-white">Current  '.date('m-d-Y', strtotime($user_data['non_exclusive_license_date'])).'</span>'
                                 : '<span class="badge bg-warning text-dark"> Outdated '.date('m-d-Y', strtotime($user_data['non_exclusive_license_date'])).'</span>'
                                 : '<span class="badge bg-danger text-white">Incomplete</span>') ?></td>
-                        <td class="text-end"><a href="<?= base_url()?>/acceptance/non_exclusive_license" target="_blank" class="btn btn-success btn-sm w-100"> Open </a></td>
+                        <td class="text-end"><a href="<?= base_url()?>/acceptance/non_exclusive_license" class="btn btn-success btn-sm w-100"> Open </a></td>
                     </tr>
                     </tbody>
                 </table>

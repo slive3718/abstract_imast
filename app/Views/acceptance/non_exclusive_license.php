@@ -102,7 +102,7 @@
             icon: 'success'
         }).then((result) => {
             if(result.isConfirmed){
-                window.close()
+                window.location.href = acceptanceBaseUrl;
             }
         });
     }
