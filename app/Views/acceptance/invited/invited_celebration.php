@@ -72,6 +72,12 @@
 
     function save_innovation_attendance(abstract_id) {
         const attendance = $('input[name="celebration_attendance"]:checked').val();
+        
+        if(!attendance){
+            toastr.error('Please answer required question.');
+            return false;
+        }
+
         return $.ajax({
             url: `${base_url}acceptance/update_acceptance`,
             type: 'POST',
