@@ -73,12 +73,11 @@
                     </thead>
                     <tbody id="presenterFormsTableBody">
                     <tr>
-                        <?php $frdCurrent = "2025/07/01" ?>
                         <td> Financial Relationship Disclosure</td>
-                        <td> <?= date('F d, Y',strtotime($frdCurrent)) ?></td>
-                        <td> <?= ( !empty($user_data) && !empty($user_data['signature_signed_date']) ? strtotime($user_data['signature_signed_date']) >= strtotime($frdCurrent)
+                        <td> <?= date('F d, Y',strtotime($disclosure_current)) ?></td>
+                        <td> <?= ( !empty($user_data) && !empty($user_data['signature_signed_date']) ? strtotime($user_data['signature_signed_date']) >= strtotime($disclosure_current)
                                 ? '<span class="badge bg-success text-white">Current '.date('m-d-Y',strtotime($user_data['signature_signed_date'])).' </span>'
-                                : '<span class="badge bg-warning text-dark"> Outdated </span>'
+                                : '<span class="badge bg-warning text-dark"> Outdated '.date('m-d-Y',strtotime($user_data['signature_signed_date'])).' </span>'
                                 : '<span class="badge bg-danger text-white">Incomplete</span>') ?></td>
                         <td class="text-end"> <a href="<?=base_url().'author/financial_relationship_disclosure/'?>" target="_blank" class="btn btn-success btn-sm w-100"> Open </a></td>
                     </tr>
@@ -89,10 +88,9 @@
                         <td class="text-end"><a href="<?php /*= base_url()*/?>/acceptance/attestation" target="_blank" class="btn btn-success btn-sm w-100"> Open </a></td>
                     </tr>-->
                     <tr>
-                        <?php $NELCurrent = "2025/10/23" ?>
                         <td> Non-Exclusive License</td>
-                        <td> <?= $NELCurrent = date('F d, Y',strtotime($NELCurrent)) ?></td>
-                        <td> <?= ( !empty($user_data) && !empty($user_data['non_exclusive_license_date']) ? strtotime($user_data['non_exclusive_license_date']) > strtotime($NELCurrent)
+                        <td> <?= $non_exclusive_current = date('F d, Y',strtotime($non_exclusive_current)) ?></td>
+                        <td> <?= ( !empty($user_data) && !empty($user_data['non_exclusive_license_date']) ? strtotime($user_data['non_exclusive_license_date']) > strtotime($non_exclusive_current)
                                 ? '<span class="badge bg-success text-white">Current  '.date('m-d-Y', strtotime($user_data['non_exclusive_license_date'])).'</span>'
                                 : '<span class="badge bg-warning text-dark"> Outdated '.date('m-d-Y', strtotime($user_data['non_exclusive_license_date'])).'</span>'
                                 : '<span class="badge bg-danger text-white">Incomplete</span>') ?></td>
@@ -176,6 +174,7 @@
 
 
             $.each(response.data, function(i, val){
+                console.log(val)
                 let openBtn  = `<button class="btn btn-success btn-sm openBtn text-right float-end w-100" abstract_id='${val.paper_data.id}' data-accepted-for="${val.admin_acceptance_data.presentation_preference}"> Open </button>`
                 let adminPresentationPref = '';
                 let adminAcceptance = '';
@@ -224,6 +223,12 @@
                     const presentationEndTime =  (val.schedule ? new Date(val.schedule.session_end_time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : '')
 
                     console.log(adminPresentationPref)
+                    let currentDate = (val.type && val.type.acceptance_current_date ?
+                        new Date(val.type.acceptance_current_date).toLocaleDateString('en-US', {
+                            month: 'long',
+                            day: 'numeric',
+                            year: 'numeric'
+                        }) : '');
                     $('#abstractTableBody').append('<tr>' +
                         '<td>' + customId + '</td>' +
                         '<td>' + val.paper_data.title + '</td>' +
@@ -231,7 +236,7 @@
                         // '<td>' + (val.room && val.room.name ? val.room.name : '') + '</td>' +
                         '<td>' + (val.schedule ? new Date(val.schedule.session_date).toISOString    ().split('T')[0] : '') + '</td>' +
                         '<td>' + ( presentationStartTime ? presentationStartTime +' - '+ presentationEndTime : '') + '</td>' +
-                        '<td> '+((adminPresentationPref === 'Invited Faculty') ?  'October 23, 2025' : 'June 30, 2025')+'</td>' +
+                        '<td> '+(val.type ? currentDate : '')+'</td>' +
                         '<td>'+(val.author_acceptance_data ? parseInt(val.author_acceptance_data.acceptance_confirmation) == 1 ?
                             "<span class='badge bg-success text-white'>Able to participate</span>"
                             : "<span class='badge bg-warning text-dark'> Unable to Participate </span>"

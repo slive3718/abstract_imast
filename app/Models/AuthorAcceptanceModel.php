@@ -264,6 +264,7 @@ class AuthorAcceptanceModel extends Model
                 )->first();
             $paper['schedule'] = (new SchedulerSessionTalksModel())->get_talk_schedule_query($paper['paper_id'])->first();
             $paper['room'] = [];
+            $paper['type'] = (new PaperTypeModel())->find($paper['paper_data']->type_id);
             if($paper['schedule']) {
                 $paper['room'] = (new RoomsModel())->find($paper['schedule']['room_id']);
             }

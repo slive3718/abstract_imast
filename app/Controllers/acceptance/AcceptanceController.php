@@ -20,6 +20,7 @@ use App\Models\AuthorAcceptanceModel;
 use App\Models\RemovedPaperAuthorModel;
 
 use App\Controllers\admin\Abstracts\AbstractController;
+use mysql_xdevapi\Exception;
 use PhpOffice\PhpWord\Settings;
 
 class AcceptanceController extends Controller
@@ -63,12 +64,17 @@ class AcceptanceController extends Controller
             ->where('users.id', session('user_id'))
             ->first();
 
-        $disclosureCurrent = (new SiteSettingModel())->where('name', 'disclosure_current_date')->first();
+        $disclosureCurrent = (new SiteSettingModel())->where('name', 'disclosure_current_date')->first()['value'];
+        $nonExclusiveCurrent = (new SiteSettingModel())->where('name', 'non_exclusive_current_date')->first()['value'];
+
+        if(!$disclosureCurrent || !$nonExclusiveCurrent)
+            return('System error: Missing site settings. Please contact support.');
 
         $data = [
             'paper_types' => (new PaperTypeModel())->findAll()??[],
             'user_data' => $userData,
-            'disclosure_current' => $disclosureCurrent
+            'disclosure_current' => $disclosureCurrent,
+            'non_exclusive_current' => $nonExclusiveCurrent
         ];
 
 
