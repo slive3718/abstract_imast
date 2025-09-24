@@ -418,7 +418,7 @@ class AcceptanceController extends Controller
         $update_array = [];
         if(!empty($post['non_exclusive_license_signature'])){
             $update_array['non_exclusive_license_signature'] = $post['non_exclusive_license_signature'];
-            $update_array['non_exclusive_license_date'] = $post['non_exclusive_license_date'];
+            $update_array['non_exclusive_license_date'] = date("Y-m-d H:i:s");
             $update_array['registered_copyright'] = $post['registered_copyright'];
         }
 

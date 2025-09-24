@@ -398,7 +398,7 @@ class Author extends BaseController
         // Prepare data for updating user profile
         $data = [
             'signature' => $request['attestation_signature'] ?? null,
-            'date'   => date('Y-m-d', strtotime($request['attestation_date'])) ?? null
+            'date'   => date('Y-m-d')
         ];
 
         $model = new AttestationModel();
