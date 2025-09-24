@@ -549,8 +549,9 @@ class AcceptanceController extends Controller
                 'user_id' => session('user_id'),
                 'add_to' => ($addTo),
                 'subject' => $subject,
+                'ref_1' => 'finalized_acceptance',
                 'add_content' => $addContent,
-                'send_from' => "Submitter",
+                'send_from' => "Acceptance",
                 'send_to' => "Author",
                 'level' => "Info",
                 'template_id' => null,
@@ -574,16 +575,15 @@ class AcceptanceController extends Controller
 
                 ($logs->save($emailLogs));
 
-                $email_logs_array['status'] = 'Success';
-
+                $email_logs_array['status'] = $response->statusCode;
                 $emailLogsModel = (new EmailLogsModel())->saveToMailLogs($email_logs_array);
 
                 return $this->response->setJSON(['status' => 'success', 'message'=> $acceptance_data['acceptance_message']]);
             } else {
                 // Email sending failed
-                $email_logs_array['status'] = 'Failed';
+                $email_logs_array['status'] = $response->statusCode;
                 $emailLogsModel = (new EmailLogsModel())->saveToMailLogs($email_logs_array);
-                return $this->response->setJSON(['status' => 'failed', 'message'=> 'Failed to send email']);
+                return ['status' => 500, 'msg'=> 'Failed to send email'];
             }
             // Send the email
         }catch (\Exception $e){
@@ -597,6 +597,23 @@ class AcceptanceController extends Controller
     }
 
     public function check_finalize_acceptance($abstract_id){
+
+        $user = (new UserModel())->find(session('user_id'));
+        $user['profile'] = (new UsersProfileModel())->where('author_id', session('user_id'))->first();
+
+        $currentDisclosureDate = (new SiteSettingModel())->get_current_disclosure_date('disclosure_current_date');
+        $signatureDate = $user['profile']['signature_signed_date'] ?? null;
+        $isCurrentDisclosure = $signatureDate && strtotime($signatureDate) >=  strtotime($currentDisclosureDate);
+
+        $currentNonExclusiveDate = (new SiteSettingModel())->get_current_nonexclusive_date('non_exclusive_current_date');
+        $nonExclusiveDate = $user['profile']['non_exclusive_license_date'] ?? null;
+        $isCurrentNonExclusive = $nonExclusiveDate && strtotime($nonExclusiveDate) >= strtotime($currentNonExclusiveDate);
+
+        if(!$isCurrentDisclosure || !$isCurrentNonExclusive){
+            (session())->setFlashdata('error', 'Please update the Disclosure and Non-Exclusive License forms under Presenter Forms.');
+            return  $this->response->setJSON(['status'=>'failed', 'message'=> 'Please update the Disclosure and Non-Exclusive License forms. Click OK to redirect to main page and update the forms.']);
+        }
+
         $checkAcceptance = (new AuthorAcceptanceModel())->checkAcceptance($abstract_id);
         if($checkAcceptance['status'] == 'success'){
             return $this->save_finalized_acceptance($abstract_id);

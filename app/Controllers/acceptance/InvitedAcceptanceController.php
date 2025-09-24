@@ -6,6 +6,7 @@ use App\Models\PaperAuthorsModel;
 use App\Models\RoomsModel;
 use App\Models\SchedulerModel;
 use App\Models\SchedulerSessionTalksModel;
+use App\Models\SiteSettingModel;
 use App\Models\UsersProfileModel;
 use App\Models\UserModel;
 use App\Models\PapersModel;
@@ -260,7 +261,6 @@ class InvitedAcceptanceController extends AcceptanceController
             'abstract_preference' => $abstract_preference,
             'presentation_data_view' => $this->presentation_data_view($abstract_id)
         ];
-
         return
             view('acceptance/common/header', $header_data).
             view('acceptance/invited/speaker_acceptance_finalize', $data).

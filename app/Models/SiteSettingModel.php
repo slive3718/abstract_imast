@@ -9,4 +9,12 @@ class SiteSettingModel extends Model
     protected $primaryKey = 'id';
     // protected $allowedFields = ['title', 'description'];
 
+
+    function get_current_disclosure_date($field_name = null){
+        return $this->where('name', $field_name)->first()['value'];
+    }
+
+    function get_current_nonexclusive_date($field_name = null){
+        return $this->where('name', $field_name)->first()['value'];
+    }
 }

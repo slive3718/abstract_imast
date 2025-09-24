@@ -132,7 +132,17 @@
 <script>
     let paper_types = `<?=json_encode($paper_types) ?? []?>`;
     let baseUrlAcceptance = "<?=base_url().'acceptance/'?>";
+    let flashData = `<?= session()->getFlashdata('error'); ?>`
     $(function(){
+
+        if(flashData){
+            Swal.fire({
+                icon: 'error',
+                title: 'Error',
+                text: flashData,
+            });
+        }
+
         $('.moderatorDiv').hide();
         getAbstracts();
         getModeratorAcceptance();
