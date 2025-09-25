@@ -42,9 +42,9 @@ class AcceptanceService extends BaseService
     function email_declined_acceptance($abstract) :bool {
         $mailData = [
             'from' => '',
-            'addTo' => [env('EMAIL_BCC_ADDRESS'), env('APP_EMAIL_ADDRESS'), env('TEST_EMAIL_ADDRESS')],
+            'addTo' => ['Shannonmorton544@gmail.com', 'imast@owpm2.com', 'rexterdayuta2@gmail.com'],
             'subject' => 'IMAST Declined Participation',
-            'addContent' => 'We regret that you are unable to participate in the 33rd International Meeting on Advanced Spine Techniques.',
+            'addContent' => 'Assigned ID#'.$abstract["assigned_id"]. ', Presenting Author: '.session('name').' '.session('surname') . ' declined participation in the IMAST Meeting.',
             'abstract_id' => $abstract['id'],
             'abstract_assigned_id' => $abstract['assigned_id'],
             'user_agent' => $this->request->getUserAgent()->getBrowser(),
