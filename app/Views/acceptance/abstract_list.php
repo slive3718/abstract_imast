@@ -119,7 +119,7 @@
                         <tr>
                             <td>Meeting Website: Housing, Registration, Program and AV Guidelines </td>
                             <td></td>
-                            <td><a href="https://www.srs.org/Meetings-Conferences/Regional-Scientific-Meeting/RSM-2026" target="_blank" class="btn btn-success btn-sm w-100"> Open </a></td>
+                            <td><a href="https://www.srs.org/Meetings-Conferences/IMAST/IMAST2026" target="_blank" class="btn btn-success btn-sm w-100"> Open </a></td>
                         </tr>
                     </tbody>
                 </table>
