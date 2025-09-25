@@ -71,6 +71,7 @@
             }
 
             console.log(participationValue); // Log the selected value
+            // return false;
             const formData = new FormData(document.getElementById('presentation_agreement_form'));
             formData.append('abstract_id', abstract_id)
             $.ajax({
@@ -97,6 +98,10 @@
                         toastr.error(response.message);
                         return false;
                     }
+                    if(participationValue == '2'){
+                        goFinalize(abstract_id)
+                        return false;
+                    }else
                         goNext(abstract_id)
                         toastr.success(response.message)
                 },
@@ -112,6 +117,8 @@
     function goNext(abstract_id){
         window.location.href = acceptanceBaseUrl+'invited_speaker_travel_expense/'+abstract_id
     }
-
+    function goFinalize(abstract_id){
+        window.location.href = acceptanceBaseUrl+'invited_speaker_acceptance_finalize/'+abstract_id
+    }
 </script>
 
