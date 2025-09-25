@@ -66,9 +66,11 @@
                 processData: false,
                 contentType: false,
                 success: function(response) {
-                    if(response.status === 'success') {
-                        goNext(abstract_id)
+                    if(response.status !== 'success') {
+                        toastr.error(response.message);
+                        return false;
                     }
+                    goNext(abstract_id)
                 },
                 error: function(xhr, status, error) {
                     $('#response').html('<p>Error: ' + error + '</p>');
