@@ -43,8 +43,10 @@
                 <table id="moderatorTable" class="table table-striped">
                     <thead>
                     <tr>
-                        <th class="col-8">Title</th>
-                        <th class="col-2">Date</th>
+                        <th class="col-6">Title</th>
+                        <th class="col-1">Session Date</th>
+                        <th class="col-1">Session Time</th>
+                        <th class="col-2">Due Date</th>
                         <th class="col-1">Status</th>
                         <th class="col-1"></th>
                     </tr>
@@ -174,7 +176,7 @@
 
 
             $.each(response.data, function(i, val){
-                console.log(val)
+                // console.log(val)
                 let openBtn  = `<button class="btn btn-success btn-sm openBtn text-right float-end w-100" abstract_id='${val.paper_data.id}' data-accepted-for="${val.admin_acceptance_data.presentation_preference}"> Open </button>`
                 let adminPresentationPref = '';
                 let adminAcceptance = '';
@@ -255,6 +257,7 @@
                 $('.moderatorDiv').show();
                 $('#moderatorTableBody').html();
                 $.each(response.data, function (i, val) {
+                    console.log(val)
                     let openBtn = `<button class="btn btn-success btn-sm openModBtn text-right float-end w-100" data-schedule-id="${+val.id}"> Open </button>`
                     let acceptanceStatus = `<span class='badge bg-danger text-white'>Incomplete</span>`
 
@@ -265,8 +268,12 @@
                         }
                     }
 
+                    let sessionStart = (val.session_start_time ? new Date(val.session_start_time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : '')
+                    let sessionEnd = (val.session_end_time ? new Date(val.session_end_time).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : '')
                     $('#moderatorTableBody').append('<tr>' +
                         '<td> ' + val.session_title + ' </td>' +
+                        '<td>'+(val.session_date ? new Date(val.session_date).toISOString    ().split('T')[0] : '')  +'</td>' +
+                        '<td class="text-nowrap"> '+ sessionStart + '-' + sessionEnd +'</td>' +
                         '<td> October 23, 2025 </td>' +
                         '<td>' + acceptanceStatus + '</td>' +
                         '<td>' + openBtn + '</td>' +
