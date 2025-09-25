@@ -616,8 +616,8 @@ class AcceptanceController extends Controller
         $isCurrentNonExclusive = $nonExclusiveDate && strtotime($nonExclusiveDate) >= strtotime($currentNonExclusiveDate);
 
         if(!$isCurrentDisclosure || !$isCurrentNonExclusive){
-            (session())->setFlashdata('warning', 'Please complete Financial Disclosures and/or Non Exclusive Forms under presenter forms.');
-            return  $this->response->setJSON(['status'=>'warning', 'message'=> 'Please complete Financial Disclosures and/or Non Exclusive Forms. Click OK to redirect to main page and update the forms.']);
+            (session())->setFlashdata('info', 'Please complete Financial Disclosures and/or Non Exclusive Forms under presenter forms.');
+            return  $this->response->setJSON(['status'=>'info', 'message'=> 'Please complete Financial Disclosures and/or Non Exclusive Forms. Click OK to redirect to main page and update the forms.']);
         }
 
         $checkAcceptance = (new AuthorAcceptanceModel())->checkAcceptance($abstract_id);
