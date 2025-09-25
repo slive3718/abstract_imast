@@ -73,6 +73,7 @@
                     <span class="float-end"><a class="editBtn btn btn-primary py-0" href="<?=base_url() ?>/acceptance/speaker_acceptance/<?= $abstract_id ?>"><i class="fas fa-edit"></i> Edit</a></span>
                 </div>
 
+                <?php if(isset($author_acceptance) && $author_acceptance['acceptance_confirmation'] == 1 ): ?>
                 <div class="col-4 text-end fw-bolder">Travel and Expenses : </div>
                 <div class="col-7"><?= !empty($author_acceptance) && $author_acceptance['travel_expenses'] == 'yes' ? 'I understand the travel and expenses terms.' : ''?></div>
                 <div class="col-1">
@@ -84,6 +85,7 @@
                 <div class="col-1">
                     <span class="float-end"><a class="editBtn btn btn-primary py-0" href="<?=base_url() ?>/acceptance/invited_celebration/<?= $abstract_id ?>"><i class="fas fa-edit"></i> Edit</a></span>
                 </div>
+                <?php endif; ?>
 <!--                <div class="col-4 text-end fw-bolder">Presentation Upload: </div>-->
 <!--                <div class="col-7 presentationUploaded">-->
 <!--                    <a href="--><?php //= base_url().$author_acceptance['presentation_file_path'].'/'.$author_acceptance['presentation_saved_name']?><!--">-->
