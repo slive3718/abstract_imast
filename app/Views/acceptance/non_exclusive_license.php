@@ -56,7 +56,7 @@
                             <strong>Date:</strong>
                         </div>
                         <div class="col-md-8">
-                            <input name="non_exclusive_license_date" type="date" value="<?=!empty($userProfile && $userProfile['non_exclusive_license_date']) ? date('Y-m-d', strtotime($userProfile['non_exclusive_license_date'])) : date('Y-m-d')?>" readonly>
+                            <input name="non_exclusive_license_date" type="date" value="<?=date('Y-m-d')?>" readonly>
                         </div>
                     </div>
                 </div>
