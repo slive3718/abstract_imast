@@ -67,7 +67,7 @@
                 <div class="col-4 text-end fw-bolder">Participation Status :</div>
                 <div class="col-7">
                     <?= isset($author_acceptance) && $author_acceptance['acceptance_confirmation'] == 1 ? "I plan to present at the 33rd IMAST held in Toronto, ON, Canada, April 15-18, 2026." : '' ?>
-                    <?= isset($author_acceptance) && $author_acceptance['acceptance_confirmation'] == 2 ? "I am unable to participate in the 129th AFS Metalcasting Congress held in Atlanta, Georgia, April 12-15, 2025. " : '' ?>
+                    <?= isset($author_acceptance) && $author_acceptance['acceptance_confirmation'] == 2 ? "I am unable to present at the 33rd IMAST held in Toronto, ON, Canada, April 15-18, 2026." : '' ?>
                 </div>
                 <div class="col-1">
                     <span class="float-end"><a class="editBtn btn btn-primary py-0" href="<?=base_url() ?>/acceptance/speaker_acceptance/<?= $abstract_id ?>"><i class="fas fa-edit"></i> Edit</a></span>
