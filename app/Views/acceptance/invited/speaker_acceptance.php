@@ -92,11 +92,13 @@
                     });
                 },
                 success: function(response) {
-                    if(response.status === 'success') {
+                    swal.close();
+                    if(response.status !== 'success') {
+                        toastr.error(response.message);
+                        return false;
+                    }
                         goNext(abstract_id)
                         toastr.success(response.message)
-                        swal.close();
-                    }
                 },
                 error: function(xhr, status, error) {
                     $('#response').html('<p>Error: ' + error + '</p>');
