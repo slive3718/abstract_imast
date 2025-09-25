@@ -107,10 +107,10 @@
         function check_finalize() {
             $.post(baseUrlAcceptance + 'check_finalize_acceptance/'+abstract_id, function(data) {
                 Swal.close();
-                let status = (data.status === 'success') ? 'success' : 'error';
+                // let status = (data.status === 'success') ? 'success' : 'warning';
                 swal.fire({
-                    title: "Acceptance Submitted!",
-                    icon: status,
+                    title: '',
+                    icon: data.status,
                     html: data.message,
                 }).then((result) => {
                     if (result.isConfirmed) {

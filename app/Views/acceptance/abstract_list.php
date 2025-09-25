@@ -128,20 +128,14 @@
     </div>
 </main>
 
-
+<script src="<?=base_url('assets/js/helpers.js')?> "></script>
 <script>
     let paper_types = `<?=json_encode($paper_types) ?? []?>`;
     let baseUrlAcceptance = "<?=base_url().'acceptance/'?>";
-    let flashData = `<?= session()->getFlashdata('error'); ?>`
+    let flashData = `<?= session()->getFlashdata() ? json_encode(session()->getFlashdata()) : ''; ?>`
     $(function(){
 
-        if(flashData){
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: flashData,
-            });
-        }
+        FlashHelper.init(flashData, {showConfirmButton: true});
 
         $('.moderatorDiv').hide();
         getAbstracts();
