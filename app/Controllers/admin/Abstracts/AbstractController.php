@@ -1113,7 +1113,7 @@ class AbstractController extends BaseController
            $reviewer_array = array();
            $reviewers = $UsersModel
                ->select('*, users.id as user_id')
-               ->join('users_profile profile', 'users.id = profile.author_id', 'left')
+               ->join($this->shared_db_name. '.users_profile profile', 'users.id = profile.author_id', 'left')
                ->where('is_deputy_reviewer', 1)
                ->orWhere('is_regular_reviewer', 1)
                ->findAll();
