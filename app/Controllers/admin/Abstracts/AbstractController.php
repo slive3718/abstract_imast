@@ -998,7 +998,7 @@ class AbstractController extends BaseController
     }
 
     public function searchUser() {
-        $searchValue = $this->request->getPost('searchValue');
+        $searchValue = trim($this->request->getPost('searchValue'));
         if (empty($searchValue)) {
             return [];
         }

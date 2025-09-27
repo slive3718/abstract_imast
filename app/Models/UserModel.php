@@ -98,7 +98,7 @@ class UserModel extends BaseModel
 
     public function author_cred_check($email)
     {
-        $author = $this->db->table('users')
+        $author = $this->builder()->where($this->table . '.deleted_at', null)
             ->join($this->defaultDB->database.'.paper_authors p', 'users.id = p.author_id')
             ->where('email', $email)
             ->get()
@@ -107,8 +107,8 @@ class UserModel extends BaseModel
         if (!$author) {
             return false;
         } else {
-            return $this->db
-                ->table('users')
+            return
+                $this->builder()->where($this->table . '.deleted_at', null)
                 ->where(['email' => $email])
                 ->get()->getResultObject()[0] ?? false;
         }
