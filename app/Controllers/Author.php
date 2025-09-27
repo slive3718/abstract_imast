@@ -14,6 +14,7 @@ use App\Models\EventsModel;
 use App\Models\OrganizationsModel;
 use App\Models\PaperAuthorsModel;
 use App\Models\PapersModel;
+use App\Models\PaperTypeModel;
 use App\Models\SiteSettingModel;
 use App\Models\UserModel;
 use App\Models\UserOrganizationsModel;
@@ -69,12 +70,21 @@ class Author extends BaseController
             'title' => "Author Copyright"
         ];
 
+        $disclosureCurrent = (new SiteSettingModel())->where('name', 'disclosure_current_date')->first()['value'];
+        $nonExclusiveCurrent = (new SiteSettingModel())->where('name', 'non_exclusive_current_date')->first()['value'];
+
+        if(!$disclosureCurrent || !$nonExclusiveCurrent)
+            return('System error: Missing site settings. Please contact support.');
+
         $data = [
             'author'=>$author,
             'disclosure_current_date' => $disclosure_current_date,
             'disclosure_expire_date' => $disclosure_expire_date,
             'attestation' => !empty($attestation) ? $attestation : null,
-            'isExpired' => $isExpired ? 1: 0
+            'isExpired' => $isExpired ? 1: 0,
+            'paper_types' => (new PaperTypeModel())->findAll()??[],
+            'disclosure_current' => $disclosureCurrent,
+            'non_exclusive_current' => $nonExclusiveCurrent
         ];
 
         return

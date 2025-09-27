@@ -21,9 +21,15 @@
                                     <strong>Financial Relationship Disclosure</strong>
                                 </div>
                                 <div class="text-end">
-                                    Current date: <span class=""> <?=$disclosure_current_date ?? ''?></span> &nbsp; | &nbsp;
-                                    Expires: <span class=""><?= $disclosure_expire_date ?? '' ?></span> &nbsp; | &nbsp;
-                                   <?= (isset($isExpired) && $isExpired == 0) ? '<span class="text-success fw-bold">Completed </span>' : '<span class="text-danger fw-bold">Incomplete</span>' ?>
+                                    Due Date :  October 23, 2025
+                                    <?= ( !empty($author) && !empty($author['signature_signed_date']) ? strtotime($author['signature_signed_date']) > strtotime($disclosure_current)
+                                        ? '<span class="badge bg-success text-white">Current '.date('m-d-Y',strtotime($author['signature_signed_date'])).' </span>'
+                                        : '<span class="badge bg-warning text-dark"> Outdated '.date('m-d-Y',strtotime($author['signature_signed_date'])).' </span>'
+                                        : '<span class="badge bg-danger text-white">Incomplete</span>') ?>
+
+<!--                                    Current date: <span class=""> --><?php //=$disclosure_current_date ?? ''?><!--</span> &nbsp; | &nbsp;-->
+<!--                                    Expires: <span class="">--><?php //= $disclosure_expire_date ?? '' ?><!--</span> &nbsp; | &nbsp;-->
+<!--                                   --><?php //= (isset($isExpired) && $isExpired == 0) ? '<span class="text-success fw-bold">Completed </span>' : '<span class="text-danger fw-bold">Incomplete</span>' ?>
                                 </div>
                             </a>
 
@@ -34,7 +40,12 @@
                                     <strong>Attestation for IMAST 2026</strong>
                                 </div>
                                 <div class="text-end">
-                                    <?= !empty($attestation['signature']) && $attestation['date'] ? '<span class="text-success fw-bold">Completed </span>' : '<span class="text-danger fw-bold">Incomplete</span>' ?>
+                                    Due Date :  October 23, 2025
+                                    <?= ( !empty($author) && !empty($author['non_exclusive_license_date']) ? strtotime($author['non_exclusive_license_date']) > strtotime($non_exclusive_current)
+                                        ? '<span class="badge bg-success text-white">Current  '.date('m-d-Y', strtotime($author['non_exclusive_license_date'])).'</span>'
+                                        : '<span class="badge bg-warning text-dark"> Outdated '.date('m-d-Y', strtotime($author['non_exclusive_license_date'])).'</span>'
+                                        : '<span class="badge bg-danger text-white">Incomplete</span>') ?>
+<!--                                    --><?php //= !empty($attestation['signature']) && $attestation['date'] ? '<span class="text-success fw-bold">Completed </span>' : '<span class="text-danger fw-bold">Incomplete</span>' ?>
                                 </div>
                             </a>
 
