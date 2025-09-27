@@ -17,12 +17,14 @@ use App\Models\UserModel;
 use App\Models\UsersProfileModel;
 
 use App\Controllers\ExcelController;
+use App\Services\AccountServices;
 use CodeIgniter\Controller;
+use Config\Services;
 
-class UserManagerController extends Controller
+class UserManagerController extends BaseController
 {
 
-    protected $helpers = ['form'];
+    protected $helpers = ['form', 'general_helpers'];
     private $db;
     private $userModel;
     private $userProfileModel;
@@ -551,12 +553,12 @@ class UserManagerController extends Controller
         }
 
         $rules = [
-            'email' => 'required|valid_email|max_length[255]|is_unique[users.email,id,' . $post['user_id'] . ']',
+            'email' => 'required|valid_email|max_length[255]',
             'name' => 'required|max_length[255]',
             'surname' => 'required|max_length[255]',
         ];
 
-        if (!(new UserModel())->validate($rules)) {
+        if (!$this->validate($rules)) {
             return $this->response->setJSON([
                 'status' => 'error',
                 'errors' => $this->validator->getErrors(),

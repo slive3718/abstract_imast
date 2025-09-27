@@ -21,4 +21,44 @@ function confirmation_preferences($id){
         5 => 'Declined',
     ];
 }
+
+if(!function_exists('strict_email')){
+    function strict_email(string $str = null): bool
+    {
+        if ($str === null) {
+            return false;
+        }
+
+        // Basic format check
+        if (!filter_var($str, FILTER_VALIDATE_EMAIL)) {
+            return false;
+        }
+
+        // Check for @ symbol and proper domain format
+        $parts = explode('@', $str);
+        if (count($parts) !== 2) {
+            return false;
+        }
+
+        $local = $parts[0];
+        $domain = $parts[1];
+
+        // Validate local part (before @)
+        if (empty($local) || preg_match('/[\\x00-\\x1F\\x7F-\\xFF]/', $local)) {
+            return false;
+        }
+
+        // Validate domain part (after @)
+        if (empty($domain) || !preg_match('/^[a-zA-Z0-9.-]+$/', $domain)) {
+            return false;
+        }
+
+        // Check for at least one dot in domain
+        if (strpos($domain, '.') === false) {
+            return false;
+        }
+
+        return true;
+    }
+}
 ?>
