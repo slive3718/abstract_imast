@@ -621,7 +621,7 @@ class EmailController extends BaseController
                 $PaperTemplates = str_replace('##PRESENTATION_DATE##', '', $PaperTemplates);
                 $PaperTemplates = str_replace('##PRESENTATION_TIME##', '', $PaperTemplates);
                 $PaperTemplates = str_replace('##ADMIN_COMMENTS##', '', $PaperTemplates);
-                $PaperTemplates = str_replace('##TODAY_DATE##', '', $PaperTemplates);
+                $PaperTemplates = str_replace('##TODAY_DATE##', date('F d, Y'), $PaperTemplates);
                 $PaperTemplates = str_replace('##ADMIN_COMMENTS_TO_SUBMITTER##', '', $PaperTemplates);
 
                 // Get presenting authors
