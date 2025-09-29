@@ -155,33 +155,31 @@ class EmailController extends BaseController
                     $PaperAuthorModel = new PaperAuthorsModel();
                     $builder = $PaperAuthorModel->builder();
                     $current_disclosure_date = (new SiteSettingModel())->where('name', 'disclosure_current_date')->first()['value'] ?? null;
-                    $current_disclosure_date = date('Y-m-d H:i:s', strtotime($current_disclosure_date));
+
+                    if ($current_disclosure_date) {
+                        $current_disclosure_date = date('Y-m-d H:i:s', strtotime($current_disclosure_date));
+                    }
+
                     $query = $builder->select('paper_authors.author_id as author_id, 
                       paper_authors.is_copyright_agreement_accepted, 
                       u.name, 
                       u.surname, 
                       papers.id as paper_id')
-                        ->join($this->shared_db->database. '.users u', 'paper_authors.author_id = u.id', 'left')
-                        ->join($this->shared_db->database. '.users_profile up', 'paper_authors.author_id = up.author_id', 'left')
-                        ->join('papers', 'paper_authors.paper_id = papers.id', 'left');
-                    $query->groupStart();
-
-                    $query->whereNotIn('paper_authors.id', function ($builder) {
-                        $builder->select('paper_author_id')->from('removed_paper_authors');
-                    });
+                        ->join($this->shared_db->database . '.users u', 'paper_authors.author_id = u.id', 'left')
+                        ->join($this->shared_db->database . '.users_profile up', 'paper_authors.author_id = up.author_id', 'left')
+                        ->join('papers', 'paper_authors.paper_id = papers.id', 'left')
+                        ->whereNotIn('paper_authors.id', function ($builder) {
+                            $builder->select('paper_author_id')->from('removed_paper_authors');
+                        });
 
                     if (!empty($current_disclosure_date)) {
-                        $query->where('up.disclosure_signature', '');
-                        $query->orWhere('DATE(up.signature_signed_date) < "'.$current_disclosure_date.'"');
+                        $query->groupStart()
+                            ->orWhere('up.disclosure_signature', '')
+                            ->orWhere('DATE(up.signature_signed_date) <', date('Y-m-d', strtotime($current_disclosure_date)))
+                            ->groupEnd();
                     }
-                    $query->groupBy('paper_authors.author_id');
 
-
-                    $query->groupEnd();
-
-
-//                    $this->filterRecipientGroup($groupFilter, $query);
-
+//                    $query->groupBy('paper_authors.author_id');
 
                     // Execute the query
                     $query = $builder->get();
