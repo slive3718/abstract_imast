@@ -1096,188 +1096,195 @@
             let removedAddedTalksIds = [];
 
             // Add Abstract Button Click Handler
-            schedulerModal.find('#addAbstractBtn').off('click').on('click', function(e) {
+            schedulerModal.find('#addAbstractBtn').off('click').on('click', async function(e) {
                 e.preventDefault();
+                const button = $(this);
+                button.prop('disabled', true); // Disable the button to prevent multiple clicks
                 const abstract_ids = [];
 
-                const updatedAddedAbstractTotalDuration = 0;
+                try {
+                    // Collect selected abstracts
+                    tableAbstract.find(".row-select:checked").each(function () {
+                        abstract_ids.push($(this).data('abstract-id'));
+                    });
 
-                // Collect selected abstracts
-                tableAbstract.find(".row-select:checked").each(function() {
-                    abstract_ids.push($(this).data('abstract-id'));
-                });
+                    // Wrap getAbstract in a Promise for proper async handling
+                    await new Promise((resolve, reject) => {
+                        getAbstract(abstract_ids, function (data) {
+                            try {
+                                if (abstract_ids.length > 0) {
+                                    $.each(abstract_ids, function (i, abstract_id) {
+                                        const index = removedAddedTalksIds.indexOf(abstract_id);
+                                        if (index !== -1) {
+                                            removedAddedTalksIds.splice(index, 1); // Remove the element at the found index
+                                        }
+                                    });
+                                }
 
-                // Fetch and add abstracts
-                getAbstract(abstract_ids, function(data) {
-                    // removedAddedTalksIds.filter((removedAddedTalksId) => abstract_ids.includes(removedAddedTalksId));
+                                if (!data) {
+                                    resolve(); // Resolve even if no data
+                                    return;
+                                }
 
-                    if (abstract_ids.length > 0) {
-                        $.each(abstract_ids, function(i, abstract_id) {
-                            const index = removedAddedTalksIds.indexOf(abstract_id);
-                            if (index !== -1) {
-                                removedAddedTalksIds.splice(index, 1); // Remove the element at the found index
+                                let startTime = new Date(info.startStr);
+                                let startDate = new Date(info.startStr);
+                                startDate = startDate.getDate();
+
+                                // Process all abstracts sequentially
+                                const processAbstracts = async () => {
+                                    for (let i = 0; i < data.length; i++) {
+                                        const res = data[i];
+                                        let presenters = getPresenters(res.authors);
+                                        console.log(presenters)
+                                        let endTime = addDuration(startTime, (durationInMinutes + breakDuration));
+
+                                        // Validate end time
+                                        if (new Date(info.endStr) <= endTime) {
+                                            toastr.error("Time already exceeded!");
+                                        }
+
+                                        let formattedStartTime = getTimeOfDate(startTime);
+                                        let formattedEndTime = getTimeOfDate(endTime);
+
+                                        talkDetail = {
+                                            abstract_id: res.paper.id,
+                                            session_date: sessionDate,
+                                            custom_id: res.paper.custom_id,
+                                            duration: durationInMinutes,
+                                            start_time: formattedStartTime,
+                                            end_time: formattedEndTime,
+                                            presenters: presenters,
+                                            break_duration: breakDuration
+                                        };
+
+                                        if (!talk_details.some(detail => detail.abstract_id === res.paper.id)) {
+                                            talk_details.push(talkDetail);
+                                        }
+
+                                        // Append talk row
+                                        if (res.paper.submission_type == 'panel') {
+                                            await createPanelTalkRows(res.paper, talkDetail, presenters, formattedStartTime, formattedEndTime);
+                                            console.log(getTimeOfDate(new Date(info.startStr)))
+                                            updateTalkDuration(getTimeOfDate(new Date(info.startStr)));
+                                        } else {
+                                            tableAddedAbstract.find('tbody').append(createTalkRow(res.paper, talkDetail, presenters, formattedStartTime, formattedEndTime));
+                                            updateTalkDuration(getTimeOfDate(new Date(info.startStr)));
+                                        }
+
+                                        tableAddedAbstractArray.push({
+                                            'id': res.paper.id,
+                                            'paper': res.paper,
+                                            'talks': talkDetail,
+                                            'presenters': presenters,
+                                            'formattedStartTime': formattedStartTime, 'formattedEndTime': formattedEndTime
+                                        });
+
+                                        tableAbstract.find(`[data-abstract-id="${res.paper.id}"]`).closest('tr').hide().find('input[type="checkbox"]').prop('checked', false);
+
+                                        removedAbstractIds.shift(res.paper.id);
+                                        startTime = endTime;
+                                    }
+                                };
+
+                                processAbstracts().then(resolve).catch(reject);
+
+                            } catch (error) {
+                                reject(error);
                             }
                         });
-                    }
-
-                    if (!data) return;
-
-                    let startTime = new Date(info.startStr);
-                    let startDate = new Date(info.startStr);
-                    startDate = startDate.getDate();
-
-
-                    data.forEach((res, i) => {
-
-                        let presenters = getPresenters(res.authors);
-                        console.log(presenters)
-                        let endTime = addDuration(startTime, (durationInMinutes + breakDuration));
-
-                        // Validate end time
-                        if (new Date(info.endStr) <= endTime) {
-                            toastr.error("Time already exceeded!");
-                        }
-
-                        let formattedStartTime = getTimeOfDate(startTime);
-                        let formattedEndTime = getTimeOfDate(endTime);
-
-                        talkDetail = {
-                            abstract_id: res.paper.id,
-                            session_date: sessionDate,
-                            custom_id: res.paper.custom_id,
-                            duration: durationInMinutes,
-                            start_time: formattedStartTime,
-                            end_time: formattedEndTime,
-                            presenters: presenters,
-                            break_duration: breakDuration
-                        };
-
-                        if (!talk_details.some(detail => detail.abstract_id === res.paper.id)) {
-                            talk_details.push(talkDetail);
-                        }
-
-                        // Append talk row
-
-                        if (res.paper.submission_type == 'panel') {
-                            createPanelTalkRows(res.paper, talkDetail, presenters, formattedStartTime, formattedEndTime)
-                                .then(function() {
-                                    console.log(getTimeOfDate(new Date(info.startStr)))
-                                    // Only call updateTalkDuration after the rows are created
-                                    updateTalkDuration(getTimeOfDate(new Date(info.startStr)));
-                                })
-                                .catch(function(error) {
-                                    console.error('Error in creating talk rows:', error);
-                                });
-                        } else {
-                            tableAddedAbstract.find('tbody').append(createTalkRow(res.paper, talkDetail, presenters, formattedStartTime, formattedEndTime));
-                            updateTalkDuration(getTimeOfDate(new Date(info.startStr)));
-                        }
-
-                        tableAddedAbstractArray.push({
-                            'id' : res.paper.id,
-                            'paper' : res.paper,
-                            'talks' : talkDetail,
-                            'presenters' :  presenters,
-                            'formattedStartTime' : formattedStartTime, 'formattedEndTime' : formattedEndTime
-                        });
-
-                        tableAbstract.find(`[data-abstract-id="${res.paper.id}"]`).closest('tr').hide().find('input[type="checkbox"]').prop('checked', false);
-
-                        removedAbstractIds.shift(res.paper.id);
-                        startTime = endTime;
                     });
-                });
 
+                    // Duration Change Handler
+                    tableAddedAbstract.off('change input', '.talk-duration').on('change input', '.talk-duration', function () {
+                        updateTalkDuration(getTimeOfDate(new Date(info.startStr)));
+                    });
 
+                    // Remove Abstract Handler
+                    tableAddedAbstract.off('click', '.remove').on('click', '.remove', function (e) {
+                        e.preventDefault();
+                        let abstractAddedId = $(this).data('abstract-id');
 
-                // Duration Change Handler
-                tableAddedAbstract.off('change input', '.talk-duration').on('change input', '.talk-duration', function() {
-                    updateTalkDuration(getTimeOfDate( new Date(info.startStr)));
-                });
+                        // Update tableAddedAbstractArray by removing the matching abstract ID
+                        tableAddedAbstractArray = tableAddedAbstractArray.filter(item => item['abstract_id'] !== abstractAddedId);
 
-                // Remove Abstract Handler
-                tableAddedAbstract.off('click', '.remove').on('click', '.remove', function(e) {
-                    e.preventDefault();
-                    let abstractAddedId = $(this).data('abstract-id');
+                        // Add to removedAbstractIds if not already present
+                        if (!removedAbstractIds.includes(abstractAddedId)) {
+                            removedAbstractIds.push(abstractAddedId);
+                        }
 
-                    // Update tableAddedAbstractArray by removing the matching abstract ID
-                    tableAddedAbstractArray = tableAddedAbstractArray.filter(item => item['abstract_id'] !== abstractAddedId);
+                        // Show the row back in the original table and remove it from the added table
+                        tableAbstract.find(`[data-abstract-id="${abstractAddedId}"]`).closest('tr').show();
+                        tableAddedAbstract.find(`tr[id="${abstractAddedId}"]`).remove();
+                        $(this).closest('tr').remove();
 
+                        // Trigger change on talk-duration and push to removedAddedTalksIds
+                        tableAddedAbstract.find('.talk-duration').change();
+                        removedAddedTalksIds.push(abstractAddedId);
 
-                    // Add to removedAbstractIds if not already present
-                    if (!removedAbstractIds.includes(abstractAddedId)) {
-                        removedAbstractIds.push(abstractAddedId);
-                    }
+                        // Update the talk duration
+                        updateTalkDuration(getTimeOfDate(new Date(info.startStr)));
+                    });
 
-                    // Show the row back in the original table and remove it from the added table
-                    tableAbstract.find(`[data-abstract-id="${abstractAddedId}"]`).closest('tr').show();
-                    tableAddedAbstract.find(`tr[id="${abstractAddedId}"]`).remove();
-                    $(this).closest('tr').remove();
+                    // Save Session Talks
+                    schedulerModal.find('#save-session-talks').off('click').on('click', function () {
+                        // console.log(sessionDuration)
 
-                    // Trigger change on talk-duration and push to removedAddedTalksIds
-                    tableAddedAbstract.find('.talk-duration').change();
-                    removedAddedTalksIds.push(abstractAddedId);
+                        let talksTable = $('#tableAddedAbstract')
+                        let talk_duration = 0;
+                        let added_talk_details = [];
+                        talksTable.find('tr').each(function () {
+                            let abstract_id = $(this).attr('id')
+                            if (abstract_id) {
+                                talk_duration = $(this).find('.talk-duration').val()
+                                let start_time = $(this).find('.start-time').text() ?? ''
+                                let end_time = $(this).find('.end-time').text() ?? ''
+                                talk_duration = $(this).find('.talk-duration').val() ?? ''
+                                let custom_desc = $(this).find('#talk_custom_desc').val() ?? '';
+                                let paper_sub_id = $(this).data('paper-sub-id')
+                                added_talk_details.push(
+                                    {
+                                        'duration': talk_duration,
+                                        'start_time': start_time,
+                                        'end_time': end_time,
+                                        'abstract_id': abstract_id,
+                                        'break_duration': $(".session-break-duration").data('value'),
+                                        'scheduler_event_id': info.id,
+                                        'custom_desc': custom_desc,
+                                        'paper_sub_id': paper_sub_id,
+                                    })
+                            }
+                        })
 
-                    // Update the talk duration
-                    updateTalkDuration(getTimeOfDate(new Date(info.startStr)));
-                });
-
-
-
-                // Save Session Talks
-                schedulerModal.find('#save-session-talks').off('click').on('click', function() {
-                    // console.log(sessionDuration)
-
-                    let talksTable = $('#tableAddedAbstract')
-                    let talk_duration = 0;
-                    let added_talk_details = [];
-                    talksTable.find('tr').each(function(){
-                        let abstract_id = $(this).attr('id')
-                        if(abstract_id) {
-                            talk_duration = $(this).find('.talk-duration').val()
-                            let start_time = $(this).find('.start-time').text() ?? ''
-                            let end_time = $(this).find('.end-time').text() ?? ''
-                            talk_duration = $(this).find('.talk-duration').val()?? ''
-                            let custom_desc = $(this).find('#talk_custom_desc').val() ?? '';
-                            let paper_sub_id = $(this).data('paper-sub-id')
-                            added_talk_details.push(
-                                {
-                                    'duration': talk_duration,
-                                    'start_time': start_time,
-                                    'end_time': end_time,
-                                    'abstract_id': abstract_id,
-                                    'break_duration':$(".session-break-duration").data('value'),
-                                    'scheduler_event_id': info.id,
-                                    'custom_desc': custom_desc,
-                                    'paper_sub_id': paper_sub_id,
-                                })
+                        if (getTotalDuration(tableAddedAbstract, breakDuration ?? 0) > sessionDuration) {
+                            Swal.fire({
+                                title: "Are you sure?",
+                                text: "Total of talk duration exceeds the session duration!",
+                                icon: "warning",
+                                showCancelButton: true,
+                                confirmButtonColor: "#3085d6",
+                                cancelButtonColor: "#d33",
+                                confirmButtonText: "Yes, save it!"
+                            }).then((result) => {
+                                if (result.isConfirmed) {
+                                    if (added_talk_details.length > 0) {
+                                        saveTalks(added_talk_details, removedAddedTalksIds);
+                                    } else {
+                                        toastr.info("No valid talks to save after filtering.");
+                                    }
+                                }
+                            });
+                            return false;
+                        } else {
+                            saveTalks(added_talk_details, removedAddedTalksIds);
                         }
                     })
 
-                    if (getTotalDuration(tableAddedAbstract, breakDuration ?? 0) > sessionDuration) {
-                        Swal.fire({
-                            title: "Are you sure?",
-                            text: "Total of talk duration exceeds the session duration!",
-                            icon: "warning",
-                            showCancelButton: true,
-                            confirmButtonColor: "#3085d6",
-                            cancelButtonColor: "#d33",
-                            confirmButtonText: "Yes, save it!"
-                        }).then((result) => {
-                            if (result.isConfirmed) {
-                                if (added_talk_details.length > 0) {
-                                    saveTalks(added_talk_details, removedAddedTalksIds);
-                                } else {
-                                    toastr.info("No valid talks to save after filtering.");
-                                }
-                            }
-                        });
-                        return false;
-                    }else{
-                        saveTalks(added_talk_details, removedAddedTalksIds);
-                    }
-                });
-
+                } catch (error) {
+                    console.error('Error fetching abstracts:', error);
+                    toastr.error('Failed to fetch abstracts. Please try again.');
+                } finally {
+                    button.prop('disabled', false); // Re-enable the button
+                }
             });
 
             schedulerModal.find('#addCustomEventBtn').off('click').on('click', function(e) {
