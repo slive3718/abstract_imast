@@ -10,7 +10,7 @@
         </div>
         <div class="card-body">
             <p>
-                Faculty for the SRS IMAST Meeting:
+                Faculty for the 33rd IMAST:
                 <ul>
                     <li class="mt-3">For all faculty, excluding those who only have moderator duties, SRS will provide complimentary IMAST registration.</li>
                     <li class="mt-3">SRS staff will register all faculty for IMAST. Instructions for housing can be found on the IMAST website. </li>
