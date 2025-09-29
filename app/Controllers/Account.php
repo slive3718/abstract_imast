@@ -22,7 +22,7 @@ class Account extends BaseController
     public function index($event_uri): string
     {
         $header_data = [
-            'title' => "Asia Pacific Registration"
+            'title' => "Imast Registration"
         ];
         $data = [];
         return

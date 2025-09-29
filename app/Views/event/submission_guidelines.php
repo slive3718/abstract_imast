@@ -25,7 +25,7 @@
             </div>
             <hr/>
             <div class="container p-5 ">
-                <p class="text-center mb-5">SRS Asia Pacific Meeting</p>
+                <p class="text-center mb-5">IMAST Meeting</p>
                 <p class="text-center">Fukuoka, Japan<br>February 2026</p>
                 <p class="text-center">Abstract Submission: May 1, 2025 – June 30, 2025</p>
 
@@ -136,7 +136,7 @@
 
                 <h6 class="fw-bold mt-5">ATTENDANCE REQUIREMENTS</h6>
                 <ul>
-                    <li>By submitting an abstract to SRS Asia Pacific Meeting, abstract authors agree that at least one (l) author will attend the meeting and will be available to present, in English, on the date and time assigned.
+                    <li>By submitting an abstract to SRS IMAST Meeting, abstract authors agree that at least one (l) author will attend the meeting and will be available to present, in English, on the date and time assigned.
                         <ul>
                             <li>The Presenting author must be from the regions of Asia or Oceania.</li>
                         </ul>

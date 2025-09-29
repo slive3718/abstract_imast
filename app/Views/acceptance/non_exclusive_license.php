@@ -8,7 +8,7 @@
         </div>
         <div class="card-body">
             <p>
-                For all presentations presented at the SRS Asia Pacific Meeting, I attest that:
+                For all presentations presented at the SRS IMAST Meeting, I attest that:
             </p>
             <p>
                 I have created, and I am the current copyright holder of a paper/poster/e-poster/invited presentation and all contents therein (hereinafter referred to as the "Work").

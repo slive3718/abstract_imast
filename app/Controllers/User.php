@@ -57,7 +57,7 @@ class User extends BaseController
     {
         print_r('Index User');exit;
         $header_data = [
-            'title' => 'Asia Pacific Submission'
+            'title' => 'IMAST Submission'
         ];
 
         $data = [];
@@ -1366,7 +1366,7 @@ class User extends BaseController
                             $email_body
                         );
 
-                        $from = ['name' => 'Asia Pacific 2026', 'email' => 'ap@owpm2.com'];
+                        $from = ['name' => 'IMAST 2026', 'email' => 'imast@owpm2.com'];
                         $addTo = $user['email'];
                         $subject = $MailTemplates['email_subject'];
 
@@ -2505,7 +2505,7 @@ class User extends BaseController
     function send_panelist_email_copyright($paper_id, $panelistCode){
 
         $sendMail = new PhpMail();
-        $from = ['email' => 'ap@owpm2.com', 'name' => 'Asia Pacific 2026'];
+        $from = ['email' => 'imast@owpm2.com', 'name' => 'IMAST 2026'];
 
         $PaperAuthorModel = (new PaperAuthorsModel());
         $PapersModel = (new PapersModel());
@@ -2820,7 +2820,7 @@ class User extends BaseController
                         $PaperTemplates = str_replace('##RECIPIENTS_FULL_NAME##', ucFirst($user['name']) . ' ' . ucFirst($user['surname']), $PaperTemplates);
                         $PaperTemplates = str_replace('##REVIEW_USERNAME##', $user['email'], $PaperTemplates);
                         $PaperTemplates = str_replace('##REVIEW_PASSWORD##', 'Please reset your password in case forgotten. Thank you!', $PaperTemplates);
-                        $from = ['name' => 'Asia Pacific 2026', 'email' => 'ap@owpm2.com'];
+                        $from = ['name' => 'IMAST 2026', 'email' => 'imast@owpm2.com'];
                         $addTo = $user['email'];
                         $subject = $MailTemplates['email_subject'];
                         $addContent = $PaperTemplates;

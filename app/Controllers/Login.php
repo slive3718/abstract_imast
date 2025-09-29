@@ -28,7 +28,7 @@ class Login extends BaseController
         ];
 
         $data = [
-            'event'=> 'Asia Pacific'
+            'event'=> 'IMAST'
         ];
         return
             view('event/common/header', $header_data).
