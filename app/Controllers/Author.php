@@ -72,6 +72,7 @@ class Author extends BaseController
 
         $disclosureCurrent = (new SiteSettingModel())->where('name', 'disclosure_current_date')->first()['value'];
         $nonExclusiveCurrent = (new SiteSettingModel())->where('name', 'non_exclusive_current_date')->first()['value'];
+        $attestationCurrent = (new SiteSettingModel())->where('name', 'attestation_current_date')->first()['value'];
 
         if(!$disclosureCurrent || !$nonExclusiveCurrent)
             return('System error: Missing site settings. Please contact support.');
@@ -84,7 +85,8 @@ class Author extends BaseController
             'isExpired' => $isExpired ? 1: 0,
             'paper_types' => (new PaperTypeModel())->findAll()??[],
             'disclosure_current' => $disclosureCurrent,
-            'non_exclusive_current' => $nonExclusiveCurrent
+            'non_exclusive_current' => $nonExclusiveCurrent,
+            'attestation_current' => $attestationCurrent
         ];
 
         return
