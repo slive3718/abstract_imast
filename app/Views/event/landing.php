@@ -30,7 +30,7 @@
             <div class="container p-5 ">
                 <p class="text-center mb-3 fw-bolder">33rd Scoliosis Research Society (SRS)</p>
                 <p class="text-center fw-bolder">International Meeting on Advanced Spine Techniques (IMAST)</p>
-                <p class="text-center fw-bolder">Toronto, ON, Canada<br> April 15-18, 2026 </p>
+                <p class="text-center fw-bolder">Toronto, ON, Canada<br> April 15-17, 2026 </p>
                 <p class="text-center fw-bolder">Abstract Submission: July 1, 2025 - October 1, 2025</p>
 
                 <div class="row mt-4">
@@ -51,7 +51,7 @@
                     <li><strong>Abstract Submission Dates: </strong> July 1 - October 1, 2025, 11:59 PM EDT (US)</li>
                     <li><strong>Abstract Acceptance Notification via email: </strong> December 10, 2025*</li>
                     <li><strong>Abstract Presenter Acceptance Deadline:</strong> January 6, 2026*</li>
-                    <li><strong>Meeting Dates:</strong>  <span class="text-danger">April 15-18, 2026</span></li>
+                    <li><strong>Meeting Dates:</strong>  <span class="text-danger">April 15-17, 2026</span></li>
                 </ul>
                 <p>*Dates are subject to change.</p>
 

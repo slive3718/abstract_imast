@@ -26,7 +26,7 @@ class AcceptanceService extends BaseService
 //        print_R($acceptanceModel);exit;
         if($acceptance_confirmation == 1){
             $acceptance_status = "Acceptance Form Successfully Submitted";
-            $acceptance_message = "Thank you for confirming your participation in the 33rd International Meeting on Advanced Spine Techniques (IMAST), scheduled for April 15-18, 2026 in Toronto, ON, Canada.";
+            $acceptance_message = "Thank you for confirming your participation in the 33rd International Meeting on Advanced Spine Techniques (IMAST), scheduled for April 15-17, 2026 in Toronto, ON, Canada.";
             $data['acceptance_status'] = $acceptance_status;
             $data['acceptance_message'] = $acceptance_message;
         }else{
