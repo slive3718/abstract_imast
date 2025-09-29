@@ -179,7 +179,7 @@ class EmailController extends BaseController
                             ->groupEnd();
                     }
 
-//                    $query->groupBy('paper_authors.author_id');
+                    $query->groupBy('paper_authors.author_id');
 
                     // Execute the query
                     $query = $builder->get();
