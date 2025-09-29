@@ -664,7 +664,7 @@ class EmailController extends BaseController
                 }
 
                 $PaperTemplates = str_replace('##RECIPIENTS_FULL_NAME##', $val['name'] . ' ' . $val['surname'], $PaperTemplates);
-                $PaperTemplates = str_replace('##TODAY_DATE##', date('Y-m-d'), $PaperTemplates);
+                $PaperTemplates = str_replace('##TODAY_DATE##', date('F d, Y'), $PaperTemplates);
                 $PaperTemplates = str_replace('##RECIPIENT_FIRST_NAME##', $val['name'], $PaperTemplates);
                 $PaperTemplates = str_replace('##RECIPIENTS_LAST_NAME##', $val['surname'], $PaperTemplates);
                 $PaperTemplates = str_replace('##RECIPIENT_EMAIL_ADDRESS##', $val['email'], $PaperTemplates);
@@ -672,7 +672,7 @@ class EmailController extends BaseController
                 // Add more replacements as necessary
                 $PaperTemplates = str_replace('##PRESENTATION_DATE##', '', $PaperTemplates);
                 $PaperTemplates = str_replace('##PRESENTATION_TIME##', '', $PaperTemplates);
-                $PaperTemplates = str_replace('##TODAY_DATE##', date('Y-m-d'), $PaperTemplates);
+                $PaperTemplates = str_replace('##TODAY_DATE##', date('F d, Y'), $PaperTemplates);
                 // Get presenting authors
 
                 $email_entry = [
@@ -703,7 +703,7 @@ class EmailController extends BaseController
                     ->first();
 
                 $PaperTemplates = str_replace('##RECIPIENTS_FULL_NAME##', $val['name'] . ' ' . $val['surname'], $PaperTemplates);
-                $PaperTemplates = str_replace('##TODAY_DATE##', date('Y-m-d'), $PaperTemplates);
+                $PaperTemplates = str_replace('##TODAY_DATE##', date('F d, Y'), $PaperTemplates);
                 $PaperTemplates = str_replace('##RECIPIENT_FIRST_NAME##', $val['name'], $PaperTemplates);
                 $PaperTemplates = str_replace('##RECIPIENTS_LAST_NAME##', $val['surname'], $PaperTemplates);
                 $PaperTemplates = str_replace('##RECIPIENT_EMAIL_ADDRESS##', $val['email'], $PaperTemplates);
@@ -718,7 +718,7 @@ class EmailController extends BaseController
                 // Add more replacements as necessary
                 $PaperTemplates = str_replace('##PRESENTATION_DATE##', '', $PaperTemplates);
                 $PaperTemplates = str_replace('##PRESENTATION_TIME##', '', $PaperTemplates);
-                $PaperTemplates = str_replace('##TODAY_DATE##', date('Y-m-d'), $PaperTemplates);
+                $PaperTemplates = str_replace('##TODAY_DATE##', date('F d, Y'), $PaperTemplates);
                 // Get presenting authors
 
                 $email_entry = [
