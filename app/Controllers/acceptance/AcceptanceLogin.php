@@ -75,10 +75,14 @@ class AcceptanceLogin extends Controller
                 ->findAll();
 
             $session_chairs = [];
-            if($schedules){
-                foreach ($schedules as &$schedule){
-                    if($schedule['session_chair_ids']){
-                        $session_chairs = !empty($schedule['session_chair_ids']) ? json_decode($schedule['session_chair_ids']) : [];
+
+            if ($schedules) {
+                foreach ($schedules as $schedule) {
+                    if (!empty($schedule['session_chair_ids'])) {
+                        $decodedIds = json_decode($schedule['session_chair_ids'], true);
+                        if ($decodedIds) {
+                            $session_chairs = array_merge($session_chairs, $decodedIds);
+                        }
                     }
                 }
             }
