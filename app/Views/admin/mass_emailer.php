@@ -207,10 +207,16 @@
                                 <input type="button" value="Presenting Author Prefix" onclick="InsertHTML('##PRESENTING_PREFIX##')" class="btn btn-primary">
                             </div>
 
+
+                            <div class="button-group">
+                                <input type="button" value="Moderator(s)" onclick="InsertHTML('##MODERATORS##')" class="btn btn-primary">
+                            </div>
+
                             <div class="button-group">
                                 <input type="button" value="Reviewer Username" onclick="InsertHTML('##REVIEW_USERNAME##')" class="btn btn-primary">
                                 <input type="button" value="Reviewer Password" onclick="InsertHTML('##REVIEW_PASSWORD##')" class="btn btn-primary">
                             </div>
+
 
                             <div class="button-group">
                                 <input type="button" value="Session Title" onclick="InsertHTML('##SCHEDULER_SESSION_TITLE##')" class="btn btn-primary">
@@ -578,6 +584,15 @@
         })
 
         $('.previewEmailBtn').on('click', function(){
+            Swal.fire({
+                title: 'Loading...',
+                text: 'Please wait.',
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                onBeforeOpen: () => {
+                    Swal.showLoading();
+                }
+            });
             previewEmail('preview', function(response){
                 Swal.close();
                 $('#emailBodyDiv').html('');

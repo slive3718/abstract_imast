@@ -15,6 +15,7 @@ use App\Models\PaperTypeModel;
 use App\Models\SchedulerModel;
 use App\Models\SiteSettingModel;
 use App\Models\UsersProfileModel;
+use App\Services\UserServices;
 use CodeIgniter\Controller;
 use App\Models\UserModel;
 use App\Models\PapersModel;
@@ -591,13 +592,25 @@ class EmailController extends BaseController
                     ->where('reviewer_type', 'regular')
                     ->findAll();
 
-//                exit;
-
                 $scheduleEvents = (new SchedulerModel())
                     ->select('scheduler_events.*')
                     ->join('scheduler_session_talks', 'scheduler_events.id = scheduler_session_talks.scheduler_event_id', 'left')
                     ->where('scheduler_session_talks.abstract_id', $val['paper_id'])
                     ->first();
+
+                $moderatorIds = $scheduleEvents ? json_decode($scheduleEvents['session_chair_ids']) : [];
+                $moderators = [];
+                if($moderatorIds) {
+                    foreach ($moderatorIds as $moderatorId) {
+                        $userData = (new UserServices())->get_user($moderatorId);
+                        if ($userData && $userData['data']) {
+                            $designation_names_array = ((new UserServices())->get_designations($userData['data']['profile']['designations'])) ?? [];
+                            $designation_names_string = implode(', ', $designation_names_array['data'] ?? []);
+                            $moderators[] = $userData['data']['name'] ? ($userData['data']['name'] . ' ' . $userData['data']['surname']) . ($designation_names_string ? ' ' . $designation_names_string : '') : '';
+                        }
+                    }
+                }
+                $moderator_names =  $moderators ? implode(', ', $moderators) : '';
 
                 foreach ($reviewers as $reviewer) {
                     $PaperTemplates = str_replace('##REVIEW_USERNAME##', $reviewer['email'], $PaperTemplates);
@@ -616,6 +629,9 @@ class EmailController extends BaseController
                 $PaperTemplates = str_replace('##SCHEDULER_SESSION_DATE##', $scheduleEvents ? date('Y-m-d', strtotime($scheduleEvents['session_date'])) : '', $PaperTemplates);
                 $PaperTemplates = str_replace('##SCHEDULER_SESSION_START_TIME##', $scheduleEvents ? date('h:i a', strtotime($scheduleEvents['session_start_time'])) : '', $PaperTemplates);
                 $PaperTemplates = str_replace('##SCHEDULER_SESSION_END_TIME##', $scheduleEvents  ? date('h:i a', strtotime($scheduleEvents['session_end_time'])) : '', $PaperTemplates);
+
+                //################# MODERATORS ############
+                $PaperTemplates = str_replace('##MODERATORS##', $moderator_names, $PaperTemplates) ;
 
                 // Add more replacements as necessary
                 $PaperTemplates = str_replace('##PRESENTATION_DATE##', '', $PaperTemplates);
