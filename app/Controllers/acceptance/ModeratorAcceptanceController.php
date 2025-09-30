@@ -56,17 +56,17 @@ class ModeratorAcceptanceController extends BaseController
             ->where('is_deleted', 0)
             ->findAll();
         $moderator_event = [];
-        foreach ($schedules as $schedule){
+        foreach ($schedules as $schedule) {
             $moderators = json_decode($schedule['session_chair_ids']);
-            if(is_array($moderators) && in_array(session('user_id'), $moderators)){
+            if (is_array($moderators) && in_array(session('user_id'), $moderators)) {
                 $moderator_event[] = $schedule;
             }
         }
-        if(!$moderator_event)
-            return false;
-
-        foreach ($moderator_event as &$event){
-            $event['acceptance']= (new ModeratorAcceptanceModel())->where(['author_id'=>session('user_id'), 'scheduler_id'=>$schedule['id']])->asArray()->first();
+        foreach ($moderator_event as &$event) {
+            $event['acceptance'] = (new ModeratorAcceptanceModel())
+                ->where(['author_id' => session('user_id'), 'scheduler_id' => $event['id']])
+                ->asArray()
+                ->first();
         }
 
         return $this->response->setJSON(['status'=>'success', 'data'=>$moderator_event]);
