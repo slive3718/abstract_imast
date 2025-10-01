@@ -128,6 +128,10 @@
                             </div>
 
                             <div class="button-group">
+                                <input type="button" value="Moderator(s)" onclick="InsertHTML('##MODERATORS##')" class="btn btn-primary">
+                            </div>
+                            
+                            <div class="button-group">
                                 <input type="button" value="Reviewer Username" onclick="InsertHTML('##REVIEW_USERNAME##')" class="btn btn-primary">
                                 <input type="button" value="Reviewer Password" onclick="InsertHTML('##REVIEW_PASSWORD##')" class="btn btn-primary">
                             </div>
