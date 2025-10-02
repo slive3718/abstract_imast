@@ -700,6 +700,7 @@
                 '</th><th>Recipients Name</th> <th>Abstract ID</th> <th>Email</th>   </thead>'
 
             response.data.forEach(function(user) {
+                if(!user || !user.details) return;
                 // console.log(user)
                 tableHTML += '<tr>';
                 tableHTML += '<td><input type="checkbox" class="recipientsCheckbox" checked author_id="'+user.details.id+'" name="'+user.details.name+'"  surname="'+user.details.surname+'" email="'+ user.details.email +'" paper_id="'+user.paper_id+'" filter="'+user.filter+'"></td>';
