@@ -1485,27 +1485,45 @@ class AbstractController extends BaseController
         // Get the POST data
         $post = $this->request->getPost();
         $papersModel = (new PapersModel());
-        $update_array = array(
-            'division_id' => intVal($post['division']) ?? null,
-            'type_id' => isset($post['paper_type']) ? intVal($post['paper_type']) ?? null: null,
-            'title' => $post['title'] ?? null,
-            'summary' => $post['summary'] ?? null,
-            'is_ijmc_interested' => intVal($post['is_interested']) ?? null,
-        );
+        $update_array = [];
+
+        if (isset($post['division'])) {
+            $update_array['division_id'] = (int)($post['division'] ?? NULL);
+        }
+
+        if (isset($post['paper_type'])) {
+            $update_array['type_id'] = (int)($post['paper_type'] ?? NULL);
+        }
+
+        if (isset($post['title'])) {
+            $update_array['title'] = $post['title'] ?? NULL;
+        }
+
+        if (isset($post['summary'])) {
+            $update_array['summary'] = $post['summary'] ?? NULL;
+        }
+
+        if (isset($post['is_interested'])) {
+            $update_array['is_ijmc_interested'] = (int)($post['is_interested'] ?? NULL);
+        }
+
+        if (isset($post['assigned_id'])) {
+            $update_array['assigned_id'] = trim($post['assigned_id']);
+        }
 
         try {
             $affectedRows = $papersModel->where(['id' => $post['paper_id']])->set($update_array)->update();
         }catch (\Exception $e){
             session()->setFlashdata('status', 'error');
             session()->setFlashdata(['notification' => $e->getMessage()]);
-            return json_encode(['status' => '500', 'msg' => "Paper Updated Failed", 'data' =>'']);
+            return json_encode(['status' => 500, 'msg' => "Paper Updated Failed", 'data' =>'']);
         }
         // Check if update was successful
         if ($affectedRows > 0) {
             // Update was successful
             session()->setFlashdata('status', 'success');
             session()->setFlashdata(['notification' => 'Submission Updated Successfully.']);
-            return json_encode(['status' => '200', 'msg' => "Paper Updated Successfully", 'data' => ['insert_id'=>$post['paper_id']]]);
+            return json_encode(['status' => 200, 'msg' => "Paper Updated Successfully", 'data' => ['insert_id'=>$post['paper_id']]]);
         }
     }
 

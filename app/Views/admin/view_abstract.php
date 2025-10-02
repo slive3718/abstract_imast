@@ -27,6 +27,13 @@
                     <table class="table">
                         <tbody>
                         <tr>
+                            <td class="text-end">Assigned ID : </td>
+                            <td >
+                                <input type="text" name="assigned_id" id="assigned_id" value="<?= $papers->assigned_id ?? '' ?>">
+                                <a class="btn btn-primary btn-sm saveAssignedIdBtn" > Save </a>
+                            </td>
+                        </tr>
+                        <tr>
                             <td class="text-end">Paper ID : </td>
                             <td ><?=$papers->id?></td>
                         </tr>
@@ -769,6 +776,11 @@
 
         })
 
+        $('.saveAssignedIdBtn').on('click', function(){
+            saveAssignedId();
+        })
+
+
     })
 
     function toggleIcon(event) {
@@ -826,6 +838,34 @@
             },
             success: function(response) {
                 return callback(response)
+            },
+            error: function(xhr, status, error) {
+                console.error('Error:', error);
+            }
+        });
+    }
+
+    function saveAssignedId(){
+        let assigned_id = $('#assigned_id').val().trim();
+        let paper_id = "<?=$paper_id?>".trim();
+
+        if(paper_id === ''){
+            toastr.error('Invalid or missing paper id')
+            return false;
+        }
+        $.ajax({
+            url: baseUrlAdmin + 'update_abstract_ajax',
+            type: 'POST',
+            data: {
+                'assigned_id': assigned_id,
+                'paper_id': paper_id
+            },
+            dataType: 'json',
+            success: function(response) {
+                if(response.status === 200){
+                    toastr.success(response.msg)
+                }
+                console.log(response)
             },
             error: function(xhr, status, error) {
                 console.error('Error:', error);
