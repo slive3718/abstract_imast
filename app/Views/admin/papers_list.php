@@ -23,6 +23,7 @@
                         <thead class="table-active sticky-top text-white" style="background-color: #2aa69c">
                         <tr>
                             <th>ID</th>
+                            <th>Assigned ID</th>
                             <th>Author List</th>
                             <th>Paper Title</th>
                             <th>Category</th>
@@ -334,6 +335,7 @@
                     table.append(`
                 <tr class="tableRow" style="cursor:pointer; background-color: ${color}" abstract_id="${paper.id}">
                     <td>${paper.custom_id}</td>
+                    <td>${paper.assigned_id}</td>
                     <td id="authorList_${paper.id}" class="author_td"></td>
                     <td>${stripTags(paper.title)}</td>
                     <td id="">${category}</td>
