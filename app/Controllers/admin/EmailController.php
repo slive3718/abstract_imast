@@ -715,7 +715,7 @@ class EmailController extends BaseController
                     ->select('scheduler_events.*, r.name as room_name')
                     ->join('scheduler_session_talks', 'scheduler_events.id = scheduler_session_talks.scheduler_event_id', 'left')
                     ->join('scheduler_rooms r', 'scheduler_events.room_id = r.id', 'left')
-                    ->where("JSON_CONTAINS(scheduler_events.session_chair_ids, JSON_QUOTE('{$val['id']}'))")
+                    ->where('scheduler_events.session_chair_ids', 'LIKE', '%"' . $val['id'] . '"%')
                     ->first();
 
                 $PaperTemplates = str_replace('##RECIPIENTS_FULL_NAME##', $val['name'] . ' ' . $val['surname'], $PaperTemplates);
