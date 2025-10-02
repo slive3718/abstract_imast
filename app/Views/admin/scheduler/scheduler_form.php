@@ -96,6 +96,45 @@
         <label for="floatingSessionChair3">Session Chair 3</label>
     </div>
 
+    <p>
+        <a class="" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+            Select more moderators here
+        </a>
+    </p>
+    <div class="collapse" id="collapseExample">
+        <!-- Session Chair 4 -->
+        <div class="form-floating mb-3">
+            <select class="form-select sessionChairSelect" id="floatingSessionChair4" name="session_chair[]">
+                <option value="" selected>-- Select --</option>
+            </select>
+            <label for="floatingSessionChair4">Session Chair 4</label>
+        </div>
+
+        <!-- Session Chair 5 -->
+        <div class="form-floating mb-3">
+            <select class="form-select sessionChairSelect" id="floatingSessionChair5" name="session_chair[]">
+                <option value="" selected>-- Select --</option>
+            </select>
+            <label for="floatingSessionChair5">Session Chair 5</label>
+        </div>
+
+        <!-- Session Chair 6 -->
+        <div class="form-floating mb-3">
+            <select class="form-select sessionChairSelect" id="floatingSessionChair6" name="session_chair[]">
+                <option value="" selected>-- Select --</option>
+            </select>
+            <label for="floatingSessionChair6">Session Chair 6</label>
+        </div>
+
+        <!-- Session Chair 7 -->
+        <div class="form-floating mb-3">
+            <select class="form-select sessionChairSelect" id="floatingSessionChair7" name="session_chair[]">
+                <option value="" selected>-- Select --</option>
+            </select>
+            <label for="floatingSessionChair7">Session Chair 7</label>
+        </div>
+    </div>
+
     <!-- Submit Button -->
     <button type="submit" class="btn btn-primary">Submit</button>
 </form>
