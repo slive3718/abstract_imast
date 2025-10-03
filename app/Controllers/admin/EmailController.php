@@ -510,6 +510,7 @@ class EmailController extends BaseController
                 foreach ($post['recipients'] as $recipient) {
                     if ($post['recipientType'] == 'paper' || $post['recipientType'] == 'panel') {
                         $recipient = json_decode($recipient, true);
+//                        print_r($recipient);exit;
                         if ($recipient && $recipient['filter'] !== 'all_submitter') {
                             $paper = $PaperAuthorModel->select('*, papers.title as title, papers.id as paper_id')
                                 ->join($PaperModel->getTable() . ' as papers', $PaperAuthorModel->getTable() . '.paper_id = papers.id', 'left')
@@ -523,6 +524,7 @@ class EmailController extends BaseController
 
                             $res = $paper->first();
                         } else {
+//                            exit;
                             $UsersModel->select('*, papers.title as title, papers.id as paper_id')
                                 ->join($this->default_db_name . '.papers', $UsersModel->getTable() . '.id = papers.user_id', 'left')
                                 ->join($this->shared_db_name  . '.users_profile as profile', $PaperModel->getTable() . '.user_id = profile.author_id', 'left')
