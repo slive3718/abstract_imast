@@ -316,32 +316,32 @@ class EmailController extends BaseController
 
 
 
-    public function recipientModerators() { // Fetch all moderators
+    public function recipientModerators() { // get all moderators assigned once.
         $post = $this->request->getPost();
 
         $UsersModel = new UserModel();
-        $events_result = (new SchedulerModel())->findAll();
+        $events_result = (new SchedulerModel())->where('is_deleted', 0)->findAll();
 
-        $filtered_result = [];
+        $session_chairs = [];
 
         foreach ($events_result as &$event) {
-            $session_chair_ids = json_decode($event['session_chair_ids']);
+            $session_chair_ids = json_decode($event['session_chair_ids'], true);
 
             if (is_array($session_chair_ids) && !empty($session_chair_ids)) {
                 foreach ($session_chair_ids as $id) {
-                    // Fetch event details from PapersModel
-                    $result = (new PapersModel())->select('*, id as paper_id')->asArray()->find($event['id']);
-                    if ($result) {
-                        $paper_array = $result; // Start with event data
-                        $paper_array['details'] = $UsersModel->find($id); // Add moderator details
-                        $filtered_result[] = $paper_array; // Append to filtered results
-                    }
+                    $session_chairs[] = [
+                        'id' => $id,
+                        'author_id' => $id,
+                        'details' => $UsersModel->find($id) ,// Store moderator details
+                        'scheduler_id' => $event['id']
+                    ];
                 }
             }
         }
+        $filtered_result = array_values($session_chairs);
 
         // Return the filtered results as JSON
-        return json_encode(['status' => '200', 'message' => 'success', 'data' => $filtered_result]);
+        return json_encode(['status' => '200', 'message' => 'success', 'data' => $session_chairs]);
     }
     function allDPC(){
         $deputyUsers = (new UserModel())->where('is_deputy_reviewer', 1)->findAll();
@@ -704,51 +704,60 @@ class EmailController extends BaseController
                 $email_array[] = $email_entry;
             }
 
-        }else if( $post['recipientType'] == 'moderator'){
-            foreach ($arr as $val) {
-                $PaperTemplates = $originalTemplate;  // Assuming $originalTemplate holds the original template content/**/
+        }else if ($post['recipientType'] == 'moderator') {
+            $moderatorEvents = (new UserServices())->get_assigned_moderators_events($arr);
+            foreach ($moderatorEvents as $val_arr) {
+                $val = $val_arr['user'];
+                $moderatorScheduleEvents = $val_arr['events'];
 
-                // Get reviewers username and password of this paper
-                $users = $UsersModel->where('id', $val['id'])->findAll();
+                if (empty($moderatorScheduleEvents)) {
+                    continue; // Skip moderators with no events
+                }
 
-                $scheduleEvents = (new SchedulerModel())
-                    ->select('scheduler_events.*, r.name as room_name')
-                    ->join('scheduler_session_talks', 'scheduler_events.id = scheduler_session_talks.scheduler_event_id', 'left')
-                    ->join('scheduler_rooms r', 'scheduler_events.room_id = r.id', 'left')
-                    ->where('scheduler_events.session_chair_ids', 'LIKE', '%"' . $val['id'] . '"%')
-                    ->first();
-
+                // Prepare base template once per moderator
+                $PaperTemplates = $originalTemplate;
                 $PaperTemplates = str_replace('##RECIPIENTS_FULL_NAME##', $val['name'] . ' ' . $val['surname'], $PaperTemplates);
                 $PaperTemplates = str_replace('##TODAY_DATE##', date('F d, Y'), $PaperTemplates);
                 $PaperTemplates = str_replace('##RECIPIENT_FIRST_NAME##', $val['name'], $PaperTemplates);
                 $PaperTemplates = str_replace('##RECIPIENTS_LAST_NAME##', $val['surname'], $PaperTemplates);
                 $PaperTemplates = str_replace('##RECIPIENT_EMAIL_ADDRESS##', $val['email'], $PaperTemplates);
 
-                $PaperTemplates = str_replace('##SCHEDULER_SESSION_TITLE##', $scheduleEvents ?strip_tags($scheduleEvents['session_title']) : '', $PaperTemplates);
-                $PaperTemplates = str_replace('##SCHEDULER_SESSION_DATE##', $scheduleEvents ? date('Y-m-d', strtotime($scheduleEvents['session_date'])) : '', $PaperTemplates);
-                $PaperTemplates = str_replace('##SCHEDULER_SESSION_START_TIME##', $scheduleEvents ? date('h:i a', strtotime($scheduleEvents['session_start_time'])) : '', $PaperTemplates);
-                $PaperTemplates = str_replace('##SCHEDULER_SESSION_END_TIME##', $scheduleEvents  ? date('h:i a', strtotime($scheduleEvents['session_end_time'])) : '', $PaperTemplates);
-                $PaperTemplates = str_replace('##SCHEDULER_SESSION_ROOM##', $scheduleEvents  ? $scheduleEvents['room_name'] : '', $PaperTemplates);
-
-
-                // Add more replacements as necessary
+                // Static/empty replacements (once per moderator)
                 $PaperTemplates = str_replace('##PRESENTATION_DATE##', '', $PaperTemplates);
                 $PaperTemplates = str_replace('##PRESENTATION_TIME##', '', $PaperTemplates);
-                $PaperTemplates = str_replace('##TODAY_DATE##', date('F d, Y'), $PaperTemplates);
-                // Get presenting authors
 
-                $email_entry = [
-                    'name' => stripslashes($val['name']),
-                    'surname' => stripslashes($val['surname']),
-                    'email_template' => stripslashes($PaperTemplates),
-                    'email' => $val['email'],
-                    'subject' => $post['email_subject'],
-                    'paper_id' => '',
-                    'author_id' => $val['id']
-                ];
+                // Now handle per-event customizations and emails
+                foreach ($moderatorScheduleEvents as $scheduleEvents) {
+                    // Copy the base template for this event to avoid overwriting
+                    $eventTemplate = $PaperTemplates;
 
-                $email_array[] = $email_entry;
-             }
+                    // Event-specific replacements
+                    $eventTitle = $scheduleEvents ? strip_tags($scheduleEvents['session_title']) : '';
+                    $eventDate = $scheduleEvents ? date('Y-m-d', strtotime($scheduleEvents['session_date'])) : '';
+                    $eventStart = $scheduleEvents ? date('h:i a', strtotime($scheduleEvents['session_start_time'])) : '';
+                    $eventEnd = $scheduleEvents ? date('h:i a', strtotime($scheduleEvents['session_end_time'])) : '';
+                    $eventRoom = $scheduleEvents ? $scheduleEvents['room_name'] : '';
+
+                    $eventTemplate = str_replace('##SCHEDULER_SESSION_TITLE##', $eventTitle, $eventTemplate);
+                    $eventTemplate = str_replace('##SCHEDULER_SESSION_DATE##', $eventDate, $eventTemplate);
+                    $eventTemplate = str_replace('##SCHEDULER_SESSION_START_TIME##', $eventStart, $eventTemplate);
+                    $eventTemplate = str_replace('##SCHEDULER_SESSION_END_TIME##', $eventEnd, $eventTemplate);
+                    $eventTemplate = str_replace('##SCHEDULER_SESSION_ROOM##', $eventRoom, $eventTemplate);
+
+                    // Build email entry for this specific event
+                    $email_entry = [
+                        'name' => stripslashes($val['name']),
+                        'surname' => stripslashes($val['surname']),
+                        'email_template' => stripslashes($eventTemplate),
+                        'email' => $val['email'],
+                        'subject' => $post['email_subject'],
+                        'paper_id' => '', // Consider populating if relevant
+                        'author_id' => $val['id']
+                    ];
+
+                    $email_array[] = $email_entry;
+                }
+            }
         }
 
         if($post['action'] == 'preview') {

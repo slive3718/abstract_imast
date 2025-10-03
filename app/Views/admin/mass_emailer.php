@@ -684,49 +684,72 @@
         });
     }
 
-    function getFilteredDesignation(selectedOption, recipientType, recipientGroup){
-        console.log(selectedOption, recipientType, recipientGroup)
+    function getFilteredDesignation(selectedOption, recipientType, recipientGroup) {
+        console.log(selectedOption, recipientType, recipientGroup);
 
-        $.post(base_url_admin + 'get_all_users_filtered',{
+        $.post(base_url_admin + 'get_all_users_filtered', {
             'selectedOption': selectedOption,
-            'recipientType':recipientType,
-            'recipientGroup':recipientGroup
-        }, function(response) {
-            console.log(response)
-            $('#TotalRecipientText').html(response.data.length);
-            var tableHTML = '<table class="table table-striped table-bordered table-hover" id="recipientsTable">';
-            tableHTML += '<thead> ' +
-                '<th><input type="checkbox" name="selectAllRecipient" id="selectAllRecipient" onclick="checkAllRecipients(this)" ><label for="selectAllRecipient"> Select All</label>' +
-                '</th><th>Recipients Name</th> <th>Abstract ID</th> <th>Email</th>   </thead>'
+            'recipientType': recipientType,
+            'recipientGroup': recipientGroup
+        })
+            .done(function(response) {
+                response = JSON.parse(response)
+                console.log(response);
+                if (!response || !response.data || !Array.isArray(response.data)) {
+                    $('#recipientsDetailsDiv').html('<p>No data available or error in response.</p>');
+                    return;
+                }
 
-            response.data.forEach(function(user) {
-                if(!user || !user.details) return;
-                // console.log(user)
-                tableHTML += '<tr>';
-                tableHTML += '<td><input type="checkbox" class="recipientsCheckbox" checked author_id="'+user.details.id+'" name="'+user.details.name+'"  surname="'+user.details.surname+'" email="'+ user.details.email +'" paper_id="'+user.paper_id+'" filter="'+user.filter+'"></td>';
-                tableHTML += '<td>' + user.details.name + ' ' + user.details.surname + '</td>';
-                tableHTML += '<td class="abstractID">' + (user.paper_id !== undefined ? user.paper_id : '') + '</td>';
-                tableHTML += '<td>' + user.details.email +'</td>';
-                tableHTML += '<td class="designation d-none">' + user.filter + '</td>';
-                tableHTML += '</tr>';
-            });
+                $('#TotalRecipientText').html(0); // Start with 0 selected
+                var tableHTML = '<table class="table table-striped table-bordered table-hover" id="recipientsTable">';
+                tableHTML += '<thead><tr>' +
+                    '<th><input type="checkbox" id="selectAllRecipient"><label for="selectAllRecipient"> Select All</label></th>' +
+                    '<th>Recipients Name</th>' +
+                    (selectedOption === 'all_moderators' ? '<th>Scheduler ID</th>' : '<th>Abstract ID</th>') +
+                    '<th>Email</th>' +
+                    '<th class="d-none">Designation</th>' +  // Added hidden th for alignment
+                    '</tr></thead><tbody>';
 
-            tableHTML += '</table>';
+                console.log(response.data);
+                response.data.forEach(function(user) {
+                    if (!user || !user.details) return;
 
-            $('#recipientsDetailsDiv').html(tableHTML);
+                    var showID = (recipientType === 'moderator') ? (user.scheduler_id || '') : (user.paper_id || '');
+                    var idAttr = (recipientType === 'moderator') ? 'author_id="' + user.id + '"' : 'paper_id="' + user.paper_id + '"';
 
-            // Attach a single event handler to the table for both checkbox changes and "select all" clicks
-            $('#recipientsTable').on('change', '.recipientsCheckbox, #selectAllRecipient', function() {
+                    tableHTML += '<tr>' +
+                        '<td><input type="checkbox" class="recipientsCheckbox" checked ' + idAttr + ' name="' + user.details.name + '" surname="' + user.details.surname + '" email="' + user.details.email + '" filter="' + (user.filter || '') + '"></td>' +
+                        '<td>' + user.details.name + ' ' + user.details.surname + '</td>' +
+                        '<td class="abstractID">' + showID + '</td>' +
+                        '<td>' + user.details.email + '</td>' +
+                        '<td class="designation d-none">' + (user.filter || '') + '</td>' +
+                        '</tr>';
+                });
+
+                tableHTML += '</tbody></table>';
+                $('#recipientsDetailsDiv').html(tableHTML);
+
+                // Single delegated handler for checkboxes and Select All
+                $('#recipientsTable').on('change', '.recipientsCheckbox, #selectAllRecipient', function() {
+                    if ($(this).is('#selectAllRecipient')) {
+                        $('.recipientsCheckbox').prop('checked', this.checked);
+                    }
+                    updateCheckedCount();
+                });
+
+                function updateCheckedCount() {
+                    var checkedCount = $('#recipientsTable .recipientsCheckbox:checked').length;
+                    $('#TotalRecipientText').html(checkedCount);
+                }
+
+                // Initial count after setup
                 updateCheckedCount();
+            })
+            .fail(function(xhr, status, error) {
+                console.error('AJAX Error:', error);
+                $('#recipientsDetailsDiv').html('<p>Error loading recipients: ' + error + '</p>');
+                $('#TotalRecipientText').html(0);
             });
-
-            // Function to update the total checked count
-            function updateCheckedCount() {
-                let checkedCount = $('#recipientsTable .recipientsCheckbox:checked').length;
-                $('#TotalRecipientText').html(checkedCount);
-            }
-
-        }, 'json');
     }
 
     function clearSelectedOptions(){

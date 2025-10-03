@@ -17,6 +17,8 @@ class SchedulerModel extends Model
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
 
+    protected $beforeFind    = ['excludeDeleted'];
+
     function __construct(ConnectionInterface $db = null, ValidationInterface $validation = null)
     {
         parent::__construct();
@@ -24,6 +26,12 @@ class SchedulerModel extends Model
         $this->validation = $validation;
 
         $this->initializeAllowedFields();
+    }
+
+    protected function excludeDeleted(array $data)
+    {
+        $this->builder()->where($this->table . '.is_deleted', 0);
+        return $data;
     }
 
     /**
