@@ -95,12 +95,12 @@ class UserServices extends BaseService
 
         return $assigned_events;
     }
-    
+
     function get_assigned_moderator_events($moderator_id){
         $result = (new SchedulerModel())
             ->select('scheduler_events.*, r.name as room_name')
             ->join('scheduler_rooms r', 'scheduler_events.room_id = r.id', 'left')
-            ->where("JSON_CONTAINS(scheduler_events.session_chair_ids, JSON_QUOTE('{$moderator_id}'))")
+            ->where('scheduler_events.session_chair_ids', 'LIKE', '%"' . $moderator_id . '"%')
             ->asArray()->findAll();
         return $result;
     }
