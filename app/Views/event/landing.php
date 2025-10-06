@@ -33,13 +33,24 @@
                 <p class="text-center fw-bolder">Toronto, ON, Canada<br> April 15-17, 2026 </p>
                 <p class="text-center fw-bolder">Abstract Submission: July 1, 2025 - October 1, 2025</p>
 
-                <div class="row mt-4">
-                    <div class="text-center ">
-                        <label class="alert alert-success text-center glass-content submissionBtn w-700" role="alert">
-                            The submission site is now open!
-                        </label>
+                <?php if(1 == 1) : ?>
+                    <div class="row mt-4">
+                        <div class="text-center ">
+                            <label class="alert alert-danger text-center glass-content submissionBtn w-700" role="alert">
+                                The submission site is now closed to new submissions. Thank you for your interest!
+                            </label>
+                        </div>
                     </div>
-                </div>
+                <?php else : ?>
+                    <div class="row mt-4">
+                        <div class="text-center ">
+                            <label class="alert alert-success text-center glass-content submissionBtn w-700" role="alert">
+                                The submission site is now open!
+                            </label>
+                        </div>
+                    </div>
+                <?php endif; ?>
+
                 <div class="row mt-4">
                     <div class="col justify-content-center text-center ">
                         <button onClick="window.location.href='<?=base_url()?>login'" class="glass-button w-700  btn btn-primary btn-lg align-center" type="button">Please click here to submit / edit your submission</button>
@@ -215,13 +226,25 @@
                     </div>
                 </div>
 
-                <div class="row mt-4">
-                    <div class="text-center ">
-                        <label class="alert alert-success text-center glass-content submissionBtn w-700" role="alert">
-                            The submission site is now open!
-                        </label>
+
+
+                <?php if(1 == 1) : ?>
+                    <div class="row mt-4">
+                        <div class="text-center ">
+                            <label class="alert alert-danger text-center glass-content submissionBtn w-700" role="alert">
+                                The submission site is now closed to new submissions. Thank you for your interest!
+                            </label>
+                        </div>
                     </div>
-                </div>
+                <?php else : ?>
+                    <div class="row mt-4">
+                        <div class="text-center ">
+                            <label class="alert alert-success text-center glass-content submissionBtn w-700" role="alert">
+                                The submission site is now open!
+                            </label>
+                        </div>
+                    </div>
+                <?php endif; ?>
 
                 <div>
                     <h6 class="fw-bold mt-5">QUESTIONS?</h6>
