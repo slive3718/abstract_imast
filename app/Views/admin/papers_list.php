@@ -32,7 +32,7 @@
                             <th>Reviewer</th>
                             <th>Participation</th>
                             <th>Flagged</th>
-                            <th>Finalized</th>
+                            <th>Submission <br> Status</th>
                             <th>Action</th>
                         </tr>
                         </thead>
