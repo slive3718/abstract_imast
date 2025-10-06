@@ -810,7 +810,7 @@ class AbstractController extends BaseController
                 // Batch fetch reviews
                 $reviews = $AbstractReviewModel->whereIn('abstract_id', $paperIds)->findAll();
                 foreach ($reviews as $review) {
-                    $reviewsMap[$review->abstract_id][$review->reviewer_id] = $review;
+                    $reviewsMap[$review->abstract_id][$review->reviewer_id] = $review ?? [];
                 }
             }
 
@@ -857,9 +857,9 @@ class AbstractController extends BaseController
 
                 // Assign reviewers
                 foreach ($reviewers as $reviewer) {
-                    if ($reviewer->paper_id == $paper['id']) {
-                        $reviewer->details = $reviewerProfilesMap[$reviewer->reviewer_id] ?? null;
-                        $reviewer->review = $reviewsMap[$paper['id']][$reviewer->reviewer_id] ?? null;
+                    if ($reviewer['paper_id'] == $paper['id']) {
+                        $reviewer['details'] = $reviewerProfilesMap[$reviewer['reviewer_id']] ?? null;
+                        $reviewer['review'] = $reviewsMap[$paper['id']][$reviewer['reviewer_id']] ?? null;
                         $reviewer_array[] = $reviewer;
                     }
                 }
