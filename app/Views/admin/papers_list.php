@@ -32,6 +32,7 @@
                             <th>Reviewer</th>
                             <th>Participation</th>
                             <th>Flagged</th>
+                            <th>Finalized</th>
                             <th>Action</th>
                         </tr>
                         </thead>
@@ -344,6 +345,7 @@
                     <td id="reviewer_${paper.id}"></td>
                     <td><strong class="text-primary">Author Acceptance</strong><br><span id="author-acceptance-${paper.id}"></span></td>
                     <td>${isFlagged}<br>${adminComment}</td>
+                    <td>${paper.is_finalized == '1' ? '<span class="badge bg-success">Finalized</span>' : '' }</td>
                     <td style="min-width:96px">${buttons}</td>
                 </tr>
             `);
