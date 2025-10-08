@@ -789,29 +789,30 @@ class AbstractController extends BaseController
             }
 
             // Batch fetch reviewers
-            $reviewers = $PaperAssignedReviewerModel->whereIn('paper_id', $paperIds)
-                ->where(['reviewer_type' => 'regular', 'is_deleted' => 0])
+            $papersAssignedReviewers = (new PaperAssignedReviewerModel())
+                ->select('paper_assigned_reviewer.*, users.name, users.surname, users.email')
+                ->join($this->shared_db_name.'.users', 'paper_assigned_reviewer.reviewer_id = users.id', 'left')
+                ->where('users.name!=', '')
+                ->where('is_deleted', 0)
                 ->findAll();
-            $reviewerIds = array_unique(array_column($reviewers, 'reviewer_id'));
-
-            // Initialize reviewer-related maps to avoid undefined variable issues
-            $reviewerProfilesMap = [];
-            $reviewsMap = [];
-
-            // Batch fetch reviewer profiles and reviews
-            if (!empty($reviewerIds)) {
-                $reviewerProfiles = $UsersProfileModel
-                    ->select('users_profile.*, users.name, users.surname, users.middle_name as user_middle, users.email as user_email')
-                    ->join($this->shared_db_name . '.users', 'users_profile.author_id = users.id', 'left')
-                    ->whereIn('author_id', $reviewerIds)
-                    ->findAll();
-                $reviewerProfilesMap = array_column($reviewerProfiles, null, 'author_id');
-
-                // Batch fetch reviews
-                $reviews = $AbstractReviewModel->whereIn('abstract_id', $paperIds)->findAll();
-                foreach ($reviews as $review) {
-                    $reviewsMap[$review->abstract_id][$review->reviewer_id] = $review ?? [];
+            $assignedReviewersMap = [];
+            foreach ($papersAssignedReviewers as $reviewer) {
+                if (!isset($assignedReviewersMap[$reviewer['paper_id']])) {
+                    $assignedReviewersMap[$reviewer['paper_id']] = [];
                 }
+
+                $review = (new AbstractReviewModel())
+                    ->where('abstract_id', $reviewer['paper_id'])
+                    ->where('reviewer_id', $reviewer['reviewer_id'])
+                    ->first();
+
+                $assignedReviewersMap[$reviewer['paper_id']][] = [
+                    'id' => $reviewer['reviewer_id'],
+                    'name' => $reviewer['name'],
+                    'surname' => $reviewer['surname'],
+                    'email' => $reviewer['email'],
+                    'review' => $review
+                ];
             }
 
             // Batch fetch deputy acceptances, admin options, comments, uploads, and categories
@@ -855,16 +856,6 @@ class AbstractController extends BaseController
                 }
                 $paper['authors'] = $user_array;
 
-                // Assign reviewers
-                foreach ($reviewers as $reviewer) {
-                    if ($reviewer['paper_id'] == $paper['id']) {
-                        $reviewer['details'] = $reviewerProfilesMap[$reviewer['reviewer_id']] ?? null;
-                        $reviewer['review'] = $reviewsMap[$paper['id']][$reviewer['reviewer_id']] ?? null;
-                        $reviewer_array[] = $reviewer;
-                    }
-                }
-                $paper['reviewers'] = $reviewer_array;
-
                 // Assign other data
                 $paper['dpc'] = $deputyAcceptancesMap[$paper['id']] ?? [];
                 $paper['adminOption'] = $adminOptionsMap[$paper['id']] ?? null;
@@ -872,6 +863,7 @@ class AbstractController extends BaseController
                 $paper['uploads'] = $uploadsMap[$paper['id']] ?? [];
                 $paper['category'] = $categoriesMap[$paper['abstract_category']] ?? null;
                 $paper['type'] = $paperTypesMap[$paper['type_id']] ?? [];
+                $paper['assignedReviewers'] = $assignedReviewersMap[$paper['id']] ?? null;
                 $paper['types'] = $paperTypes; // All paper types
 
                 $paper_array[] = $paper;

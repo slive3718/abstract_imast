@@ -29,10 +29,10 @@
                             <th>Category</th>
                             <th>Acceptance <br> Status</th>
                             <th>Accepted Type</th>
-                            <th>Reviewer</th>
                             <th>Participation</th>
                             <th>Flagged</th>
                             <th>Submission <br> Status</th>
+                            <th>Assigned <br> Reviewers</th>
                             <th>Action</th>
                         </tr>
                         </thead>
@@ -332,6 +332,7 @@
                     const buttons = generateButtons(paper.id);
 
                     const category = paper.category.name
+                    const assignedReviewers = getAssignedReviewers(paper);
 
                     table.append(`
                 <tr class="tableRow" style="cursor:pointer; background-color: ${color}" abstract_id="${paper.id}">
@@ -342,10 +343,10 @@
                     <td id="">${category}</td>
                     <td class="text-nowrap">${acceptanceStatus}</td>
                     <td class="text-nowrap">${presentationPref}</td>
-                    <td id="reviewer_${paper.id}"></td>
                     <td><strong class="text-primary">Author Acceptance</strong><br><span id="author-acceptance-${paper.id}"></span></td>
                     <td>${isFlagged}<br>${adminComment}</td>
                     <td>${paper.is_finalized == '1' ? '<span class="badge bg-success">Finalized</span>' : '' }</td>
+                     <td>${assignedReviewers}</td>
                     <td style="min-width:96px">${buttons}</td>
                 </tr>
             `);
@@ -470,7 +471,6 @@
         function populateAdditionalData(data) {
             data.forEach(paper => {
                 populateAuthors(paper);
-                populateReviewers(paper);
             });
         }
 
@@ -513,22 +513,30 @@
             }
         }
 
-        function populateReviewers(paper) {
-            if (!paper.reviewers) return;
+        function getAssignedReviewers(paper) {
+            if (!paper.assignedReviewers || !paper.assignedReviewers.length) return '';
 
-            paper.reviewers.forEach(reviewer => {
-                const statusBadge = reviewer.is_declined
-                    ? '<span class="text-danger ms-1">Declined</span>'
-                    : reviewer.review
-                        ? '<span class="text-success ms-1">Reviewed</span>'
-                        : '';
+            return paper.assignedReviewers.map(assignedReviewer => {
+                let review = '';
+                if (assignedReviewer.review) {
+                    if (assignedReviewer.review.rating === 'COI') {
+                        review = `<span class="badge bg-danger ms-2 "> COI </span>`;
+                    } else if (assignedReviewer.review.rating === 'Not Applicable') {
+                        review = `<span class="badge bg-warning ms-2 "> N/A </span>`;
+                    } else {
+                        review = `<span class="badge bg-success ms-2 ">
+                    <i class="fas fa-check-circle"></i>
+                </span>`;
+                    }
+                }
 
-                $('#reviewer_' + reviewer.paper_id).append(`
-            <div class="text-nowrap card bg-transparent shadow-sm p-1 mb-1">
-                ${reviewer.details.name} ${reviewer.details.surname} ${statusBadge}
+                return `<div class="card bg-transparent shadow-sm p-1 mb-1">
+            <div class="d-inline-flex align-items-center">
+                <span class="me-1">${assignedReviewer.name} ${assignedReviewer.surname}</span>
+                ${review}
             </div>
-        `);
-            });
+        </div>`;
+            }).join('');
         }
 
         function initializeDataTable() {
