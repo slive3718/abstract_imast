@@ -82,9 +82,10 @@
     $(function(){
 
         getAbstracts();
-        
+        var abstractHasChanges = false;
 
         $("#abstractTableBody").on('click', '.assignReviewerBtn', function(){
+            abstractHasChanges = false;
             let paper_id = $(this).attr('abstract_id');
             let divisionName = $(this).attr('divisionName');
             let reviewers_reviewed = $(this).attr('reviewers_reviewed')
@@ -110,6 +111,13 @@
             }else{
                 getRegularReviewersByDivision(paper_id, divisionName)
             }
+        });
+
+
+        $('#assignRegularModal').on('hide.bs.modal', function() {
+            // Clear flag when modal closes
+            if(abstractHasChanges)
+                getAbstracts();
         });
 
         function getRegularReviewersByDivision(paper_id, divisionName){
@@ -210,7 +218,6 @@
                             // Toggle the checkbox state based on the response status
                             checkbox.prop('checked', response.status == '200' ? isChecked : !isChecked);
                             getRegularReviewersByDivision(paperID, divisionName)
-                            getAbstracts();
                         }, 'json');
                     }
                 });
@@ -228,10 +235,9 @@
                     // Toggle the checkbox state based on the response status
                     checkbox.prop('checked', response.status == '200' ? isChecked : !isChecked);
                     getRegularReviewersByDivision(paperID, divisionName)
-                    getAbstracts();
                 }, 'json');
             }
-
+            abstractHasChanges = true;
         });
 
         // ################## End Assigning reviewer #########################
