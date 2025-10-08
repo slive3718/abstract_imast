@@ -252,7 +252,7 @@ class AuthorAcceptanceModel extends Model
         foreach ($author_papers as &$paper){
             $paper['author_details'] = (new UserModel())
                 ->where('users.id', $paper['author_id'])
-                ->join($this->shared_db_name . '.users_profile up', 'users.id = up.author_id', 'left')
+                ->join('users_profile up', 'users.id = up.author_id', 'left')
                 ->findAll();
             $paper['paper_data'] = (new PapersModel())->find($paper['paper_id']);
             $paper['admin_acceptance_data'] = (new AdminAcceptanceModel())->where('abstract_id', $paper['paper_id'])->first();
@@ -261,10 +261,9 @@ class AuthorAcceptanceModel extends Model
                     'abstract_id' => $paper['paper_id'],
                     'author_id' => session('user_id')
                 ]
-                )->first();
+            )->first();
             $paper['schedule'] = (new SchedulerSessionTalksModel())->get_talk_schedule_query($paper['paper_id'])->first();
             $paper['room'] = [];
-            $paper['type'] = (new PaperTypeModel())->find($paper['paper_data']->type_id);
             if($paper['schedule']) {
                 $paper['room'] = (new RoomsModel())->find($paper['schedule']['room_id']);
             }
@@ -289,9 +288,9 @@ class AuthorAcceptanceModel extends Model
                 ->join('users_profile up', 'users.id = up.author_id', 'left')
                 ->findAll();
             $paper['paper_data'] = (new PanelistPaperSubModel())->join('papers p', 'panelist_paper_sub.paper_id = p.id', 'left')
-            ->where('panelist_id', session('user_id'))
-            ->where('paper_id', $paper['paper_id'])
-            ->where('p.active_status', '1')
+                ->where('panelist_id', session('user_id'))
+                ->where('paper_id', $paper['paper_id'])
+                ->where('p.active_status', '1')
                 ->first();
             $paper['acceptance_data'] = (new PanelistPaperSubModel())->join('admin_individual_panel_acceptance aipa', 'panelist_paper_sub.id = aipa.individual_panel_id', 'left')
                 ->where('panelist_paper_sub.paper_id', $paper['paper_id'])

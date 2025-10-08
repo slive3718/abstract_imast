@@ -170,8 +170,11 @@
 
 
             $.each(response.data, function(i, val){
-                // console.log(val)
+
+                if (val.admin_acceptance_data === null || val.admin_acceptance_data === undefined) return true;
+
                 let openBtn  = `<button class="btn btn-success btn-sm openBtn text-right float-end w-100" abstract_id='${val.paper_data.id}' data-accepted-for="${val.admin_acceptance_data.presentation_preference}"> Open </button>`
+                let openManuscriptBtn  = `<a href="<?=base_url()?>/acceptance/powerpoint_presentation/${val.paper_data.id}" class="btn btn-success btn-sm openManuscriptBtn text-right float-end w-100" abstract_id='${val.paper_data.id}' data-accepted-for="${val.admin_acceptance_data.presentation_preference}"> Open </a>`
                 let adminPresentationPref = '';
                 let adminAcceptance = '';
 
@@ -186,7 +189,7 @@
 
                     const presentationMap = {};
                     $.map(JSON.parse(paper_types), function(paper_type) {
-                        presentationMap[paper_type.id] =  paper_type.acronym
+                        presentationMap[paper_type.id] =  paper_type.name
                     });
 
                     adminAcceptance = acceptanceMap[val.admin_acceptance_data.acceptance_confirmation] || "Unknown Status";
@@ -196,7 +199,7 @@
                 }
 
 
-                if(val.admin_acceptance_data.acceptance_confirmation == 1 && val.admin_acceptance_data.presentation_preference !== '2') {
+                if(val.admin_acceptance_data.acceptance_confirmation == 1 || val.admin_acceptance_data.presentation_preference == 2) {
                     const submissionTypes = {
                         paper: "Paper Presentation",
                         panel: "Panel Presentation"
