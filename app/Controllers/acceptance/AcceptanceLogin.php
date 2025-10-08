@@ -57,7 +57,6 @@ class AcceptanceLogin extends Controller
                 ->where('paper_authors.author_type', 'author')
                 ->where('paper_authors.is_presenting_author', 'Yes')
                 ->where('aaa.acceptance_confirmation ', '1')
-                ->where('aaa.presentation_preference !=', '2')
                 ->get()->getResultArray();
 
 
