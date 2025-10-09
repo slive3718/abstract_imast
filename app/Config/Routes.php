@@ -135,6 +135,12 @@ $routes->group('admin', ['filter' => 'authGuard:admin'],  function ($routes) {
     $routes->get('talks', 'admin\Abstracts\SessionTalksController::get');
     $routes->get('talks/scheduled/(:any)', 'admin\Abstracts\SessionTalksController::talk_scheduled/$1');
 
+
+
+//    ####### FOR BULK IMPORT ASSIGNING OF REVIEWERS
+    $routes->get('bulk_assign', 'admin\Abstracts\BulkAssignController::bulk_assign');
+    $routes->post('bulk_assign', 'admin\Abstracts\BulkAssignController::bulk_assign');
+//    ####### END FOR BULK IMPORT ASSIGNING OF REVIEWERS ################
 });
 
 

@@ -133,7 +133,7 @@ class ReviewerController extends BaseController
             ->join($DivisionModel->getTable(), $PaperModel->getTable().'.division_id = '.$DivisionModel->getTable().'.division_id', 'left')
             ->where('active_status', 1)->find($abstract_id);
 
-        $abstracts->file_uploads = $PaperUploadsModel->where('paper_id', $abstract_id)->orderBy('id', 'desc')->findAll();
+        $paper_uploads = $PaperUploadsModel->where('paper_id', $abstract_id)->orderBy('id', 'desc')->findAll();
 
         $abstractReviewData =(new AbstractReviewModel())
             ->where(['abstract_id'=>$abstract_id, 'reviewer_id'=>session('user_id')])
@@ -158,7 +158,8 @@ class ReviewerController extends BaseController
             'abstract_reviews'=>$abstract_reviews,
             'abstract_reviewer_uploads'=>!empty($abstract_reviewer_uploads)?$abstract_reviewer_uploads:[],
             'abstract_categories'=>!empty($abstractCategories)?$abstractCategories:[],
-            'abstract_sub_categories'=>!empty($abstractSubCategories) ? $abstractSubCategories:[]
+            'abstract_sub_categories'=>!empty($abstractSubCategories) ? $abstractSubCategories:[],
+            'paper_uploads'=>!empty($paper_uploads) ? $paper_uploads:[]
         ];
 
         if(!empty($abstractReviewData)){

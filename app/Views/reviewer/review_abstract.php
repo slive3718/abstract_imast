@@ -84,22 +84,22 @@
                 </div>
             </div>
 
-            <div class="card mt-2">
+            <!--<div class="card mt-2">
                 <div class="card-header">
                     Uploaded Files
                 </div>
                 <div class="card-body">
                     <p>(The most recent uploaded file will appear at the top of the list) </p>
-                    <?php if(isset($abstracts->file_uploads) && !empty($abstracts->file_uploads)) : ?>
-                        <?php foreach($abstracts->file_uploads as $file):
-                            ?>
-                            <a href="<?=base_url().$file['file_path'].$file['file_name'] ?>"  ><?=$file['file_preview_name']?></a><br>
-                        <?php endforeach; ?>
-                    <?php else: ?>
+                    <?php /*if(isset($abstracts->file_uploads) && !empty($abstracts->file_uploads)) : */?>
+                        <?php /*foreach($abstracts->file_uploads as $file):
+                            */?>
+                            <a href="<?php /*=base_url().$file['file_path'].$file['file_name'] */?>"  ><?php /*=$file['file_preview_name']*/?></a><br>
+                        <?php /*endforeach; */?>
+                    <?php /*else: */?>
                         <p> None </p> <br>
-                    <?php endif ?>
+                    <?php /*endif */?>
                 </div>
-            </div>
+            </div>-->
             <div class="card mt-2">
                 <div class="card-header">
                     <h6> Paper Information </h6>
@@ -179,10 +179,42 @@
                                 <?= ($abstracts->conclusions) ?>
                             </td>
                         </tr>
+
                         <tr>
-                            <td class="customTd">Additional Notes:</td>
+                            <td class="customTd" style="vertical-align: bottom">Image Caption :</td>
                             <td>
-                                <?= ($abstracts->additional_notes) ?>
+                                <div>
+
+                                    <?php if (!empty($paper_uploads)): ?>
+                                        <?php foreach ($paper_uploads as $index => $uploads): ?>
+                                            <div class="mb-3 text-center" style="width: 100px;">
+                                                <a href="<?= base_url($uploads['file_path'] . $uploads['file_name']) ?>" data-lightbox="image-<?= $abstract_id ?>">
+                                                    <img src="<?= base_url($uploads['file_path'] . $uploads['file_name']) ?>" class="img-fluid d-block mx-auto" style="width: 100px;">
+                                                </a>
+                                            </div>
+                                            <a class="d-block small mt-1" href="<?= base_url($uploads['file_path'] . $uploads['file_name']) ?>" download="<?=$uploads['file_preview_name'] ?>">
+                                                <?= htmlspecialchars($uploads['file_preview_name']) ?>
+                                            </a>
+                                        <?php endforeach; ?>
+                                    <?php endif; ?>
+                                    <div>
+                                        <?= htmlspecialchars($abstracts->image_caption) ?>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td class="customTd">Minimum time period to follow up:</td>
+                            <td>
+                                <?= ($abstracts->min_follow_up_period) ?>
+                            </td>
+                        </tr>
+
+                        <tr>
+                            <td class="customTd">Funded by SRS grant:</td>
+                            <td>
+                                <?= ($abstracts->is_srs_funded) ?>
                             </td>
                         </tr>
                         </tbody>
