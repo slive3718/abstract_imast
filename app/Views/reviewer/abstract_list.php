@@ -163,8 +163,8 @@
                 $('#abstractTableBody').append('<tr>'+
                     '<td>'+val.abstracts.custom_id+'</td>'+
                     '<td>'+val.abstracts.title.replace( /<.*?>/g, '' ) +'</td>'+
-                    '<td>'+val.division.name +'</td>'+
-                    '<td id="rating_'+val.abstracts.id+'">'+((val.reviews)?val.reviews.average_score:'')+'</td>'+
+                    '<td></td>'+
+                    '<td id="rating_'+val.abstracts.id+'">'+(val.reviews && val.reviews.total_score ? val.reviews.total_score:'')+'</td>'+
                     '<td>'+reviewBtn +" "+((val.reviews)?'':declinedBtn)+'</td>'+
                     '</tr>')
             })

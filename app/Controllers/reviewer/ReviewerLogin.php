@@ -2,7 +2,6 @@
 
 namespace App\Controllers\reviewer;
 
-use App\Models\EventsModel;
 use CodeIgniter\Controller;
 use App\Models\Core\Api;
 use CodeIgniter\HTTP\ResponseInterface;
@@ -10,7 +9,6 @@ use CodeIgniter\Database\BaseConnection;
 
 use App\Models\UserModel;
 use App\Models\PapersModel;
-use App\Models\PaperAuthorModel;
 use App\Models\ReviewerModel;
 
 class ReviewerLogin extends Controller
@@ -26,14 +24,10 @@ class ReviewerLogin extends Controller
     }
     
     public function index(){
-        // return ('<a href="'.$this->event_uri .'/'.base_url().'/login/logOut/'.$this->event_uri .'">logout</a>');
-        $event = (new EventsModel())->first();
-
         $header_data = [
             'title' => ''
         ];
         $data = [
-            'event'=> $event
         ];
         return
             view('reviewer/common/header', $header_data).
@@ -52,7 +46,6 @@ class ReviewerLogin extends Controller
                     'email'=>$user['email'],
                     // 'token'=>$user->data,
                     'user_id'=>$user['id'],
-                    'event_uri'=>$_POST['event_uri'],
                     'user_type'=>$_POST['login_type'],
                     'name'=>$user['name'],
                     'surname'=>$user['surname'],

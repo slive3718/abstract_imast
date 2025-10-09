@@ -3,13 +3,15 @@
 namespace App\Controllers\reviewer;
 
 use App\Controllers\admin\EmailController;
+use App\Controllers\BaseController;
 use App\Controllers\User;
 use App\Libraries\MailGunEmail;
 use App\Libraries\PhpMail;
 use App\Libraries\Upload;
+use App\Models\AbstractCategoriesModel;
+use App\Models\AbstractSubCategoriesModel;
 use App\Models\DivisionsModel;
 use App\Models\EmailTemplatesModel;
-use App\Models\EventsModel;
 use App\Models\PaperAssignedReviewerModel;
 use App\Models\PaperTypeModel;
 use App\Models\PaperUploadsModel;
@@ -23,7 +25,6 @@ use App\Models\UserModel;
 use App\Models\PapersModel;
 use App\Models\PaperAuthorsModel;
 use App\Models\ReviewerModel;
-use App\Models\AbstractTopicsModel;
 // use App\Models\PopulationModel;
 use App\Models\AbstractReviewModel;
 use App\Models\AbstractFileUploadModel;
@@ -33,7 +34,7 @@ use App\Controllers\admin\Abstracts\AbstractController;
 use Config\Mailgun;
 use Matrix\Operators\Division;
 
-class ReviewerController extends Controller
+class ReviewerController extends BaseController
 {
 
     private BaseConnection $db;
@@ -41,7 +42,6 @@ class ReviewerController extends Controller
     public function __construct()
     {
         $this->db = db_connect();
-        $this->event_uri = session('event_uri');
         if(session('user_id')){
             $this->user_id = session('user_id');
         }
@@ -59,7 +59,6 @@ class ReviewerController extends Controller
 
 
     public function index(){
-        $event = (new EventsModel())->first();
         $reviewerModel = (new ReviewerModel())->getReviewerAbstracts(session('user_id'), 'regular');
         $divisions = (new DivisionsModel())->findAll();
         $reviewer_abstracts = array();
@@ -73,7 +72,6 @@ class ReviewerController extends Controller
         ];
 
         $data = [
-            'event'=> $event,
             'reviewer_abstracts' => $reviewer_abstracts,
             'divisions'=>$divisions
         ];
@@ -93,7 +91,7 @@ class ReviewerController extends Controller
 //
             if(isset($reviewer['abstracts'])){
                 $reviewer['abstracts_submitter']= (new UserModel())->find($reviewer['abstracts']->id);
-                $reviewer['division'] = (new DivisionsModel())->where('division_id', $reviewer['abstracts']->division_id)->first();
+                $reviewer['abstract_categories'] = (new AbstractCategoriesModel())->where('id', $reviewer['abstracts']->abstract_category)->first();
             }
             $reviewer['reviews'] = (new AbstractReviewModel())->where(array('abstract_id'=> $reviewer['paper_id'], 'reviewer_id'=>session('user_id')))->first();
             $reviewer_abstracts[] = $reviewer;
@@ -114,7 +112,7 @@ class ReviewerController extends Controller
         return $nextBigger;
     }
 
-    public function getAbstractReview($event_uri, $review_id){
+    public function getAbstractReview($review_id){
         // print_r($review_id);exit;
         $abstractReviewModel = (new AbstractReviewModel());
         echo json_encode($abstractReviewModel->find($review_id));
@@ -122,8 +120,6 @@ class ReviewerController extends Controller
 
 
     public function reviewAbstract($abstract_id){
-
-        $event = (new EventsModel())->first();
         $PaperTypeModel = (new PaperTypeModel());
         $PaperModel = (new PapersModel());
         $DivisionModel = (new DivisionsModel());
@@ -143,6 +139,11 @@ class ReviewerController extends Controller
             ->where(['abstract_id'=>$abstract_id, 'reviewer_id'=>session('user_id')])
             ->findAll();
 
+        $abstractCategories = (new AbstractCategoriesModel())->findAll();
+        $abstractSubCategories = (new AbstractSubCategoriesModel())->findAll();
+        $abstractCategories = (array_column($abstractCategories, 'name', 'id'));
+        $abstractSubCategories = (array_column($abstractSubCategories, 'name', 'id'));
+
         $header_data = [
             'title' => 'Review Submission Detail'
         ];
@@ -151,12 +152,13 @@ class ReviewerController extends Controller
         $abstract_reviewer_uploads = $ReviewerPaperUploads->where(['paper_id'=>$abstract_id, 'reviewer_id'=> session('user_id')])->first();
 
         $data = [
-            'event'=> $event,
             'abstracts' => $abstracts,
             'abstract_id' => $abstract_id,
             'reviewer_id'=>session('user_id'),
             'abstract_reviews'=>$abstract_reviews,
-            'abstract_reviewer_uploads'=>!empty($abstract_reviewer_uploads)?$abstract_reviewer_uploads:[]
+            'abstract_reviewer_uploads'=>!empty($abstract_reviewer_uploads)?$abstract_reviewer_uploads:[],
+            'abstract_categories'=>!empty($abstractCategories)?$abstractCategories:[],
+            'abstract_sub_categories'=>!empty($abstractSubCategories) ? $abstractSubCategories:[]
         ];
 
         if(!empty($abstractReviewData)){
@@ -173,7 +175,6 @@ class ReviewerController extends Controller
     public function addReviewData(){
 
       $SiteSettingsModel = (new SiteSettingModel());
-        $sendMail = (new PhpMail());
         $isApproved = 0;
         if(isset($_POST['final_approval'])){
             $isApproved = $_POST['final_approval'];
@@ -181,21 +182,11 @@ class ReviewerController extends Controller
         $field_array = array(
             'abstract_id'=> $_POST['abstract_id'],
             'reviewer_id'=>$_POST['reviewer_id'],
-            'commercialism'=>$_POST['commercialism'],
-            'commercialism_editable'=>$_POST['commercialismEdit'],
-            'operations'=>$_POST['operations'],
-            'marketing_score'=>$_POST['marketingScore'],
-            'research_score'=>$_POST['researchScore'],
-            'professional_level'=>$_POST['professionalLevel'],
-            'originality_score'=>$_POST['originalityScore'],
-            'sufficiency_score'=>$_POST['sufficiencyScore'],
-            'readability_score'=>$_POST['readabilityScore'],
-            'artwork_score'=>$_POST['artworkScore'],
-            'composite_score'=>$_POST['compositeScore'],
-            'average_score'=>$_POST['averageScore'],
-            'suggested_revision_comment'=>$_POST['suggested_revision_comment'],
-            'required_revision_comment'=>$_POST['required_revision_comment'],
-            're_review_comment'=>$_POST['re_review_comment'],
+            'review_question_1'=>$_POST['review_question_1'],
+            'review_question_2'=>$_POST['review_question_2'],
+            'review_question_3'=>$_POST['review_question_3'],
+            'total_score'=> isset($_POST['total_score']) ? intVal($_POST['total_score']) : NULL,
+            'reviewer_comment'=>$_POST['reviewer_comment'],
             'is_approved' =>$isApproved,
             'date_time'=>date('Y-m-d H:i:s')
         );
@@ -209,7 +200,7 @@ class ReviewerController extends Controller
         $UsersModel = (new UserModel());
         $paperReviewers = $paperAssignedReviewerModel
             ->select($paperAssignedReviewerModel->getTable().'.*, '.$UsersModel->getTable().'.email as reviewer_email')
-            ->join($UsersModel->getTable(), $paperAssignedReviewerModel->getTable().'.reviewer_id = '. $UsersModel->getTable().'.id', 'left')
+            ->join($this->shared_db_name .'.users', $paperAssignedReviewerModel->getTable().'.reviewer_id = '. 'users.id', 'left')
             ->where([
                 'paper_id' => $_POST['abstract_id'],
                 'reviewer_type' => 'regular',

@@ -31,6 +31,30 @@
     .inputScore{
         max-width:300px;
     }
+
+    .parent {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        grid-template-rows: repeat(5, 1fr);
+        grid-column-gap: 0px;
+        grid-row-gap: 0px;
+    }
+
+    .div1 { grid-area: 1 / 1 / 2 / 3; }
+    .div2 { grid-area: 2 / 1 / 3 / 3; }
+    .div3 { grid-area: 3 / 1 / 4 / 3; }
+    .div4 { grid-area: 1 / 3 / 2 / 4; }
+    .div5 { grid-area: 2 / 3 / 4 / 4; }
+    .div6 { grid-area: 4 / 1 / 5 / 3; }
+    .div7 { grid-area: 5 / 1 / 6 / 3; }
+    .div8 { grid-area: 4 / 3 / 6 / 4; }
+
+    .customTd{
+        width: 30%;
+        vertical-align: top;
+        text-align: right;
+        padding-right: 30px;
+    }
 </style>
 <?php //print_r($abstract_reviewer_uploads);exit;?>
 <main>
@@ -43,18 +67,18 @@
                 </div>
                 <div class="card-body">
                     <table>
-                        <div class="row">
-                            <td style=" width:30%; vertical-align:top; text-align: right; padding-right: 30px;">Abstract ID : </td>
+                        <tr>
+                            <td class="customTd">Abstract ID : </td>
                             <td>
                                 <?= $abstracts->id ?>
                             </td>
-                            </tr>
-                            <div class="row">
-                                <td style=" width:30%; vertical-align:top; text-align: right; padding-right: 30px;">Abstract Title : </td>
-                                <td>
-                                    <?= strip_tags($abstracts->title) ?>
-                                </td>
-                            </tr>
+                        </tr>
+                        <tr>
+                            <td class="customTd">Abstract Title : </td>
+                            <td>
+                                <?= strip_tags($abstracts->title) ?>
+                            </td>
+                        </tr>
                     </table>
 
                 </div>
@@ -84,33 +108,81 @@
                     <table id="abstractInformationTable">
                         <tbody>
                         <tr>
-                            <td style=" width:30%; vertical-align:top; text-align: right; padding-right: 30px;">Division:</td>
-                            <td>
-                                <?= ($abstracts->division_name) ?>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style=" width:30%; vertical-align:top; text-align: right; padding-right: 30px;">Paper Type:</td>
-                            <td>
-                                <?= ($abstracts->type_name) ?>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style=" width:30%; vertical-align:top; text-align: right; padding-right: 30px;">Paper Title:</td>
+                            <td class="customTd">Paper Title:</td>
                             <td>
                                 <?= strip_tags($abstracts->title) ?>
                             </td>
                         </tr>
                         <tr>
-                            <td style=" width:30%; vertical-align:top; text-align: right; padding-right: 30px;">Paper Summary:</td>
+                            <td class="customTd">Session Type:</td>
                             <td>
-                                <?= ($abstracts->summary) ?>
+                                <?= ($abstracts->type_name) ?>
                             </td>
                         </tr>
                         <tr>
-                            <td style=" width:30%; vertical-align:top; text-align: right; padding-right: 30px;">Are you interested in submitting this paper to IJMC as well?::</td>
+                            <td class="customTd">Basic Science Format:</td>
                             <td>
-                                <?= ($abstracts->is_ijmc_interested == 1)? 'Yes' : 'No' ?>
+                                <?= ($abstracts->basic_science_format) ?>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="customTd">Category:</td>
+                            <td>
+                                <?= $abstract_categories[($abstracts->abstract_category)]; ?>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="customTd">Sub Categories:</td>
+                            <td>
+                                <?php if(!empty($abstract_sub_categories) && !empty($abstracts->abstract_subcategories)): ?>
+                                <?php $subCategories = json_decode($abstracts->abstract_subcategories);
+                                    foreach ($subCategories as $index => $subCategory){
+                                        echo $abstract_sub_categories[$subCategory]. ($index < count($subCategories) - 1 ? ', ' : '');
+                                    }
+                                ?>
+                                <?php endif ?>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="customTd">Hypothesis:</td>
+                            <td>
+                                <?= ($abstracts->hypothesis) ?>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="customTd">Study Design:</td>
+                            <td>
+                                <?= ($abstracts->study_design) ?>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="customTd">Introduction:</td>
+                            <td>
+                                <?= ($abstracts->introduction) ?>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="customTd">Methods:</td>
+                            <td>
+                                <?= ($abstracts->methods) ?>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="customTd">Results:</td>
+                            <td>
+                                <?= ($abstracts->results) ?>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="customTd">Conclusions:</td>
+                            <td>
+                                <?= ($abstracts->conclusions) ?>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="customTd">Additional Notes:</td>
+                            <td>
+                                <?= ($abstracts->additional_notes) ?>
                             </td>
                         </tr>
                         </tbody>
@@ -123,261 +195,120 @@
                 </div>
                     <form id="formReviewData">
                         <div class="p-2">
+                            <h6 class="mt-2"><span class="text-danger">*</span> Please rate the abstract from 1-5 (A Score of 1 is the best score, 5 is the worst score) in each of the three categories below. Full instructions can be found <a href="<?=base_url('assets/documents/reviewers/IMAST26_Abstract_Reviewer_Instructions_OneWorld.pdf')?>">here</a>.</h6>
+                            <div class="card shadow-sm mt-3">
+                                <div class="card-header bg-light">
+                                    <h6 class="card-title mb-0 text-center fw-bolder">Rating Scale</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row text-center">
+                                        <div class="col">
+                                            <div class="border rounded p-3 bg-success bg-opacity-10">
+                                                <h4 class="text-success fw-bold">1</h4>
+                                                <p class="mb-0 text-muted">Excellent</p>
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="border rounded p-3 bg-warning bg-opacity-10">
+                                                <h4 class="text-warning fw-bold">2 - 3</h4>
+                                                <p class="mb-0 text-muted">Average</p>
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="border rounded p-3 bg-danger bg-opacity-10">
+                                                <h4 class="text-danger fw-bold">4 - 5</h4>
+                                                <p class="mb-0 text-muted">Poor</p>
+                                            </div>
+                                        </div>
+
+                                        <div class="col">
+                                            <div class="border rounded p-3 bg-primary bg-opacity-10">
+                                                <h4 class="text-primary fw-bold">N/A</h4>
+                                                <p class="mb-0 text-muted">Not Applicable</p>
+                                            </div>
+                                        </div>
+
+                                        <div class="col">
+                                            <div class="border rounded p-3 bg-danger bg-opacity-10">
+                                                <h4 class="text-danger fw-bold">COI</h4>
+                                                <p class="mb-0 text-muted">Conflict of Interest</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <?php
+                                function populateOptions($selected = null){
+                                    $options = '<option value=""> -- Select --</option>';
+                                    $options .= '<option value="1" '.($selected == 1 ? 'selected' : '').' > 1 </option>';
+                                    $options .= '<option value="2" '.($selected == 2 ? 'selected' : '').' > 2 </option>';
+                                    $options .= '<option value="3" '.($selected == 3 ? 'selected' : '').' > 3 </option>';
+                                    $options .= '<option value="4" '.($selected == 4 ? 'selected' : '').' > 4 </option>';
+                                    $options .= '<option value="5" '.($selected == 5 ? 'selected' : '').' > 5 </option>';
+                                    $options .= '<option value="n/a" '.(strtolower($selected) == 'n/a' ? 'selected' : '').' > N/A </option>';
+                                    $options .= '<option value="coi" '.(strtolower($selected) == 'coi' ? 'selected' : '').' > COI </option>';
+                                    return $options;
+                                }
+                            ?>
                             <table>
-                                <tbody><tr>
+                                <tbody>
+                                <tr>
                                     <td>
-                                        <div style="margin-left:5px"><strong>Commercialism?</strong></div>
+                                        <div style="margin-left:5px"><strong>1.	Quality of Content</strong></div>
                                         <div style="margin-left:20px;margin-bottom:5px"><strong><font color="red">*</font></strong>Is the paper free of commercialism?</div>
                                         <div style="margin-left:160px;">
-                                            <select name="commercialism" id="commercialism" class="requiredSelect form-control border border-primary">
-                                                <option value=""> -- Select --</option>
-                                                <option value="Yes" <?=(!empty($abstract_reviews)?$abstract_reviews['commercialism'] == 'Yes' ? 'selected':'':'')?>>Yes</option>
-                                                <option value="No" <?=(!empty($abstract_reviews)?$abstract_reviews['commercialism'] == 'No' ? 'selected':'':'')?>>No</option>
-                                            </select>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr class="freeCommercial" id="freeCommercial" style="display:<?=(!empty($abstract_reviews)?$abstract_reviews['commercialism'] == 'No' ? 'block':'none':'none')?>">
-                                    <td>
-                                        <div style="margin-left:20px;margin-bottom:5px"> <font color="red">*</font>If the paper does have some commercialism, can it be edited out without destroying the content of the paper?</div>
-                                        <div style="margin-left:160px;">
-                                            <select name="commercialismEdit" id="commercialismEdit" class="form-control border border-primary <?=(!empty($abstract_reviews)?$abstract_reviews['commercialism'] == 'No' ? 'requiredSelect':'':'')?>">
-                                                <option value=""> -- Select --</option>
-                                                <option value="Yes" <?=(!empty($abstract_reviews)?$abstract_reviews['commercialism_editable'] == 'Yes' ? 'selected':'':'')?>>Yes</option>
-                                                <option value="No" <?=(!empty($abstract_reviews)?$abstract_reviews['commercialism_editable'] == 'No' ? 'selected':'':'')?>>No</option>
-                                            </select>
-                                        </div>
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td>
-                                        <div style="margin-left:5px"><strong>Operations</strong></div>
-                                        <div style="margin-left:20px;margin-bottom:5px"><strong><font color="red">*</font></strong>Is this paper most relevent for foundry operations or marketing and management audience operations.</div>
-                                        <div style="margin-left:160px;">
-                                            <select name="operations" id="operations" class="requiredSelect form-control border border-primary">
-                                                <option value=""> -- Select -- </option>
-                                                <option value="Foundry Operation" <?=(!empty($abstract_reviews)?$abstract_reviews['operations'] == 'Foundry Operation' ? 'selected':'':'')?>  >Foundry Operation</option>
-                                                <option value="Marketing and Management"  <?=(!empty($abstract_reviews)?$abstract_reviews['operations'] == 'Marketing and Management' ? 'selected':'':'')?> >Marketing and Management</option>
-                                            </select>
-                                        </div>
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td>
-                                        <div style="margin-left:5px"><strong>Management/Marketing</strong></div>
-                                        <div style="margin-left:20px;margin-bottom:5px"><strong><font color="red">*</font></strong>Rate the paper for its value in the following area of the foundry?
-                                            <br>( 1 = of the little interest/value and 5 = high level of interest/value )</div>
-                                        <div style="margin-left:160px;">
-                                            <select name="marketingScore" id="marketingScore" class="requiredSelect form-control border border-primary">
-                                                <option value=""> -- Select --</option>
-                                                <?php for($i = 1; $i < 6; $i++): ?>
-                                                    <option value="<?=$i?>"  <?=(!empty($abstract_reviews)?$abstract_reviews['marketing_score'] == $i ? 'selected':'':'')?> ><?=$i?></option>
-                                                <?php endfor ?>
-                                            </select>
-                                        </div>
-                                    </td>
-                                </tr>
-
-                                <tr>
-                                    <td>
-                                        <div style="margin-left:5px"><strong>Technology/Research</strong></div>
-                                        <div style="margin-left:20px;margin-bottom:5px"><strong><font color="red">*</font></strong>Rate the paper for its value in the following area of the foundry?
-                                            <br>( 1 = of the little interest/value and 5 = high level of interest/value )</div>
-                                        <div style="margin-left:160px;">
-                                            <select name="researchScore" id="researchScore" class="requiredSelect form-control border border-primary">
-                                                <option value=""> -- Select --</option>
-                                                <?php for($i = 1; $i < 6; $i++): ?>
-                                                    <option value="<?=$i?>"  <?=(!empty($abstract_reviews)?$abstract_reviews['research_score'] == $i ? 'selected':'':'')?> ><?=$i?></option>
-                                                <?php endfor ?>
+                                            <select name="review_question_1" id="review_question_1" class="requiredSelect form-control border border-primary abstractReviewsScores">
+                                                <?= !empty($abstract_reviews) ? populateOptions($abstract_reviews['review_question_1']) : populateOptions() ?>
                                             </select>
                                         </div>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td>
-                                        <div style="margin-left:5px"><strong>Professional Level</strong></div>
-                                        <div style="margin-left:20px;margin-bottom:5px"><strong><font color="red">*</font></strong>What is the professional technical level of this paper? Is it aimed at a higher technical and research level or more shop floor operational level?</div>
+                                        <div style="margin-left:5px"><strong>2.	Study Design</strong></div>
+                                        <div style="margin-left:20px;margin-bottom:5px"><strong><font color="red">*</font></strong>Is the paper free of commercialism?</div>
                                         <div style="margin-left:160px;">
-                                            <select name="professionalLevel" id="professionalLevel" class="requiredSelect form-control border border-primary">
-                                                <option value=""> -- Select --</option>
-                                                <option value="Technical and Research" <?=(!empty($abstract_reviews)?$abstract_reviews['professional_level'] == "Technical and Research" ? 'selected':'':'')?>>Technical and Research</option>
-                                                <option value="Shop Floor" <?=(!empty($abstract_reviews)?$abstract_reviews['professional_level'] == "Shop Floor" ? 'selected':'':'')?>>Shop Floor</option>
+                                            <select name="review_question_2" id="review_question_2" class="requiredSelect form-control border border-primary abstractReviewsScores">
+                                                <?= !empty($abstract_reviews) ? populateOptions($abstract_reviews['review_question_2']) : populateOptions() ?>
                                             </select>
                                         </div>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td>
-                                        <div style="margin-left:5px"><strong>1. Originality</strong></div>
-                                        <div style="margin-left:20px;margin-bottom:5px"><strong><font color="red">*</font></strong>Rate the paper on the originality of its content
-                                            <br> ( 5 = new and original work,theory or intervention 1= paper that repeats or uses the work of others )</div>
+                                        <div style="margin-left:5px"><strong>3.	Innovation </strong></div>
+                                        <div style="margin-left:20px;margin-bottom:5px"><strong><font color="red">*</font></strong>Is the paper free of commercialism?</div>
                                         <div style="margin-left:160px;">
-                                            <select name="originalityScore" id="originalityScore" class="requiredSelect form-control border border-primary selectScore" >
-                                                <option value=""> -- Select --</option>
-                                                <?php for($i = 1; $i < 6; $i++): ?>
-                                                    <option value="<?=$i?>"  <?=(!empty($abstract_reviews)?$abstract_reviews['originality_score'] == $i ? 'selected':'':'')?> ><?=$i?></option>
-                                                <?php endfor ?>
+                                            <select name="review_question_3" id="review_question_3" class="requiredSelect form-control border border-primary abstractReviewsScores">
+                                                <?= !empty($abstract_reviews) ? populateOptions($abstract_reviews['review_question_3']) : populateOptions() ?>
                                             </select>
                                         </div>
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td>
-                                        <div style="margin-left:5px"><strong>2. Sufficiency of Data/Information</strong></div>
-                                        <div style="margin-left:20px;margin-bottom:5px"><strong><font color="red">*</font></strong>Is there sufficient data and information given to justify the conclusions?
-                                            <br>( 5 = more than enough data and information to justify the conclusions 1 = insufficient data to justify the conclusions made )</div>
-                                        <div style="margin-left:160px;">
-                                            <select name="sufficiencyScore" id="sufficiencyScore" class="requiredSelect form-control border border-primary selectScore" >
-                                                <option value=""> -- Select --</option>
-                                                <?php for($i = 1; $i < 6; $i++): ?>
-                                                    <option value="<?=$i?>"  <?=(!empty($abstract_reviews)?$abstract_reviews['sufficiency_score'] == $i ? 'selected':'':'')?> ><?=$i?></option>
-                                                <?php endfor ?>
-                                            </select>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div style="margin-left:5px"><strong>3. Readability</strong></div>
-                                        <div style="margin-left:20px;margin-bottom:5px"><strong><font color="red">*</font></strong>Rate the paper on the readability of the text
-                                            <br>( 5 =very understandable,easy to read, logical presentation.  1= Poorly written, difficult to understand the concepts presented )</div>
-                                        <div style="margin-left:160px;">
-                                            <select name="readabilityScore" id="readabilityScore" class="requiredSelect form-control border border-primary selectScore" >
-                                                <option value=""> -- Select --</option>
-                                                <?php for($i = 1; $i < 6; $i++): ?>
-                                                    <option value="<?=$i?>"  <?=(!empty($abstract_reviews)?$abstract_reviews['readability_score'] == $i ? 'selected':'':'')?> ><?=$i?></option>
-                                                <?php endfor ?>
-                                            </select>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div style="margin-left:5px"><strong>4. Artwork</strong></div>
-                                        <div style="margin-left:20px;margin-bottom:5px"><strong><font color="red">*</font></strong>Rate the paper for the quality and quantity of the charts,graphs and pictures.
-                                            <br>( 5 = graphs and artwork are of excellent quality and greatly illustrate and enhance the text. 1= Graphs and artwork are of very poor quality and /or do little to help explain the text. )</div>
-                                        <div style="margin-left:160px;">
-                                            <select name="artworkScore" id="artworkScore" class="requiredSelect form-control border border-primary selectScore" >
-                                                <option value=""> -- Select --</option>
-                                                <?php for($i = 1; $i < 6; $i++): ?>
-                                                    <option value="<?=$i?>"  <?=(!empty($abstract_reviews)?$abstract_reviews['artwork_score'] == $i ? 'selected':'':'')?> ><?=$i?></option>
-                                                <?php endfor ?>
-                                            </select>
-                                        </div>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td>
-                                        <div style="margin-left:5px"><strong>5. Composite score</strong></div>
-                                        <div style="margin-left:20px;margin-bottom:5px"><strong><font color="red">*</font></strong>Give your recommendation on whether this paper should be published and presented. The composite score is not an average of the categories above. This should reflect your best evaluation of the quality of this paper and value for publication.
-                                            <br>( 5 = highest quality paper. 1 = paper should not be published. )</div>
-                                        <div style="margin-left:160px;">
-                                            <select name="compositeScore" id="compositeScore" class="requiredSelect form-control border border-primary">
-                                                <option value=""> -- Select --</option>
-                                                <?php for($i = 1; $i < 6; $i++): ?>
-                                                    <option value="<?=$i?>"  <?=(!empty($abstract_reviews)?$abstract_reviews['composite_score'] == $i ? 'selected':'':'')?> ><?=$i?></option>
-                                                <?php endfor ?>
-                                            </select>
-                                        </div>
-                                    </td>
-                                </tr>
-
                                 </tbody>
                             </table>
                         </div>
-
                         <div class="p-3">
-                            <label for="averageScore">Average Score: </label>
-                            <div class="ms-5" style="width: 400px">
-                                <input type="text" name="averageScore" value="" id="averageScore" class="form-control">
+                            <label for="averageScore" class="fw-bolder">Total Score: </label>
+                            <div class="ms-5" style="max-width: 200px">
+                                <input type="text" name="total_score" value="" id="total_score" class="form-control">
                             </div>
-
-                            <small class="text-danger">(Average score is based on items #1~4 above and does not include the score for #5)</small>
-                        </div>
-
-                        <div class="fw-bolder text-danger m-3 p-3" style="border: 2px dotted red; text-align: center; ">
-                            Note: We recommend that you save your work intermittently, by clicking on the 'Save' button at the bottom
-                            of the page.
+                            <div class="fw-bolder text-danger m-3 p-3" style="border: 2px dotted red; text-align: center; ">
+                                Note: We recommend that you save your work intermittently, by clicking on the 'Save' button at the bottom
+                                of the page.
+                            </div>
                         </div>
 
                         <div class="p-3">
                             <div class="card">
                                 <div class="card-header">
-                                    <b>Reviewer Comments (Suggested Revisions):</b>
+                                    <b>Reviewer Comments</b>
                                 </div>
-                                <div class="card-body">
-                                    <p class="card-text">
-                                        Please enter into this box any comments regarding your evaluation of this paper.
-                                        Also provide any comments, concerns, and recommendations to improve the paper or help clarify particular issues within the paper.
-                                    </p>
-                                    <textarea class="form-control requiredText" name="suggested_revision_comment" cols="115" rows="3" id="suggested_revision_comment" placeholder="Start typing here..."><?=(!empty($abstract_reviews)?$abstract_reviews['suggested_revision_comment'] !== "" ? $abstract_reviews['suggested_revision_comment']:'':'')?></textarea>
-
+                                <div class="card-body" style="padding: 0 !important;">
+                                    <textarea class="form-control requiredText" name="reviewer_comment" cols="115" rows="3" id="reviewer_comment" placeholder="Start typing here..."><?=(!empty($abstract_reviews)?$abstract_reviews['reviewer_comment'] !== "" ? $abstract_reviews['reviewer_comment']:'':'')?></textarea>
                                 </div>
                             </div>
-
-                            <div class="card mt-3">
-                                <div class="card-header">
-                                    <b>Reviewer Comments (Required Revisions):</b>
-                                </div>
-                                <div class="card-body">
-                                    <p class="card-text">
-                                        Enter into this box any concerns recommendations or suggestions that are serious enough to prohibit the publication of the paper,
-                                        and must be revised before it is published.
-                                    </p>
-                                    <textarea class="form-control requiredText mt-3" name="required_revision_comment" cols="115" rows="3" id="required_revision_comment" placeholder="Start typing here..."><?=(!empty($abstract_reviews)?$abstract_reviews['required_revision_comment'] !== "" ? $abstract_reviews['required_revision_comment']:'':'')?></textarea>
-                                </div>
-
-                                <div class="m-3 ms-5 card <?=(!empty($abstract_reviews)?$abstract_reviews['submitter_comment_on_upload'] !== "" ? 'd-block':'d-none':'d-none')?>"  >
-                                    <div class="card-header"><label for="re_review_comment" class="fw-bolder">Submitter Comment:</label></div>
-                                    <div class="card-body">
-                                        <label class=""><?=(!empty($abstract_reviews)?$abstract_reviews['submitter_comment_on_upload'] !== "" ? $abstract_reviews['submitter_comment_on_upload']:'':'')?></label>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="card mt-3">
-                                <div class="card-header">
-                                    <h5 class="card-title fw-bolder">Re-Review Comments:</h5>
-                                </div>
-                                <div class="card-body p-0" style="padding:0 !important">
-                                    <textarea class="form-control requiredText" name="re_review_comment" cols="115" rows="3" id="re_review_comment" placeholder="Start typing here..."><?=(!empty($abstract_reviews)?$abstract_reviews['re_review_comment'] !== "" ? $abstract_reviews['re_review_comment']:'':'')?></textarea>
-                                </div>
-                            </div>
-
-
                         </div>
-
-
-                        <div class="mt3 p-3 uploadDiv" style="display:<?=!empty($abstract_reviewer_uploads)?'none':'block'?>">
-                            <label>Upload File: </label>
-                            <input type="file" name="uploadFile" id="uploadFile" accept="" class="form-control">
-
-                            <a class="btn uploadReviewBtn btn-info mt-2" style="width:200px" id="uploadReviewBtn">Upload</a>
-
-                        </div>
-                        <div class="filePreviewDiv p-3" style="display:<?=!empty($abstract_reviewer_uploads)?'block':'none'?>">
-                            Uploaded File : <a id="filePreviewLink" href="<?=!empty($abstract_reviewer_uploads)?base_url().$abstract_reviewer_uploads['file_path'].$abstract_reviewer_uploads['file_name']:'#'?>"><?=!empty($abstract_reviewer_uploads)?$abstract_reviewer_uploads['file_preview_name']:''?></a>
-                        </div>
-
-                        <div class="card mt-2">
-                            <div class="card-header"> Final Approval: </div>
-                            <div class="card-body">
-                                <input type="radio" name="final_approval" id="finalApprovalYes" value="1" <?=(!empty($abstract_reviews)? ($abstract_reviews['is_approved'] !== "" && $abstract_reviews['is_approved'] == 1) ? 'checked':'':'')?>> <label for="finalApprovalYes"> I approve</label>
-                                <input type="radio" name="final_approval" id="finalApprovalNo" value="2" <?=(!empty($abstract_reviews)? ($abstract_reviews['is_approved'] !== "" && $abstract_reviews['is_approved'] == 2) ? 'checked':'':'')?> class="ms-5"> <label for="finalApprovalNo"> I still have concerns</label>
-<!--                                <div class="" id="concernCommentDiv" style="display: --><?php //=(!empty($abstract_reviews)? ($abstract_reviews['is_approved'] !== "" && $abstract_reviews['is_approved'] == 1) ? 'block':'none':'none')?><!--">-->
-<!--                                    <textarea id="concernComment" class="form-control" name="concernComment" placeholder="Type here..."></textarea>-->
-<!--                                </div>-->
-                            </div>
-                        </div>
-                    </form>  <!-- End of the form -->
-
-                        <div class="p-3 small text-danger bg-warning bg-opacity-50 m-2">
-                            ANY DOCUMENTS UPLOADED SHOULD NOT INCLUDE YOUR NAME DIGITALLY UNLESS YOU WANT TO FORGO ANONYMITY. PEN MARK UPS ARE PREFERRED WHEN UTILIZING THIS FEATURE.
-                        </div>
-
-
                 </div>
             <div class="mt-4">
                 <input type="button" value="Save" style="width:150px" class="btn btn-success mt-" onclick="submitFormReview();">
@@ -400,25 +331,8 @@
                 $('#freeCommercial').css('display', 'none')
         })
 
-        // $("#finalApprovalNo").on('click', function(){
-        //     $('#concernCommentDiv').css('display', 'none');
-        // })
-        // $('#finalApprovalYes').on('click', function(){
-        //     $('#concernCommentDiv').css('display', 'block');
-        // })
-
-        $('.selectScore').on('click change input', function () {
-            let sum = 0;
-            let average = 0;
-            $('.selectScore').each(function () {
-                var value = parseFloat($(this).val());
-                if (!isNaN(value)) {
-                    sum += value;
-                }
-            });
-            average = sum/4;
-            $('input[name="averageScore"]').val(average.toFixed(2))
-
+        $('.abstractReviewsScores').on('click change input', function () {
+            totalScores();
         })
 
         $('select').on('change', function(){
@@ -428,53 +342,25 @@
         $('textarea').on('input', function(){
             $(this).removeClass('border-danger');
         })
-
-        $('#uploadReviewBtn').on('click', function(){
-            let formData = new FormData();
-            let paper_id = `<?=$abstracts->id?>`
-            formData.append('uploadFile', $('#uploadFile')[0].files[0])
-            formData.append('paper_id', paper_id)
-            // console.log(formData);
-
-            $.ajax({
-                url: baseUrlReviewer + "uploadReviewerFile",
-                type: "POST",
-                data: formData,
-                contentType: false,
-                processData: false,
-                success: function (data) {
-                    data = JSON.parse(data)
-                    if(data.status == '200') {
-                        $('.uploadDiv').css('display', 'none')
-                        $('#filePreviewLink').html('File Uploaded: '+data.data.file_preview_name)
-                        $('.filePreviewDiv').css('display', 'block')
-                    }
-                }
-            })
-        })
-
     })
 
     window.onload = function(){
-        $('.selectScore').each(function() {
-            let sum = 0;
-            let average = 0;
-            $('.selectScore').each(function () {
-                var value = parseFloat($(this).val());
-                if (!isNaN(value)) {
-                    sum += value;
-                }
-            });
-            average = sum/4;
-            $('input[name="averageScore"]').val(average.toFixed(2))
+        totalScores();
+    }
 
-        })
-
+    function totalScores(){
+        let sum = 0;
+        $('.abstractReviewsScores').each(function () {
+            var value = parseFloat($(this).val());
+            if (!isNaN(value)) {
+                sum += value;
+            }
+        });
+        $('input[name="total_score"]').val(parseInt(sum));
     }
 
     function submitFormReview() {
         let vote_error = 0;
-        let totalScore = $('input[name="averageScore"]').val()
         let missing_fields = 0;
         let requiredFieldsArray = [];
         let formData = new FormData(document.getElementById('formReviewData'));
