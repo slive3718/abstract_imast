@@ -105,9 +105,9 @@ class BulkAssignController extends Controller
                     if ($abstractId > 0) {
                         $assignments[] = [
                             'abstract_id' => $abstractId,
-                            'email' => $email
+                            'email' => strtolower($email)
                         ];
-                        $emails[] = $email; // Collect unique emails
+                        $emails[] = strtolower($email); // Collect unique emails
                         $abstractIds[] = $abstractId; // Collect abstract IDs
                     }
                 }
@@ -123,13 +123,17 @@ class BulkAssignController extends Controller
             $uniqueEmails = array_unique($emails);
             $emailPlaceholders = str_repeat('?,', count($uniqueEmails) - 1) . '?';
 
-            $userQuery = (new UserModel())->select('id, email')->whereIn('email', $uniqueEmails);
+            $userQuery = (new UserModel())->select('id, LOWER(email) as email_lower, email')->asArray();
+            foreach ($uniqueEmails as $email) {
+                $userQuery->orWhere('LOWER(email)', $email);
+            }
+
             $users = $userQuery->asArray()->findAll();
 
             // Map email to user_id
             $emailToUserId = [];
             foreach ($users as $user) {
-                $emailToUserId[$user['email']] = $user['id'];
+                $emailToUserId[$user['email_lower']] = $user['id'];
             }
 
             // Get existing assignments to avoid duplicates
@@ -171,6 +175,7 @@ class BulkAssignController extends Controller
                         'id' => $existingId,
                         'paper_id' => $paperId,
                         'reviewer_id' => $reviewerId,
+                        'reviewer_type' => 'regular',
                         'updated_at' => date('Y-m-d H:i:s') // if you have timestamps
                     ];
                 } else {
@@ -178,6 +183,7 @@ class BulkAssignController extends Controller
                     $insertData[] = [
                         'reviewer_id' => $reviewerId,
                         'paper_id' => $paperId,
+                        'reviewer_type' => 'regular',
                         'created_at' => date('Y-m-d H:i:s') // if you have timestamps
                     ];
                 }
@@ -218,6 +224,13 @@ class BulkAssignController extends Controller
 
                 throw new \Exception('Transaction failed: ' . $error['message']);
             }
+
+            $foundEmails = array_keys($emailToUserId);
+            $missingEmails = array_diff($uniqueEmails, $foundEmails);
+
+            log_message('debug', 'Found users: ' . count($foundEmails));
+            log_message('debug', 'Missing users: ' . count($missingEmails));
+            log_message('debug', 'Missing emails: ' . implode(', ', $missingEmails));
 
             return $this->response->setJSON([
                 'success' => true,
