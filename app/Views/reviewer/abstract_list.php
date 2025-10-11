@@ -42,7 +42,7 @@
                 <thead>
                     <th>ID</th>
                     <th>Title</th>
-                    <th>Division</th>
+                    <th>Category</th>
                     <th>Rated?</th>
                     <th>Action</th>
                 </thead>
