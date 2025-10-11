@@ -26,7 +26,7 @@
             <div>
                 <label for="divisionFilter"> Category Filter: </label>
                 <select name="divisionFilter" id="divisionFilter" class="form-control" style="width:500px">
-                    <option value="">All Division Types</option>
+                    <option value="">All Categories</option>
                     <?php if(isset($categories) && !empty($categories)):
                         foreach($categories as $category):?>
                             <option><?=$category['name']?></option>
