@@ -1195,7 +1195,7 @@ class AbstractController extends BaseController
             $addTo = $user['email'];
             $subject = $EmailTemplates['email_subject'];
             $addContent = $email_body;
-            $mailResult = $sendMail->send($from, $addTo, $subject, $addContent);
+//            $mailResult = $sendMail->send($from, $addTo, $subject, $addContent);
 
             // ###################  Save to Email logs #####################
             $email_logs_array = [
@@ -1213,10 +1213,10 @@ class AbstractController extends BaseController
                 'ip_address' => $this->request->getIPAddress(),
             ];
 
-            if($mailResult) {
-                $email_logs_array['status'] = $mailResult->statusCode;
-                (new EmailLogsModel())->saveToMailLogs($email_logs_array);
-            }
+//            if($mailResult) {
+//                $email_logs_array['status'] = $mailResult->statusCode;
+//                (new EmailLogsModel())->saveToMailLogs($email_logs_array);
+//            }
 
             return json_encode(['status'=> 200, 'message'=> "success", 'data'=>'']);
         }else{
