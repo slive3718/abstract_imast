@@ -60,7 +60,7 @@ class ReviewerController extends BaseController
 
     public function index(){
         $reviewerModel = (new ReviewerModel())->getReviewerAbstracts(session('user_id'), 'regular');
-        $divisions = (new DivisionsModel())->findAll();
+        $categories = (new AbstractCategoriesModel())->findAll();
         $reviewer_abstracts = array();
         foreach($reviewerModel as $reviewer){
              $reviewer['abstracts'] = (new PapersModel())->where('active_status', 1)->find($reviewer['paper_id']);
@@ -73,7 +73,7 @@ class ReviewerController extends BaseController
 
         $data = [
             'reviewer_abstracts' => $reviewer_abstracts,
-            'divisions'=>$divisions
+            'categories'=>$categories
         ];
         return
             view('reviewer/common/header', $header_data).
