@@ -73,8 +73,8 @@
 </style>
 
 <div class="row mt-5">
-    <div class="col-md-12 text-center mt-md-4" style="width: 60%; margin:auto">
-        <img id="main-banner" src="https://afs.owpm2.com/main_banner.webp" class="figure-img" alt="Main Banner">
+    <div class="col-md-12 text-center mt-md-4">
+        <img id="main-banner" src="<?= base_url('main_banner.png') ?>" class="figure-img" alt="Main Banner">
     </div>
     <hr>
 </div>
@@ -129,7 +129,7 @@
                             </div>
                         </div>
 
-                        <?php foreach ($schedule['events'] as $event): ?>
+                        <?php if(!empty($schedule['events'] )): foreach ($schedule['events'] as $event): ?>
                             <div class="card text-start shadow">
                                 <div class="card-header bg-none">  <hr style="height: 3px; border-width: 0; color: #FBA61C; background-color: #FBA61C; max-width: 130px; opacity:100%"/>
                                     <h4 class="fw-bolder text-primary"><?= htmlspecialchars(ucfirst($event['session_title']), ENT_QUOTES, 'UTF-8') ?> <span class="float-end fw-normal" style="font-size: 16px" ><?=$event['track']['name'] ?? ''?></span></h4>
@@ -165,11 +165,11 @@
                                             <div class="accordion border-0 talkCollapseItem" id="scheduleAccordion-<?=$event['id']?>" >
                                                 <div class="accordion-item border-0">
                                                     <?php if (!empty($event['talks'])): ?>
-                                                    <h2 class="accordion-header">
-                                                        <button class="btn-outline-primary btn-sm accordion-button collapsed fw-bolder" type="button" data-bs-toggle="collapse" data-bs-target="#talkCollapse-<?= htmlspecialchars($event['id'], ENT_QUOTES, 'UTF-8') ?>" aria-expanded="false">
-                                                            <span class="me-2 toggle-icon">+</span> View Full Session Schedule
-                                                        </button>
-                                                    </h2>
+                                                        <h2 class="accordion-header">
+                                                            <button class="btn-outline-primary btn-sm accordion-button collapsed fw-bolder" type="button" data-bs-toggle="collapse" data-bs-target="#talkCollapse-<?= htmlspecialchars($event['id'], ENT_QUOTES, 'UTF-8') ?>" aria-expanded="false">
+                                                                <span class="me-2 toggle-icon">+</span> View Full Session Schedule
+                                                            </button>
+                                                        </h2>
                                                     <?php endif ?>
                                                     <div id="talkCollapse-<?= htmlspecialchars($event['id'], ENT_QUOTES, 'UTF-8') ?>" class="accordion-collapse collapse">
                                                         <div class="accordion-body">
@@ -213,16 +213,16 @@
                                                                                                 <?php if (!empty($event['talks'])): ?>
                                                                                                     <div class="accordion mt-2" id="accordionExample">
                                                                                                         <div class="accordion-item">
-                                                                                                            <h6 class="accordion-header">
-                                                                                                                <button class="accordion-button p-1 bg-primary text-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-<?= htmlspecialchars($talk['paper_sub']['custom_id'], ENT_QUOTES, 'UTF-8') ?>" aria-expanded="true">
-                                                                                                                    View Paper Summary
-                                                                                                                </button>
-                                                                                                            </h6>
-                                                                                                            <div id="collapse-<?= htmlspecialchars($talk['paper_sub']['custom_id'], ENT_QUOTES, 'UTF-8') ?>" class="accordion-collapse collapse">
-                                                                                                                <div class="accordion-body">
-                                                                                                                    <?= strip_tags($talk['summary']) ?>
-                                                                                                                </div>
-                                                                                                            </div>
+<!--                                                                                                            <h6 class="accordion-header">-->
+<!--                                                                                                                <button class="accordion-button p-1 bg-primary text-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapse---><?php //= htmlspecialchars($talk['paper_sub']['custom_id'], ENT_QUOTES, 'UTF-8') ?><!--" aria-expanded="true">-->
+<!--                                                                                                                    View Paper Summary-->
+<!--                                                                                                                </button>-->
+<!--                                                                                                            </h6>-->
+<!--                                                                                                            <div id="collapse---><?php //= htmlspecialchars($talk['paper_sub']['custom_id'], ENT_QUOTES, 'UTF-8') ?><!--" class="accordion-collapse collapse">-->
+<!--                                                                                                                <div class="accordion-body">-->
+<!--                                                                                                                    --><?php //= strip_tags($talk['summary']) ?>
+<!--                                                                                                                </div>-->
+<!--                                                                                                            </div>-->
                                                                                                         </div>
                                                                                                     </div>
                                                                                                 <?php endif; ?>
@@ -230,23 +230,23 @@
                                                                                         <?php elseif (!empty($talk['presenters'])): ?>
                                                                                             <?php foreach ($talk['presenters'] as $presenter): ?>
                                                                                                 <li class="list-group-item" style="list-style: none;">
-                                                                                                    <?= trim($presenter->user_name . ' ' . $presenter->user_surname) ?>
-                                                                                                    <?php if (!empty($presenter->details)): ?>
-                                                                                                        <?= !empty($presenter->details['deg']) ? ', ' . htmlspecialchars($presenter->details['deg'], ENT_QUOTES, 'UTF-8') : '' ?>
-                                                                                                        <i><?= !empty($presenter->details['institution']) ? '<br>' . htmlspecialchars($presenter->details['institution'], ENT_QUOTES, 'UTF-8') : '' ?></i>
+                                                                                                    <?= trim($presenter['user_name'] . ' ' . $presenter['user_surname']) ?>
+                                                                                                    <?php if (!empty($presenter['details'])): ?>
+                                                                                                        <?= !empty($presenter['details']['deg']) ? ', ' . htmlspecialchars($presenter['details']['deg'], ENT_QUOTES, 'UTF-8') : '' ?>
+                                                                                                        <i><?= !empty($presenter['details']['institution']) ? '<br>' . htmlspecialchars($presenter['details']['institution'], ENT_QUOTES, 'UTF-8') : '' ?></i>
                                                                                                         <?php if (!empty($event['talks'])): ?>
                                                                                                             <div class="accordion mt-2" id="accordionExample">
                                                                                                                 <div class="accordion-item">
-                                                                                                                    <h6 class="accordion-header">
-                                                                                                                        <button class="accordion-button p-1 bg-primary text-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-<?= htmlspecialchars($presenter->id, ENT_QUOTES, 'UTF-8') ?>" aria-expanded="true">
+                                                                                                                   <!-- <h6 class="accordion-header">
+                                                                                                                        <button class="accordion-button p-1 bg-primary text-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-<?php /*= htmlspecialchars($presenter['id'], ENT_QUOTES, 'UTF-8') */?>" aria-expanded="true">
                                                                                                                             View Paper Summary
                                                                                                                         </button>
                                                                                                                     </h6>
-                                                                                                                    <div id="collapse-<?= htmlspecialchars($presenter->id, ENT_QUOTES, 'UTF-8') ?>" class="accordion-collapse collapse">
+                                                                                                                    <div id="collapse-<?php /*= htmlspecialchars($presenter['id'], ENT_QUOTES, 'UTF-8') */?>" class="accordion-collapse collapse">
                                                                                                                         <div class="accordion-body">
-                                                                                                                            <?= strip_tags($talk['summary']) ?>
+                                                                                                                            <?php /*= strip_tags($talk['summary']) */?>
                                                                                                                         </div>
-                                                                                                                    </div>
+                                                                                                                    </div>-->
                                                                                                                 </div>
                                                                                                             </div>
                                                                                                         <?php endif; ?>
@@ -267,18 +267,18 @@
                                                 </div>
 
                                                 <?php if($event['description']):?>
-                                                <div class="accordion-item border-0">
-                                                    <h2 class="accordion-header">
-                                                        <button class="btn-primary btn-sm accordion-button collapsed fw-bolder" type="button" data-bs-toggle="collapse" data-bs-target="#descriptionCollapse-<?= htmlspecialchars($event['id'], ENT_QUOTES, 'UTF-8') ?>" aria-expanded="false">
-                                                            <span class="me-2 toggle-icon">+</span> Session Description
-                                                        </button>
-                                                    </h2>
-                                                    <div id="descriptionCollapse-<?= htmlspecialchars($event['id'], ENT_QUOTES, 'UTF-8') ?>" class="accordion-collapse collapse">
-                                                        <div class="accordion-body ">
-                                                            <?= htmlspecialchars($event['description'], ENT_QUOTES, 'UTF-8') ?>
+                                                    <div class="accordion-item border-0">
+                                                        <h2 class="accordion-header">
+                                                            <button class="btn-primary btn-sm accordion-button collapsed fw-bolder" type="button" data-bs-toggle="collapse" data-bs-target="#descriptionCollapse-<?= htmlspecialchars($event['id'], ENT_QUOTES, 'UTF-8') ?>" aria-expanded="false">
+                                                                <span class="me-2 toggle-icon">+</span> Session Description
+                                                            </button>
+                                                        </h2>
+                                                        <div id="descriptionCollapse-<?= htmlspecialchars($event['id'], ENT_QUOTES, 'UTF-8') ?>" class="accordion-collapse collapse">
+                                                            <div class="accordion-body ">
+                                                                <?= htmlspecialchars($event['description'], ENT_QUOTES, 'UTF-8') ?>
+                                                            </div>
                                                         </div>
                                                     </div>
-                                                </div>
                                                 <?php endif ?>
                                             </div>
                                         </div>
@@ -287,6 +287,7 @@
                                 </div>
                             </div>
                         <?php endforeach; ?>
+                        <?php endif; ?>
                     </div>
                 <?php endforeach; ?>
             <?php endif; ?>

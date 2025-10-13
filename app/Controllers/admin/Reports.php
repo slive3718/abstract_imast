@@ -3,6 +3,8 @@
 namespace App\Controllers\admin;
 
 use App\Controllers\admin\Abstracts\AbstractController;
+use App\Controllers\ItineraryController;
+use App\Models\SchedulerDatesModel;
 use App\Models\SchedulerModel;
 use App\Models\SchedulerSessionTalksModel;
 
@@ -260,6 +262,177 @@ class Reports extends AbstractController
 
 
         return $exportHeader;
+    }
+
+    public function agendaToWord(){
+        $scheduledDates = (new SchedulerDatesModel())->findAll();
+        $schedules = (new ItineraryController())->getItinerary($scheduledDates);
+
+        $phpWord = new \PhpOffice\PhpWord\PhpWord();
+        $section = $phpWord->addSection();
+
+        $font1 = 'Calibri';
+        $fontSize1 = 12;
+        $fontSize2 = 14;
+        $fontStyle1 = 'bold';
+
+        if($schedules){
+//            print_r($schedules);exit;
+            foreach ($schedules as $schedule) {
+
+                if($schedule['description']){
+                    $section->addText(
+                        date('l, F d, Y', strtotime($schedule['date'])),
+                        array('name' => 'Tahoma', 'size' => $fontSize1, $fontStyle1 => true)
+                    );
+                }
+
+                foreach ($schedule['events'] as $event) {
+                    if($event['session_start_time'] && $event['session_end_time']) {
+                        $section->addText(
+                            date('H:i', strtotime($event['session_start_time'])) .'-'. date('H:i', strtotime($event['session_end_time'])),
+                            array('name' => $font1, 'size' => $fontSize2, $fontStyle1 => true)
+                        );
+                    }
+
+                    $section->addText(
+                        $event['session_title'],
+                        array('name' => $font1, 'size' => $fontSize2, $fontStyle1 => true)
+                    );
+
+                    if($event['moderators']) {
+                        $moderatorsJoined = '';
+                        foreach ($event['moderators'] as $index => $moderator) {
+                            $designations = '';
+                            $designationsIds = ($moderator['designations']) ? json_decode($moderator['designations']) : [];
+                            if($designationsIds) {
+                                $designations = (new \App\Models\DesignationsModel())->whereIn('id', $designationsIds)->findAll();
+                                $designations = array_map(function ($designation) {
+                                    return $designation['name'];
+                                }, $designations);
+                                $designations = implode(', ', $designations);
+                            }
+                            $moderatorsJoined .= (!empty($moderatorsJoined) ? " & " : '') . $moderator['name'] . ($moderator['middle_name'] ? ' ' .$moderator['middle_name'].'.' : ''). ' ' . $moderator['surname']. ($designations ? ', '. $designations: '');
+                        }
+
+                        $section->addText(
+                            'Moderators:'."\t" . $moderatorsJoined,
+                            array('name' => $font1, 'size' => 12, 'italic' => true),
+                        );
+                    }
+
+
+                    foreach ($event['talks'] as $talk){
+
+                        $talkAcceptanceConfirmation = $talk['admin_acceptance']['acceptance_confirmation'] ?? null;
+                        $talkAcceptancePreference = $talk['admin_acceptance']['presentation_preference'] ?? null;
+                        $acceptedAsPodium = ($talkAcceptanceConfirmation && $talkAcceptancePreference == 1);
+                        $textRun = $section->addTextRun(array(
+                            'spaceAfter' => 0,
+                            'keepNext' => true,
+                            'indentation' => array(
+                                'left' => 1440,      // Total left margin
+                                'hanging' => 1440    // Hanging indent (first line will be at left:0, subsequent lines at left:1440)
+                            )
+                        ));
+
+                        $textRun->addText(
+                            date('H:i', strtotime($talk['time_start'])) . ' - ' . date('H:i', strtotime($talk['time_end'])) . "\t",
+                            array('name' => $font1, 'size' => 12) // Regular font
+                        );
+
+                        $textRun->addText(
+                            ($talk['assigned_id'] && $acceptedAsPodium ? 'Paper#'. $talk['assigned_id'] . ': ': '').($talk['title'] == '' ? $talk['custom_abstract_desc'] : $talk['title']),
+                            array('name' => $font1, 'size' => 12, 'bold' => true), // Bold font for title
+                        );
+
+//                        $presenterJoined = '';
+//
+//                        foreach ($talk['presenters'] as $index => $presenter) {
+//                            $presenterDesignations = '';
+//                            $designationsIds = ($presenter['details']['designations']) ? json_decode($presenter['details']['designations']) : [];
+//                            if($designationsIds) {
+//                                $designations = (new \App\Models\DesignationsModel())->whereIn('id', $designationsIds)->findAll();
+//                                $designations = array_map(function ($designation) {
+//                                    return $designation['name'];
+//                                }, $designations);
+//                                $presenterDesignations = implode(', ', $designations);
+//                            }
+//                            $presenterJoined .= (!empty($presenterJoined) ? "; " : '') . $presenter['user_name'] . ' ' .($presenter['user_middle'] ? $presenter['user_middle'].'.' : ''). ' ' . $presenter['user_surname']. ($presenterDesignations ? ', '. $presenterDesignations: '');
+//                        }
+
+//                        Authors lists
+                        $authorsJoined = '';
+                        $filteredAuthorsArray = array_values(array_filter($talk['authors'], fn($author) => empty($author['is_removed'])));
+
+                        foreach ($filteredAuthorsArray as $index => $author) {
+                            $authorDesignations = '';
+                            $designationsIds = !empty($author['details']['designations']) ? json_decode($author['details']['designations']) : [];
+                            if ($designationsIds) {
+                                $designations = (new \App\Models\DesignationsModel())->whereIn('id', $designationsIds)->findAll();
+                                $designations = array_map(function ($designation) use ($author) {
+                                    if ($designation['name'] == 'Other') {
+                                        $ret = $author['details']['other_designation'];
+                                    } elseif ($designation['name'] == 'None') {
+                                        $ret = '';
+                                    } else {
+                                        $ret = $designation['name'];
+                                    }
+                                    return $ret;
+                                }, $designations);
+                                $authorDesignations = implode(', ', $designations);
+                            }
+                            $authorFullName = $author['user_name'] . ' ' . ($author['user_middle'] ? $author['user_middle'] . '. ' : '') . $author['user_surname'];
+                            $authorsJoined .= (!empty($authorsJoined) ? "; " : '') . trim($authorFullName) . ($authorDesignations ? ', ' . $authorDesignations : '');
+                        }
+
+//                        // Create a text run to allow different styles for each author
+                        if(!$talk['custom_abstract_desc'])
+                            $textRun = $section->addTextRun([
+                                'indentation' => ['left' => 1440]
+                            ]);
+
+                        // Split authorsJoined by semicolon to style each author
+                        $authorsArray = explode('; ', $authorsJoined);
+
+                        foreach ($filteredAuthorsArray as $index => $author) {
+                            $fontStyle = [
+                                'name' => $font1,
+                                'size' => 12,
+                                'italic' => $author['is_presenting_author'] == 'Yes'
+                            ];
+
+                            if(count($authorsArray) > 1) {
+                                $fontStyle['underline'] = ($author['is_presenting_author'] == 'Yes') ? 'single' : 'none';
+                            }
+                            $textRun->addText($authorsArray[$index] . (isset($authorsArray[$index + 1]) ? '; ' : ''), $fontStyle);
+                        }
+                    }
+                }
+                $section->addTextBreak(1);
+            }
+        }
+        \PhpOffice\PhpWord\Settings::setOutputEscapingEnabled(true);
+        $objWriter = \PhpOffice\PhpWord\IOFactory::createWriter($phpWord, 'Word2007');
+        $objWriter->save('Agenda.docx');
+
+        // Save to a temporary file
+        $tempFile = tempnam(sys_get_temp_dir(), 'Agenda') . '.docx';
+        $objWriter->save($tempFile);
+
+        // Send headers for download
+        header('Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+        header('Content-Disposition: attachment; filename="Agenda.docx"');
+        header('Content-Length: ' . filesize($tempFile));
+        header('Cache-Control: no-cache, must-revalidate');
+        header('Expires: Sat, 26 Jul 1997 05:00:00 GMT');
+
+// Output the file
+        readfile($tempFile);
+
+// Clean up the temporary file
+        unlink($tempFile);
+
     }
 
 }
