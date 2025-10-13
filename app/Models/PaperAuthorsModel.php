@@ -94,5 +94,23 @@ class PaperAuthorsModel extends BaseModel
         }
     }
 
+    public function getAuthors($paper_id = null)
+    {
+        try {
+            $query =  $this->table('paper_authors')
+                ->select('paper_authors.*, u.name as user_name, u.middle_name as user_middle, u.surname as user_surname,  IFNULL(rpa.id, 0) as is_removed')
+                ->join($this->sharedDB->database.'.users u', 'paper_authors.author_id = u.id', 'left')
+                ->join('removed_paper_authors rpa', 'paper_authors.id = rpa.paper_author_id', 'left');
+            if($paper_id){
+                $query  ->where('paper_authors.paper_id', $paper_id);
+            }
+            $query->orderBy('author_order', 'asc');
+
+            return $query;
+        } catch (\CodeIgniter\Database\Exceptions\DatabaseException $e) {
+            // Log the error or display an error message
+            return json_encode('Database error: ' . $e->getMessage());
+        }
+    }
 
 }
