@@ -50,33 +50,33 @@
                                             foreach($paper->reviewers as $reviewer):
                                                 ?>
 
-                                                <div class="mt-3">
-                                                    <?php if (isset($reviewer['display_suggestion']) && $reviewer['display_suggestion'] == 1): ?>
-                                                    <span><strong>Reviewer Comments (Suggested Revisions):</strong></span> <?=$reviewer['suggested_revision_comment']?> <br>
-                                                    <?php endif; ?>
-                                                    <?php if (isset($reviewer['display_required']) && $reviewer['display_required'] == 1): ?>
-                                                    <span><strong>Reviewer Comments (Required Revisions):</strong></span> <?=$reviewer['required_revision_comment']?><br>
-                                                    <?php endif; ?>
-                                                    <span><strong>Reviewer Upload:</strong></span> <a href="<?=($reviewer['uploads'])?$reviewer['uploads']['file_path'].$reviewer['uploads']['file_name']:''?>"><?=($reviewer['uploads'])?$reviewer['uploads']['file_preview_name']:''?></a>
-                                                    <br>
-                                                    <span><strong>Submitter Comment:</strong>
-                                                    <span id="submitterSpanComment_<?=$reviewer['id']?>"><?=!empty($reviewer['submitter_comment_on_upload'])?$reviewer['submitter_comment_on_upload']:''?></span>
-                                                        <br>
-                                                    </span><a class="pointer-cursor" data-bs-toggle="collapse" href="#collapseExample_<?=$reviewer['id']?>" role="button" aria-expanded="false" aria-controls="collapseExample_<?=$reviewer['id']?>"> Add/Update Comment </a>
-                                                    <div class="collapse" id="collapseExample_<?=$reviewer['id']?>">
-                                                        <div class="card card-body">
-                                                            <textarea class="form-control p-0" id="submitterComment_<?=$reviewer['id']?>"><?=!empty($reviewer['submitter_comment_on_upload'])?$reviewer['submitter_comment_on_upload'] :''?></textarea>
-                                                            <button type="button" class="btn btn-success btn-sm saveCommentToUploadBtn mt-2 mx-2" review_id="<?=$reviewer['id']?>" paper_id="<?=$paper->id?>" style="width:150px">Save</button>
-                                                        </div>
-                                                    </div>
-                                                    <br>
-
-                                                    <span><strong>Date:</strong></span> <?=$reviewer['date_time']?><br>
-                                                    <?php if (!empty($reviewer['submitter_deadline'] )): ?>
-                                                    <span><strong class="text-danger">Submitter Respond Deadline:</strong></span> <?=$reviewer['submitter_deadline']?><br>
-                                                    <?php endif; ?>
-                                                    <span><strong>Re-review Comments:</strong></span> <?=$reviewer['re_review_comment']?><br>
-                                                </div>
+<!--                                                <div class="mt-3">-->
+<!--                                                    --><?php //if (isset($reviewer['display_suggestion']) && $reviewer['display_suggestion'] == 1): ?>
+<!--                                                    <span><strong>Reviewer Comments (Suggested Revisions):</strong></span> --><?php //=$reviewer['suggested_revision_comment']?><!-- <br>-->
+<!--                                                    --><?php //endif; ?>
+<!--                                                    --><?php //if (isset($reviewer['display_required']) && $reviewer['display_required'] == 1): ?>
+<!--                                                    <span><strong>Reviewer Comments </strong></span> --><?php //=$reviewer['reviewer_comment']?><!--<br>-->
+<!--                                                    --><?php //endif; ?>
+<!--                                                    <span><strong>Reviewer Upload:</strong></span> <a href="--><?php //=($reviewer['uploads'])?$reviewer['uploads']['file_path'].$reviewer['uploads']['file_name']:''?><!--">--><?php //=($reviewer['uploads'])?$reviewer['uploads']['file_preview_name']:''?><!--</a>-->
+<!--                                                    <br>-->
+<!--                                                    <span><strong>Submitter Comment:</strong>-->
+<!--                                                    <span id="submitterSpanComment_--><?php //=$reviewer['id']?><!--">--><?php //=!empty($reviewer['submitter_comment_on_upload'])?$reviewer['submitter_comment_on_upload']:''?><!--</span>-->
+<!--                                                        <br>-->
+<!--                                                    </span><a class="pointer-cursor" data-bs-toggle="collapse" href="#collapseExample_--><?php //=$reviewer['id']?><!--" role="button" aria-expanded="false" aria-controls="collapseExample_--><?php //=$reviewer['id']?><!--"> Add/Update Comment </a>-->
+<!--                                                    <div class="collapse" id="collapseExample_--><?php //=$reviewer['id']?><!--">-->
+<!--                                                        <div class="card card-body">-->
+<!--                                                            <textarea class="form-control p-0" id="submitterComment_--><?php //=$reviewer['id']?><!--">--><?php //=!empty($reviewer['submitter_comment_on_upload'])?$reviewer['submitter_comment_on_upload'] :''?><!--</textarea>-->
+<!--                                                            <button type="button" class="btn btn-success btn-sm saveCommentToUploadBtn mt-2 mx-2" review_id="--><?php //=$reviewer['id']?><!--" paper_id="--><?php //=$paper->id?><!--" style="width:150px">Save</button>-->
+<!--                                                        </div>-->
+<!--                                                    </div>-->
+<!--                                                    <br>-->
+<!---->
+<!--                                                    <span><strong>Date:</strong></span> --><?php //=$reviewer['date_time']?><!--<br>-->
+<!--                                                    --><?php //if (!empty($reviewer['submitter_deadline'] )): ?>
+<!--                                                    <span><strong class="text-danger">Submitter Respond Deadline:</strong></span> --><?php //=$reviewer['submitter_deadline']?><!--<br>-->
+<!--                                                    --><?php //endif; ?>
+<!--                                                    <span><strong>Re-review Comments:</strong></span> --><?php //=$reviewer['re_review_comment']?><!--<br>-->
+<!--                                                </div>-->
                                             <?php endforeach; ?>
                                         <?php else: ?>
                                             <span> No Data.</span>
