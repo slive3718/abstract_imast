@@ -153,12 +153,11 @@
         $.post(baseUrlReviewer+'getAllReviewerAbstracts', function(response){
             // console.log(response[0]);
             $('#abstractTableBody').html('');
-            $.each(response.data, function(i, val){
-                 console.log(val);
+            const shuffledData = response.data.sort(() => Math.random() - 0.5);
+            $.each(shuffledData, function(i, val){
+                console.log(val);
                 let reviewBtn  = '<button class="btn btn-success btn-sm reviewBtn" abstract_id='+val.abstracts.id+'> Review </button>'
                 let declinedBtn  = '<button class="btn btn-danger btn-sm declineBtn" abstract_id='+val.abstracts.id+'> Decline </button>'
-
-                let approveBtn =
 
                 $('#abstractTableBody').append('<tr>'+
                     '<td>'+val.abstracts.custom_id+'</td>'+
@@ -168,7 +167,11 @@
                     '<td>'+reviewBtn +" "+((val.reviews)?'':declinedBtn)+'</td>'+
                     '</tr>')
             })
-            $('#abstractTable').DataTable();
+
+            $('#abstractTable').DataTable({
+                // Optional: Disable initial sorting to maintain random order
+                "order": []
+            });
         },'json')
     }
 
