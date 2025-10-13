@@ -124,14 +124,14 @@
                 let reviewerType = (val.is_deputy_reviewer === "1")?"Deputy":"Regular"
 
                 let colors = ['bg-primary', 'bg-secondary', 'bg-success', 'bg-danger', 'bg-warning', 'bg-info',];
-                let divisions = val.divisions.map((e) => {
-                    if(e !== null) {
-                        let color = colors[e.division_id % colors.length];
-                        return '<div class="text-nowrap badge ' + color + '">' + e.name + '</div>';
-                    }else{
-                        return  ''
-                    }
-                }).join('');
+                // let categories = val.categories.map((e) => {
+                //     if(e !== null) {
+                //         // let color = colors[e.division_id % colors.length];
+                //         return '<div class="text-nowrap badge ' + color + '">' + e.name + '</div>';
+                //     }else{
+                //         return  ''
+                //     }
+                // }).join('');
 
                $('#reviewerTableBody').append('<tr>'+
                 '<td>'+val.user_id+'</td>'+
@@ -139,9 +139,9 @@
                 '<td>'+val.surname+'</td>'+
                 '<td class="text-nowrap">'+val.email+'</td>'+
                    '<td>'+reviewerType+'</td>'+
-                   '<td>'+divisions+'</td>'+
                    '<td></td>'+
                    '<td></td>'+
+                   '<td>'+val.total_reviewed+'/'+val.total_assigned+'</td>'+
                    '<td></td>'+
                    '<td>'+manageBtn+'</td>'+
                 // '<td>'+val.total_assigned.length+'</td>'+

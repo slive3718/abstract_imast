@@ -34,6 +34,7 @@ use App\Models\PapersModel;
 use App\Models\ReviewerModel;
 use App\Models\AbstractReviewModel;
 use App\Controllers\ExcelController;
+use SendGrid\Mail\Category;
 
 class AbstractController extends BaseController
 {
@@ -1110,21 +1111,24 @@ class AbstractController extends BaseController
                ->orWhere('is_regular_reviewer', 1)
                ->findAll();
 
+           $PaperAssignedReviewerModel = new PaperAssignedReviewerModel();
+           $PaperAssignedReviewed = new AbstractReviewModel();
+
            if($reviewers) {
                foreach ($reviewers as $reviewer) {
-                   $division_array = array();
-                   $division_ids = json_decode($reviewer['division_id'], true); // decode JSON as associative array
 
-                   // Ensure $division_ids is an array before proceeding
-                   if(is_array($division_ids)) {
-                       foreach ($division_ids as $division) {
-                           $division_data = $UserDivisionTable->where('division_id', $division)->first();
-                           if($division_data) {
-                               $division_array[] = $division_data;
-                           }
-                       }
-                   }
-                   $reviewer['divisions'] = $division_array;
+                   $totalAssignePerReviewed = count($PaperAssignedReviewed
+                       ->where('reviewer_id', $reviewer['user_id'])
+                       ->findAll());
+
+                   $totalAssignePerReviwer = count($PaperAssignedReviewerModel
+                       ->where('reviewer_id', $reviewer['user_id'])
+                       ->where('reviewer_type', 'regular')
+                       ->findAll());
+
+
+                   $reviewer['total_assigned'] = $totalAssignePerReviwer;
+                   $reviewer['total_reviewed'] = $totalAssignePerReviewed;
                    $reviewer_array[] = $reviewer;
                }
            }
@@ -1227,34 +1231,6 @@ class AbstractController extends BaseController
 
     }
 
-//    public function getReviewerList(){
-//        $reviewerModel = (new ReviewerModel())->get();
-//        $reviewerList = ((new ReviewerModel())->getDistinctArray());
-//        $reviewer_array = array();
-//
-////        print_r($reviewerModel);exit;
-//
-//        if(!empty($reviewerList)){
-//            foreach($reviewerList as $reviewer){
-//                $reviewer['primary_details'] = (new UserModel())->find($reviewer['reviewer']);
-//                $reviewer['total_assigned'] = (new ReviewerModel())->where(['reviewer'=>$reviewer['reviewer']])->find();
-//                if(!empty($reviewer['total_assigned'])){
-//                    foreach($reviewer['total_assigned'] as $index=>$assigned){
-//                        // print_r($assigned);exit;
-//                        if(!empty((new AbstractReviewModel())->where(['reviewer_id'=>$assigned['reviewer'], 'abstract_id'=>$assigned['abstract_id']])->get())){
-//                            $reviewer['total_assigned'][$index]['is_submitted'] = "1";
-//                        }else{
-//                            $reviewer['total_assigned'][$index]['is_submitted'] = "0";
-//                        }
-//                    }
-//                }
-//
-//
-//                $reviewer_array[] = $reviewer;
-//            }
-//        }
-//        echo json_encode($reviewer_array);
-//    }
     public function reviewer_list(){
     
 

@@ -38,5 +38,11 @@ class AbstractCategoriesModel extends Model
             
         }
     }
+
+    public function array_column($columnKey = NULL, $indexKey = NULL)
+    {
+        return array_column($this->Get(), $columnKey, $indexKey);
+    }
+
     
 }
