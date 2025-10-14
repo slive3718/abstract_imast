@@ -131,6 +131,8 @@
                                 <?= $abstract_categories[($abstracts->abstract_category)]; ?>
                             </td>
                         </tr>
+
+                        <?php if(!empty($abstract_sub_categories): ?>
                         <tr>
                             <td class="customTd">Sub Categories:</td>
                             <td>
@@ -143,6 +145,8 @@
                                 <?php endif ?>
                             </td>
                         </tr>
+                        <?php endif ?>
+
                         <tr>
                             <td class="customTd">Hypothesis:</td>
                             <td>
@@ -167,19 +171,26 @@
                                 <?= ($abstracts->methods) ?>
                             </td>
                         </tr>
+
+                        <?php if($abstracts->results): ?>
                         <tr>
                             <td class="customTd">Results:</td>
                             <td>
                                 <?= ($abstracts->results) ?>
                             </td>
                         </tr>
+                        <?php endif ?>
+
+                        <?php if($abstracts->conclusions): ?>
                         <tr>
                             <td class="customTd">Conclusions:</td>
                             <td>
                                 <?= ($abstracts->conclusions) ?>
                             </td>
                         </tr>
+                        <?php endif ?>
 
+                        <?php if(!empty($paper_uploads)): ?>
                         <tr>
                             <td class="customTd" style="vertical-align: bottom">Image Caption :</td>
                             <td>
@@ -203,20 +214,26 @@
                                 </div>
                             </td>
                         </tr>
+                        <?php endif ?>
 
+                        <?php if($abstracts->min_follow_up_period): ?>
                         <tr>
                             <td class="customTd">Minimum time period to follow up:</td>
                             <td>
                                 <?= ($abstracts->min_follow_up_period) ?>
                             </td>
                         </tr>
+                        <?php endif ?>
 
+                        <?php if($abstracts->is_srs_funded): ?>
                         <tr>
                             <td class="customTd">Funded by SRS grant:</td>
                             <td>
                                 <?= ($abstracts->is_srs_funded) ?>
                             </td>
                         </tr>
+                        <?php endif ?>
+
                         </tbody>
                     </table>
                 </div>
