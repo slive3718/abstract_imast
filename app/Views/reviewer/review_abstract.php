@@ -132,7 +132,7 @@
                             </td>
                         </tr>
 
-                        <?php if(!empty($abstract_sub_categories): ?>
+                        <?php if(!empty($abstract_sub_categories)): ?>
                         <tr>
                             <td class="customTd">Sub Categories:</td>
                             <td>
