@@ -229,25 +229,21 @@
                         </tr>
                         <tr>
                             <th></th>
-                            <th>Free from commercialism</th>
-                            <th>Can be edited?</th>
-                            <th>Operations</th>
-                            <th>Management/Marketing</th>
-                            <th>Technology/Research</th>
-                            <th>Professional Level</th>
-                            <th>1. Originality</th>
-                            <th>2. Sufficiency of Data/Information</th>
-                            <th>3. Readability</th>
-                            <th>4. ArtWork</th>
-                            <th>5. Composite Score</th>
-                            <th>Average Score(1-4)</th>
+                            <th>Quality of Content</th>
+                            <th>Study Design</th>
+                            <th>Innovation </th>
+                            <th>Total Score(1-5)</th>
                         </tr>
                         </thead>
                         <tbody>
                         <?php if(!empty($review_details)):
-                            foreach ($review_details->reviews as $review):?>
+                            foreach ($review_details->reviews as $index => $review):?>
                                 <tr class="bg-primary bg-opacity-10">
-
+                                    <td></td>
+                                    <td><?= $review['review_question_1'] ?? '' ?></td>
+                                    <td><?= $review['review_question_2'] ?? '' ?></td>
+                                    <td><?= $review['review_question_3'] ?? ''?></td>
+                                    <td><?= $review['total_score'] ?></td>
                                 </tr>
                                 
                                 <tr class="<?=!empty($review['submitter_comment_on_upload']) ? '':'d-none' ?>">
