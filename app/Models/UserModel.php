@@ -34,9 +34,9 @@ class UserModel extends BaseModel
 
     // Callbacks
     protected $allowCallbacks = true;
-    protected $beforeInsert   = [];
+    protected $beforeInsert   = ['prepareData'];
     protected $afterInsert    = [];
-    protected $beforeUpdate   = [];
+    protected $beforeUpdate   = ['prepareData'];
     protected $afterUpdate    = [];
     protected $beforeFind     = ['excludeDeleted'];
     protected $afterFind      = [];
@@ -50,6 +50,22 @@ class UserModel extends BaseModel
         parent::__construct();
         $this->db = \Config\Database::connect('shared');
         $this->allowedFields = $this->db->getFieldNames($this->table);
+    }
+
+    protected function prepareData(array $data): array
+    {
+        $fieldsToClean = ['name', 'surname', 'middle_name'];
+        foreach ($fieldsToClean as $field) {
+            if (isset($data['data'][$field])) {
+                $data['data'][$field] = $this->cleanName($data['data'][$field]);
+            }
+        }
+        return $data;
+    }
+
+    private function cleanName(string $name): string
+    {
+        return preg_replace('/[^a-zA-Z\s]/', '', trim($name));
     }
 
      protected function excludeDeleted(array $data)
