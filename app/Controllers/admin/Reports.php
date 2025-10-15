@@ -428,17 +428,17 @@ class Reports extends AbstractController
         $objWriter->save($tempFile);
 
         // Send headers for download
-//        header('Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document');
-//        header('Content-Disposition: attachment; filename="Agenda.docx"');
-//        header('Content-Length: ' . filesize($tempFile));
-//        header('Cache-Control: no-cache, must-revalidate');
-//        header('Expires: Sat, 26 Jul 1997 05:00:00 GMT');
-//
-//// Output the file
-//        readfile($tempFile);
-//
-//// Clean up the temporary file
-//        unlink($tempFile);
+        header('Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+        header('Content-Disposition: attachment; filename="Agenda.docx"');
+        header('Content-Length: ' . filesize($tempFile));
+        header('Cache-Control: no-cache, must-revalidate');
+        header('Expires: Sat, 26 Jul 1997 05:00:00 GMT');
+
+// Output the file
+        readfile($tempFile);
+
+// Clean up the temporary file
+        unlink($tempFile);
 
     }
 
