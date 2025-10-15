@@ -394,10 +394,13 @@ class Reports extends AbstractController
                         }
 
 //                        // Create a text run to allow different styles for each author
-                        if(!$talk['custom_abstract_desc'])
+                        if(!$talk['custom_abstract_desc']) {
                             $textRun = $section->addTextRun([
                                 'indentation' => ['left' => 1440]
                             ]);
+                        }else{
+                            $section->addText('');
+                        }
 
                         // Split authorsJoined by semicolon to style each author
                         $authorsArray = explode('; ', $authorsJoined);
