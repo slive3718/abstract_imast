@@ -307,10 +307,17 @@ class Reports extends AbstractController
                             $designationsIds = ($moderator['designations']) ? json_decode($moderator['designations']) : [];
                             if($designationsIds) {
                                 $designations = (new \App\Models\DesignationsModel())->whereIn('id', $designationsIds)->findAll();
-                                $designations = array_map(function ($designation) {
-                                    return $designation['name'];
+                                $newDesignations = array_map(function ($designation) use ($moderator) {
+                                    if(strtolower(trim($designation['name'])) == 'other') {
+                                        $ret = $moderator['other_designation'];
+                                    } elseif (strtolower(trim($designation['name'])) == 'none') {
+                                        $ret = '';
+                                    } else {
+                                        $ret = $designation['name'];
+                                    }
+                                    return $ret;
                                 }, $designations);
-                                $designations = implode(', ', $designations);
+                                $designations = implode(', ', $newDesignations);
                             }
                             $moderatorsJoined .= (!empty($moderatorsJoined) ? " & " : '') . $moderator['name'] . ($moderator['middle_name'] ? ' ' .$moderator['middle_name'].'.' : ''). ' ' . $moderator['surname']. ($designations ? ', '. $designations: '');
                         }
@@ -370,17 +377,17 @@ class Reports extends AbstractController
                             $designationsIds = !empty($author['details']['designations']) ? json_decode($author['details']['designations']) : [];
                             if ($designationsIds) {
                                 $designations = (new \App\Models\DesignationsModel())->whereIn('id', $designationsIds)->findAll();
-                                $designations = array_map(function ($designation) use ($author) {
+                                $newDesignations = array_map(function ($designation) use ($author) {
                                     if(strtolower(trim($designation['name'])) == 'other') {
                                         $ret = $author['details']['other_designation'];
-                                    } elseif ($designation['name'] == 'None') {
+                                    } elseif (strtolower(trim($designation['name'])) == 'none') {
                                         $ret = '';
                                     } else {
                                         $ret = $designation['name'];
                                     }
                                     return $ret;
                                 }, $designations);
-                                $authorDesignations = implode(', ', $designations);
+                                $authorDesignations = implode(', ', $newDesignations);
                             }
                             $authorFullName = $author['user_name'] . ' ' . ($author['user_middle'] ? $author['user_middle'] . '. ' : '') . $author['user_surname'];
                             $authorsJoined .= (!empty($authorsJoined) ? "; " : '') . trim($authorFullName) . ($authorDesignations ? ', ' . $authorDesignations : '');
@@ -421,17 +428,17 @@ class Reports extends AbstractController
         $objWriter->save($tempFile);
 
         // Send headers for download
-        header('Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document');
-        header('Content-Disposition: attachment; filename="Agenda.docx"');
-        header('Content-Length: ' . filesize($tempFile));
-        header('Cache-Control: no-cache, must-revalidate');
-        header('Expires: Sat, 26 Jul 1997 05:00:00 GMT');
-
-// Output the file
-        readfile($tempFile);
-
-// Clean up the temporary file
-        unlink($tempFile);
+//        header('Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+//        header('Content-Disposition: attachment; filename="Agenda.docx"');
+//        header('Content-Length: ' . filesize($tempFile));
+//        header('Cache-Control: no-cache, must-revalidate');
+//        header('Expires: Sat, 26 Jul 1997 05:00:00 GMT');
+//
+//// Output the file
+//        readfile($tempFile);
+//
+//// Clean up the temporary file
+//        unlink($tempFile);
 
     }
 
