@@ -247,33 +247,9 @@
                         <?php if(!empty($review_details)):
                             foreach ($review_details->reviews as $review):?>
                                 <tr class="bg-primary bg-opacity-10">
-                                    <th><?=UcFirst($review['user_name']). ' '.UcFirst($review['user_surname'])?></th>
-                                    <td><?=$review['commercialism']?></td>
-                                    <td><?=$review['commercialism_editable']?></td>
-                                    <td><?=$review['operations']?></td>
-                                    <td><?=$review['marketing_score']?></td>
-                                    <td><?=$review['research_score']?></td>
-                                    <td><?=$review['professional_level']?></td>
-                                    <td><?=$review['originality_score']?></td>
-                                    <td><?=$review['sufficiency_score']?></td>
-                                    <td><?=$review['readability_score']?></td>
-                                    <td><?=$review['artwork_score']?></td>
-                                    <td class="bg-primary text-white"><?=$review['composite_score']?></td>
-                                    <td class="bg-danger text-white"><?=$review['average_score']?></td>
-                                </tr>
-                                <tr>
-                                    <td>Suggested Revision Comments:</td>
-                                    <td colspan="12`"><textarea class="w-100 border-0" readonly id="suggestedRevisionComment_<?=$review['id']?>"><?=$review['suggested_revision_comment']?></textarea></td>
 
-
-<!--                                    <td colspan="2"><input type="checkbox" --><?php //=(isset($review['display_suggestion']) && $review['display_suggestion'] == 1)?'checked':''?><!-- class="displayCheckbox displaySuggested" name="displayToSubmitter" review_id = "--><?php //=$review['id']?><!--" id="displaySuggested_--><?php //=$review['id']?><!--"> <label for="displaySuggested_--><?php //=$review['id']?><!--"> Display to Submitter</label></td>-->
                                 </tr>
-                                <tr>
-                                    <td>Required Revision Comments:</td>
-                                    <td colspan="12"><textarea class="w-100 border-0" readonly id="requiredRevisionComment_<?=$review['id']?>"><?=$review['required_revision_comment']?></textarea></td>
-
-<!--                                    <td colspan="2"><input type="checkbox" --><?php //=(isset($review['display_required']) && $review['display_required'] == 1)?'checked':''?><!-- class="displayCheckbox displayRequired" name="displayToSubmitter" review_id = "--><?php //=$review['id']?><!--" id="displayRequired_--><?php //=$review['id']?><!--"> <label for="displayRequired_--><?php //=$review['id']?><!--"> Display to Submitter</label></td>-->
-                                </tr>
+                                
                                 <tr class="<?=!empty($review['submitter_comment_on_upload']) ? '':'d-none' ?>">
                                     <td>Submitter Comment :</td>
                                     <td colspan="16">
