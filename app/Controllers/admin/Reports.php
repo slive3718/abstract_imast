@@ -371,7 +371,7 @@ class Reports extends AbstractController
                             if ($designationsIds) {
                                 $designations = (new \App\Models\DesignationsModel())->whereIn('id', $designationsIds)->findAll();
                                 $designations = array_map(function ($designation) use ($author) {
-                                    if ($designation['name'] == 'Other') {
+                                    if(strtolower(trim($designation['name'])) == 'other') {
                                         $ret = $author['details']['other_designation'];
                                     } elseif ($designation['name'] == 'None') {
                                         $ret = '';
