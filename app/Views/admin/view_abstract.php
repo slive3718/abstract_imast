@@ -245,7 +245,12 @@
                                     <td><?= $review['review_question_3'] ?? ''?></td>
                                     <td><?= $review['total_score'] ?></td>
                                 </tr>
-                                
+                                <tr class="<?=!empty($review['reviewer_comment']) ? '':'d-none' ?>">
+                                    <td>Reviewer Comment :</td>
+                                    <td colspan="16">
+                                        <textarea class="w-100 border-0" ><?=$review['reviewer_comment']?></textarea>
+                                    </td>
+                                </tr>
                                 <tr class="<?=!empty($review['submitter_comment_on_upload']) ? '':'d-none' ?>">
                                     <td>Submitter Comment :</td>
                                     <td colspan="16">
