@@ -84,7 +84,7 @@ class UserServices extends BaseService
 
         $assigned_events = [];
         foreach ($moderators_unique as $moderator) {
-            $events = $this->get_assigned_moderator_events($moderator['id']);
+            $events = $this->get_assigned_moderator_events($moderator['id'], $moderator['scheduler_id'])->asArray()->findAll();
             if ($events) {
                 $assigned_events[$moderator['id']] = [
                     'user' => $moderator,
@@ -96,12 +96,15 @@ class UserServices extends BaseService
         return $assigned_events;
     }
 
-    function get_assigned_moderator_events($moderator_id) {
+    function get_assigned_moderator_events($moderator_id, $scheduler_id) {
         $result = (new SchedulerModel())
             ->select('scheduler_events.*, r.name as room_name')
             ->join('scheduler_rooms r', 'scheduler_events.room_id = r.id', 'left')
-            ->where("scheduler_events.session_chair_ids LIKE '%\"{$moderator_id}\"%'")
-            ->asArray()->findAll();
+            ->where("scheduler_events.session_chair_ids LIKE '%\"{$moderator_id}\"%'");
+        if($scheduler_id){
+            $result->where("scheduler_events.id", $scheduler_id);
+        }
+
         return $result;
     }
 }

@@ -718,7 +718,7 @@
                     var idAttr = (recipientType === 'moderator') ? 'author_id="' + user.id + '"' : 'author_id="' + user.details.id + '"';
 
                     tableHTML += '<tr>' +
-                        '<td><input type="checkbox" class="recipientsCheckbox" checked ' + idAttr + ' name="' + user.details.name + '" surname="' + user.details.surname + '" email="' + user.details.email + '" filter="' + (user.filter || '') + '" paper_id="'+user.paper_id+'"></td>' +
+                        '<td><input type="checkbox" class="recipientsCheckbox" checked ' + idAttr + ' name="' + user.details.name + '" surname="' + user.details.surname + '" email="' + user.details.email + '" filter="' + (user.filter || '') + '" paper_id="'+user.paper_id+'"  scheduler_id="'+user.scheduler_id+'"></td>' +
                         '<td>' + user.details.name + ' ' + user.details.surname + '</td>' +
                         '<td class="abstractID">' + showID + '</td>' +
                         '<td>' + user.details.email + '</td>' +
@@ -806,6 +806,7 @@
                 recipients.push({
                     author_id: $(this).attr('author_id'),
                     abstract_id: $(this).attr('paper_id'),
+                    scheduler_id: $(this).attr('scheduler_id'),
                     filter: $(this).attr('filter')
                 });
             }

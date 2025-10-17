@@ -569,6 +569,7 @@ class EmailController extends BaseController
                         $recipient = json_decode($recipient, true);
                         $res = $UsersModel->where('id', $recipient['author_id'])->first();
                         if (!empty($res)) {
+                            $res['scheduler_id'] = $recipient['scheduler_id'];
                             $arr[] = $res;
                         }
                     }
@@ -621,6 +622,7 @@ class EmailController extends BaseController
                 }
 
                 $PaperTemplates = str_replace('##ABSTRACT_ID##', $val['paper_id'], $PaperTemplates);
+                $PaperTemplates = str_replace('##ABSTRACT_ASSIGNEDID##', $val['assigned_id'], $PaperTemplates);
                 $PaperTemplates = str_replace('##ABSTRACT_TITLE##', strip_tags($val['title']), $PaperTemplates);
                 $PaperTemplates = str_replace('##RECIPIENTS_FULL_NAME##', $val['name'] . ' ' . $val['surname'], $PaperTemplates);
                 $PaperTemplates = str_replace('##RECIPIENT_FIRST_NAME##', $val['name'], $PaperTemplates);
