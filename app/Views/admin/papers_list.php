@@ -524,15 +524,25 @@
 
             return paper.assignedReviewers.map(assignedReviewer => {
                 let review = '';
+                let hasCOI = false;
+                let hasNA = false;
                 if (assignedReviewer.review) {
-                    if (assignedReviewer.review.rating === 'COI') {
+                    let reviewFields = ['review_question_1', 'review_question_2', 'review_question_3'];
+                    reviewFields.forEach(field => {
+                        if (assignedReviewer.review[field] === 'n/a') {
+                            hasNA = true;
+                        }else if (assignedReviewer.review[field] === 'COI') {
+                            hasCOI = true;
+                        }
+                    })
+                }
+
+                if (assignedReviewer.review) {
+                    review = `<span class="badge bg-success ms-2 "><i class="fas fa-check-circle"></i></span>`;
+                    if (hasCOI) {
                         review = `<span class="badge bg-danger ms-2 "> COI </span>`;
-                    } else if (assignedReviewer.review.rating === 'Not Applicable') {
+                    } else if (hasNA) {
                         review = `<span class="badge bg-warning ms-2 "> N/A </span>`;
-                    } else {
-                        review = `<span class="badge bg-success ms-2 ">
-                    <i class="fas fa-check-circle"></i>
-                </span>`;
                     }
                 }
 
