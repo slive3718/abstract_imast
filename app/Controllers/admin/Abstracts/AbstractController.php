@@ -783,10 +783,10 @@ class AbstractController extends BaseController
             $userProfilesMap = array_column($userProfiles, null, 'author_id');
 
             // Batch fetch author acceptances
-            $authorAcceptances = $AuthorAcceptanceModel->whereIn('abstract_id', $paperIds)->findAll();
+            $authorAcceptances = $AuthorAcceptanceModel->whereIn('abstract_id', $paperIds)->asArray()->findAll();
             $authorAcceptancesMap = [];
             foreach ($authorAcceptances as $acceptance) {
-                $authorAcceptancesMap[$acceptance->abstract_id][$acceptance->author_id] = $acceptance;
+                $authorAcceptancesMap[$acceptance['abstract_id']][$acceptance['author_id']] = $acceptance;
             }
 
             // Batch fetch reviewers

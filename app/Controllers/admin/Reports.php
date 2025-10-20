@@ -43,23 +43,25 @@ class Reports extends AbstractController
                 $presentingAuthors = [];
 
                 // Extract presenting authors and co-authors
-                foreach ($paper->authors as $author) {
+                foreach ($paper['authors'] as $author) {
                     if ($author) {
-                        if ($author->is_presenting_author == 'Yes') {
-                            $authorList .= "Presenting Author: " . $author->user_name . ' ' . $author->user_surname . ' ';
+                        if ($author['is_presenting_author'] == 'Yes') {
+                            $authorList .= "Presenting Author: " . $author['user_name'] . ' ' . $author['user_surname'] . ' ';
                             $presentingAuthors[] = $author;
-                        } elseif ($author->is_coauthor == 'Yes') {
-                            $authorList .= "Co-Author: " . $author->user_name . ' ' . $author->user_surname . ' ';
+                        } elseif ($author['is_correspondent'] == 'Yes') {
+                            $authorList .= "Correspondent: " . $author['user_name'] . ' ' . $author['user_surname'] . ' ';
+                        }elseif ($author['is_senior_author'] == 'Yes') {
+                            $authorList .= "Senior Author: " . $author['user_name'] . ' ' . $author['user_surname'] . ' ';
                         }
                     }
                 }
 
                 // Handle uploads
                 $uploads = '';
-                if ($paper->uploads) {
+                if ($paper['uploads']) {
                     $upload_names = array_map(function ($upload) {
                         return $upload['file_preview_name'];
-                    }, $paper->uploads);
+                    }, $paper['uploads']);
 
                     // Remove duplicates and join names into a string
                     $upload_names = array_unique($upload_names);
@@ -69,56 +71,68 @@ class Reports extends AbstractController
                 // Handle admin acceptance and presentation preferences
                 $adminAcceptance = '';
                 $adminPresentationPref = '';
-                if ($paper->adminOption) {
-                    if ($paper->adminOption['acceptance_confirmation'] == 1) {
+                if ($paper['adminOption']) {
+                    if ($paper['adminOption']['acceptance_confirmation'] == 1) {
                         $adminAcceptance = "Accepted";
-                        switch ($paper->adminOption['presentation_preference']) {
+                        switch ($paper['adminOption']['presentation_preference']) {
                             case 1: $adminPresentationPref = 'Presentation Only'; break;
                             case 2: $adminPresentationPref = 'Publication Only'; break;
                             case 3: $adminPresentationPref = 'Presentation and Publication'; break;
                         }
-                    } elseif ($paper->adminOption['acceptance_confirmation'] == 2) {
+                    } elseif ($paper['adminOption']['acceptance_confirmation'] == 2) {
                         $adminAcceptance = "Rejected";
-                    } elseif ($paper->adminOption['acceptance_confirmation'] == 3) {
+                    } elseif ($paper['adminOption']['acceptance_confirmation'] == 3) {
                         $adminAcceptance = "Suggested Revision";
-                    } elseif ($paper->adminOption['acceptance_confirmation'] == 4) {
+                    } elseif ($paper['adminOption']['acceptance_confirmation'] == 4) {
                         $adminAcceptance = "Required Revision";
-                    } elseif ($paper->adminOption['acceptance_confirmation'] == 5) {
+                    } elseif ($paper['adminOption']['acceptance_confirmation'] == 5) {
                         $adminAcceptance = "Declined/Withdrawn for Participation";
                     }
                 }
 
                 $paperType = '';
-                switch ($paper->type_id){
+                switch ($paper['type_id']){
                     case 1: $paperType = 'Presentation Only'; break;
                     case 2: $paperType = 'Publication Only'; break;
                     case 3: $paperType = 'Presentation and Publication'; break;
                 }
 
-                $ijmcStatus = '';
-                switch ($paper->is_ijmc_interested){
-                    case 0: $ijmcStatus = 'I am NOT interested in submitting this paper to IJMC'; break;
-                    case 1: $ijmcStatus = 'I am interested in submitting this paper to IJMC'; break;
-                    case 2: $ijmcStatus = 'I have already submitted this paper to IJMC'; break;
-                }
-
                 // Add paper data to the export
                 $exportData[$index] = [
-                    strip_tags($paper->custom_id),
-                    strip_tags($paper->submission_type),
-                    strip_tags($paper->title),
-                    strip_tags($paper->summary),
-                    strip_tags($ijmcStatus),
-                    strip_tags($paper->tracks),
+                    strip_tags($paper['custom_id']),
+                    strip_tags($paper['submission_type']),
+                    strip_tags($paper['title']),
+                    strip_tags($paper['tracks']),
+                    strip_tags($paper['previous_presentation']),
+                    strip_tags($paper['basic_science_format']),
+                    strip_tags($paper['abstract_category']),
+                    strip_tags($paper['abstract_subcategories']),
+                    strip_tags($paper['hypothesis']),
+                    strip_tags($paper['study_design']),
+                    strip_tags($paper['introduction']),
+                    strip_tags($paper['methods']),
+                    strip_tags($paper['results']),
+                    strip_tags($paper['conclusions']),
+                    strip_tags($paper['min_follow_up_period']),
+                    strip_tags($paper['is_srs_funded']),
+                    strip_tags($paper['author_q_1']),
+                    strip_tags($paper['author_q_2']),
+                    strip_tags($paper['primary_investigator']),
+                    strip_tags($paper['grant_year']),
+                    strip_tags($paper['image_caption']),
+                    strip_tags($paper['fda_unapproved_uses']) == '1' ? 'I do not plan to discuss' : 'I plan to discuss',
+                    strip_tags($paper['fda_unapproved_uses']) == '2' ? $paper['fda_unapproved_explanation'] :  '',
+                    strip_tags($paper['fda_discuss_product_name']) == '1' ? 'I plan to discuss' : 'I do not plan to discuss',
+                    strip_tags($paper['fda_discuss_product_name']) == '1' ? $paper['fda_product_name_explanation'] : '',
+                    strip_tags($paper['is_fda_accepted']) ? 'Yes' : 'No',
                     $authorList,
                     $paperType,
-                    $paper->division->name,
                     $uploads,
                     $adminAcceptance .($adminPresentationPref ? " (" . $adminPresentationPref . ")":''),
-                    $paper->adminComment ? $paper->adminComment['comment'] : '',
-                    $paper->adminComment ? $paper->adminComment['comment'] : '',
-                    $paper->adminComment ? $paper->user_name. ' '. $paper->user_surname  : '',
-                    $paper->adminComment ? $paper->user_email : '',
+                    $paper['adminComment'] ? $paper['adminComment']['comment'] : '',
+                    $paper['adminComment'] ? $paper['adminComment']['comment'] : '',
+                    $paper['adminComment'] ? $paper['user_name']. ' '. $paper['user_surname']  : '',
+                    $paper['adminComment'] ? $paper['user_email'] : '',
                 ];
 
                 $talkScheduleData = [
@@ -131,30 +145,26 @@ class Reports extends AbstractController
                 $exportData[$index] = array_merge($exportData[$index], $talkScheduleData);
                 // Loop through additional presenting authors
                 for ($i = 0; $i < count($presentingAuthors); $i++) {
-//                    print_r($presentingAuthors);exit;
-                    $exportData[$index][] = isset($presentingAuthors[$i]) ? $presentingAuthors[$i]->user_name : '';
-                    $exportData[$index][] = isset($presentingAuthors[$i]) ? $presentingAuthors[$i]->user_middle : '';
-                    $exportData[$index][] = isset($presentingAuthors[$i]) ? $presentingAuthors[$i]->user_surname : '';
-                    $exportData[$index][] = isset($presentingAuthors[$i]) ? $presentingAuthors[$i]->details['deg'] : '';
-                    $exportData[$index][] = isset($presentingAuthors[$i]) ? $presentingAuthors[$i]->user_email : '';
-                    $exportData[$index][] = isset($presentingAuthors[$i]) ? $presentingAuthors[$i]->details['address'] : '';
-                    $exportData[$index][] = isset($presentingAuthors[$i]) ? $presentingAuthors[$i]->details['city'] : '';
-                    $exportData[$index][] = isset($presentingAuthors[$i]) ? $presentingAuthors[$i]->details['province'] : '';
-                    $exportData[$index][] = isset($presentingAuthors[$i]) ? $presentingAuthors[$i]->details['country'] : '';
-                    $exportData[$index][] = isset($presentingAuthors[$i]) ? $presentingAuthors[$i]->details['zipcode'] : '';
-                    $exportData[$index][] = isset($presentingAuthors[$i]) ? $presentingAuthors[$i]->details['institution'] : '';
-                    $exportData[$index][] = isset($presentingAuthors[$i]) ? $presentingAuthors[$i]->details['phone'] : '';
-                    $exportData[$index][] = isset($presentingAuthors[$i]) ? $presentingAuthors[$i]->acceptance ? $presentingAuthors[$i]->acceptance->author_bio : '' : '';
-                    $exportData[$index][] = isset($presentingAuthors[$i]) ? $presentingAuthors[$i]->acceptance ?  $presentingAuthors[$i]->acceptance->breakfast_attendance : '' : '';
-                    $exportData[$index][] = isset($presentingAuthors[$i]) ? $presentingAuthors[$i]->acceptance && $presentingAuthors[$i]->acceptance->presentation_file_path ?  base_url().$presentingAuthors[$i]->acceptance->presentation_file_path.'/'.$presentingAuthors[$i]->acceptance->presentation_saved_name : '' : '';
+                    $exportData[$index][] = $author['user_name'] ?? '';
+                    $exportData[$index][] = $author['user_middle'] ?? '';
+                    $exportData[$index][] = $author['user_surname'] ?? '';
+                    $exportData[$index][] = $author['details']['deg'] ?? '';
+                    $exportData[$index][] = $author['user_email'] ?? '';
+                    $exportData[$index][] = $author['details']['address'] ?? '';
+                    $exportData[$index][] = $author['details']['city'] ?? '';
+                    $exportData[$index][] = $author['details']['province'] ?? '';
+                    $exportData[$index][] = $author['details']['country'] ?? '';
+                    $exportData[$index][] = $author['details']['zipcode'] ?? '';
+                    $exportData[$index][] = $author['details']['institution'] ?? '';
+                    $exportData[$index][] = $author['details']['phone'] ?? '';
+                    $exportData[$index][] = $author['acceptance'] && $author['acceptance']['celebration_attendance'] ? 'Yes' : 'No';
+                    $exportData[$index][] = isset($author['acceptance']['presentation_file_path']) && isset($author['acceptance']['presentation_saved_name'])
+                        ? base_url() . $author['acceptance']['presentation_file_path'] . '/' . $author['acceptance']['presentation_saved_name']
+                        : '';
                     $exportData[$index][] = '';
                 }
-
-
-
             }
         }
-//        print_r($exportData);exit;
         // Output the export data into the sheet
         $sheet->fromArray($exportHeader, null, 'A1');
         $sheet->fromArray($exportData, null, 'A2');
@@ -213,11 +223,30 @@ class Reports extends AbstractController
             'Submission Status',
             'Title',
             'Summary',
-            'Submit to IJMC?',
-            'Track(s)',
+            'Previous Presentation',
+            'Basic Science Format',
+            'Abstract Category',
+            'Abstract Subcategories',
+            'Hypothesis',
+            'Study Design',
+            'Introduction',
+            'Methods',
+            'Results',
+            'Conclusions',
+            'Minimum Follow-up Period',
+            'SRS Funded',
+            '',
+            '',
+            'Primary Investigator',
+            'Grant Year',
+            'Image Caption',
+            'FDA Unapproved Uses',
+            'FDA Unapproved Explanation',
+            'FDA Discuss Product Name',
+            'FDA Product Name Explanation',
+            'FDA Accepted',
             'Authors List',
             'Type',
-            'Division',
             'Formal Upload',
             'Acceptance Status',
             'Comments to Submitter',
@@ -251,8 +280,7 @@ class Reports extends AbstractController
                'Presenting Author'.$i.' Postal Code',
                'Presenting Author'.$i.' Institution',
                'Presenting Author'.$i.' Work Phone',
-               'Presenting Author'.$i.' Biography',
-               'Presenting Author'.$i.' Breakfast Attendance',
+               'Presenting Author'.$i.' Innovation Celebration',
                'Presenting Author'.$i.' Acceptance Upload',
            ];
            $exportHeader[0] = array_merge($exportHeader[0], $additionalHeader);
