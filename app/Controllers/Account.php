@@ -157,8 +157,19 @@ class Account extends BaseController
         $user = $UsersModel->where('email', $post['email'])->first()??false;
 
 
-        if(isset($post['from']) && $user){
-            $userType = $post['from'];
+
+        $referrer = $this->request->getServer('HTTP_REFERER');
+        $segments = explode('/', rtrim($referrer, '/'));
+        $lastSegment = end($segments);
+
+        if($lastSegment == 'reviewer'){
+            $userType = 'regular_reviewer';
+        }else if($lastSegment == 'deputy_reviewer'){
+            $userType = 'deputy_reviewer';
+        }
+
+
+        if(isset($userType) && $user){
             if($userType == 'regular_reviewer' && $user['is_regular_reviewer'] !== '1'){
                 $this->response->setStatusCode(401, "Email not a regular reviewer");
                 return (json_encode(['status'=> 401, 'message'=>"Email not a regular reviewer", 'data'=>'']));
