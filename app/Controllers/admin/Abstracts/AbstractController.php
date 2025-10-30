@@ -1254,58 +1254,162 @@ class AbstractController extends BaseController
     }
 
     public function exportScores(){
-        $abstracts = (new PapersModel())->get();
-     
-        if(isset($abstracts) && !empty($abstracts)){
-            $abstract_array = array();
-            foreach($abstracts as $abstract){
-                $abstract->author  = (new PaperAuthorModel())->where('abstract_id', $abstract->id)->get();
-                    if(!empty($abstract->author)){
-                        $author_details = array();
-                        foreach($abstract->author as $author){
-                            
-                            // print_R($author['author_id']);exit;
-                            // print_r($author);exit;
-                            $author['details']= (new UserModel())->where('id', $author['author_id'])->first();
-                            $author_details[] = $author;
-                            // print_r($author);exit;
-                        }
+        $papersModel = new PapersModel();
+        $paperAuthorsModel = new PaperAuthorsModel();
+        $userModel = new UserModel();
+        $reviewerModel = new ReviewerModel();
+        $abstractReviewModel = new AbstractReviewModel();
 
-                        $abstract->author = $author_details;
-                    }
-                $abstract->lead_presenter  = (new PaperAuthorModel())->where(['abstract_id'=> $abstract->id, 'is_presenting_author'=> "Yes"])->get();
-                // print_r($abstract->lead_presenter[0]);exit;
-                 if( $abstract->lead_presenter  ){
-                        $abstract->lead_presenter= (new UserModel())->where('id', $abstract->lead_presenter[0]['author_id'])->get();
+        $abstracts = $papersModel->asArray()->findAll();
 
-                        // $author_array = 
-                    }
-                $abstract->reviewers = (new ReviewerModel())->where('abstract_id', $abstract->id)->get();
-                $abstract->reviewersTotalScore =  (new AbstractReviewModel())->select('total_score, reviewer_id')->where('abstract_id', $abstract->id)->get();
-                $abstract->overallVote =  (new AbstractReviewModel())->select('overall_vote, reviewer_id')->where('abstract_id', $abstract->id)->get();
-                $abstract->reviewComments =  (new AbstractReviewModel())->select('comments_for_committee, abstract_id, reviewer_id, total_score, with_conflict_of_interest, methodology_score, data_analysis_score, interpretation_score, 
-                                                                                    clarity_score, significance_score, originality_score, opinion_topic_selected, opinion_topic_selected2, is_case_report,
-                                                                                    is_requirements_meet, is_abstract_qualified')->where('abstract_id', $abstract->id)->get();
-                   $reviewComments =array();
-                if(isset($abstract->reviewComments)){
-                    // print_R($abstract->reviewComments);exit;
-                        foreach($abstract->reviewComments as $reviewComment){
-                            $reviewComment['userDetails'] = ((new UserModel())->select('name, surname')->where('id', $reviewComment['reviewer_id'])->get());
-                            $reviewComments[] = $reviewComment;
-                        }
-                    }
+        if(empty($abstracts)){
+            return;
+        }
 
-                $abstract->reviewComments = $reviewComments;
-                $abstract_array[]= $abstract;
+        // Get all paper IDs for batch queries
+        $paperIds = array_column($abstracts, 'id');
+
+        // Batch load all authors for all papers
+        $allAuthors = $paperAuthorsModel->whereIn('paper_id', $paperIds)->findAll();
+        $authorsByPaper = [];
+        $presentingAuthorsByPaper = [];
+
+        foreach($allAuthors as $author){
+            $paperId = $author['paper_id'];
+            if(!isset($authorsByPaper[$paperId])){
+                $authorsByPaper[$paperId] = [];
+            }
+            $authorsByPaper[$paperId][] = $author;
+
+            // Track presenting authors
+            if($author['is_presenting_author'] === "Yes"){
+                $presentingAuthorsByPaper[$paperId] = $author['author_id'];
             }
         }
-        //     echo '<pre>';
-        // print_r($abstract_array);exit;
-        // print_R($abstract_array);exit;
-      
 
-        $excelController = (new ExcelController());
-        $excelController->export('prism',$abstract_array);
+        // Get all unique author IDs and user IDs for batch user lookup
+        $allAuthorIds = array_unique(array_column($allAuthors, 'author_id'));
+        $allUsers = $userModel->whereIn('id', $allAuthorIds)->findAll();
+        $usersById = [];
+        foreach($allUsers as $user){
+            $usersById[$user['id']] = $user;
+        }
+
+        // Batch load all review data
+        $allReviews = $abstractReviewModel->whereIn('abstract_id', $paperIds)->findAll();
+        $reviewsByPaper = [];
+        foreach($allReviews as $review){
+            $paperId = $review['abstract_id'];
+            if(!isset($reviewsByPaper[$paperId])){
+                $reviewsByPaper[$paperId] = [];
+            }
+            $reviewsByPaper[$paperId][] = $review;
+        }
+
+
+        // Batch load reviewers
+        $allReviewers = $reviewerModel->whereIn('paper_id', $paperIds)->findAll();
+
+
+
+        $reviewersByPaper = [];
+        foreach($allReviewers as $reviewer){
+            $paperId = $reviewer['paper_id'];
+            if(!isset($reviewersByPaper[$paperId])){
+                $reviewersByPaper[$paperId] = [];
+            }
+
+            $reviewersByPaper[$paperId][] = $reviewer;
+        }
+
+        // Build the final array
+        $abstract_array = [];
+        foreach($abstracts as $abstract){
+            $paperId = $abstract['id'];
+
+            // Process authors
+            if(isset($authorsByPaper[$paperId])){
+                $author_details = [];
+                foreach($authorsByPaper[$paperId] as $author){
+                    if(isset($usersById[$author['author_id']])){
+                        $author['details'] = $usersById[$author['author_id']];
+                        $author_details[] = $author;
+                    }
+                }
+                $abstract['author'] = $author_details;
+            } else {
+                $abstract['author'] = [];
+            }
+
+            // Process lead presenter
+            $abstract['lead_presenter'] = [];
+            if(isset($presentingAuthorsByPaper[$paperId]) && isset($usersById[$presentingAuthorsByPaper[$paperId]])){
+                $abstract['lead_presenter'] = $usersById[$presentingAuthorsByPaper[$paperId]];
+            }
+
+            // Process reviewers and review data
+            $abstract['reviewers'] = $reviewersByPaper[$paperId] ?? [];
+            $abstract['reviewComments'] = [];
+
+            if(isset($reviewsByPaper[$paperId])){
+                $totalScores = [];
+                $overallVotes = [];
+                $reviewComments = [];
+                $reviewScores = [];
+
+                foreach($reviewsByPaper[$paperId] as $review){
+                    $reviewerId = $review['reviewer_id'];
+
+                    $totalScores[] = [
+                        'total_score' => $review['total_score'],
+                        'reviewer_id' => $reviewerId
+                    ];
+
+                    $overallVotes[] = [
+                        'overall_vote' => $review['overall_vote'] ?? '', // Uncommented and fixed
+                        'reviewer_id' => $reviewerId
+                    ];
+
+                    $reviewScores[] = [
+                        'userDetails' => isset($usersById[$reviewerId]) ? [
+                            'name' => $usersById[$reviewerId]['name'],
+                            'surname' => $usersById[$reviewerId]['surname']
+                        ] : null,
+                        'reviewer_id' => $reviewerId,
+                        'review_question_1' => $review['review_question_1'] ?? '',
+                        'review_question_2' => $review['review_question_2'] ?? '',
+                        'review_question_3' => $review['review_question_3'] ?? '',
+                        'reviewer_comment' => $review['reviewer_comment'] ?? '',
+                        'total_score' => $review['total_score'] ?? '' // Added total_score here too
+                    ];
+
+                    if(!empty($review['reviewer_comment'])){
+                        $comment = [
+                            'reviewer_comment' => $review['reviewer_comment'],
+                            'total_score' => $review['total_score'] ?? '', // Added total_score to comments
+                        ];
+                        $reviewComments[] = $comment;
+                    }
+                }
+
+                $abstract['reviewersTotalScore'] = $totalScores;
+                $abstract['overallVote'] = $overallVotes;
+                $abstract['reviewComments'] = $reviewComments;
+                $abstract['reviewScores'] = $reviewScores;
+            } else {
+                $abstract['reviewersTotalScore'] = [];
+                $abstract['overallVote'] = [];
+                $abstract['reviewComments'] = [];
+                $abstract['reviewScores'] = [];
+            }
+
+            $abstract_array[] = $abstract;
+        }
+
+
+//        print_r($abstract_array);exit;
+        $excelController = new ExcelController();
+        $excelController->export($abstract_array);
     }
     
     public function abstract_acceptance_view($abstract_id){
