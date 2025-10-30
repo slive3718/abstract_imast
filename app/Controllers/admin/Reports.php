@@ -35,6 +35,7 @@ class Reports extends AbstractController
         ];
 
         $papers = $this->getAllPapersArray('paper');
+//        print_r($papers);exit;
         $exportHeader = $this->exportHeader();
         if (!empty($papers)) {
             foreach ($papers as $index => $paper) {
@@ -75,9 +76,10 @@ class Reports extends AbstractController
                     if ($paper['adminOption']['acceptance_confirmation'] == 1) {
                         $adminAcceptance = "Accepted";
                         switch ($paper['adminOption']['presentation_preference']) {
-                            case 1: $adminPresentationPref = 'Presentation Only'; break;
-                            case 2: $adminPresentationPref = 'Publication Only'; break;
-                            case 3: $adminPresentationPref = 'Presentation and Publication'; break;
+                            case 1: $adminPresentationPref = 'Podium Presentation'; break;
+                            case 2: $adminPresentationPref = 'E-Point Presentation'; break;
+                            case 3: $adminPresentationPref = 'Podium or E-Point Presentation'; break;
+                            case 4: $adminPresentationPref = 'Invited Faculty'; break;
                         }
                     } elseif ($paper['adminOption']['acceptance_confirmation'] == 2) {
                         $adminAcceptance = "Rejected";
@@ -100,6 +102,7 @@ class Reports extends AbstractController
                 // Add paper data to the export
                 $exportData[$index] = [
                     strip_tags($paper['custom_id']),
+                    strip_tags($paper['assigned_id']),
                     strip_tags($paper['submission_type']),
                     strip_tags($paper['title']),
                     strip_tags($paper['tracks']),
@@ -157,7 +160,7 @@ class Reports extends AbstractController
                     $exportData[$index][] = $author['details']['zipcode'] ?? '';
                     $exportData[$index][] = $author['details']['institution'] ?? '';
                     $exportData[$index][] = $author['details']['phone'] ?? '';
-                    $exportData[$index][] = $author['acceptance'] && $author['acceptance']['celebration_attendance'] ? 'Yes' : 'No';
+                    $exportData[$index][] = $author['acceptance'] ? $author['acceptance']['celebration_attendance'] ? 'Yes' : 'No' : 'Incomplete'; // this is a review.
                     $exportData[$index][] = isset($author['acceptance']['presentation_file_path']) && isset($author['acceptance']['presentation_saved_name'])
                         ? base_url() . $author['acceptance']['presentation_file_path'] . '/' . $author['acceptance']['presentation_saved_name']
                         : '';
@@ -201,7 +204,7 @@ class Reports extends AbstractController
         }
         ob_end_clean();
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment;filename="AFS_All_Data_Export_' . date('Y-m-d') . '.xlsx"');
+        header('Content-Disposition: attachment;filename="IMAST_All_Data_Export_' . date('Y-m-d') . '.xlsx"');
         header('Cache-Control: max-age=0');
 
         $xlsxWriter = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($excel, 'Xlsx');
@@ -220,6 +223,7 @@ class Reports extends AbstractController
     function exportHeader(){
         $exportHeader =  [[
             'AbstractID',
+            'Assigned ID',
             'Submission Status',
             'Title',
             'Summary',
@@ -248,7 +252,7 @@ class Reports extends AbstractController
             'Authors List',
             'Type',
             'Formal Upload',
-            'Acceptance Status',
+            'Accepted Session type',
             'Comments to Submitter',
             'Admin comments',
             'Submitter Name',
