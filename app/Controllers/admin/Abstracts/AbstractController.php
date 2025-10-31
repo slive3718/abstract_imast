@@ -1272,7 +1272,7 @@ class AbstractController extends BaseController
         // Batch load all authors for all papers
         $allAuthors = $paperAuthorsModel->getAuthors()
             ->whereIn('paper_id', $paperIds)
-            ->where('rpa.id', null)
+            ->where('rpa.id', NULL)
             ->findAll();
         $authorsByPaper = [];
         $presentingAuthorsByPaper = [];

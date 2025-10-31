@@ -35,6 +35,7 @@ class Reports extends AbstractController
         ];
 
         $papers = $this->getAllPapersArray('paper');
+//        print_R($papers);exit;
 //        print_r($papers);exit;
         $exportHeader = $this->exportHeader();
         if (!empty($papers)) {
@@ -92,12 +93,6 @@ class Reports extends AbstractController
                     }
                 }
 
-                $paperType = '';
-                switch ($paper['type_id']){
-                    case 1: $paperType = 'Presentation Only'; break;
-                    case 2: $paperType = 'Publication Only'; break;
-                    case 3: $paperType = 'Presentation and Publication'; break;
-                }
 
                 // Add paper data to the export
                 $exportData[$index] = [
@@ -108,7 +103,7 @@ class Reports extends AbstractController
                     strip_tags($paper['tracks']),
                     strip_tags($paper['previous_presentation']),
                     strip_tags($paper['basic_science_format']),
-                    strip_tags($paper['abstract_category']),
+                    strip_tags($paper['category']['name']),
                     strip_tags($paper['abstract_subcategories']),
                     strip_tags($paper['hypothesis']),
                     strip_tags($paper['study_design']),
@@ -129,7 +124,7 @@ class Reports extends AbstractController
                     strip_tags($paper['fda_discuss_product_name']) == '1' ? $paper['fda_product_name_explanation'] : '',
                     strip_tags($paper['is_fda_accepted']) ? 'Yes' : 'No',
                     $authorList,
-                    $paperType,
+                    $paper['type']['name'],
                     $uploads,
                     $adminAcceptance .($adminPresentationPref ? " (" . $adminPresentationPref . ")":''),
                     $paper['adminComment'] ? $paper['adminComment']['comment'] : '',
