@@ -103,11 +103,12 @@ class ExcelController extends BaseController
                 $currentRow['C'] = implode("\n", $subcategoryNames);
             }
 
+
             // Lead presenter - optimized
-            if (isset($abstract['lead_presenter']) && is_object($abstract['lead_presenter'])) {
-                $leadPresenterData = $abstract['lead_presenter']->getResultArray();
-                if (!empty($leadPresenterData) && isset($leadPresenterData[0]['name'])) {
-                    $currentRow['F'] = trim($leadPresenterData[0]['name'] . ' ' . $leadPresenterData[0]['surname']);
+            if (isset($abstract['lead_presenter']) && is_array($abstract['lead_presenter'])) {
+                $leadPresenterData = $abstract['lead_presenter'];
+                if (!empty($leadPresenterData) && isset($leadPresenterData['name'])) {
+                    $currentRow['F'] = trim($leadPresenterData['name'] . ' ' . $leadPresenterData['surname']);
                 }
             }
 
