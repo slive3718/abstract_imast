@@ -142,7 +142,6 @@ class ExcelController extends BaseController
                     rsort($validScores);
                     array_shift($validScores);
                     array_pop($validScores);
-                    print_r($validScores);
                     $scoreSum = array_sum($validScores);
                     $olympicScore = number_format($scoreSum / count($validScores), 2);
                 }
