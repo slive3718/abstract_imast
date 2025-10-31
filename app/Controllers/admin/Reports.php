@@ -104,7 +104,7 @@ class Reports extends AbstractController
                     strip_tags($paper['previous_presentation']),
                     strip_tags($paper['basic_science_format']),
                     strip_tags($paper['category']['name']),
-                    strip_tags($paper['abstract_subcategories']),
+                    strip_tags($paper['subCategories']),
                     strip_tags($paper['hypothesis']),
                     strip_tags($paper['study_design']),
                     strip_tags($paper['introduction']),

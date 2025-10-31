@@ -6,6 +6,7 @@ use App\Controllers\BaseController;
 use App\Controllers\User;
 use App\Libraries\PhpMail;
 use App\Models\AbstractCategoriesModel;
+use App\Models\AbstractSubCategoriesModel;
 use App\Models\AdminAbstractCommentModel;
 use App\Models\AdminAcceptanceModel;
 use App\Models\AdminIndividualPanelAcceptanceModel;
@@ -744,6 +745,7 @@ class AbstractController extends BaseController
             $AdminAbstractCommentModel = new AdminAbstractCommentModel();
             $PaperUploadsModel = new PaperUploadsModel();
             $AbstractCategoriesModel = new AbstractCategoriesModel();
+            $AbstractSubCategoriesModel = new AbstractSubCategoriesModel();
             $AbstractReviewModel = new AbstractReviewModel();
 
             // Fetch all papers with joined user data
@@ -756,7 +758,7 @@ class AbstractController extends BaseController
             $paperIds = array_column($papers, 'id');
 
             // Fetch all paper types once
-            $paperTypes = $PaperTypesModel->findAll();
+            $paperTypes = $PaperTypesModel->asArray()->findAll();
             $paperTypesMap = array_column($paperTypes, null, 'id'); // Map by ID for quick lookup
 
             // Batch fetch authors for all papers
@@ -838,8 +840,15 @@ class AbstractController extends BaseController
             $categories = $AbstractCategoriesModel->whereIn('id', array_column($papers, 'abstract_category'))->findAll();
             $categoriesMap = array_column($categories, null, 'id');
 
-            // Build the final paper array
             $paper_array = [];
+
+            $allSubCategories = [];
+
+            $subCategories = $AbstractSubCategoriesModel->findAll();
+            foreach ($subCategories as $subCat) {
+                $allSubCategories[$subCat['id']] = $subCat['name'] ?? '';
+            }
+
             foreach ($papers as $paper) {
                 // Initialize arrays for authors and reviewers
                 $user_array = [];
@@ -855,6 +864,16 @@ class AbstractController extends BaseController
                         }
                     }
                 }
+
+                $subcategories = $this->parseSubcategories($paper['abstract_subcategories']);
+                $subcategoryNames = [];
+
+                foreach ($subcategories as $subId) {
+                    if (isset($allSubCategories[$subId])) {
+                        $subcategoryNames[] = $allSubCategories[$subId];
+                    }
+                }
+
                 $paper['authors'] = $user_array;
 
                 // Assign other data
@@ -863,6 +882,7 @@ class AbstractController extends BaseController
                 $paper['adminComment'] = $adminCommentsMap[$paper['id']] ?? null;
                 $paper['uploads'] = $uploadsMap[$paper['id']] ?? [];
                 $paper['category'] = $categoriesMap[$paper['abstract_category']] ?? null;
+                $paper['subCategories'] = $subcategoryNames ? implode(',', $subcategoryNames) : null;
                 $paper['type'] = $paperTypesMap[$paper['type_id']] ?? [];
                 $paper['assignedReviewers'] = $assignedReviewersMap[$paper['id']] ?? null;
                 $paper['types'] = $paperTypes; // All paper types
@@ -877,7 +897,22 @@ class AbstractController extends BaseController
             return [];
         }
     }
-    
+
+    private function parseSubcategories($subcategoriesData)
+    {
+        if (is_string($subcategoriesData)) {
+            $decoded = json_decode($subcategoriesData, true);
+            if (json_last_error() === JSON_ERROR_NONE && is_array($decoded)) {
+                return $decoded;
+            }
+            return [];
+        } elseif (is_array($subcategoriesData)) {
+            return $subcategoriesData;
+        }
+        return [];
+    }
+
+
     public function getAllPanelsArray($submission_type){
         $PapersModel = new PapersModel();
         $papers = (object) $PapersModel->GetJoinedUser($submission_type)->getResult();
