@@ -135,7 +135,7 @@ class ExcelController extends BaseController
 
                 if (!empty($validScores)) {
                     $sum = array_sum($validScores);
-                    $averageTotalScores = number_format($sum / count($validScores), 2);
+                    $averageTotalScores = number_format($sum / count($abstract['validScoresCount']), 2);
                 }
 
                 if(count($validScores) > 3){
@@ -143,7 +143,7 @@ class ExcelController extends BaseController
                     array_shift($validScores);
                     array_pop($validScores);
                     $scoreSum = array_sum($validScores);
-                    $olympicScore = number_format($scoreSum / count($validScores), 2);
+                    $olympicScore = number_format($scoreSum / count($abstract['validScoresCount']), 2);
                 }
 
 
