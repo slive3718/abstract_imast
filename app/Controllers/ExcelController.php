@@ -72,6 +72,7 @@ class ExcelController extends BaseController
             $authorDetails = '';
             $sum = 0;
             $averageTotalScores = 0;
+            $olympicScore = '';
             $comments = []; // Initialize comments array for each abstract
 
             // Basic abstract data - build row array
@@ -136,11 +137,22 @@ class ExcelController extends BaseController
                     $averageTotalScores = number_format($sum / count($validScores), 2);
                 }
 
+                if(count($validScores) > 3){
+                    rsort($validScores);
+                    array_shift($validScores);
+                    array_pop($validScores);
+                    print_r($validScores);
+                    $scoreSum = array_sum($validScores);
+                    $olympicScore = number_format($scoreSum / count($validScores), 2);
+                }
+
+
+
                 $currentRow['H'] = $sum;
                 $currentRow['I'] = $averageTotalScores;
+                $currentRow['J'] = $olympicScore;
             }
 
-            // Review Comments and Scores
             if (isset($abstract['reviewComments']) && is_array($abstract['reviewComments'])) {
                 $comments = [];
                 $reviewField = [];
@@ -178,11 +190,12 @@ class ExcelController extends BaseController
                 }
             }
 
+
             $currentRow['K'] = implode("\n\n", $reviewField);
             $rowData[$row] = $currentRow;
             $row++;
         }
-
+//        exit;
         // Batch write all data to spreadsheet
         foreach ($rowData as $rowNum => $cellData) {
             foreach ($cellData as $col => $value) {
