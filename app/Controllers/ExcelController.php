@@ -172,9 +172,9 @@ class ExcelController extends BaseController
                     foreach ($abstract['reviewScores'] as $index => $reviewScores) {
                         // Extract reviewer name from different possible data structures
                         if (isset($reviewScores['userDetails']['name'])) {
-                            $reviewerName = "Reviewer: " . $reviewScores['userDetails']['name'] . ' ' . $reviewScores['userDetails']['surname'] . "\n";
+                            $reviewerName = "Reviewer: ".$index. "\n";
                         } elseif (isset($reviewScores['userDetails'][0]['name'])) {
-                            $reviewerName = "Reviewer: " . $reviewScores['userDetails'][0]['name'] . ' ' . $reviewScores['userDetails'][0]['surname'] . "\n";
+                            $reviewerName = "Reviewer: ".$index. "\n";
                         } else {
                             $reviewerName = "Reviewer: Unknown\n";
                         }
