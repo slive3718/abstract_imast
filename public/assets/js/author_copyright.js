@@ -627,7 +627,7 @@ $(function(){
                     title: 'Please Wait !',
                     html: 'Loading...',// add html attribute if you want or remove
                     allowOutsideClick: false,
-                    didOpen: () => {
+                    onOpen: () => {
                         Swal.showLoading()
                     }
                 });
@@ -636,27 +636,14 @@ $(function(){
                 // console.log((response.data == null)?'null':'not null');return false;
                 if(response.status === 200){
                     swal.close();
-                    if(response.data !== null){
-                        Swal.fire(
-                            'Updated',
-                            response.message,
-                            'success'
-                        )
-                    }
-                    Swal.fire(
-                        'Updated',
-                        'Author added successfully',
-                        'success'
-                    )
                     $('#authorResultModal').modal('hide');
                     $('#searchAuthorModal').modal('hide');
                 }else{
-                    swal.close()
-                   /* Swal.fire(
+                    Swal.fire(
                         'Please note',
-                        response.message,
+                        response.reason,
                         'warning'
-                    )*/
+                    )
                 }
                 getPaperAuthors(paper_id);
             }

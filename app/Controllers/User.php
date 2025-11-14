@@ -1816,27 +1816,53 @@ class User extends BaseController
 
         $post = $this->request->getPost();
 
-
         $RemovedPaperAuthor = (new RemovedPaperAuthorModel());
         $removedAuthor = $RemovedPaperAuthor
-            ->join('paper_authors', 'removed_paper_authors.paper_author_id = paper_authors.id')
-            ->where('paper_id', $post['paper_id'])
+            ->join('paper_authors pa', 'removed_paper_authors.paper_author_id = pa.id', 'left')
+            ->where('pa.paper_id', $post['paper_id'])
             ->where('paper_author_id', $post['author_id'])
-            ->where('author_type', isset($post['author_type']) ?: 'author')
+            ->where('author_type', 'author')
             ->first();
 
-        if($removedAuthor) {
-            try {
+        try {
+            if($removedAuthor) {
                 $removeResult = $RemovedPaperAuthor->where('paper_author_id', $removedAuthor['id'])->delete();
-
                 if ($removeResult) {
-                    return $this->response->setJson(['status' => 200, 'message' => 'success', 'data' => '']);
+                    return $this->response->setJSON(['status' => 200, 'message' => 'success', 'data' => '']);
                 }
-            } catch (\Exception $e) {
-                return $this->response->setJson(['status' => 500, 'message' => 'error: ' . $e->getMessage(), 'data' => '']);
+            }else{
+                $PaperAuthorsModel = (new PaperAuthorsModel());
+                $recentAuthorInfo = $PaperAuthorsModel
+                    ->find($post['author_id']);
+
+                if(!$recentAuthorInfo)
+                    return $this->response->setJSON(['status' => 500, 'message' => 'error', 'data' => 'Author not found']);
+
+                if(!$this->checkAbstractAuthor($recentAuthorInfo['author_id'], $post['paper_id'], 'author')){
+                    $result = $PaperAuthorsModel->insert(
+                        [
+                            'paper_id' => $post['paper_id'],
+                            'author_id' => $recentAuthorInfo['author_id'],
+                            'author_type' => 'author',
+                            'is_correspondent' => 'No',
+                            'is_presenting_author' => 'No',
+                            'created_at' => date('Y-m-d H:i:s'),
+                            'update_date_time' => date('Y-m-d H:i:s')
+                        ]
+                    );
+                }else{
+                    return $this->response->setJSON(['status' => 200, 'message' => 'success', 'data' => '']);
+                }
+
+                if($result){
+                    return $this->response->setJSON(['status' => 200, 'message' => 'success', 'data' => '']);
+                }
+                return $this->response->setJSON(['status' => 500, 'message' => 'error', 'data' => '']);
             }
+        } catch (\Exception $e) {
+            return $this->response->setJSON(['status' => 500, 'message' => 'error: ' . $e->getMessage(), 'data' => '']);
         }
-        return $this->response->setJson(['status' => 500, 'message' => 'You cannot add a duplicate author to the author list.', 'data' => '']);
+        return $this->response->setJSON(['status' => 500, 'message' => 'error', 'data' => '']);
     }
 //
 //    public function cv_upload(){
