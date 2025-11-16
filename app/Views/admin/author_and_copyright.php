@@ -113,7 +113,7 @@
 <?= view('event/common/searchAuthorModal'); ?>
 <?= view('event/common/addAuthorModal'); ?>
 
-    <script  type="text/javascript" src="<?=base_url('assets/js/addressAutoComplete.js')?>"></script>
+    <script  type="text/javascript" src="<?=base_url('assets/js/addressAutoComplete.js?v=2')?>"></script>
 <script>
     let current_user_id = "<?=session('user_id')?>"
 </script>
