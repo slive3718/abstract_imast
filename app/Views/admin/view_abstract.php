@@ -447,37 +447,36 @@
             </div>
         </div>
 
-        <div class="card">
-            <div class="card-header" id="deputy-acceptance-header" data-bs-toggle="collapse" data-bs-target="#deputy-acceptance-body" aria-expanded="true" aria-controls="deputy-acceptance-body">
-                <div class="card-title fw-bold">
-                    Deputy Acceptance Information
-                    <span class="more-less fas fa-minus float-end"></span> <!-- Icon placeholder -->
-                </div>
-            </div>
-            <div class="card-body">
-                <div id="deputy-acceptance-body" class="collapse show" aria-labelledby="deputy-acceptance-header" data-bs-parent=".card">
-                    <table id="acceptanceTable" class="table table-bordered" style="border:2px solid black;">
-                        <thead>
-                        <!-- Table header content -->
-                        </thead>
-                        <tbody>
-                        <tr>
-                            <td>Cooper Programm Chair Comments:</td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>Acceptance Status:</td>
-                            <td></td>
-                        </tr>
-                        <tr>
-                            <td>Recommended for Publications:</td>
-                            <td></td>
-                        </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+<!--        <div class="card">-->
+<!--            <div class="card-header" id="deputy-acceptance-header" data-bs-toggle="collapse" data-bs-target="#deputy-acceptance-body" aria-expanded="true" aria-controls="deputy-acceptance-body">-->
+<!--                <div class="card-title fw-bold">-->
+<!--                    Deputy Acceptance Information-->
+<!--                    <span class="more-less fas fa-minus float-end"></span> <!-- Icon placeholder -->-->
+<!--                </div>-->
+<!--            </div>-->
+<!--            <div class="card-body">-->
+<!--                <div id="deputy-acceptance-body" class="collapse show" aria-labelledby="deputy-acceptance-header" data-bs-parent=".card">-->
+<!--                    <table id="acceptanceTable" class="table table-bordered" style="border:2px solid black;">-->
+<!--                        <thead>-->
+<!--                        </thead>-->
+<!--                        <tbody>-->
+<!--                        <tr>-->
+<!--                            <td>Cooper Programm Chair Comments:</td>-->
+<!--                            <td></td>-->
+<!--                        </tr>-->
+<!--                        <tr>-->
+<!--                            <td>Acceptance Status:</td>-->
+<!--                            <td></td>-->
+<!--                        </tr>-->
+<!--                        <tr>-->
+<!--                            <td>Recommended for Publications:</td>-->
+<!--                            <td></td>-->
+<!--                        </tr>-->
+<!--                        </tbody>-->
+<!--                    </table>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </div>-->
 
         <div class="card">
             <div class="card-header" id="author-acceptance-header" data-bs-toggle="collapse" data-bs-target="#author-acceptance-body" aria-expanded="true" aria-controls="author-acceptance-body">
