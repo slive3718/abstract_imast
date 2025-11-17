@@ -213,7 +213,7 @@
 
         </div>
 
-        <div class="card">
+        <!--<div class="card">
             <div class="card-header" id="review-info-header">
                 <span class="collapse-toggle link-primary btn border-0 text-dark fw-bolder"  data-bs-toggle="collapse" data-bs-target="#review-info-body" aria-expanded="true" aria-controls="review-info-body">
                     Review Information
@@ -236,67 +236,61 @@
                         </tr>
                         </thead>
                         <tbody>
-                        <?php if(!empty($review_details)):
-                            foreach ($review_details->reviews as $index => $review):?>
+                        <?php /*if(!empty($review_details)):
+                            foreach ($review_details->reviews as $index => $review):*/?>
                                 <tr class="bg-primary bg-opacity-10">
                                     <td></td>
-                                    <td><?= $review['review_question_1'] ?? '' ?></td>
-                                    <td><?= $review['review_question_2'] ?? '' ?></td>
-                                    <td><?= $review['review_question_3'] ?? ''?></td>
-                                    <td><?= $review['total_score'] ?></td>
+                                    <td><?php /*= $review['review_question_1'] ?? '' */?></td>
+                                    <td><?php /*= $review['review_question_2'] ?? '' */?></td>
+                                    <td><?php /*= $review['review_question_3'] ?? ''*/?></td>
+                                    <td><?php /*= $review['total_score'] */?></td>
                                 </tr>
-                                <tr class="<?=!empty($review['reviewer_comment']) ? '':'d-none' ?>">
+                                <tr class="<?php /*=!empty($review['reviewer_comment']) ? '':'d-none' */?>">
                                     <td>Reviewer Comment :</td>
                                     <td colspan="16">
-                                        <textarea class="w-100 border-0" ><?=$review['reviewer_comment']?></textarea>
+                                        <textarea class="w-100 border-0" ><?php /*=$review['reviewer_comment']*/?></textarea>
                                     </td>
                                 </tr>
-                                <tr class="<?=!empty($review['submitter_comment_on_upload']) ? '':'d-none' ?>">
+                                <tr class="<?php /*=!empty($review['submitter_comment_on_upload']) ? '':'d-none' */?>">
                                     <td>Submitter Comment :</td>
                                     <td colspan="16">
-                                        <textarea class="w-100 border-0" ><?=$review['submitter_comment_on_upload']?></textarea>
+                                        <textarea class="w-100 border-0" ><?php /*=$review['submitter_comment_on_upload']*/?></textarea>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td>Uploaded Files:</td>
                                     <td colspan="12">
-                                        <?php if(isset($review['paper_uploads'])):
-                                            foreach ($review['paper_uploads'] as $uploads): ?>
-                                                <a href="<?=base_url($uploads['file_path'].$uploads['file_name'])?>"><?=$uploads['file_preview_name']?></a><br>
-                                            <?php endforeach;
+                                        <?php /*if(isset($review['paper_uploads'])):
+                                            foreach ($review['paper_uploads'] as $uploads): */?>
+                                                <a href="<?php /*=base_url($uploads['file_path'].$uploads['file_name'])*/?>"><?php /*=$uploads['file_preview_name']*/?></a><br>
+                                            <?php /*endforeach;
                                         endif
-                                        ?>
+                                        */?>
                                     </td>
                                 </tr>
                                 <tr>
                                     <td>Submitter Deadline:</td>
                                     <td colspan="12">
                                         <div class="input-group" style="width: 700px;">
-                                            <?php // Convert date format from MM/DD/YYYY to YYYY-MM-DD
+                                            <?php /*// Convert date format from MM/DD/YYYY to YYYY-MM-DD
                                             $submitter_deadline = '';
                                             if (!empty($review['submitter_deadline'])) {
                                                 $submitter_deadline = date("Y-m-d", strtotime($review['submitter_deadline']));
                                             }
-                                            ?>
-                                            <input type="date" class="form-control" id="submitterDeadline_<?=$review['id']?>" value="<?=$submitter_deadline?>">
-<!--                                            <div class="input-group-append">-->
-<!--                                                <button class="btn btn-info saveDeadlineBtn px-4 text-white border-dark" review_id="--><?php //=$review['id']?><!--">Save Deadline</button>-->
-<!--                                            </div>-->
-<!---->
-<!--                                            <span class="float-end emailToSubmitterBtn"><a class="ms-5 btn btn-success btn-sm" href=""  review_id="--><?php //=$review['id']?><!--" >Email to Submitter Now</a></span>-->
+                                            */?>
+                                            <input type="date" class="form-control" id="submitterDeadline_<?php /*=$review['id']*/?>" value="<?php /*=$submitter_deadline*/?>">
                                         </div>
                                         <small class="text-muted"><i>This date will be available to the submitter.</i></small>
-
                                     </td>
                                 </tr>
                                 <tr><td colspan="13" class="bg-secondary bg-opacity-50"></td></tr>
-                            <?php endforeach; endif ?>
+                            <?php /*endforeach; endif */?>
                         </tbody>
                     </table>
                 </div>
             </div>
-        </div>
-        <div class="card">
+        </div>-->
+        <!--<div class="card">
             <div class="card-header" id="program-chair-info-header"  data-bs-toggle="collapse" data-bs-target="#program-chair-info-body" aria-expanded="true" aria-controls="program-chair-info-body">
                 <div class="card-title fw-bolder">
                     Program Chair Information
@@ -306,7 +300,6 @@
                 <div id="program-chair-info-body" class="collapse show" aria-labelledby="program-chair-info-header" data-bs-parent=".card">
                     <table id="abstractTable" class="table table-bordered" style="border:2px solid black;">
                         <thead>
-                        <!-- Table headings -->
                         </thead>
                         <tbody>
                         <tr>
@@ -325,7 +318,7 @@
                     </table>
                 </div>
             </div>
-        </div>
+        </div>-->
 
 
         <div class="card">
