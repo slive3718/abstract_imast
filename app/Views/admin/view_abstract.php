@@ -451,7 +451,7 @@
 <!--            <div class="card-header" id="deputy-acceptance-header" data-bs-toggle="collapse" data-bs-target="#deputy-acceptance-body" aria-expanded="true" aria-controls="deputy-acceptance-body">-->
 <!--                <div class="card-title fw-bold">-->
 <!--                    Deputy Acceptance Information-->
-<!--                    <span class="more-less fas fa-minus float-end"></span> <!-- Icon placeholder -->-->
+<!--                    <span class="more-less fas fa-minus float-end"></span>
 <!--                </div>-->
 <!--            </div>-->
 <!--            <div class="card-body">-->
