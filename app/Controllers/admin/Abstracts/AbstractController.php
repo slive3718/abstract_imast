@@ -259,7 +259,7 @@ class AbstractController extends BaseController
         $papers = $PapersModel
             ->select('papers.*, paper_type.name as paper_type_name')
             ->join('paper_type', 'papers.type_id = paper_type.type', 'left')
-            ->where('papers.id',$paper_id)->first();
+            ->where('papers.id',$paper_id)->asArray()->first();
 
         $authorInfo = $PaperAuthorsModel
             ->join($UsersModel->db->database.'.users u', 'paper_authors.author_id = u.id')
@@ -271,7 +271,7 @@ class AbstractController extends BaseController
             ->orderBy('author_order', 'asc')
             ->findAll();
 //        exit;
-        $userInfo = $UsersModel->find($papers->user_id);
+        $userInfo = $UsersModel->find($papers['user_id']);
         $paper_uploads = $PaperUploadsModel->where('paper_id', $paper_id)->orderBy('id', 'desc')->findAll();
         $paper_reviewer_uploads = (new ReviewerPaperUploadsModel())->where('paper_id', $paper_id)->findAll();
 
@@ -373,7 +373,7 @@ class AbstractController extends BaseController
             ->orderBy('author_order', 'asc')
             ->findAll();
 
-        $userInfo = $UsersModel->find($papers->user_id);
+        $userInfo = $UsersModel->find($papers['user_id']);
         $paper_uploads = $PaperUploadsModel->where('paper_id', $paper_id)->findAll();
         $paper_reviewer_uploads = (new ReviewerPaperUploadsModel())->where('paper_id', $paper_id)->findAll();
 
@@ -481,7 +481,7 @@ class AbstractController extends BaseController
             ->findAll();
 
 
-        $userInfo = $UsersModel->find($papers->user_id);
+        $userInfo = $UsersModel->find($papers['user_id']);
         $paper_uploads = $PaperUploadsModel->where('paper_id', $paper_id)->findAll();
         $paper_reviewer_uploads = (new ReviewerPaperUploadsModel())->where('paper_id', $paper_id)->findAll();
 
@@ -1394,36 +1394,18 @@ class AbstractController extends BaseController
                 $overallVotes = [];
                 $reviewComments = [];
                 $reviewScores = [];
-                $validScores = []; // For calculating average excluding COI/n/a
 
                 foreach($reviewsByPaper[$paperId] as $review){
                     $reviewerId = $review['reviewer_id'];
 
-                    // Check if review has COI or n/a in any question
-                    $hasCOIOrNA = false;
-                    $reviewQuestions = [
-                        $review['review_question_1'] ?? '',
-                        $review['review_question_2'] ?? '',
-                        $review['review_question_3'] ?? ''
-                    ];
-
-                    foreach($reviewQuestions as $questionValue) {
-                        if ($questionValue === 'COI' || $questionValue === 'n/a') {
-                            $hasCOIOrNA = true;
-                            break;
-                        }
-                    }
-
                     $totalScores[] = [
                         'total_score' => $review['total_score'],
-                        'reviewer_id' => $reviewerId,
-                        'has_coi_or_na' => $hasCOIOrNA // Flag for frontend if needed
+                        'reviewer_id' => $reviewerId
                     ];
 
                     $overallVotes[] = [
-                        'overall_vote' => $review['overall_vote'] ?? '',
-                        'reviewer_id' => $reviewerId,
-                        'has_coi_or_na' => $hasCOIOrNA // Flag for frontend if needed
+                        'overall_vote' => $review['overall_vote'] ?? '', // Uncommented and fixed
+                        'reviewer_id' => $reviewerId
                     ];
 
                     $reviewScores[] = [
@@ -1436,37 +1418,23 @@ class AbstractController extends BaseController
                         'review_question_2' => $review['review_question_2'] ?? '',
                         'review_question_3' => $review['review_question_3'] ?? '',
                         'reviewer_comment' => $review['reviewer_comment'] ?? '',
-                        'total_score' => $review['total_score'] ?? '',
-                        'has_coi_or_na' => $hasCOIOrNA // Flag for frontend if needed
+                        'total_score' => $review['total_score'] ?? '' // Added total_score here too
                     ];
-
-                    // Only include in valid scores if no COI or n/a
-                    if (!$hasCOIOrNA && isset($review['total_score']) && is_numeric($review['total_score'])) {
-                        $validScores[] = $review['total_score'];
-                    }
 
                     if(!empty($review['reviewer_comment'])){
                         $comment = [
                             'reviewer_comment' => $review['reviewer_comment'],
-                            'total_score' => $review['total_score'] ?? '',
-                            'has_coi_or_na' => $hasCOIOrNA // Flag for frontend if needed
+                            'total_score' => $review['total_score'] ?? '', // Added total_score to comments
                         ];
                         $reviewComments[] = $comment;
                     }
                 }
 
-                // Calculate average excluding COI/n/a reviews
-                $abstract['averageScore'] = !empty($validScores) ? array_sum($validScores) / count($validScores) : 0;
-                $abstract['validScoresCount'] = count($validScores); // Number of valid reviews
-                $abstract['totalReviewsCount'] = count($reviewsByPaper[$paperId]); // Total reviews
                 $abstract['reviewersTotalScore'] = $totalScores;
                 $abstract['overallVote'] = $overallVotes;
                 $abstract['reviewComments'] = $reviewComments;
                 $abstract['reviewScores'] = $reviewScores;
             } else {
-                $abstract['averageScore'] = 0;
-                $abstract['validScoresCount'] = 0;
-                $abstract['totalReviewsCount'] = 0;
                 $abstract['reviewersTotalScore'] = [];
                 $abstract['overallVote'] = [];
                 $abstract['reviewComments'] = [];

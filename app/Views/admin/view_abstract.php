@@ -35,11 +35,11 @@
                         </tr>
                         <tr>
                             <td class="text-end">Paper ID : </td>
-                            <td ><?=$papers->id?></td>
+                            <td ><?=$papers['id']?></td>
                         </tr>
                         <tr>
                             <td style="width:250px" class="text-end">Paper Title : </td>
-                            <td><?=$papers->title?></td>
+                            <td><?=$papers['title']?></td>
                         </tr>
                         </tbody>
                     </table>
@@ -177,34 +177,176 @@
                                 </tr>
                                 <tr>
                                     <td class="text-end">Paper Type : </td>
-                                    <td><?=$papers->paper_type_name?></td>
+                                    <td><?=$papers['paper_type_name'] ?></td>
                                 </tr>
                                 <tr>
                                     <td class="text-end">Paper Title : </td>
-                                    <td><?=$papers->title?></td>
+                                    <td><?=$papers['title']?></td>
+                                </tr>
+
+                                <tr>
+                                    <td class="text-end"  style="width:250px;">Session Types : </td>
+                                    <td><?= $papers['paper_type_name'] ?></td>
+                                    <td style="width: 100px;"><a class="float-end btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit </a></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-end">Basic Science Proposal Format :</td>
+                                    <td><?= htmlspecialchars($papers['basic_science_format']) ?></td>
+                                    <td style="width: 100px;"><a href="<?=base_url().'user/edit_papers_submission/'.$paper_id?>" class="float-end btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit </a></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-end">Previous Publication :</td>
+                                    <td><?= htmlspecialchars($papers['previous_presentation']) ?></td>
+                                    <td style="width: 100px;"><a href="<?=base_url().'user/edit_papers_submission/'.$paper_id?>" class="float-end btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit </a></td>
+                                </tr>
+
+                                <tr>
+                                    <td class="text-end">Abstract Category :</td>
+                                    <td><?= htmlspecialchars(!empty($categories) ? isset(($categoriesById = array_column($categories, 'name', 'category_id'))[$papers['abstract_category']]) ? $categoriesById[$papers['abstract_category']] : 'N/A' : '') ?></td>
+                                    <td style="width: 100px;"><a href="<?=base_url().'user/edit_papers_submission/'.$paper_id?>" class="float-end btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit </a></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-end">Abstract Title :</td>
+                                    <td><?= htmlspecialchars($papers['title']) ?></td>
+                                    <td style="width: 100px;"><a href="<?=base_url().'user/edit_papers_submission/'.$paper_id?>" class="float-end btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit </a></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-end">Hypothesis :</td>
+                                    <td><?= htmlspecialchars($papers['hypothesis']) ?></td>
+                                    <td style="width: 100px;"><a href="<?=base_url().'user/edit_papers_submission/'.$paper_id?>" class="float-end btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit </a></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-end">Study Design :</td>
+                                    <td><?= htmlspecialchars($papers['study_design']) ?></td>
+                                    <td style="width: 100px;"><a href="<?=base_url().'user/edit_papers_submission/'.$paper_id?>" class="float-end btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit </a></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-end">Introduction :</td>
+                                    <td><?= htmlspecialchars($papers['introduction']) ?></td>
+                                    <td style="width: 100px;"><a href="<?=base_url().'user/edit_papers_submission/'.$paper_id?>" class="float-end btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit </a></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-end">Methods :</td>
+                                    <td><?= htmlspecialchars($papers['methods']) ?></td>
+                                    <td style="width: 100px;"><a href="<?=base_url().'user/edit_papers_submission/'.$paper_id?>" class="float-end btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit </a></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-end">Results :</td>
+                                    <td><?= htmlspecialchars($papers['results']) ?></td>
+                                    <td style="width: 100px;"><a href="<?=base_url().'user/edit_papers_submission/'.$paper_id?>" class="float-end btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit </a></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-end">Conclusion :</td>
+                                    <td><?= htmlspecialchars($papers['conclusions']) ?></td>
+                                    <td style="width: 100px;"><a href="<?=base_url().'user/edit_papers_submission/'.$paper_id?>" class="float-end btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit </a></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-end">Minimum time period of follow-up? </td>
+                                    <td><?=$papers['min_follow_up_period'] ?? ''?></td>
+                                    <td style="width: 100px;"><a href="<?=base_url().'user/level_of_evidence/'.$paper_id?>" class="float-end btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit </a></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-end">SRS Grant Funded? :</td>
+                                    <td><?= htmlspecialchars($papers['is_srs_funded']) ?></td>
+                                    <td style="width: 100px;"><a href="<?=base_url().'user/level_of_evidence/'.$paper_id?>" class="float-end btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit </a></td>
+                                </tr>
+                                <?php if($papers['is_srs_funded'] == "Yes") : ?>
+                                <tr>
+                                    <td class="text-end">Primary Investigator :</td>
+                                    <td><?= htmlspecialchars($papers['primary_investigator']) ?></td>
+                                    <td style="width: 100px;"><a href="<?=base_url().'user/level_of_evidence/'.$paper_id?>" class="float-end btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit </a></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-end">Grant Year :</td>
+                                    <td><?= htmlspecialchars($papers['grant_year']) ?></td>
+                                    <td style="width: 100px;"><a href="<?=base_url().'user/level_of_evidence/'.$paper_id?>" class="float-end btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit </a></td>
+                                </tr>
+                            <?php endif ?>
+
+                                <tr>
+                                    <td class="text-end">Unlabeled and Unapproved Uses:</td>
+                                    <td><?=$papers['fda_unapproved_uses'] == '1' ? 'I do not plan to discuss non-FDA approved products or non-FDA approved use of any products.' : 'I plan to discuss non-FDA approved products or non-FDA approved use of any products.'?></td>
+                                    <td style="width: 100px;"><a href="<?=base_url().'fda/'.$paper_id?>" class="float-end btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit </a></td>
+                                </tr>
+
+                                <?php if($papers['fda_unapproved_uses'] == '2' ): ?>
+                                <tr>
+                                    <td class="text-end">Explanation:</td>
+                                    <td><?=$papers['fda_unapproved_uses'] == '2' ? $papers['fda_unapproved_explanation']: ''?></td>
+                                    <td style="width: 100px;"><a href="<?=base_url().'fda/'.$paper_id?>" class="float-end btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit </a></td>
+                                </tr>
+                            <?php endif; ?>
+
+                                <tr>
+                                    <td class="text-end">Use of Product name:</td>
+                                    <td><?=$papers['fda_discuss_product_name'] == '1' ? ' 	I plan to discuss a commercial product by name in my presentation.' : 'I do not plan to discuss a commercial product by name in my presentation.'?></td>
+                                    <td style="width: 100px;"><a href="<?=base_url().'fda/'.$paper_id?>" class="float-end btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit </a></td>
+                                </tr>
+
+                                <?php if($papers['fda_discuss_product_name'] == '1' ): ?>
+                                <tr>
+                                    <td class="text-end">Explanation:</td>
+                                    <td><?=$papers['fda_discuss_product_name'] == '1' ? $papers['fda_product_name_explanation']: ''?></td>
+                                    <td style="width: 100px;"><a href="<?=base_url().'fda/'.$paper_id?>" class="float-end btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit </a></td>
+                                </tr>
+                            <?php endif ?>
+
+
+                                <tr>
+                                    <td class="text-end">FDA Acceptance:</td>
+                                    <td><?=$papers['fda_unapproved_uses'] == '1' ? 'I accept the terms of participation in this CME activity as noted in the author disclosure statement.' : ''?></td>
+                                    <td style="width: 100px;"><a href="<?=base_url().'fda/'.$paper_id?>" class="float-end btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit </a></td>
+                                </tr>
+
+
+                                <tr>
+                                    <td class="text-end" style="vertical-align:top">Image Caption :</td>
+                                    <td>
+                                        <div>
+                                            <div>
+                                                <?= htmlspecialchars($papers['image_caption']) ?>
+                                            </div>
+                                            <?php if (!empty($paper_uploads)): ?>
+                                                <?php foreach ($paper_uploads as $index => $uploads): ?>
+                                                    <div class="mb-3 text-center" style="width: 100px;">
+                                                        <a href="<?= base_url($uploads['file_path'] . $uploads['file_name']) ?>" data-lightbox="image-<?= $paper_id ?>">
+                                                            <img src="<?= base_url($uploads['file_path'] . $uploads['file_name']) ?>" class="img-fluid d-block mx-auto" style="width: 100px;">
+                                                        </a>
+                                                    </div>
+                                                    <a class="d-block small mt-1" href="<?= base_url($uploads['file_path'] . $uploads['file_name']) ?>" download="<?=$uploads['file_preview_name'] ?>">
+                                                        <?= htmlspecialchars($uploads['file_preview_name']) ?>
+                                                    </a>
+                                                <?php endforeach; ?>
+                                            <?php endif; ?>
+                                        </div>
+                                    </td>
+
+                                    <td style="width: 100px;">
+                                        <a href="<?=base_url()?>/user/presentation_upload/<?=$paper_id?>" class="float-end btn btn-primary btn-sm" ><i class="fas fa-edit"></i> Edit</a>
+                                    </td>
                                 </tr>
                             <?php endif;?>
                             </tbody>
                         </table>
 
                         <div class="tracksDiv">
-                            <form name="formTracks">
+                            <!--<form name="formTracks">
                             <table class="table" style="border-bottom-width:4px !important">
                                 <tbody>
                                 <tr>
                                     <td class="text-end">Tracks : </td>
                                     <td>
-                                        <?php $tracks = json_decode($papers->tracks); ?>
-                                        <input type="checkbox" name="tracks[]" id="track1" value="1" <?= !empty($tracks) && (in_array('1', $tracks)) ? 'checked' : '' ?>> <label for="track1" > Casting Designers & Buyers</label> <br>
-                                        <input type="checkbox" name="tracks[]" id="track2" value="2" <?= !empty($tracks) && (in_array('2', $tracks)) ? 'checked' : '' ?>> <label for="track2" > Management</label> <br>
-                                        <input type="checkbox" name="tracks[]" id="track3" value="3" <?= !empty($tracks) && (in_array('3', $tracks)) ? 'checked' : '' ?>> <label for="track3" > Student</label> <br>
-                                        <input type="checkbox" name="tracks[]" id="track4" value="4" <?= !empty($tracks) && (in_array('4', $tracks)) ? 'checked' : '' ?>> <label for="track4" > Technical</label> <Br>
+                                        <?php /*$tracks = json_decode($papers['tracks']); */?>
+                                        <input type="checkbox" name="tracks[]" id="track1" value="1" <?php /*= !empty($tracks) && (in_array('1', $tracks)) ? 'checked' : '' */?>> <label for="track1" > Casting Designers & Buyers</label> <br>
+                                        <input type="checkbox" name="tracks[]" id="track2" value="2" <?php /*= !empty($tracks) && (in_array('2', $tracks)) ? 'checked' : '' */?>> <label for="track2" > Management</label> <br>
+                                        <input type="checkbox" name="tracks[]" id="track3" value="3" <?php /*= !empty($tracks) && (in_array('3', $tracks)) ? 'checked' : '' */?>> <label for="track3" > Student</label> <br>
+                                        <input type="checkbox" name="tracks[]" id="track4" value="4" <?php /*= !empty($tracks) && (in_array('4', $tracks)) ? 'checked' : '' */?>> <label for="track4" > Technical</label> <Br>
 
-                                        <a class="btn btn-primary mt-2 btn-sm saveTrackBtn" paper_id = "<?=$paper_id?>">Save</a>
+                                        <a class="btn btn-primary mt-2 btn-sm saveTrackBtn" paper_id = "<?php /*=$paper_id*/?>">Save</a>
                                     </td>
                                 </tr>
                                 </tbody>
-                            </form>
+                            </form>-->
                             </table>
 
                     </div>
@@ -405,8 +547,8 @@
 <!--                                    <input type="hidden" name="statusForPoster" id="statusForPoster" value="">-->
 <!--                                    <input type="hidden" name="st_id" value="1">-->
 <!--                                    <input type="hidden" name="pp_id_c" value="1">-->
-                                    <input type="button" class="btn btn-primary" id="publishBtn" value="Save" onclick="" paper_id="<?=$papers->id?>">
-                                    <input type="button" class="btn btn-info text-white" id="publishAndSendBtn" value="Save and Send Mail" onclick="" paper_id="<?=$papers->id?>">
+                                    <input type="button" class="btn btn-primary" id="publishBtn" value="Save" onclick="" paper_id="<?=$papers['id'] ?>">
+                                    <input type="button" class="btn btn-info text-white" id="publishAndSendBtn" value="Save and Send Mail" onclick="" paper_id="<?=$papers['id'] ?>">
                                 </div>
                             </div>
                         </form>
@@ -415,7 +557,7 @@
 
                         <form id="formAdminComment" name="formAdminComment" onsubmit="return false;">
                             <div>
-                                <input type="hidden" name="abstract_id" value="<?=$papers->id?>">
+                                <input type="hidden" name="abstract_id" value="<?=$papers['id'] ?>">
                             </div>
                             <div class="row">
                                 <div class="col-md-6">
