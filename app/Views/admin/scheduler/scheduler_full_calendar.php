@@ -22,8 +22,7 @@
         border-radius: 5px;
         border: 1px solid #007bff;
         color: #000000 ;
-        overflow-x: auto
-        font-size: 15px;
+        overflow-x: auto;
     }
 
     /* Style for the buttons container */
@@ -83,7 +82,7 @@
     }
 
     .event-container{
-        font-size:12px
+        font-size:15px
     }
 
     .fc-header-toolbar {
