@@ -788,15 +788,7 @@
                             if (chairs.acceptance) {
                                 sessionChairs += `<span class="text-primary acceptanceStatus" style="display: none">
                                     ${getIcon(chairs.acceptance.acceptance_confirmation)} Acceptance Confirmation
-                                    ${getIcon(chairs.acceptance.breakfast_attendance)} Breakfast Attendance
-                                    ${getIcon(chairs.acceptance.is_session_previewed)} Session Previewed
                                     ${getIcon(chairs.acceptance.is_finalized)} Finalized </span>`;
-                            }
-
-                            function getIcon(value) {
-                                if (value === '1' || value === 'Yes') return '✅';
-                                if (value === '2' || value === 'No') return '❌';
-                                return '⬜';
                             }
                             sessionChairs += `<br>`;
                         });
@@ -817,13 +809,21 @@
                             let talkPresenters = [];
 
                             if (talk.abstract) {
+                                console.log(talk)
                                 if (talk.abstract.submission_type == 'panel') {
                                     talkPresenters = talk.panelist.name + ' ' + talk.panelist.surname;
                                     talkCustomId = 'Panelist: ' + talk.panelist.custom_id;
                                 } else {
-                                    talkPresenters = talk.presenters.map((presenter) =>
-                                        `${presenter['user_name']} ${presenter['user_surname']}`
-                                    );
+                                    talkPresenters = talk.presenters
+                                        .filter(presenter => presenter.is_presenting_author === 'Yes')
+                                        .map((presenter) => {
+                                            const name = `${presenter.user_name} ${presenter.user_surname}`;
+                                            const acceptance = getIcon(presenter.acceptance.acceptance_confirmation);
+                                            const travel = getIcon(presenter.acceptance.travel_expenses);
+                                            const celebration = getIcon(presenter.acceptance.celebration_attendance);
+
+                                            return `${name} | ${acceptance} Acceptance | ${travel} T&E | ${celebration} Celebration`;
+                                        });
                                     talkPresenters = talkPresenters.join(', ');
                                     talkCustomId = 'Paper: ' + talk.abstract.custom_id;
                                 }
@@ -1569,6 +1569,12 @@
         let endHours = startHours + Math.floor(totalMinutes / 60);
         let endMinutes = totalMinutes % 60;
         return `${endHours.toString().padStart(2, '0')}:${endMinutes.toString().padStart(2, '0')}`;
+    }
+
+    function getIcon(value) {
+        if (value && (value === '1' || value.toLowerCase() === 'yes')) return '✅';
+        if (value && (value === '2' || value.toLowerCase() === 'no')) return '❌';
+        return '⬜';
     }
 
 </script>

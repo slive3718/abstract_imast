@@ -7,6 +7,7 @@ use App\Controllers\PapersController;
 use App\Controllers\User;
 use App\Models\AdminAcceptanceModel;
 use App\Models\AdminIndividualPanelAcceptanceModel;
+use App\Models\AuthorAcceptanceModel;
 use App\Models\EventsModel;
 use App\Models\ModeratorAcceptanceModel;
 use App\Models\PanelistPaperSubModel;
@@ -100,7 +101,14 @@ class SchedulerController extends BaseController
 
                if($scheduler_event['talks']){
                    foreach ($scheduler_event['talks'] as &$talk){
-                       $talk['presenters'] = (new PaperAuthorsModel())->getPresentingAuthors($talk['abstract_id'])->get()->getResult();
+                       $query = (new PaperAuthorsModel());
+                       $query->getPresentingAuthors($talk['abstract_id']);
+                       $talk['presenters'] = $query->findAll();
+                       if(!empty($talk['presenters'])){
+                           foreach ($talk['presenters'] as &$presenter){
+                               $presenter['acceptance'] = (new AuthorAcceptanceModel())->where(['abstract_id'=> $talk['abstract_id'], 'author_id'=> $presenter['author_id']])->first() ?? [];
+                           }
+                       }
                        if($talk['paper_sub_id']){
                            $talk['panelist'] =  $this->getTalkPanelist($talk['paper_sub_id']);
                        }
