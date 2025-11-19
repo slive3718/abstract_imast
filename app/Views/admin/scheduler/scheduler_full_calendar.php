@@ -21,8 +21,9 @@
         background-color: rgba(119, 168, 208, 0.65);
         border-radius: 5px;
         border: 1px solid #007bff;
-        color: white ;
+        color: #000000 ;
         overflow-x: auto
+        font-size: 15px;
     }
 
     /* Style for the buttons container */
