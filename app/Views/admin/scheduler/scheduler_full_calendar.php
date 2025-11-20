@@ -821,8 +821,9 @@
                                             const acceptance = getIcon(presenter.acceptance.acceptance_confirmation);
                                             const travel = getIcon(presenter.acceptance.travel_expenses);
                                             const celebration = getIcon(presenter.acceptance.celebration_attendance);
+                                            const acceptance_finalized = getIcon(presenter.acceptance.is_finalized);
 
-                                            return `${name} | ${acceptance} Acceptance | ${travel} T&E | ${celebration} Celebration`;
+                                            return `${name} | ${acceptance} Acceptance | ${travel} T&E | ${celebration} Celebration | ${acceptance_finalized} Finalized `;
                                         });
                                     talkPresenters = talkPresenters.join(', ');
                                     talkCustomId = 'Paper: ' + talk.abstract.custom_id;
