@@ -729,12 +729,10 @@ class AbstractController extends BaseController
 
     public function getAllPapersArray($submission_type) {
         try {
-            // Validate input
             if (empty($submission_type)) {
                 return [];
             }
 
-            // Instantiate models once
             $PapersModel = new PapersModel();
             $PaperAssignedReviewerModel = new PaperAssignedReviewerModel();
             $UsersProfileModel = new UsersProfileModel();
@@ -746,79 +744,78 @@ class AbstractController extends BaseController
             $PaperUploadsModel = new PaperUploadsModel();
             $AbstractCategoriesModel = new AbstractCategoriesModel();
             $AbstractSubCategoriesModel = new AbstractSubCategoriesModel();
+            $PaperAuthorsModel = new PaperAuthorsModel();
             $AbstractReviewModel = new AbstractReviewModel();
 
-            // Fetch all papers with joined user data
             $papers = $PapersModel->GetJoinedUser($submission_type)->getResultArray();
             if (empty($papers)) {
                 return [];
             }
-
-            // Collect paper IDs for batch queries
             $paperIds = array_column($papers, 'id');
 
-            // Fetch all paper types once
             $paperTypes = $PaperTypesModel->asArray()->findAll();
-            $paperTypesMap = array_column($paperTypes, null, 'id'); // Map by ID for quick lookup
+            $paperTypesMap = array_column($paperTypes, null, 'id');
 
-            // Batch fetch authors for all papers
-            $allAuthors = [];
+            $allPaperAuthors = $PaperAuthorsModel->getAuthors()->whereIn('paper_id', $paperIds)->findAll();
+
             $authorsByPaper = [];
-            foreach ($paperIds as $paperId) {
-                $authors = $this->getPaperAuthors($paperId)->getResultArray();
-                foreach ($authors as $author) {
-                    $author['paper_id'] = $paperId; // Add paper_id reference
-                    $allAuthors[] = $author;
-                    $authorsByPaper[$paperId][] = $author; // Group by paper_id
-                }
+            $authorIds = [];
+            foreach ($allPaperAuthors as $author) {
+                $authorsByPaper[$author['paper_id']][] = $author;
+                $authorIds[] = $author['author_id'];
             }
-            $authorIds = array_unique(array_column($allAuthors, 'author_id'));
+            $authorIds = array_unique($authorIds);
 
-            // Batch fetch user profiles for authors
             $userProfiles = [];
             if (!empty($authorIds)) {
                 $userProfiles = $UsersProfileModel->whereIn('author_id', $authorIds)
-                    ->select('users_profile.*, users.name, users.surname, users.middle_name as user_middle, users.email as user_email')
+                    ->select($this->shared_db_name . '.users_profile.*, users.name, users.surname, users.middle_name as user_middle, users.email as user_email')
                     ->join($this->shared_db_name . '.users', 'users_profile.author_id = users.id', 'left')
                     ->findAll();
             }
             $userProfilesMap = array_column($userProfiles, null, 'author_id');
 
-            // Batch fetch author acceptances
             $authorAcceptances = $AuthorAcceptanceModel->whereIn('abstract_id', $paperIds)->asArray()->findAll();
             $authorAcceptancesMap = [];
             foreach ($authorAcceptances as $acceptance) {
                 $authorAcceptancesMap[$acceptance['abstract_id']][$acceptance['author_id']] = $acceptance;
             }
 
-            // Batch fetch reviewers
-            $papersAssignedReviewers = (new PaperAssignedReviewerModel())
+            $papersAssignedReviewers = $PaperAssignedReviewerModel
                 ->select('paper_assigned_reviewer.*, users.name, users.surname, users.email')
                 ->join($this->shared_db_name.'.users', 'paper_assigned_reviewer.reviewer_id = users.id', 'left')
+                ->whereIn('paper_assigned_reviewer.paper_id', $paperIds)
                 ->where('users.name!=', '')
                 ->where('is_deleted', 0)
                 ->findAll();
+
+            $allReviews = $AbstractReviewModel->whereIn('abstract_id', $paperIds)->findAll();
+
+            $reviewsMap = [];
+            foreach ($allReviews as $review) {
+                $key = $review['abstract_id'] . '_' . $review['reviewer_id'];
+                $reviewsMap[$key] = $review;
+            }
+
             $assignedReviewersMap = [];
             foreach ($papersAssignedReviewers as $reviewer) {
-                if (!isset($assignedReviewersMap[$reviewer['paper_id']])) {
-                    $assignedReviewersMap[$reviewer['paper_id']] = [];
+                $paperId = $reviewer['paper_id'];
+                $reviewerId = $reviewer['reviewer_id'];
+                $reviewKey = $paperId . '_' . $reviewerId;
+
+                if (!isset($assignedReviewersMap[$paperId])) {
+                    $assignedReviewersMap[$paperId] = [];
                 }
 
-                $review = (new AbstractReviewModel())
-                    ->where('abstract_id', $reviewer['paper_id'])
-                    ->where('reviewer_id', $reviewer['reviewer_id'])
-                    ->first();
-
-                $assignedReviewersMap[$reviewer['paper_id']][] = [
-                    'id' => $reviewer['reviewer_id'],
+                $assignedReviewersMap[$paperId][] = [
+                    'id' => $reviewerId,
                     'name' => $reviewer['name'],
                     'surname' => $reviewer['surname'],
                     'email' => $reviewer['email'],
-                    'review' => $review
+                    'review' => $reviewsMap[$reviewKey] ?? null
                 ];
             }
 
-            // Batch fetch deputy acceptances, admin options, comments, uploads, and categories
             $deputyAcceptances = $PapersDeputyAcceptanceModel->whereIn('paper_id', $paperIds)->findAll();
             $deputyAcceptancesMap = [];
             foreach ($deputyAcceptances as $da) {
@@ -840,59 +837,48 @@ class AbstractController extends BaseController
             $categories = $AbstractCategoriesModel->whereIn('id', array_column($papers, 'abstract_category'))->findAll();
             $categoriesMap = array_column($categories, null, 'id');
 
+            $allSubCategories = array_column($AbstractSubCategoriesModel->findAll(), 'name', 'id');
+
             $paper_array = [];
-
-            $allSubCategories = [];
-
-            $subCategories = $AbstractSubCategoriesModel->findAll();
-            foreach ($subCategories as $subCat) {
-                $allSubCategories[$subCat['id']] = $subCat['name'] ?? '';
-            }
-
             foreach ($papers as $paper) {
-                // Initialize arrays for authors and reviewers
                 $user_array = [];
-                $reviewer_array = [];
+                $paperId = $paper['id'];
 
-                // Assign authors (using pre-grouped authorsByPaper)
-                if (isset($authorsByPaper[$paper['id']])) {
-                    foreach ($authorsByPaper[$paper['id']] as $author) {
-                        $author['details'] = $userProfilesMap[$author['author_id']] ?? null;
-                        $author['acceptance'] = $authorAcceptancesMap[$paper['id']][$author['author_id']] ?? null;
-                        if (!empty($author['details'])) {
+                if (isset($authorsByPaper[$paperId])) {
+                    foreach ($authorsByPaper[$paperId] as $author) {
+                        $authorId = $author['author_id'];
+                        $authorDetails = $userProfilesMap[$authorId] ?? null;
+
+                        if (!empty($authorDetails)) {
+                            $author['details'] = $authorDetails;
+                            $author['acceptance'] = $authorAcceptancesMap[$paperId][$authorId] ?? null;
                             $user_array[] = $author;
                         }
                     }
                 }
+                $paper['authors'] = $user_array;
 
                 $subcategories = $this->parseSubcategories($paper['abstract_subcategories']);
                 $subcategoryNames = [];
-
                 foreach ($subcategories as $subId) {
-                    if (isset($allSubCategories[$subId])) {
-                        $subcategoryNames[] = $allSubCategories[$subId];
-                    }
+                    $subcategoryNames[] = $allSubCategories[$subId] ?? null;
                 }
+                $paper['subCategories'] = $subcategoryNames ? implode(',', array_filter($subcategoryNames)) : null;
 
-                $paper['authors'] = $user_array;
-
-                // Assign other data
-                $paper['dpc'] = $deputyAcceptancesMap[$paper['id']] ?? [];
-                $paper['adminOption'] = $adminOptionsMap[$paper['id']] ?? null;
-                $paper['adminComment'] = $adminCommentsMap[$paper['id']] ?? null;
-                $paper['uploads'] = $uploadsMap[$paper['id']] ?? [];
+                $paper['dpc'] = $deputyAcceptancesMap[$paperId] ?? [];
+                $paper['adminOption'] = $adminOptionsMap[$paperId] ?? null;
+                $paper['adminComment'] = $adminCommentsMap[$paperId] ?? null;
+                $paper['uploads'] = $uploadsMap[$paperId] ?? [];
                 $paper['category'] = $categoriesMap[$paper['abstract_category']] ?? null;
-                $paper['subCategories'] = $subcategoryNames ? implode(',', $subcategoryNames) : null;
                 $paper['type'] = $paperTypesMap[$paper['type_id']] ?? [];
-                $paper['assignedReviewers'] = $assignedReviewersMap[$paper['id']] ?? null;
-                $paper['types'] = $paperTypes; // All paper types
+                $paper['assignedReviewers'] = $assignedReviewersMap[$paperId] ?? null;
+                $paper['types'] = $paperTypes;
 
                 $paper_array[] = $paper;
             }
 
             return $paper_array;
         } catch (\Exception $e) {
-            // Log the error (use your preferred logging mechanism)
             log_message('error', 'Error in getAllPapersArray: ' . $e->getMessage());
             return [];
         }
