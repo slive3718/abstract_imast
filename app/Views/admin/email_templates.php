@@ -315,7 +315,20 @@
 
 
         $('#templates-content').on('click','.deleteTemplateBtn', function(){
-            alert();
+            const template_id = $(this).attr("template_id");
+
+            $.ajax({
+                url: base_url_admin + 'email_templates/' + template_id,
+                type: 'delete',
+                success: function(response) {
+                    toastr.success('Template deleted successfully!');
+                    getTemplates(); // Refresh templates list
+                },
+                error: function(xhr, status, error) {
+                    toastr.error('Failed to delete template. Please try again.');
+                    console.error(error);
+                }
+            });
         })
     })
 

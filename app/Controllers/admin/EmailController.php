@@ -84,6 +84,25 @@ class EmailController extends BaseController
         }
     }
 
+    public function delete_template($template_id){
+        $EmailTemplatesModel = new EmailTemplatesModel();
+
+        if (!is_numeric($template_id) || $template_id <= 0) {
+            throw new InvalidArgumentException('Invalid template ID');
+        }
+
+        $result = $EmailTemplatesModel
+            ->where('id', (int)$template_id)  // Cast to integer for safety
+            ->where('is_system', 0)
+            ->delete();
+
+        if($result){
+            return json_encode(['status'=>200, 'message'=>'success', 'data'=>'']);
+        }else{
+            return json_encode(['status'=>500, 'message'=>'error deleting', 'data'=>'']);
+        }
+    }
+
     public function mass_mailer(){
         $header_data = [
             'title' => 'Email Templates'

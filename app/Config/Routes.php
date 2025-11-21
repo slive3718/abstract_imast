@@ -99,6 +99,7 @@ $routes->group('admin', ['filter' => 'authGuard:admin'],  function ($routes) {
     $routes->post('getAllEmailLogs/(:any)', 'admin\EmailController::getAllEmailLogs/$1');
     $routes->post('getGroupEmailLogs', 'admin\EmailController::getGroupEmailLogs');
     $routes->post('save_email_template', 'admin\EmailController::save_email_template');
+    $routes->delete('email_templates/(:num)', 'admin\EmailController::delete_template/$1');
 
     $routes->get('excelExport/(:any)', 'ExcelController::export/$1'); //Excel
     $routes->get('exportSample', 'ExcelController::exportSample/$1'); //Excel
