@@ -820,7 +820,10 @@
                                             const name = `${presenter.user_name} ${presenter.user_surname}`;
                                             const acceptance = getIcon(presenter.acceptance.acceptance_confirmation);
                                             const travel = getIcon(presenter.acceptance.travel_expenses);
-                                            const celebration = getIcon(presenter.acceptance.celebration_attendance);
+                                            const celebration =
+                                                presenter.acceptance.celebration_attendance == 0 ? getIcon('2') :
+                                                    presenter.acceptance.celebration_attendance == '1' ? getIcon('1') :
+                                                        getIcon('0');
                                             const acceptance_finalized = getIcon(presenter.acceptance.is_finalized);
 
                                             return `${name} | ${acceptance} Acceptance | ${travel} T&E | ${celebration} Celebration | ${acceptance_finalized} Finalized `;
@@ -1573,8 +1576,17 @@
     }
 
     function getIcon(value) {
-        if (value && (value === '1' || value.toLowerCase() === 'yes')) return '✅';
-        if (value && (value === '2' || value.toLowerCase() === 'no')) return '❌';
+        if (!value) return '⬜';
+
+        if (value === '1') return '✅';
+        if (value === '2') return '❌';
+
+        // Only call toLowerCase() if it's a string
+        if (typeof value === 'string') {
+            if (value.toLowerCase() === 'yes') return '✅';
+            if (value.toLowerCase() === 'no') return '❌';
+        }
+
         return '⬜';
     }
 
