@@ -191,6 +191,7 @@
 
                             <div class="button-group p-0">
                                 <input type="button" value="Abstract ID #" onclick="InsertHTML('##ABSTRACT_ID##')" class="btn btn-primary valid" aria-invalid="false">
+                                <input type="button" value="Assigned ID #" onclick="InsertHTML('##ASSIGNED_ID##')" class="btn btn-primary valid" aria-invalid="false">
                                 <input type="button" value="Invitation Code #" onclick="InsertHTML('##INVITATION_CODE##')" class="btn btn-primary valid" aria-invalid="false">
                                 <input type="button" value="Abstract Title" onclick="InsertHTML('##ABSTRACT_TITLE##')" class="btn btn-primary">
                             </div>

@@ -20,6 +20,7 @@ use CodeIgniter\Controller;
 use App\Models\UserModel;
 use App\Models\PapersModel;
 use App\Models\AbstractReviewModel;
+use mysql_xdevapi\Exception;
 
 class EmailController extends BaseController
 {
@@ -88,7 +89,7 @@ class EmailController extends BaseController
         $EmailTemplatesModel = new EmailTemplatesModel();
 
         if (!is_numeric($template_id) || $template_id <= 0) {
-            throw new InvalidArgumentException('Invalid template ID');
+            throw new Exception('Invalid template ID');
         }
 
         $result = $EmailTemplatesModel
@@ -641,7 +642,7 @@ class EmailController extends BaseController
                 }
 
                 $PaperTemplates = str_replace('##ABSTRACT_ID##', $val['paper_id'], $PaperTemplates);
-                $PaperTemplates = str_replace('##ABSTRACT_ASSIGNEDID##', $val['assigned_id'], $PaperTemplates);
+                $PaperTemplates = str_replace('##ASSIGNED_ID##', $val['assigned_id'], $PaperTemplates);
                 $PaperTemplates = str_replace('##ABSTRACT_TITLE##', strip_tags($val['title']), $PaperTemplates);
                 $PaperTemplates = str_replace('##RECIPIENTS_FULL_NAME##', $val['name'] . ' ' . $val['surname'], $PaperTemplates);
                 $PaperTemplates = str_replace('##RECIPIENT_FIRST_NAME##', $val['name'], $PaperTemplates);
