@@ -98,16 +98,18 @@
                                 </td>
                                 <td>
                                     <?php if($authorInfo):
-                                        foreach ($authorInfo as $author):?>
-                                            <?=($author['is_presenting_author'] == "Yes")? '<strong> Presenting Author </strong>: ':'<strong> Co-Author </strong>: '?>
-                                            (<?=$author['author_order']?>)
+                                        foreach ($authorInfo as $index => $author):
+                                            $mapDesignations = getFormattedDesignations($author, $designations);
+                                            getAuthorTypeBadge($author, $index);
+                                            ?>
 
-                                            <?=$author['name'].' '.$author['surname'] ?><br>
+                                            <?=$author['name'].' '.$author['surname'].' '. implode(', ', $mapDesignations)?> <br>
                                         <?php endforeach; endif; ?>
                                 </td>
                             </tr>
                             <?php if($authorInfo):
                                 foreach ($authorInfo as $index=>$author):
+                                    getFormattedDesignations($author, $designations);
                                     ?>
                                     <tr >
                                         <td class="text-end">(<?=($index+1)?>) <?=($author['is_presenting_author'] == "Yes")? 'Presenting Author :':'Co-Author :'?></td>
@@ -116,12 +118,10 @@
                                     <tr>
                                         <td class="text-end">Author Info: </td>
                                         <td >
-                                            Address: <?=$author['address']?>
-                                            <?=$author['city'], $author['province'], $author['zipcode'], $author['country'] ?><br>
-                                            Professional Degree(s): <?=$author['deg']?><br>
                                             Email: <?=$author['email']?><br>
-                                            Institution: <?=$author['institution']?><br>
+                                            Institution: <?=implode(', ', $author['institution'])?><br>
                                             Work Phone: <?=$author['phone']?><br>
+                                            Cell Phone: <?=$author['cellphone']?><br>
                                             <!--                                Fax: --><?php //=$author['fax']?>
                                         </td>
                                     </tr>

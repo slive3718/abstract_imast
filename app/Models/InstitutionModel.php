@@ -36,4 +36,17 @@ class InstitutionModel extends BaseModel
         }
         return $data;
     }
+
+
+    function getColumn($column, $id){
+        $builder = $this->db->table($this->table);
+        $builder->select($column);
+        $builder->where('id', $id);
+        $query = $builder->get();
+        return $query->getRowArray();
+    }
+    function getColumnValue($column, $id){
+        $res = $this->getColumn($column, $id);
+        return $res;
+    }
 }

@@ -1,6 +1,7 @@
 <?php
 namespace App\Models;
 
+use App\Services\InstitutionServices;
 use CodeIgniter\Model;
 
 class UserModel extends BaseModel

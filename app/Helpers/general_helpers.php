@@ -61,4 +61,34 @@ if(!function_exists('strict_email')){
         return true;
     }
 }
+
+if(!function_exists('getFormattedDesignations')){
+    // Helper function to get formatted designations
+    function getFormattedDesignations($author, $designations) {
+        $author_designations_arr = json_decode($author['designations'] ?? '[]', true);
+        return array_map(function ($value) use ($designations) {
+            return $designations[$value] ?? '';
+        }, $author_designations_arr);
+    }
+}
+
+
+if(!function_exists('getAuthorTypeBadge')) {
+// Helper function to get author type badge
+    function getAuthorTypeBadge($author, $index)
+    {
+        $badge = '';
+        if ($author['is_presenting_author'] == "Yes") {
+            $badge = '<span class="badge bg-primary">Presenting Author</span>';
+        } else {
+            $badge = '<span class="badge bg-secondary">Co-Author</span>';
+        }
+
+        if ($author['is_senior_author'] == "Yes") {
+            $badge .= ' <span class="badge bg-warning text-dark">Senior Author</span>';
+        }
+
+        return $badge . ' (' . ($index + 1) . ')';
+    }
+}
 ?>

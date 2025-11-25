@@ -1,6 +1,7 @@
 <?php
 namespace App\Models;
 
+use App\Services\InstitutionServices;
 use CodeIgniter\Model;
 
 class UsersProfileModel extends Model
@@ -60,6 +61,9 @@ class UsersProfileModel extends Model
             
         }
     }
-
+    
+    public function institution($institution_id):array{
+        return (new InstitutionServices())->getInstitutionWithAddress($institution_id);
+    }
 
 }

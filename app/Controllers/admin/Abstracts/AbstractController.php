@@ -13,10 +13,12 @@ use App\Models\AdminIndividualPanelAcceptanceModel;
 use App\Models\AffiliationsModel;
 use App\Models\AttestationModel;
 use App\Models\AuthorAcceptanceModel;
+use App\Models\DesignationsModel;
 use App\Models\DivisionsModel;
 use App\Models\EmailLogsModel;
 use App\Models\EmailTemplatesModel;
 use App\Models\IndividualPanelUploads;
+use App\Models\InstitutionModel;
 use App\Models\OrganizationsModel;
 use App\Models\PanelistPaperSubModel;
 use App\Models\PaperAssignedReviewerModel;
@@ -29,6 +31,7 @@ use App\Models\RoomsModel;
 use App\Models\SiteSettingModel;
 use App\Models\UserOrganizationsModel;
 use App\Models\UsersProfileModel;
+use App\Services\InstitutionServices;
 use CodeIgniter\Controller;
 use App\Models\UserModel;
 use App\Models\PapersModel;
@@ -245,9 +248,11 @@ class AbstractController extends BaseController
 
 
     public function view_abstract($paper_id){
+        helper('general_helpers');
         $post = $this->request->getPost();
         $UsersProfileModel = (new UsersProfileModel());
         $PapersModel = (new PapersModel());
+        $InstitutionModel = (new InstitutionModel());
         $PaperAuthorsModel = (new PaperAuthorsModel());
         $PaperUploadsModel = (new PaperUploadsModel());
         $UsersModel = (new UserModel());
@@ -288,6 +293,7 @@ class AbstractController extends BaseController
 
         foreach ($authorInfo as &$author){
             $author['acceptance'] = (new AuthorAcceptanceModel())->where(['author_id'=> $author['author_id'], 'abstract_id'=>$paper_id])->first();
+            $author['institution'] = (new InstitutionServices())->getInstitutionWithAddress($author['institution_id']);
         }
 
         $deputy_acceptance = $PapersDeputyAcceptanceModel->where('paper_id', $paper_id)->findAll();
@@ -305,7 +311,8 @@ class AbstractController extends BaseController
         $email_templates = (new EmailTemplatesModel())->findAll();
 
         $adminComment = $AdminAbstractCommentModel->where(['paper_id'=>$paper_id, 'admin_id'=>session('user_id')])->first();
-
+        $designations = (new DesignationsModel())->findAll();
+        $designations = array_column($designations,'name','id');
         $data = [
             'papers'=> $papers,
             'authorInfo'=> $authorInfo,
@@ -320,12 +327,9 @@ class AbstractController extends BaseController
             'adminComment' => $adminComment,
             'paper_reviewer_uploads'=>$paper_reviewer_uploads,
             'paper_types' => $PaperTypeModel->asArray()->findAll(),
+            'designations' =>$designations,
             'current_disclosure_date' => date( 'Y-m-d', strtotime($SettingsModel->where(['name' => 'disclosure_current_date'])->first()['value'])),
         ];
-
-
-//        print_r($data);exit;
-
 
         return
             view('admin/common/header', $header_data).
