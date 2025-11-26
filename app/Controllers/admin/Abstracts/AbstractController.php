@@ -841,6 +841,22 @@ class AbstractController extends BaseController
 
             $allSubCategories = array_column($AbstractSubCategoriesModel->findAll(), 'name', 'id');
             $designationsArrCol = (new DesignationsModel())->getDesignationsColumn();
+
+            $userDesignationsMap = [];
+            $userInstitutionsMap = [];
+
+            foreach ($userProfilesMap as $authorId => $authorDetails) {
+                // Pre-process designations once
+                $designationsJson = $authorDetails['designations'] ?? '[]';
+                $designations = json_decode($designationsJson, true) ?? [];
+                $userDesignationsMap[$authorId] = array_map(function ($designation) use ($designationsArrCol) {
+                    return $designationsArrCol[$designation] ?? $designation;
+                }, $designations);
+
+                // Pre-process institution once
+//                $userInstitutionsMap[$authorId] = (new InstitutionServices())->getInstitutionQuery($authorDetails['institution_id']) ?? [];
+            }
+
             $paper_array = [];
             foreach ($papers as $paper) {
                 $user_array = [];
@@ -854,12 +870,8 @@ class AbstractController extends BaseController
                         if (!empty($authorDetails)) {
                             $author['details'] = $authorDetails;
                             $author['acceptance'] = $authorAcceptancesMap[$paperId][$authorId] ?? null;
-                            $designations = $UsersProfileModel->designations($authorId) ?? [];
-                            $userDesignations = array_map(function ($designation) use ($designationsArrCol){
-                                return $designationsArrCol[$designation];
-                            }, $designations);
-                            $author['designations'] = $userDesignations ?? [];
-                            $author['institution'] =  $UsersProfileModel->institution($authorId) ?? [];
+                            $author['designations'] = $userDesignationsMap[$authorId] ?? [];
+//                            $author['institution'] = $userInstitutionsMap[$authorId] ?? [];
                             $user_array[] = $author;
                         }
                     }

@@ -6,6 +6,7 @@ use App\Models\CitiesModel;
 use App\Models\CountriesModel;
 use App\Models\InstitutionModel;
 use App\Models\StatesModel;
+use App\Models\UsersProfileModel;
 use CodeIgniter\Config\BaseService;
 use CodeIgniter\Model;
 use Exception;
@@ -132,5 +133,17 @@ class InstitutionServices extends BaseService
         }
 
         return $result;
+    }
+
+    public function getInstitutionQuery($institution_id){
+        $query = (new InstitutionModel());
+        $query->select('*')
+            ->join($this->citiesModel->table . ' ci', 'i.city_id = ci.id', 'left')
+            ->join($this->countriesModel->table . ' co', 'ci.country_id = co.id', 'left')
+            ->where('id', $institution_id);
+
+        $result = $query->first();
+        return $result;
+
     }
 }

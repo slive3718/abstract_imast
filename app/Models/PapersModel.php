@@ -53,7 +53,7 @@ class PapersModel extends Model
                 ->join(   $this->shared_db_name.'.users u', 'u.id = papers.user_id', 'left')
                 ->where('active_status', 1)
                 ->where('submission_type =', $submission_type)
-//               ->limit(10)
+//               ->limit(100)
                 ->get();
             // return $this->findAll();
         } catch (\CodeIgniter\Database\Exceptions\DatabaseException $e) {
