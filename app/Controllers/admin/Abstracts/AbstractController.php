@@ -854,7 +854,7 @@ class AbstractController extends BaseController
                 }, $designations);
 
                 // Pre-process institution once
-//                $userInstitutionsMap[$authorId] = (new InstitutionServices())->getInstitutionQuery($authorDetails['institution_id']) ?? [];
+                $userInstitutionsMap[$authorId] = (new InstitutionServices())->getInstitutionQuery($authorDetails['institution_id']) ?? [];
             }
 
             $paper_array = [];
@@ -871,7 +871,7 @@ class AbstractController extends BaseController
                             $author['details'] = $authorDetails;
                             $author['acceptance'] = $authorAcceptancesMap[$paperId][$authorId] ?? null;
                             $author['designations'] = $userDesignationsMap[$authorId] ?? [];
-//                            $author['institution'] = $userInstitutionsMap[$authorId] ?? [];
+                            $author['institution'] = $userInstitutionsMap[$authorId] ?? [];
                             $user_array[] = $author;
                         }
                     }

@@ -153,8 +153,8 @@ class Reports extends AbstractController
                     $exportData[$index][] = $author['details']['province'] ?? '';
                     $exportData[$index][] = $author['details']['country'] ?? '';
                     $exportData[$index][] = $author['details']['zipcode'] ?? '';
-                    $exportData[$index][] = $author['institution']['name'] ?? '';
-                    $exportData[$index][] =  $author['institution']['country'] ?? '';
+                    $exportData[$index][] = $author['institution']['institution_name'] ?? '';
+                    $exportData[$index][] = $author['institution']['institution_country'] ?? '';
                     $exportData[$index][] = $author['details']['phone'] ?? '';
                     $exportData[$index][] = $author['acceptance'] ? $author['acceptance']['celebration_attendance'] ? 'Yes' : 'No' : 'Incomplete'; // this is a review.
                     $exportData[$index][] = isset($author['acceptance']['presentation_file_path']) && isset($author['acceptance']['presentation_saved_name'])

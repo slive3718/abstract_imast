@@ -23,6 +23,8 @@ class InstitutionServices extends BaseService
     protected CountriesModel $countriesModel;
     protected StatesModel $statesModel;
 
+    protected \CodeIgniter\Database\BaseConnection $defaultDB;
+    protected \CodeIgniter\Database\BaseConnection $sharedDB;
     /**
      * 2. Use Dependency Injection in the constructor.
      */
@@ -32,6 +34,9 @@ class InstitutionServices extends BaseService
         $this->citiesModel = (new CitiesModel());
         $this->countriesModel = (new CountriesModel());
         $this->statesModel = (new StatesModel());
+
+        $this->defaultDB = \Config\Database::connect();
+        $this->sharedDB = \Config\Database::connect('shared');
     }
 
     /**
@@ -136,11 +141,16 @@ class InstitutionServices extends BaseService
     }
 
     public function getInstitutionQuery($institution_id){
+
         $query = (new InstitutionModel());
-        $query->select('*')
-            ->join($this->citiesModel->table . ' ci', 'i.city_id = ci.id', 'left')
-            ->join($this->countriesModel->table . ' co', 'ci.country_id = co.id', 'left')
-            ->where('id', $institution_id);
+        $query->select('
+        institution.name as institution_name,
+        ci.name as institution_city,
+        co.name as institution_country,
+       ')
+            ->join($this->defaultDB->database. '.cities ci', 'institution.city_id = ci.id', 'left')
+            ->join($this->defaultDB->database. '.countries co', 'ci.country_id = co.id', 'left')
+            ->where('institution.id', $institution_id);
 
         $result = $query->first();
         return $result;
