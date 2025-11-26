@@ -100,7 +100,7 @@
                                     <?php if($authorInfo):
                                         foreach ($authorInfo as $index => $author):
                                             $mapDesignations = getFormattedDesignations($author, $designations);
-                                            getAuthorTypeBadge($author, $index);
+                                            echo getAuthorTypeBadge($author, $index);
                                             ?>
 
                                             <?=$author['name'].' '.$author['surname'].' '. implode(', ', $mapDesignations)?> <br>
