@@ -13,4 +13,9 @@ class DesignationsModel extends Model
     protected  $returnType = 'array';
 
 
+
+    public function getDesignationsColumn(){
+        $all = $this->findAll();
+        return array_column($all,'name', 'id');
+    }
 }

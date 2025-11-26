@@ -840,7 +840,7 @@ class AbstractController extends BaseController
             $categoriesMap = array_column($categories, null, 'id');
 
             $allSubCategories = array_column($AbstractSubCategoriesModel->findAll(), 'name', 'id');
-
+            $designationsArrCol = (new DesignationsModel())->getDesignationsColumn();
             $paper_array = [];
             foreach ($papers as $paper) {
                 $user_array = [];
@@ -854,6 +854,12 @@ class AbstractController extends BaseController
                         if (!empty($authorDetails)) {
                             $author['details'] = $authorDetails;
                             $author['acceptance'] = $authorAcceptancesMap[$paperId][$authorId] ?? null;
+                            $designations = $UsersProfileModel->designations($authorId) ?? [];
+                            $userDesignations = array_map(function ($designation) use ($designationsArrCol){
+                                return $designationsArrCol[$designation];
+                            }, $designations);
+                            $author['designations'] = $userDesignations ?? [];
+                            $author['institution'] =  $UsersProfileModel->institution($authorId) ?? [];
                             $user_array[] = $author;
                         }
                     }
@@ -879,6 +885,7 @@ class AbstractController extends BaseController
                 $paper_array[] = $paper;
             }
 
+//            print_r($paper_array);exit;
             return $paper_array;
         } catch (\Exception $e) {
             log_message('error', 'Error in getAllPapersArray: ' . $e->getMessage());

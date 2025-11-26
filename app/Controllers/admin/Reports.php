@@ -35,7 +35,7 @@ class Reports extends AbstractController
         ];
 
         $papers = $this->getAllPapersArray('paper');
-//        print_R($papers);exit;
+
 //        print_r($papers);exit;
         $exportHeader = $this->exportHeader();
         if (!empty($papers)) {
@@ -99,6 +99,7 @@ class Reports extends AbstractController
                     strip_tags($paper['custom_id']),
                     strip_tags($paper['assigned_id']),
                     strip_tags($paper['submission_type']),
+                    $adminAcceptance .($adminPresentationPref ? " (" . $adminPresentationPref . ")":''),
                     strip_tags($paper['title']),
                     strip_tags($paper['tracks']),
                     strip_tags($paper['previous_presentation']),
@@ -126,7 +127,6 @@ class Reports extends AbstractController
                     $authorList,
                     $paper['type']['name'],
                     $uploads,
-                    $adminAcceptance .($adminPresentationPref ? " (" . $adminPresentationPref . ")":''),
                     $paper['adminComment'] ? $paper['adminComment']['comment'] : '',
                     $paper['adminComment'] ? $paper['adminComment']['comment'] : '',
                     $paper['adminComment'] ? $paper['user_name']. ' '. $paper['user_surname']  : '',
@@ -146,14 +146,15 @@ class Reports extends AbstractController
                     $exportData[$index][] = $author['user_name'] ?? '';
                     $exportData[$index][] = $author['user_middle'] ?? '';
                     $exportData[$index][] = $author['user_surname'] ?? '';
-                    $exportData[$index][] = $author['details']['deg'] ?? '';
-                    $exportData[$index][] = $author['user_email'] ?? '';
+                    $exportData[$index][] = !empty($author['designations']) ?  implode(', ', $author['designations']) : '';
+                    $exportData[$index][] = $author['details']['user_email'] ?? '';
                     $exportData[$index][] = $author['details']['address'] ?? '';
                     $exportData[$index][] = $author['details']['city'] ?? '';
                     $exportData[$index][] = $author['details']['province'] ?? '';
                     $exportData[$index][] = $author['details']['country'] ?? '';
                     $exportData[$index][] = $author['details']['zipcode'] ?? '';
-                    $exportData[$index][] = $author['details']['institution'] ?? '';
+                    $exportData[$index][] = $author['institution']['name'] ?? '';
+                    $exportData[$index][] =  $author['institution']['country'] ?? '';
                     $exportData[$index][] = $author['details']['phone'] ?? '';
                     $exportData[$index][] = $author['acceptance'] ? $author['acceptance']['celebration_attendance'] ? 'Yes' : 'No' : 'Incomplete'; // this is a review.
                     $exportData[$index][] = isset($author['acceptance']['presentation_file_path']) && isset($author['acceptance']['presentation_saved_name'])
@@ -220,6 +221,7 @@ class Reports extends AbstractController
             'AbstractID',
             'Assigned ID',
             'Submission Status',
+            'Accepted Session Type',
             'Title',
             'Summary',
             'Previous Presentation',
@@ -247,7 +249,7 @@ class Reports extends AbstractController
             'Authors List',
             'Type',
             'Formal Upload',
-            'Accepted Session type',
+//            'Accepted Session type',
             'Comments to Submitter',
             'Admin comments',
             'Submitter Name',
@@ -278,6 +280,7 @@ class Reports extends AbstractController
                'Presenting Author'.$i.' Country',
                'Presenting Author'.$i.' Postal Code',
                'Presenting Author'.$i.' Institution',
+               'Presenting Author'.$i.' Country',
                'Presenting Author'.$i.' Work Phone',
                'Presenting Author'.$i.' Innovation Celebration',
                'Presenting Author'.$i.' Acceptance Upload',
