@@ -289,11 +289,9 @@ class AbstractController extends BaseController
             })
             ->findAll();
 
-
-
         foreach ($authorInfo as &$author){
             $author['acceptance'] = (new AuthorAcceptanceModel())->where(['author_id'=> $author['author_id'], 'abstract_id'=>$paper_id])->first();
-            $author['institution'] = (new InstitutionServices())->getInstitutionWithAddress($author['institution_id']);
+            $author['institution'] = $author['institution_id'] ? (new InstitutionServices())->getInstitutionWithAddress($author['institution_id']) : [];
         }
 
         $deputy_acceptance = $PapersDeputyAcceptanceModel->where('paper_id', $paper_id)->findAll();
