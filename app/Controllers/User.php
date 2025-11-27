@@ -1336,63 +1336,6 @@ class User extends BaseController
         // ✅ Ensure upload result is valid
         if (!empty($uploadResult) && isset($uploadResult['new_name'])) {
             try {
-                $reviews = (new AbstractReviewModel())->where('abstract_id', $papers->id)->findAll();
-                $MailTemplates = (new EmailTemplatesModel())->find($reviews ? 16 : 7);
-
-                $email_body = $MailTemplates['email_body'];
-
-                $assignedUsers = (new PaperAssignedReviewerModel())
-                    ->join($this->shared_db_name.'.users', 'reviewer_id = users.id')
-                    ->join($this->shared_db_name.'.users_profile', 'users.id = users_profile.author_id')
-                    ->where([
-                        'reviewer_type' => 'regular',
-                        'paper_id' => $post['paper_id'],
-                        'is_declined' => 0,
-                        'is_deleted' => 0
-                    ])
-                    ->findAll();
-
-                foreach ($assignedUsers as $user) {
-                    $user_divisions = json_decode($user['division_id']);
-                    if (!empty($user_divisions) && in_array($papers->division_id, $user_divisions)) {
-                        $PaperTemplates = str_replace(
-                            ['##ABSTRACT_ID##', '##RECIPIENTS_FULL_NAME##', '##REVIEW_USERNAME##', '##REVIEW_PASSWORD##'],
-                            [
-                                $post['paper_id'],
-                                ucFirst($user['name']) . ' ' . ucFirst($user['surname']),
-                                $user['email'],
-                                'Please reset your password in case forgotten. Thank you!'
-                            ],
-                            $email_body
-                        );
-
-                        $from = ['name' => 'IMAST 2026', 'email' => 'imast@owpm2.com'];
-                        $addTo = $user['email'];
-                        $subject = $MailTemplates['email_subject'];
-
-                        $result = $sendMail->send($from, $addTo, $subject, $PaperTemplates);
-
-                        // ✅ Save to email logs
-                        $email_logs_array = [
-                            'user_id' => session('user_id'),
-                            'add_to' => $addTo,
-                            'subject' => $subject,
-                            'ref_1' => 'presentation_upload',
-                            'add_content' => $PaperTemplates,
-                            'send_from' => "Submitter",
-                            'send_to' => "Reviewers",
-                            'level' => "Info",
-                            'template_id' => $MailTemplates['id'],
-                            'paper_id' => $post['paper_id'],
-                            'user_agent' => $this->request->getUserAgent()->getBrowser(),
-                            'ip_address' => $this->request->getIPAddress(),
-                            'status' => ($result->statusCode == 200) ? 'Success' : 'Failed'
-                        ];
-
-                        (new EmailLogsModel())->saveToMailLogs($email_logs_array);
-                    }
-                }
-
                 // ✅ Insert upload record into the database
                 $PaperUploadsModel->insert([
                     'paper_id' => $post['paper_id'],
