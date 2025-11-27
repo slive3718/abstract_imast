@@ -45,7 +45,7 @@ class AbstractController extends BaseController
 
     public function __construct()
     {
-        helper('url');
+        helper(['url', 'general_helpers']);
         if(session('user_id')){
             $this->user_id = session('user_id');
         }
@@ -248,7 +248,6 @@ class AbstractController extends BaseController
 
 
     public function view_abstract($paper_id){
-        helper('general_helpers');
         $post = $this->request->getPost();
         $UsersProfileModel = (new UsersProfileModel());
         $PapersModel = (new PapersModel());
