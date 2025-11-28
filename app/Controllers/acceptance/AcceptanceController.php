@@ -655,4 +655,12 @@ class AcceptanceController extends Controller
         }
         return false;
     }
+
+    public function next_abstract(){
+       $abstract_id  =  (new AcceptanceService())->findNextAbstractWithoutAcceptance() ?? NULL;
+       if ($abstract_id == NULL){
+           return $this->response->setJSON(['status'=>'info', 'message'=> 'All abstracts have been processed. Redirecting to abstract list.', 'abstract_id' => null]);
+       }
+       return $this->response->setJSON(['status'=>'success', 'message'=> 'Redirecting to next abstract.', 'abstract_id' => $abstract_id]);
+    }
 }

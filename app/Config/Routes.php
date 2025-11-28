@@ -217,6 +217,7 @@ $routes->group('acceptance', ['filter' => 'authGuard:acceptance'],  function ($r
 
     $routes->get('logout', 'acceptance\AcceptanceLogin::logout');
     $routes->get('abstract_list', 'acceptance\AcceptanceController::index');
+    $routes->get('next_abstract', 'acceptance\AcceptanceController::next_abstract');
     $routes->post('get_accepted_abstracts', 'acceptance\AcceptanceController::get_accepted_abstracts');
     $routes->get('acceptance_menu/(:any)', 'acceptance\AcceptanceController::acceptance_menu/$1');
     $routes->get('speaker_acceptance/(:any)', 'acceptance\AcceptanceController::speaker_acceptance/$1');

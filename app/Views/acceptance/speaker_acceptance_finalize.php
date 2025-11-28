@@ -114,9 +114,19 @@
                     html: data.message,
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        window.location.href = baseUrlAcceptance + "abstract_list";
+                        redirectToNextAbstract();
                     }
                 });
+            });
+        }
+
+        function redirectToNextAbstract(){
+            $.post(baseUrlAcceptance + 'next_abstract/', function(data) {
+                if(data && data.abstract_id){
+                    window.location.href = baseUrlAcceptance + "speaker_acceptance/"+data.abstract_id;
+                }else{
+                    window.location.href = baseUrlAcceptance + "abstract_list"
+                }
             });
         }
 

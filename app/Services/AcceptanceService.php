@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Controllers\acceptance\AcceptanceController;
 use App\Libraries\PhpMail;
 use App\Models\AuthorAcceptanceModel;
 use App\Models\EmailLogsModel;
@@ -15,10 +16,11 @@ class AcceptanceService extends BaseService
 {
 
     private $request;
+    private $model;
     public function __construct() {
 
         $this->request = \Config\Services::request();
-
+        $this->model = new AuthorAcceptanceModel();
     }
 
     public function acceptance_message($acceptance_confirmation) :array{
@@ -86,4 +88,17 @@ class AcceptanceService extends BaseService
         }
     }
 
+    function findNextAbstractWithoutAcceptance(){
+        $acceptedAbstracts = (new AuthorAcceptanceModel())->get_accepted_abstracts();
+        foreach ($acceptedAbstracts as &$abstract){
+            $acceptance = $this->model->where([
+                'abstract_id' => $abstract['paper_id'],
+                'is_finalized' => 1
+            ])->first();
+            if(!$acceptance){
+                return $abstract['paper_id'];
+            }
+        }
+        return null;
+    }
 }
