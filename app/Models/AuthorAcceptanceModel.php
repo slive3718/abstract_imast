@@ -121,19 +121,19 @@ class AuthorAcceptanceModel extends Model
 //        }
 //    }
 
-    public function presentation_do_upload($file)
+    public function presentation_do_upload($file, $allowed_file_type = null, $subDir = null)
     {
         $abstract_id = $_POST['abstract_id'] ?? null;
         $author_id = $_SESSION['user_id'] ?? null;
+        $allowed_file_type = $allowed_file_type ?? ['pdf', 'ppt', 'pptx', 'zip', 'mp4', 'mov', 'avi', 'wmv', 'mkv'];
+        $subDir = $subDir ?? 'presentations';
 
         if (!$abstract_id || !$author_id) {
             return (['status' => 'error', 'msg' => 'Invalid abstract or author ID.']);
         }
 
-        $allowed_file_type = ['ppt', 'pptx'];
-
         if(!in_array(strtolower( $file->getExtension()), $allowed_file_type)){
-            return (['status' => 'error', 'msg' => 'Invalid file type. Only PDF files are allowed.']);
+            return (['status' => 'error', 'msg' => 'Invalid file type. Only '.implode(', ',$allowed_file_type).' files are allowed.']);
         }
 
         if (!$file->isValid() || $file->hasMoved()) {
@@ -147,9 +147,8 @@ class AuthorAcceptanceModel extends Model
         $uploader_name = $_SESSION['name'] ?? 'unknown';
         $uploader_surname = $_SESSION['surname'] ?? 'unknown';
         $newName = $uploader_surname."_".$abstract['custom_id']."_" . str_replace(' ', '_', $file_name);
-        $filePath = "/uploads/acceptance/presentation/{$abstract_id}/author/{$author_id}/";
+        $filePath = "/uploads/acceptance/{$subDir}/{$abstract_id}/author/{$author_id}/";
         $savePath = FCPATH . $filePath;
-
         // Create directory if it does not exist
         if (!is_dir($savePath) && !mkdir($savePath, 0777, true)) {
             return (['status' => 'error', 'msg' => 'Failed to create directory for upload.']);
@@ -163,23 +162,12 @@ class AuthorAcceptanceModel extends Model
         }
 
         try {
-            $updateFields = [
-                'presentation_original_name' => $file_name,
-                'presentation_saved_name' => $newName,
-                'presentation_save_path' => $savePath,
-                'presentation_file_path' => $filePath,
+            return [
+                'file_name' => $file_name,
+                'new_name' => $newName,
+                'save_path' => $savePath,
+                'file_path' => $filePath,
             ];
-
-            $query = $this->db->table($this->table);
-            $result = $query->where(['author_id' => $author_id, 'abstract_id' => $abstract_id])
-                ->set($updateFields)
-                ->update();
-
-            if ($result) {
-                return json_encode(['status' => 'success', 'msg' => 'Presentation uploaded successfully.', 'data' => $updateFields]);
-            } else {
-                return json_encode(['status' => 'error', 'msg' => 'Database update failed.']);
-            }
         } catch (\CodeIgniter\Database\Exceptions\DatabaseException $e) {
             return json_encode(['status' => 'error', 'msg' => 'Database error: ' . $e->getMessage()]);
         }

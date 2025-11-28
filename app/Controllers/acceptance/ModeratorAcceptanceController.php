@@ -144,7 +144,35 @@ class ModeratorAcceptanceController extends BaseController
 
     public function presentation_do_upload(){
         $file = $this->request->getFile('presentation_file');
-        return $this->response->setJSON((new AuthorAcceptanceModel())->presentation_do_upload($file));
+        $allowedFileTypes = ['doc', 'docx'];
+        $subDir = 'presentations';
+        $uploadDataResult = $this->model->presentation_do_upload($file, $allowedFileTypes, $subDir);
+
+        if (empty($uploadDataResult) || $uploadDataResult == 'error') {
+            return json_encode(['status' => 'error', 'msg' => 'File upload failed. Please try again.']);
+        }
+
+        try {
+            $updateFields = [
+                'presentation_original_name' => $uploadDataResult['original_name'],
+                'presentation_saved_name' => $uploadDataResult['saved_name'],
+                'presentation_save_path' => $uploadDataResult['save_path'],
+                'presentation_file_path' => $uploadDataResult['file_path'],
+            ];
+
+            $result = $this->model->where(['author_id' => session('user_id'), 'abstract_id' => $_POST['abstract_id']])
+                ->set($updateFields)
+                ->update();
+
+            if ($result) {
+                return json_encode(['status' => 'success', 'msg' => 'Presentation uploaded successfully.', 'data' => $updateFields]);
+            } else {
+                return json_encode(['status' => 'error', 'msg' => 'Database update failed.']);
+            }
+
+        }catch (\Exception $e){
+            return json_encode(['status' => 'error', 'msg' => 'An error occurred: ' . $e->getMessage()]);
+        }
     }
 
     public function presentation_upload_delete(){

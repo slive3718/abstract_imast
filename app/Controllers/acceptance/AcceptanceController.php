@@ -27,6 +27,7 @@ class AcceptanceController extends Controller
 {
 
 
+    protected $model;
     public function __construct()
     {
        
@@ -49,6 +50,7 @@ class AcceptanceController extends Controller
         }
 
         helper('general_helpers');
+        $this->model = (new AuthorAcceptanceModel());
     }
 
 
@@ -86,7 +88,7 @@ class AcceptanceController extends Controller
     }
 
     public function get_accepted_abstracts(){
-        $result = (new AuthorAcceptanceModel())->get_merged_papers();
+        $result = $this->model->get_merged_papers();
         return $this->response->setJSON(['status'=>'success', 'data'=>$result]);
     }
 
@@ -122,7 +124,7 @@ class AcceptanceController extends Controller
 
 
         $abstract_details= (new PapersModel())->find($abstract_id);
-        $author_acceptance = (new AuthorAcceptanceModel())->where(['abstract_id'=>$abstract_id, 'author_id'=>session('user_id')])->first();
+        $author_acceptance = $this->model->where(['abstract_id'=>$abstract_id, 'author_id'=>session('user_id')])->first();
         $abstract_preference =  (new AdminAcceptanceModel())->where('abstract_id', $abstract_id)->first();
         $header_data = [
             'title' => 'Acceptance Finalize'
@@ -153,7 +155,7 @@ class AcceptanceController extends Controller
         if(!$this->validate_abstract_id($abstract_id))
             exit;
 
-        $acceptanceDetails = (new AuthorAcceptanceModel())->where(['abstract_id' => $abstract_id, 'author_id' => session('user_id')])->asArray()->first();
+        $acceptanceDetails = $this->model->where(['abstract_id' => $abstract_id, 'author_id' => session('user_id')])->asArray()->first();
 
         $abstract_schedule = (new SchedulerSessionTalksModel())
             ->where('abstract_id', $abstract_id)->first();
@@ -251,13 +253,44 @@ class AcceptanceController extends Controller
 
     public function presentation_do_upload(){
         $file = $this->request->getFile('presentation_file');
-        return $this->response->setJSON((new AuthorAcceptanceModel())->presentation_do_upload($file));
+        $allowedFileTypes = ['doc', 'docx'];
+        $subDir = 'presentations';
+
+        $uploadDataResult = $this->model->presentation_do_upload($file, $allowedFileTypes, $subDir);
+
+        if (empty($uploadDataResult) || $uploadDataResult == 'error') {
+            return json_encode(['status' => 'error', 'msg' => 'File upload failed. Please try again.']);
+        }
+
+        try {
+            $result = $this->save_presentation_upload($uploadDataResult);
+
+            if ($result) {
+                return $this->response->setJSON(['status' => 'success', 'msg' => 'Presentation uploaded successfully.', 'data' => $uploadDataResult]);
+            } else {
+                return $this->response->setJSON(['status' => 'error', 'msg' => 'Database update failed.']);
+            }
+
+        }catch (\Exception $e){
+            return $this->response->setJSON(['status' => 'error', 'msg' => 'An error occurred: ' . $e->getMessage()]);
+        }
     }
 
-    public function presentation_upload_delete(){
-        $post = $this->request->getPost();
+    function save_presentation_upload($uploadDataResult){
+        $updateFields = [
+            'presentation_original_name' => $uploadDataResult['file_name'],
+            'presentation_saved_name' => $uploadDataResult['new_name'],
+            'presentation_save_path' => $uploadDataResult['save_path'],
+            'presentation_file_path' => $uploadDataResult['file_path'],
+        ];
+
+        return $this->model->where(['author_id' => session('user_id'), 'abstract_id' => $_POST['abstract_id']])
+            ->set($updateFields)
+            ->update();
+    }
+
+    public function presentation_upload_delete($abstract_id){
         $author_id = session('user_id');
-        $abstract_id = $post['abstract_id'];
 
         $update_array = [
             'presentation_original_name'=> '',
@@ -295,12 +328,51 @@ class AcceptanceController extends Controller
         }
     }
 
+    public function impact_statement_upload_delete($abstract_id){
+        $author_id = session('user_id');
+
+        $update_array = [
+            'impact_statement_original_name'=> '',
+            'impact_statement_saved_name'=> '',
+            'impact_statement_save_path'=> '',
+            'impact_statement_file_path'=> '',
+        ];
+
+        // Check if a record exists for the given author and abstract
+        $authorAcceptanceModel = new AuthorAcceptanceModel();
+        $existingRecord = $authorAcceptanceModel->where('author_id', $author_id)
+            ->where('abstract_id', $abstract_id)
+            ->asArray()->first();
+
+        if(!$existingRecord){
+            exit;
+        }
+
+        if ($existingRecord) {
+            // Construct the absolute file path
+            $filePath = FCPATH . $existingRecord['impact_statement_file_path'] . '/' . $existingRecord['impact_statement_saved_name'];
+
+            // Check if the file exists
+            if (file_exists($filePath)) {
+                // Attempt to delete the file
+                if($authorAcceptanceModel->update($existingRecord['id'], $update_array)){
+                    if (unlink($filePath)) {
+                        return $this->response->setJSON(['status'=> 'success', 'message' => 'Upload Deleted successfully']);
+                    }
+                }
+            }else{
+                $authorAcceptanceModel->update($existingRecord['id'], $update_array);
+                return $this->response->setJSON(['status'=> 'success', 'message' => 'Upload Deleted successfully']);
+            }
+        }
+    }
+
     public function presentation_upload($abstract_id){
         $header_data = [
             'title' => 'CV Upload'
         ];
 
-        $acceptanceDetails = (new AuthorAcceptanceModel())->where(['abstract_id'=>$abstract_id, 'author_id'=>session('user_id')])->asArray()->first();
+        $acceptanceDetails = $this->model->where(['abstract_id'=>$abstract_id, 'author_id'=>session('user_id')])->asArray()->first();
         $data = [
             'abstract_id' => $abstract_id,
             'acceptanceDetails' => $acceptanceDetails,
@@ -313,6 +385,64 @@ class AcceptanceController extends Controller
             view('acceptance/common/footer')
             ;
     }
+
+    public function impact_statement($abstract_id){
+        $header_data = [
+            'title' => 'Impact Statement'
+        ];
+
+        $acceptanceDetails = $this->model->where(['abstract_id'=>$abstract_id, 'author_id'=>session('user_id')])->asArray()->first();
+        $data = [
+            'abstract_id' => $abstract_id,
+            'acceptanceDetails' => $acceptanceDetails,
+            'presentation_data_view' => $this->presentation_data_view($abstract_id)
+        ];
+
+        return
+            view('acceptance/common/header', $header_data).
+            view('acceptance/impact_statement', $data).
+            view('acceptance/common/footer')
+            ;
+    }
+
+    public function impact_statement_do_upload(){
+        $file = $this->request->getFile('presentation_file');
+        $allowedFileTypes = ['doc', 'docx'];
+        $subDir = 'impact_statement';
+        $uploadDataResult = $this->model->presentation_do_upload($file, $allowedFileTypes, $subDir);
+
+        if (empty($uploadDataResult) || $uploadDataResult == 'error') {
+            return json_encode(['status' => 'error', 'msg' => 'File upload failed. Please try again.']);
+        }
+
+        try {
+            $result = $this->save_impact_statement_upload($uploadDataResult);
+
+            if ($result) {
+                return $this->response->setJSON(['status' => 'success', 'msg' => 'Presentation uploaded successfully.', 'data' => $uploadDataResult]);
+            } else {
+                return $this->response->setJSON(['status' => 'error', 'msg' => 'Database update failed.']);
+            }
+
+        }catch (\Exception $e){
+            return $this->response->setJSON(['status' => 'error', 'msg' => 'An error occurred: ' . $e->getMessage()]);
+        }
+
+    }
+
+    function save_impact_statement_upload($uploadDataResult){
+        $updateFields = [
+            'impact_statement_original_name' => $uploadDataResult['file_name'],
+            'impact_statement_saved_name' => $uploadDataResult['new_name'],
+            'impact_statement_save_path' => $uploadDataResult['save_path'],
+            'impact_statement_file_path' => $uploadDataResult['file_path'],
+        ];
+
+        return $this->model->where(['author_id' => session('user_id'), 'abstract_id' => $_POST['abstract_id']])
+            ->set($updateFields)
+            ->update();
+    }
+
 
 
     public function save_acceptance_confirmation() {
@@ -364,7 +494,7 @@ class AcceptanceController extends Controller
         if(!$this->validate_abstract_id($abstract_id))
             exit;
 
-        $acceptanceDetails = (new AuthorAcceptanceModel())->where(['abstract_id'=>$abstract_id, 'author_id'=>session('user_id')])->asArray()->first();
+        $acceptanceDetails = $this->model->where(['abstract_id'=>$abstract_id, 'author_id'=>session('user_id')])->asArray()->first();
         $header_data = [
             'title' => 'Breakfast Attendance'
         ];
@@ -385,7 +515,7 @@ class AcceptanceController extends Controller
         if(!$this->validate_abstract_id($abstract_id))
             exit;
 
-        $acceptanceDetails = (new AuthorAcceptanceModel())->where(['abstract_id'=>$abstract_id, 'author_id'=>session('user_id')])->asArray()->first();
+        $acceptanceDetails = $this->model->where(['abstract_id'=>$abstract_id, 'author_id'=>session('user_id')])->asArray()->first();
         $header_data = [
             'title' => 'Biography'
         ];
@@ -462,6 +592,18 @@ class AcceptanceController extends Controller
             $update_array['celebration_attendance'] = $post['celebration_attendance'] ? 1 : 0;
         }
 
+        if(!empty($post['manuscript_agreement'])){
+            $update_array['manuscript_agreement'] = $post['manuscript_agreement'];
+        }
+
+        if(!empty($post['impact_statement'])){
+            $update_array['impact_statement'] = $post['impact_statement'];
+        }
+
+        if(!empty($post['impact_statement_agreement'])){
+            $update_array['impact_statement_agreement'] = $post['impact_statement_agreement'];
+        }
+
         // Check if a record already exists for the given author and abstract
         $authorAcceptanceModel = new AuthorAcceptanceModel();
         $existingRecord = $authorAcceptanceModel->where('author_id', $author_id)
@@ -508,7 +650,7 @@ class AcceptanceController extends Controller
         }
 
         $abstract_details= (new PapersModel())->find($abstract_id);
-        $author_acceptance = (new AuthorAcceptanceModel())->where(['abstract_id'=>$abstract_id, 'author_id'=>session('user_id')])->asArray()->first();
+        $author_acceptance = $this->model->where(['abstract_id'=>$abstract_id, 'author_id'=>session('user_id')])->asArray()->first();
         $abstract_preference =  (new AdminAcceptanceModel())->where('abstract_id', $abstract_id)->first();
         $header_data = [
             'title' => 'Acceptance Finalize'
@@ -536,7 +678,7 @@ class AcceptanceController extends Controller
         $sendMail = new PhpMail();
         $email = (new UserModel())->find(session('user_id'));
 
-        $acceptanceModel =  (new AuthorAcceptanceModel())->where(['abstract_id'=>$abstract_id, 'author_id'=>session('user_id')])->first();
+        $acceptanceModel =  $this->model->where(['abstract_id'=>$abstract_id, 'author_id'=>session('user_id')])->first();
         if(!$acceptanceModel){
             return $this->response->setJSON(['status' => 'failed', 'message'=> 'Acceptance record not found']);
         }
@@ -599,7 +741,7 @@ class AcceptanceController extends Controller
     }
     
     public function getAuthorAcceptance($abstract_id){
-        return $this->response->setJSON((new AuthorAcceptanceModel())->where(['abstract_id'=> $abstract_id, 'author_id'=>session('user_id')])->get());
+        return $this->response->setJSON($this->model->where(['abstract_id'=> $abstract_id, 'author_id'=>session('user_id')])->get());
     }
 
     public function check_finalize_acceptance($abstract_id){
@@ -620,7 +762,7 @@ class AcceptanceController extends Controller
             return  $this->response->setJSON(['status'=>'info', 'message'=> 'Please complete Financial Disclosures and/or Non Exclusive Forms. Click OK to redirect to main page and update the forms.']);
         }
 
-        $checkAcceptance = (new AuthorAcceptanceModel())->checkAcceptance($abstract_id);
+        $checkAcceptance = $this->model->checkAcceptance($abstract_id);
         if($checkAcceptance['status'] == 'success'){
             return $this->save_finalized_acceptance($abstract_id);
         }else{
@@ -630,7 +772,7 @@ class AcceptanceController extends Controller
 
     public function save_finalized_acceptance($abstract_id){
         $post = $this->request->getPost();
-        $acceptanceModel = (new AuthorAcceptanceModel());
+        $acceptanceModel = $this->model;
 
         $updateField = [
             'is_finalized' => 1

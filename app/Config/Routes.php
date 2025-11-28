@@ -252,9 +252,13 @@ $routes->group('acceptance', ['filter' => 'authGuard:acceptance'],  function ($r
 //    $routes->post('curriculumVitaeDoUpload', 'acceptance\AcceptanceController::curriculumVitaeDoUpload');
 //    $routes->get('acceptance_disclosure/(:any)', 'acceptance\AcceptanceController::acceptance_disclosure');
 //    $routes->post('saveAcceptanceDisclosure/(:any)', 'acceptance\AcceptanceController::saveAcceptanceDisclosure');
-    $routes->get('presentation_upload/(:any)', 'acceptance\AcceptanceController::presentation_upload/$1');
+    $routes->get('manuscript/(:any)', 'acceptance\AcceptanceController::presentation_upload/$1');
+    $routes->get('impact_statement/(:any)', 'acceptance\AcceptanceController::impact_statement/$1');
     $routes->post('presentation_do_upload', 'acceptance\AcceptanceController::presentation_do_upload');
-    $routes->post('presentation_upload_delete', 'acceptance\AcceptanceController::presentation_upload_delete');
+    $routes->delete('presentation_upload_delete/(:num)', 'acceptance\AcceptanceController::presentation_upload_delete/$1');
+
+    $routes->post('impact_statement_do_upload', 'acceptance\AcceptanceController::impact_statement_do_upload');
+    $routes->delete('impact_statement_upload_delete/(:num)', 'acceptance\AcceptanceController::impact_statement_upload_delete/$1');
 
     $routes->post('check_finalize_acceptance/(:any)', 'acceptance\AcceptanceController::check_finalize_acceptance/$1');
     // for testing

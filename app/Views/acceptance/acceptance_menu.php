@@ -17,19 +17,23 @@
                     <div class="col-md-12">
                         <div id="landing-page-contents" class="container-fluid p-4">
                             <div class="submission-menu" style="font-family: inherit;">
-                                <a id="speakerAcceptance" href="<?=base_url()?>/acceptance/speaker_acceptance/<?=$abstract_id?>" class="btn btn-white btn-sm round-0 text-start ps-0 fw-bold" style="width:80%; border-bottom:1px solid red"><num class="btn-sm me-2 text-white " style="background-color:#FF6600; padding:5px 10px 5px 10px">1 </num> Speaker Acceptance
+                                <?php $stepNumber = 1; ?>
+                                <a id="speakerAcceptance" href="<?=base_url()?>/acceptance/speaker_acceptance/<?=$abstract_id?>" class="btn btn-white btn-sm round-0 text-start ps-0 fw-bold" style="width:80%; border-bottom:1px solid #0d6efd"><num class="btn-sm me-2 text-white " style="background-color:#0d6efd; padding:5px 10px 5px 10px"><?=$stepNumber ++ ?> </num> Speaker Acceptance
                                     <?=isset($author_acceptance) && (!empty($author_acceptance->acceptance_confirmation_date)|| $author_acceptance->acceptance_confirmation_date !== Null )? '<span class="float-end text-success"><i class="fw-bold  fas fa-check-circle"> </i> Completed </span>' :'<span class="float-end text-danger"><i class="fw-bold fas fa-exclamation-circle"></i> Incomplete </span>' ?>
                                 </a>
-                                <a id="curriculumVitaeUpload" href="<?=base_url()?>/acceptance/breakfast_attendance/<?=$abstract_id?>" class="btn btn-white btn-sm round-0 text-start ps-0 fw-bold" style="width:80%; border-bottom:1px solid red"><num class="btn-sm me-2 text-white " style="background-color:#FF6600; padding:5px 10px 5px 10px">1 </num> Breakfast Attendance
-                                    <?=isset($author_acceptance) && (!empty($author_acceptance->breakfast_attendace)|| $author_acceptance->breakfast_attendance !== '' )? '<span class="float-end text-success"><i class="fw-bold  fas fa-check-circle"> </i> Completed </span>' :'<span class="float-end text-danger"><i class="fw-bold fas fa-exclamation-circle"></i> Incomplete </span>' ?>
-                                </a>
-                                <a id="acceptance_disclosure" href="<?=base_url()?>/acceptance/biography/<?=$abstract_id?>" class="btn btn-white btn-sm round-0 text-start ps-0 fw-bold" style="width:80%; border-bottom:1px solid red"><num class="btn-sm me-2 text-white " style="background-color:#FF6600; padding:5px 10px 5px 10px">1 </num> Biography
-                                    <?=isset($author_acceptance) && (!empty($author_acceptance->author_bio)|| $author_acceptance->author_bio !== '' )? '<span class="float-end text-success"><i class="fw-bold  fas fa-check-circle"> </i> Completed </span>' :'<span class="float-end text-danger"><i class="fw-bold fas fa-exclamation-circle"></i> Incomplete </span>' ?>
-                                </a>
-                                <a id="presentationUpload" href="<?=base_url()?>/acceptance/presentation_upload/<?=$abstract_id?>" class="btn btn-white btn-sm round-0 text-start ps-0 fw-bold" style="width:80%; border-bottom:1px solid red"><num class="btn-sm me-2 text-white " style="background-color:#FF6600; padding:5px 10px 5px 10px">1 </num> Presentation Uploads
+
+                                <?php if($author_acceptance->acceptance_confirmation == 1): ?>
+                                <a id="presentationUpload" href="<?=base_url()?>/acceptance/manuscript/<?=$abstract_id?>" class="btn btn-white btn-sm round-0 text-start ps-0 fw-bold" style="width:80%; border-bottom:1px solid #0d6efd"><num class="btn-sm me-2 text-white " style="background-color:#0d6efd; padding:5px 10px 5px 10px"><?=$stepNumber ++ ?> </num> Manuscript
                                     <?=isset($author_acceptance) && (!empty($author_acceptance->presentation_original_name)|| $author_acceptance->presentation_original_name !== '' )? '<span class="float-end text-success"><i class="fw-bold  fas fa-check-circle"> </i> Completed </span>' :'<span class="float-end text-danger"><i class="fw-bold fas fa-exclamation-circle"></i> Incomplete </span>' ?>
                                 </a>
-                                <a href="<?=base_url()?>/acceptance/speaker_acceptance_finalize/<?=$abstract_id?>" class="btn btn-white btn-sm round-0 text-start ps-0 fw-bold" style="width:80%; border-bottom:1px solid red"><num class="btn-sm me-2 text-white " style="background-color:#FF6600; padding:5px 10px 5px 10px">1 </num> Print/Preview/Finalize
+                                <?php endif ?>
+
+                                <a id="impactStatement" href="<?=base_url()?>/acceptance/impact_statement/<?=$abstract_id?>" class="btn btn-white btn-sm round-0 text-start ps-0 fw-bold" style="width:80%; border-bottom:1px solid #0d6efd"><num class="btn-sm me-2 text-white " style="background-color:#0d6efd; padding:5px 10px 5px 10px"><?=$stepNumber ++ ?> </num> Impact Statement
+                                    <?=isset($author_acceptance) && (!empty($author_acceptance->presentation_original_name)|| $author_acceptance->presentation_original_name !== '' )? '<span class="float-end text-success"><i class="fw-bold  fas fa-check-circle"> </i> Completed </span>' :'<span class="float-end text-danger"><i class="fw-bold fas fa-exclamation-circle"></i> Incomplete </span>' ?>
+                                </a>
+
+
+                                <a href="<?=base_url()?>/acceptance/speaker_acceptance_finalize/<?=$abstract_id?>" class="btn btn-white btn-sm round-0 text-start ps-0 fw-bold" style="width:80%; border-bottom:1px solid #0d6efd"><num class="btn-sm me-2 text-white " style="background-color:#0d6efd; padding:5px 10px 5px 10px"><?=$stepNumber ++ ?> </num> Print/Preview/Finalize
                                     <?=isset($author_acceptance) && (!empty($author_acceptance->is_finalized)|| $author_acceptance->is_finalized == 1 )? '<span class="float-end text-success"><i class="fw-bold  fas fa-check-circle"> </i> Completed </span>' :'<span class="float-end text-danger"><i class="fw-bold fas fa-exclamation-circle"></i> Incomplete </span>' ?>
                                 </a>
                             </div>
