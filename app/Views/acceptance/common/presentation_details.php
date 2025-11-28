@@ -25,6 +25,5 @@
             <?php endif ?>
         </p>
         <p><strong>Session Name:</strong> <?= $abstract_schedule ? $abstract_schedule['event']['session_title'] : ''?> </p>
-        <p><strong>Room:</strong> <?=$abstract_schedule ?  $abstract_schedule['room']['name'] : ''?></p>
     </div>
 </div>
