@@ -146,6 +146,8 @@
 
             if ([3, 4].includes(parseInt(acceptance_type))) {
                 viewAcceptanceInvited(abstract_id);
+            }else if([2].includes(parseInt(acceptance_type))) {
+                viewEposterAcceptance(abstract_id);
             }else {
                 viewAcceptance(abstract_id);
             }
@@ -294,6 +296,12 @@
     function viewAcceptanceInvited(abstract_id){
         $.post(baseUrlAcceptance+'getAuthorAcceptance/'+abstract_id, function(response){
             window.location.href= baseUrlAcceptance+"invited_speaker_acceptance/"+abstract_id;
+        })
+    }
+
+    function viewEposterAcceptance(abstract_id){
+        $.post(baseUrlAcceptance+'getAuthorAcceptance/'+abstract_id, function(response){
+            window.location.href= baseUrlAcceptance+"e_poster_acceptance_menu/"+abstract_id;
         })
     }
 
