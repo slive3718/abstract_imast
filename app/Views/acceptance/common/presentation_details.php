@@ -17,7 +17,7 @@
                 endforeach; ?>
             <?php endif; ?>
         </p>
-        <p><strong>Date and Time:</strong>
+        <p><strong>Session Date and Time:</strong>
             <?php if($abstract_schedule): ?>
                 <?= date('F-d-Y', strtotime($abstract_schedule['event']['session_date']))?>,
                 <?= date('h:i a', strtotime($abstract_schedule['time_start']))?> -
