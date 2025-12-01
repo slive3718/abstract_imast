@@ -66,8 +66,8 @@
             <div class="row">
                 <div class="col-4 text-end fw-bolder">Participation Status:</div>
                 <div class="col-7">
-                    <?= isset($author_acceptance) && $author_acceptance['acceptance_confirmation'] == 1 ? "I plan to present at the SRS Asia Pacific Meeting scheduled for February 6-7, 2026 in Fukuoka, Japan." : '' ?>
-                    <?= isset($author_acceptance) && $author_acceptance['acceptance_confirmation'] == 2 ? "I am unable to present at the SRS Asia Pacific Meeting scheduled for February 6-7, 2026 in Fukuoka, Japan." : '' ?>
+                    <?= isset($author_acceptance) && $author_acceptance['acceptance_confirmation'] == 1 ? "Yes, I confirm my participation for this assignment at the 33rd IMAST, April 15-17, 2026 in Toronto, ON, Canada." : '' ?>
+                    <?= isset($author_acceptance) && $author_acceptance['acceptance_confirmation'] == 2 ? "No, I am declining this invitation for the 33rd IMAST, April 15-17, 2026 in Toronto, ON, Canada." : '' ?>
                 </div>
                 <div class="col-1">
                     <span class="float-end"><a class="editBtn btn btn-primary py-0" href="<?=base_url() ?>/acceptance/speaker_acceptance/<?= $abstract_id ?>"><i class="fas fa-edit"></i> Edit</a></span>
@@ -85,11 +85,9 @@
                 <?php endif ?>
 
                 <?php if($author_acceptance['acceptance_confirmation'] == 1): ?>
-                    <div class="col-4 text-end fw-bolder">Impact Statement Upload: </div>
-                    <div class="col-7 presentationUploaded">
-                        <a href="<?= base_url().$author_acceptance['impact_statement_file_path'].'/'.$author_acceptance['impact_statement_saved_name']?>">
-                            <?= $author_acceptance['impact_statement_saved_name']?>
-                        </a>
+                    <div class="col-4 text-end fw-bolder">Impact Statement : </div>
+                    <div class="col-7">
+                        <?= !empty($author_acceptance['impact_statement']) ? $author_acceptance['impact_statement'] : ''?>
                     </div>
                     <div class="col-1">
                         <span class="float-end"><a class="editBtn btn btn-primary py-0" href="<?=base_url() ?>/acceptance/impact_statement/<?= $abstract_id ?>"><i class="fas fa-edit"></i> Edit</a></span>
