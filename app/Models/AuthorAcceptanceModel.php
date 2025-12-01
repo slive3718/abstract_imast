@@ -146,7 +146,7 @@ class AuthorAcceptanceModel extends Model
         $file_name = $file->getName();
         $uploader_name = $_SESSION['name'] ?? 'unknown';
         $uploader_surname = $_SESSION['surname'] ?? 'unknown';
-        $newName = $uploader_surname."_".$abstract['custom_id']."_" . str_replace(' ', '_', $file_name);
+        $newName = $abstract['assigned_id']."_" .$uploader_surname."_". str_replace(' ', '_', $file_name);
         $filePath = "/uploads/acceptance/{$subDir}/{$abstract_id}/author/{$author_id}/";
         $savePath = FCPATH . $filePath;
         // Create directory if it does not exist
