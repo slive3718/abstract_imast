@@ -4,10 +4,10 @@ if (!function_exists('presentation_preferences')) {
     function presentation_preferences() : array
     {
         return [
-           1 => 'Presentation Only',
-           2 => 'Publication Only',
-           3 => 'Presentation and Publication',
-           4 => 'Event',
+           1 => 'Podium Presentation',
+           2 => 'E-Point Presentation',
+           3 => 'Podium or E-Point Presentation',
+           4 => 'Invited Faculty',
         ];
     }
 }
