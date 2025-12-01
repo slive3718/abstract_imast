@@ -46,21 +46,21 @@
                         <label for="impact_statement" class="form-label">Your Impact Statement:</label>
                         <textarea name="impact_statement" class="form-control" id="impact_statement" rows="10" placeholder="Enter your impact statement here..." required><?=!empty($acceptanceDetails) ? $acceptanceDetails['impact_statement'] : ''?></textarea>
                     </div>
-
+<!--
                     <div class="alert alert-secondary py-2 uploadedFile" role="alert">
-                        <?php if (!empty($acceptanceDetails) && $acceptanceDetails['impact_statement_saved_name'] !== '') : ?>
+                        <?php /*if (!empty($acceptanceDetails) && $acceptanceDetails['impact_statement_saved_name'] !== '') : */?>
                             <div class="uploadedFile pb-2"><strong> Uploaded File:
-                                    <a href="<?= base_url().$acceptanceDetails['impact_statement_file_path'].'/'.$acceptanceDetails['impact_statement_saved_name'] ?>" download="<?=$acceptanceDetails['impact_statement_saved_name']?>">
-                                        <?= !empty($acceptanceDetails) && $acceptanceDetails['presentation_saved_name'] ? $acceptanceDetails['impact_statement_saved_name'] : ''?>
+                                    <a href="<?php /*= base_url().$acceptanceDetails['impact_statement_file_path'].'/'.$acceptanceDetails['impact_statement_saved_name'] */?>" download="<?php /*=$acceptanceDetails['impact_statement_saved_name']*/?>">
+                                        <?php /*= !empty($acceptanceDetails) && $acceptanceDetails['presentation_saved_name'] ? $acceptanceDetails['impact_statement_saved_name'] : ''*/?>
                                     </a><a  class="btn btn-danger btn-sm float-end deleteUploadBtn"> Delete</a>
                                 </strong>
                             </div>
-                        <?php else: ?>
+                        <?php /*else: */?>
                             <div class="noUpload"><strong>No upload</strong></div>
-                        <?php endif ?>
-                    </div>
+                        <?php /*endif */?>
+                    </div>-->
 
-                    <ol class="list-group list-group-numbered">
+                    <!--<ol class="list-group list-group-numbered">
                         <li class="list-group-item">
                             <strong>Step 1:</strong> Click on <strong>"Choose File"</strong> and navigate to the file you want to upload.
                             <div class="mt-3">
@@ -80,9 +80,20 @@
                                 <button class="btn btn-success continueBtn">Save Continue</button>
                             </div>
                             <span class="text-danger"> * </span>
-                            <input type="checkbox" name="impact_statement_agreement" id="impact_statement_agreement" <?=!empty($acceptanceDetails['impact_statement_agreement'] ) && $acceptanceDetails['impact_statement_agreement'] == '1' ? 'checked' : ''?>> <label for="impact_statement_agreement"> I understand that I must upload my Impact Statement to the SRS by January 6, 2026. </label>
+                            <input type="checkbox" name="impact_statement_agreement" id="impact_statement_agreement" <?php /*=!empty($acceptanceDetails['impact_statement_agreement'] ) && $acceptanceDetails['impact_statement_agreement'] == '1' ? 'checked' : ''*/?>> <label for="impact_statement_agreement"> I understand that I must upload my Impact Statement to the SRS by January 6, 2026. </label>
                         </li>
-                    </ol>
+                    </ol>-->
+
+                    <div class="p-2">
+                        Click <strong>"Continue"</strong> to proceed. <br>
+
+                        <span class="text-danger"> * </span>
+                        <input type="checkbox" name="impact_statement_agreement" id="impact_statement_agreement" <?=!empty($acceptanceDetails['impact_statement_agreement'] ) && $acceptanceDetails['impact_statement_agreement'] == '1' ? 'checked' : ''?>> <label for="impact_statement_agreement"> I understand that I must upload my Impact Statement to the SRS by January 6, 2026. </label>
+
+                        <div class="mt-3">
+                            <button class="btn btn-success continueBtn">Save Continue</button>
+                        </div>
+                       </div>
 
                 </form>
             </div>
