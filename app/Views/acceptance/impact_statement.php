@@ -182,7 +182,7 @@
             if (impact_statement_agreement == '0') {
                 swal.fire({
                     title: 'Warning',
-                    html: 'Please check the manuscript agreement to continue',
+                    html: 'Please check to acknowledge the Impact Statement due date.',
                     icon: 'info'
                 });
                 return false;
