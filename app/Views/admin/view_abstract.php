@@ -172,10 +172,6 @@
                             <?php if($papers):
                                 ?>
                                 <tr>
-                                    <td class="text-end">Division : </td>
-                                    <td></td>
-                                </tr>
-                                <tr>
                                     <td class="text-end">Paper Type : </td>
                                     <td><?=$papers['paper_type_name'] ?></td>
                                 </tr>
