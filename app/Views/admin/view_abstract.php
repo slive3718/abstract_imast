@@ -179,12 +179,6 @@
                                     <td class="text-end">Paper Title : </td>
                                     <td><?=$papers['title']?></td>
                                 </tr>
-
-                                <tr>
-                                    <td class="text-end"  style="width:250px;">Session Types : </td>
-                                    <td><?= $papers['paper_type_name'] ?></td>
-                                    <td style="width: 100px;"><a class="float-end btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit </a></td>
-                                </tr>
                                 <tr>
                                     <td class="text-end">Basic Science Proposal Format :</td>
                                     <td><?= htmlspecialchars($papers['basic_science_format']) ?></td>
