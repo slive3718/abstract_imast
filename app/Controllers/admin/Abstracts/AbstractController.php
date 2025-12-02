@@ -259,7 +259,8 @@ class AbstractController extends BaseController
         $AdminAbstractCommentModel = new AdminAbstractCommentModel();
         $PaperTypeModel = new PaperTypeModel();
         $SettingsModel = new SiteSettingModel();
-
+        $AbstractCategoriesModel = new AbstractCategoriesModel();
+        
         $papers = $PapersModel
             ->select('papers.*, paper_type.name as paper_type_name')
             ->join('paper_type', 'papers.type_id = paper_type.type', 'left')
@@ -310,6 +311,9 @@ class AbstractController extends BaseController
         $adminComment = $AdminAbstractCommentModel->where(['paper_id'=>$paper_id, 'admin_id'=>session('user_id')])->first();
         $designations = (new DesignationsModel())->findAll();
         $designations = array_column($designations,'name','id');
+
+        // Fetch Categories
+        $categories = $AbstractCategoriesModel->findAll();
         $data = [
             'papers'=> $papers,
             'authorInfo'=> $authorInfo,
@@ -325,6 +329,7 @@ class AbstractController extends BaseController
             'paper_reviewer_uploads'=>$paper_reviewer_uploads,
             'paper_types' => $PaperTypeModel->asArray()->findAll(),
             'designations' =>$designations,
+            'categories' => $categories,
             'current_disclosure_date' => date( 'Y-m-d', strtotime($SettingsModel->where(['name' => 'disclosure_current_date'])->first()['value'])),
         ];
 
