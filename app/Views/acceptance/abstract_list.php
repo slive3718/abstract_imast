@@ -76,7 +76,7 @@
                     <tbody id="presenterFormsTableBody">
                     <tr>
                         <td> Financial Relationship Disclosure</td>
-                        <td> January 6, 2027 </td>
+                        <td> January 6, 2026 </td>
                         <td> <?= ( !empty($user_data) && !empty($user_data['signature_signed_date']) ? strtotime($user_data['signature_signed_date']) > strtotime($disclosure_current)
                                 ? '<span class="badge bg-success text-white">Current '.date('m-d-Y',strtotime($user_data['signature_signed_date'])).' </span>'
                                 : '<span class="badge bg-warning text-dark"> Outdated '.date('m-d-Y',strtotime($user_data['signature_signed_date'])).' </span>'
@@ -91,7 +91,7 @@
                     </tr>-->
                     <tr>
                         <td> Non-Exclusive License</td>
-                        <td> January 6, 2027 </td>
+                        <td> January 6, 2026 </td>
                         <td> <?= ( !empty($user_data) && !empty($user_data['non_exclusive_license_date']) ? strtotime($user_data['non_exclusive_license_date']) > strtotime($non_exclusive_current)
                                 ? '<span class="badge bg-success text-white">Current  '.date('m-d-Y', strtotime($user_data['non_exclusive_license_date'])).'</span>'
                                 : '<span class="badge bg-warning text-dark"> Outdated '.date('m-d-Y', strtotime($user_data['non_exclusive_license_date'])).'</span>'
@@ -274,7 +274,7 @@
                         // '<td>' + (val.room && val.room.name ? val.room.name : '') + '</td>' +
                         '<td>' + (val.schedule ? new Date(val.schedule.session_date).toISOString    ().split('T')[0] : '') + '</td>' +
                         '<td>' + ( presentationStartTime ? presentationStartTime +' - '+ presentationEndTime : '') + '</td>' +
-                        '<td> January 6, 2027 </td>' +
+                        '<td> January 6, 2026 </td>' +
                         '<td>'+(val.author_acceptance_data ? parseInt(val.author_acceptance_data.acceptance_confirmation) == 1 ?
                             "<span class='badge bg-success text-white'>Able to participate</span>"
                             : "<span class='badge bg-warning text-dark'> Unable to Participate </span>"
@@ -311,7 +311,7 @@
                         '<td> ' + val.session_title + ' </td>' +
                         '<td>'+(val.session_date ? new Date(val.session_date).toISOString    ().split('T')[0] : '')  +'</td>' +
                         '<td class="text-nowrap"> '+ sessionStart + '-' + sessionEnd +'</td>' +
-                        '<td> January 6, 2027 </td>' +
+                        '<td> January 6, 2026 </td>' +
                         '<td>' + acceptanceStatus + '</td>' +
                         '<td>' + openBtn + '</td>' +
                         '</tr>')
