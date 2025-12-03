@@ -10,7 +10,7 @@
         </div>
         <div class="card-body">
             <p class="fw-bold">Congratulations!</p>
-            <p>It is the distinct pleasure of the Scoliosis Research Society to invite you to join the faculty at the 33rd International Meeting on Advanced Spine Techniques (IMAST), scheduled for April 15-17, 2026 in Toronto, ON, Canada.</p>
+            <p>It is the distinct pleasure of the Scoliosis Research Society to invite you to present at the 33rd IMAST, April 15-17, 2026 in Toronto, ON, Canada.</p>
 
             <p>
                 You have been invited to participate in the following session:
