@@ -176,7 +176,8 @@
                 if (val.admin_acceptance_data === null || val.admin_acceptance_data === undefined) return true;
 
                 let openBtn  = `<button class="btn btn-success btn-sm openBtn text-right float-end w-100" abstract_id='${val.paper_data.id}' data-accepted-for="${val.admin_acceptance_data.presentation_preference}"> Open </button>`
-                let openManuscriptBtn  = `<a href="<?=base_url()?>/acceptance/powerpoint_presentation/${val.paper_data.id}" class="btn btn-success btn-sm openManuscriptBtn text-right float-end w-100" abstract_id='${val.paper_data.id}' data-accepted-for="${val.admin_acceptance_data.presentation_preference}"> Open </a>`
+                let openManuscriptBtn  = `<a href="<?=base_url()?>/acceptance/manuscript/${val.paper_data.id}" class="btn btn-success btn-sm openManuscriptBtn text-right float-end w-100" abstract_id='${val.paper_data.id}' data-accepted-for="${val.admin_acceptance_data.presentation_preference}"> Open </a>`
+                let openImpactStatement  = `<a href="<?=base_url()?>/acceptance/impact_statement/${val.paper_data.id}" class="btn btn-success btn-sm openImpactStatementBtn text-right float-end w-100" abstract_id='${val.paper_data.id}' data-accepted-for="${val.admin_acceptance_data.presentation_preference}"> Open </a>`
                 let adminPresentationPref = '';
                 let adminAcceptance = '';
 
@@ -230,6 +231,38 @@
                             day: 'numeric',
                             year: 'numeric'
                         }) : '');
+                    let bgColor = (i%2 === 0)?'#ecedee':'#ffffff';
+                    const manuscriptRow = `<tr style="background-color: ${bgColor};">
+                            <td colspan="5" class="text-start fw-bolder">
+                                Manuscript
+                            </td>
+                            <td>
+                                January 15, 2026
+                            </td>
+                            <td>
+                                ${(val.author_acceptance_data && val.author_acceptance_data.manuscript_agreement ) ? '<span class="badge bg-success text-white" >Complete </span>' : '<span class="badge bg-danger text-white" >Incomplete </span>'}
+                            </td>
+                            <td>
+                                 ${openManuscriptBtn}
+                            </td>
+                        <tr>`;
+
+                    const impactStatementRow = `<tr style="background-color: ${bgColor};">
+                            <td colspan="5" class="text-start fw-bolder">
+                                Impact Statement
+                            </td>
+                            <td>
+                                January 15, 2026
+                            </td>
+                            <td>
+                                ${(val.author_acceptance_data && val.author_acceptance_data.impact_statement.trim() !== '' ) ? '<span class="badge bg-success text-white" >Complete </span>' : '<span class="badge bg-danger text-white" >Incomplete </span>'}
+                            </td>
+                            <td>
+                                 ${openImpactStatement}
+                            </td>
+                        <tr>`;
+
+
                     $('#abstractTableBody').append('<tr>' +
                         '<td>' + customId + '</td>' +
                         '<td>' + val.paper_data.title + '</td>' +
@@ -244,7 +277,8 @@
                             : "<span class='badge bg-danger text-white'> Incomplete </span>")+
                         '</td>' +
                         '<td>' + openBtn + '</td>' +
-                        '</tr>')
+                        '</tr>'+
+                        (val.author_acceptance_data && parseInt(val.author_acceptance_data.acceptance_confirmation) == 1  && val.admin_acceptance_data.presentation_preference ==1 ?  manuscriptRow + impactStatementRow : '') +'')
                 }
             })
         },'json')   
