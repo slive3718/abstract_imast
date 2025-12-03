@@ -188,15 +188,6 @@
                 return false;
             }
 
-            if (impact_statement === '') {
-                swal.fire({
-                    title: 'Warning',
-                    html: 'Impact statement is required.',
-                    icon: 'info'
-                });
-                return false;
-            }
-
             $.ajax({
                 url: baseUrlAcceptance+'update_acceptance',
                 type: 'POST',
