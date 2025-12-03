@@ -237,7 +237,7 @@
                     const manuscriptRow = `<tr style="background-color: ${bgColor};">
                            <td colspan="1">
 
-                            </td><td colspan="4" class="text-start fw-bolder">
+                            </td><td colspan="4" class="text-start">
                                 Manuscript
                             </td>
                             <td>
@@ -254,7 +254,7 @@
                     const impactStatementRow = `<tr style="background-color: ${bgColor};">
                              <td colspan="1">
 
-                            </td><td colspan="4" class="text-start fw-bolder">
+                            </td><td colspan="4" class="text-start">
                                 Impact Statement
                             </td>
                             <td>
