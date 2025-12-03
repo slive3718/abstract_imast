@@ -241,7 +241,7 @@
                                 Manuscript
                             </td>
                             <td>
-                                January 15, 2026
+                                March 18, 2026
                             </td>
                             <td>
                                 ${(val.author_acceptance_data && val.author_acceptance_data.manuscript_agreement ) ? '<span class="badge bg-success text-white" >Complete </span>' : '<span class="badge bg-danger text-white" >Incomplete </span>'}
