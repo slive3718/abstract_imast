@@ -233,7 +233,9 @@
                         }) : '');
                     let bgColor = (i%2 === 0)?'#ecedee':'#ffffff';
                     const manuscriptRow = `<tr style="background-color: ${bgColor};">
-                            <td colspan="5" class="text-start fw-bolder">
+                           <td colspan="1">
+
+                            </td><td colspan="4" class="text-start fw-bolder">
                                 Manuscript
                             </td>
                             <td>
@@ -248,7 +250,9 @@
                         <tr>`;
 
                     const impactStatementRow = `<tr style="background-color: ${bgColor};">
-                            <td colspan="5" class="text-start fw-bolder">
+                             <td colspan="1">
+
+                            </td><td colspan="4" class="text-start fw-bolder">
                                 Impact Statement
                             </td>
                             <td>
