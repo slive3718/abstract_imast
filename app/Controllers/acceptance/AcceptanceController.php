@@ -596,9 +596,9 @@ class AcceptanceController extends Controller
             $update_array['manuscript_agreement'] = $post['manuscript_agreement'];
         }
 
-        if(!empty($post['impact_statement'])){
-            $update_array['impact_statement'] = $post['impact_statement'] ?? '';
-        }
+
+        $update_array['impact_statement'] = $post['impact_statement'] ?? '';
+
 
         if(!empty($post['impact_statement_agreement'])){
             $update_array['impact_statement_agreement'] = $post['impact_statement_agreement'];
