@@ -148,6 +148,8 @@
                 viewAcceptanceInvited(abstract_id);
             }else if([2].includes(parseInt(acceptance_type))) {
                 viewEposterAcceptance(abstract_id);
+            }else if([5].includes(parseInt(acceptance_type))) {
+                viewInvitedPresentation(abstract_id);
             }else {
                 viewAcceptance(abstract_id);
             }
@@ -334,6 +336,12 @@
     function viewAcceptanceInvited(abstract_id){
         $.post(baseUrlAcceptance+'getAuthorAcceptance/'+abstract_id, function(response){
             window.location.href= baseUrlAcceptance+"invited_speaker_acceptance/"+abstract_id;
+        })
+    }
+
+    function viewInvitedPresentation(abstract_id){
+        $.post(baseUrlAcceptance+'getAuthorAcceptance/'+abstract_id, function(response){
+            window.location.href= baseUrlAcceptance+"invited_presentation_acceptance/"+abstract_id;
         })
     }
 

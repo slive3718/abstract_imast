@@ -270,6 +270,12 @@ $routes->group('acceptance', ['filter' => 'authGuard:acceptance'],  function ($r
     $routes->get('invited_speaker_acceptance_finalize/(:any)', 'acceptance\InvitedAcceptanceController::speaker_acceptance_finalize/$1');
     $routes->get('invited_celebration/(:any)', 'acceptance\InvitedAcceptanceController::invited_celebration/$1');
 
+    //Invited Presentation
+    $routes->get('invited_presentation_menu/(:any)', 'acceptance\InvitedPresentationController::invited_presentation_acceptance_menu/$1');
+    $routes->get('invited_presentation_acceptance/(:any)', 'acceptance\InvitedPresentationController::invited_presentation_acceptance/$1');
+    $routes->get('invited_presentation_finalize/(:any)', 'acceptance\InvitedPresentationController::invited_presentation_finalize/$1');
+
+
     //ePoster Acceptance Routes
     $routes->post('save_e_poster_acceptance_confirmation', 'acceptance\EposterAcceptanceController::save_acceptance_confirmation');
     $routes->get('e_poster_acceptance_menu/(:any)', 'acceptance\EposterAcceptanceController::eposter_acceptance_menu/$1');
