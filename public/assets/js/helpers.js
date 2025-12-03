@@ -1,30 +1,70 @@
-var WordCounterHelper = (function () {
-    function updateCharCount(textarea, charCountDisplay) {
+var CharCounterHelper = (function () {
+    let countingMode = 'chars'; // Default mode: 'chars' or 'words'
+    let countLimit = 0; // Default mode: 'chars' or 'words'
+
+    function setCountingMode(mode) {
+        if (mode === 'chars' || mode === 'words') {
+            countingMode = mode;
+        } else {
+            console.warn('Invalid counting mode. Use "chars" or "words".');
+        }
+    }
+
+    function getCountingMode() {
+        return countingMode;
+    }
+
+    function setLimit(limit) {
+        countLimit = limit;
+    }
+
+    function getLimit(limit) {
+        return limit;
+    }
+
+    function countWords(text) {
+        if (!text.trim()) return 0;
+
+        // Split by whitespace and filter out empty strings
+        return text.trim().split(/\s+/).filter(function(word) {
+            return word.length > 0;
+        }).length;
+    }
+
+    function countChars(text) {
+        return text.length;
+    }
+
+    function updateCount(textarea, charCountDisplay) {
         let text = textarea.val();
+        let count = 0;
+        let displayText = '';
 
-        // Count all characters including spaces
-        let charCount = text.length;
+        if (countingMode === 'words') {
+            count = countWords(text);
+            displayText = 'Word count: ' + count;
+        } else {
+            count = countChars(text);
+            displayText = 'Character count with spaces: ' + count;
+        }
 
-        charCountDisplay.text('Character count with spaces: ' + charCount);
+        charCountDisplay.text(displayText);
 
-        if (charCount > 2500) {
+        if (count > countLimit) {
             charCountDisplay.addClass('text-danger');
         } else {
             charCountDisplay.removeClass('text-danger');
         }
+
+        return count;
     }
 
-    function countTotalChars(charCountSelectors, totalDisplay) {
-        let totalCharsSum = 0;
+    function countTotal(charCountSelectors, totalDisplay) {
+        let totalSum = getCountTotal(charCountSelectors);
 
-        charCountSelectors.each(function () {
-            let charCount = parseInt($(this).text().replace(/\D+/g, ''), 10) || 0;
-            totalCharsSum += charCount;
-        });
+        totalDisplay.html(totalSum);
 
-        totalDisplay.html(totalCharsSum);
-
-        if (totalCharsSum > 2500) {
+        if (totalSum > countLimit) {
             totalDisplay.closest('div').addClass('text-danger');
             totalDisplay.closest('div').removeClass('text-success');
         } else {
@@ -33,26 +73,55 @@ var WordCounterHelper = (function () {
         }
     }
 
-    function runCounter(textareaSelector, charCountSelector, totalCharCountSelector) {
+    function getCountTotal(charCountSelectors) {
+        let totalSum = 0;
+
+        charCountSelectors.each(function () {
+            let count = parseInt($(this).text().replace(/\D+/g, ''), 10) || 0;
+            totalSum += count;
+        });
+
+        return totalSum;
+    }
+
+    function runCounter(textareaSelector, charCountSelector, totalCharCountSelector, mode = 'chars', limit=0) {
+        setCountingMode(mode);
+        setLimit(limit)
+
         $(textareaSelector).off('input keydown').on('input keydown', function (event) {
             let textarea = $(this);
             let charCountDisplay = textarea.siblings(charCountSelector);
 
-            // Only count characters when input changes or when space is pressed
+            // Only count when input changes or when space is pressed
             if (event.type === 'input' || event.key === ' ') {
-                updateCharCount(textarea, charCountDisplay);
-                countTotalChars($(charCountSelector), $(totalCharCountSelector));
+                updateCount(textarea, charCountDisplay);
+                countTotal($(charCountSelector), $(totalCharCountSelector));
             }
         });
+
+        // Initialize counts on page load
+        $(textareaSelector).each(function() {
+            let textarea = $(this);
+            let charCountDisplay = textarea.siblings(charCountSelector);
+            updateCount(textarea, charCountDisplay);
+        });
+
+        // Update total count
+        countTotal($(charCountSelector), $(totalCharCountSelector));
     }
 
     return {
         init: runCounter,
-        updateCharCount: updateCharCount,
-        countTotalChars: countTotalChars
+        updateCount: updateCount,
+        countTotal: countTotal,
+        setCountingMode: setCountingMode,
+        getCountingMode: getCountingMode,
+        setLimit: setLimit,
+        getLimit: getLimit,
+        countWords: countWords,
+        countChars: countChars
     };
 })();
-
 
 // flash-helper.js
 

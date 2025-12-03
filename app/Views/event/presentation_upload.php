@@ -78,7 +78,7 @@
         </div>
     </div>
 </div>
-<script src="<?=base_url()?>assets/js/helpers.js"></script>
+<script src="<?=base_url()?>assets/js/helpers.js?v=1"></script>
 <script>
     let attrId_array = {};
     let current_user_id = "<?=session('user_id')?>"
@@ -295,10 +295,11 @@
     })
 
     function image_caption_counter(){
-        WordCounterHelper.init(
+        CharCounterHelper.init(
             'textarea.countWords',  // Textarea selector
             '.counted_words',       // Word count display
-            '#image_caption_body_count' // Total word count display
+            '#abstract_body_count', // Total word count display
+            'words',
         );
 
         let abstract_body_character_count = `<?=$paper['abstract_body_count']?>`;

@@ -307,7 +307,7 @@
         </div>
     </div>
 </main>
-<script src="<?=base_url()?>assets/js/helpers.js"></script>
+<script src="<?=base_url()?>assets/js/helpers.js?v=1"></script>
 <script>
     let totalWordsCount = 0;
     let userID = `<?=session('user_id')??''?>`;
@@ -342,16 +342,18 @@
 
 
     function abstract_body_counter(){
-        WordCounterHelper.init(
+        CharCounterHelper.init(
             'textarea.countWords',  // Textarea selector
             '.counted_words',       // Word count display
-            '#abstract_body_count' // Total word count display
+            '#abstract_body_count', // Total word count display
+            'words',
         );
 
-        WordCounterHelper.init(
-            'textarea.countWordsCaption',  // Textarea selector
-            '.counted_words_caption',       // Word count display
-            '#image_caption_body_count' // Total word count display
+        CharCounterHelper.init(
+            'textarea.countWords',  // Textarea selector
+            '.counted_words',       // Word count display
+            '#image_caption_body_count', // Total word count display
+            'words',
         );
 
 
