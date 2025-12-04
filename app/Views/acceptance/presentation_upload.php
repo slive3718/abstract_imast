@@ -71,10 +71,11 @@
                         <li class="list-group-item">
                             <strong>Step 3:</strong> Click <strong>"Continue"</strong> to proceed.
                             <div class="mt-3">
+                                <input type="checkbox" class="mb-4" name="manuscript_agreement" id="manuscript_agreement" <?=!empty($acceptanceDetails['manuscript_agreement'] ) && $acceptanceDetails['manuscript_agreement'] == '1' ? 'checked' : ''?>> <label for="manuscript_agreement"> I understand that I must submit my manuscript to the SRS by March 18, 2026. </label>
+                                <br>
                                 <button class="btn btn-success continueBtn">Save Continue</button>
                             </div>
                             <span class="text-danger"> * </span>
-                            <input type="checkbox" name="manuscript_agreement" id="manuscript_agreement" <?=!empty($acceptanceDetails['manuscript_agreement'] ) && $acceptanceDetails['manuscript_agreement'] == '1' ? 'checked' : ''?>> <label for="manuscript_agreement"> I understand that I must submit my manuscript to the SRS by March 18, 2026. </label>
 
                         </li>
 <!--                        <li class="list-group-item py-3">-->

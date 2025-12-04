@@ -48,15 +48,14 @@
                         <span class="counted_words"></span>
                     </div>
                     <div class="p-2">
-                        Click <strong>"Continue"</strong> to proceed. <br>
-
+                        Click <strong>"Continue"</strong> to proceed.
                         <span class="text-danger"> * </span>
-                        <input type="checkbox" name="impact_statement_agreement" id="impact_statement_agreement" <?=!empty($acceptanceDetails['impact_statement_agreement'] ) && $acceptanceDetails['impact_statement_agreement'] == '1' ? 'checked' : ''?>> <label for="impact_statement_agreement"> I understand that I must upload my Impact Statement to the SRS by January 6, 2026. </label>
-
                         <div class="mt-3">
+                            <input type="checkbox" class="mb-4" name="impact_statement_agreement" id="impact_statement_agreement" <?=!empty($acceptanceDetails['impact_statement_agreement'] ) && $acceptanceDetails['impact_statement_agreement'] == '1' ? 'checked' : ''?>> <label for="impact_statement_agreement"> I understand that I must upload my Impact Statement to the SRS by January 6, 2026. </label>
+                            <br>
                             <button class="btn btn-success continueBtn">Save Continue</button>
                         </div>
-                       </div>
+                   </div>
 
                 </form>
             </div>
