@@ -143,24 +143,30 @@ class Reports extends AbstractController
                 $exportData[$index] = array_merge($exportData[$index], $talkScheduleData);
                 // Loop through additional presenting authors
                 for ($i = 0; $i < count($presentingAuthors); $i++) {
-                    $exportData[$index][] = $author['user_name'] ?? '';
-                    $exportData[$index][] = $author['user_middle'] ?? '';
-                    $exportData[$index][] = $author['user_surname'] ?? '';
-                    $exportData[$index][] = !empty($author['designations']) ?  implode(', ', $author['designations']) : '';
-                    $exportData[$index][] = $author['details']['user_email'] ?? '';
-                    $exportData[$index][] = $author['details']['address'] ?? '';
-                    $exportData[$index][] = $author['details']['city'] ?? '';
-                    $exportData[$index][] = $author['details']['province'] ?? '';
-                    $exportData[$index][] = $author['details']['country'] ?? '';
-                    $exportData[$index][] = $author['details']['zipcode'] ?? '';
-                    $exportData[$index][] = $author['institution']['institution_name'] ?? '';
-                    $exportData[$index][] = $author['institution']['institution_country'] ?? '';
-                    $exportData[$index][] = $author['details']['phone'] ?? '';
-                    $exportData[$index][] = $author['acceptance'] ? $author['acceptance']['celebration_attendance'] ? 'Yes' : 'No' : 'Incomplete'; // this is a review.
-                    $exportData[$index][] = isset($author['acceptance']['presentation_file_path']) && isset($author['acceptance']['presentation_saved_name'])
-                        ? base_url() . $author['acceptance']['presentation_file_path'] . '/' . $author['acceptance']['presentation_saved_name']
-                        : '';
-                    $exportData[$index][] = '';
+                    foreach ($paper['authors'] as $author) {
+                        if ($author['is_presenting_author'] == 'Yes') {
+                            if ($i < 5) { // Limit to first 5 presenting authors
+                                $exportData[$index][] = $author['user_name'] ?? '';
+                                $exportData[$index][] = $author['user_middle'] ?? '';
+                                $exportData[$index][] = $author['user_surname'] ?? '';
+                                $exportData[$index][] = !empty($author['designations']) ?  implode(', ', $author['designations']) : '';
+                                $exportData[$index][] = $author['details']['user_email'] ?? '';
+                                $exportData[$index][] = $author['details']['address'] ?? '';
+                                $exportData[$index][] = $author['details']['city'] ?? '';
+                                $exportData[$index][] = $author['details']['province'] ?? '';
+                                $exportData[$index][] = $author['details']['country'] ?? '';
+                                $exportData[$index][] = $author['details']['zipcode'] ?? '';
+                                $exportData[$index][] = $author['institution']['institution_name'] ?? '';
+                                $exportData[$index][] = $author['institution']['institution_country'] ?? '';
+                                $exportData[$index][] = $author['details']['phone'] ?? '';
+                                $exportData[$index][] = $author['acceptance'] ? $author['acceptance']['celebration_attendance'] ? 'Yes' : 'No' : 'Incomplete'; // this is a review.
+                                $exportData[$index][] = isset($author['acceptance']['presentation_file_path']) && isset($author['acceptance']['presentation_saved_name'])
+                                    ? base_url() . $author['acceptance']['presentation_file_path'] . '/' . $author['acceptance']['presentation_saved_name']
+                                    : '';
+                                $exportData[$index][] = '';
+                            }
+                        }
+                    }
                 }
             }
         }
