@@ -143,6 +143,8 @@
                                                     'No' => 'I have held NO financial relationship(s) with an ineligible company within the past 24 months.',
                                                     default => ''
                                                 } ?>
+                                            <?php else: ?>
+                                                <span class="badge bg-warning">None</span>
                                             <?php endif; ?>
                                         </td>
                                     </tr>
