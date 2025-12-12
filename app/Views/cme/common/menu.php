@@ -21,10 +21,23 @@
 
             <ul class="navbar-nav mb-2 mb-md-0">
                 <?php if((session('user_id'))):?>
-                <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="<?=base_url()?>/assets/documents/reviewers/IMAST26_Abstract_Reviewer_Instructions_OneWorld.pdf" target="_blank">
-                        <button type="button" class="btn btn-outline-light">Reviewers Instruction <i class="fas fa-note-sticky"></i></button>
-                    </a>
+                <li class="nav-item mt-2">
+                    <div class="dropdown">
+                        <button class="btn btn-outline-light dropdown-toggle" type="button" id="dropdownMenuButton2" data-bs-toggle="dropdown" aria-expanded="false">
+                            Help Files </button>
+                        <ul class="btn btn-outline-light dropdown-menu dropdown-menu-end mt-3 text-white" aria-labelledby="dropdownMenuButton1" style="background-color:#2aa69c">
+                            <li>
+                                <a class="dropdown-item text-white" href="<?=base_url()?>/assets/documents/cme/IMAST_Abstract_Review_Process.pdf" target="_blank"> Review Process</a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item text-white" href="<?=base_url()?>/assets/documents/cme/CME_Policies.pdf" target="_blank">CME Policies </a>
+                            </li>
+                        </ul>
+
+
+
+                    </div>
+
                 </li>
                 <li class="nav-item">
                     <a class="nav-link active" aria-current="page" href="<?=base_url()?>/cme/abstract_list">
