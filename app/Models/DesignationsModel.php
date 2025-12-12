@@ -18,4 +18,9 @@ class DesignationsModel extends Model
         $all = $this->findAll();
         return array_column($all,'name', 'id');
     }
+
+    public function get_array_column(){
+        $designations = $this->findAll();
+        return array_column($designations,'name','id');
+    }
 }

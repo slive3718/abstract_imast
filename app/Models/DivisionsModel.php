@@ -13,4 +13,14 @@ class DivisionsModel extends Model
     protected  $returnType = 'object';
 
 
+    function __construct()
+    {
+        parent::__construct();
+    }
+
+    public function getDivisionName($division_id){
+        return $this->select('name')
+            ->where('division_id', $division_id)
+            ->asArray()->first();
+    }
 }

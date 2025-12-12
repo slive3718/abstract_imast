@@ -38,5 +38,10 @@ class AbstractSubCategoriesModel extends Model
             
         }
     }
+
+    public function get_array_column(){
+        $abstractSubCategories = (new AbstractSubCategoriesModel())->findAll();
+        return (array_column($abstractSubCategories, 'name', 'id'));
+    }
     
 }

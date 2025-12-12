@@ -251,7 +251,6 @@ class AbstractController extends BaseController
         $post = $this->request->getPost();
         $UsersProfileModel = (new UsersProfileModel());
         $PapersModel = (new PapersModel());
-        $InstitutionModel = (new InstitutionModel());
         $PaperAuthorsModel = (new PaperAuthorsModel());
         $PaperUploadsModel = (new PaperUploadsModel());
         $UsersModel = (new UserModel());
