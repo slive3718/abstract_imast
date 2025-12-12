@@ -84,12 +84,9 @@ class UserModel extends BaseModel
 
 
     function validateUser($post){
-        // return $data;
         $result= $this->select('*')
         ->where('email', $post['email'])
         ->first();
-
-        //  print_r($post['email']);
         return($result);
     }
 
