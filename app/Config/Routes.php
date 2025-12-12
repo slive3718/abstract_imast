@@ -165,6 +165,25 @@ $routes->group('reviewer', ['filter' => 'authGuard:reviewer'],  function ($route
     $routes->post('checkAbstractReviewsCount', 'reviewer\ReviewerController::checkAbstractReviewsCount');
 
 });
+######## ---------- Routes for CME ------------------ ##############
+
+$routes->get('cme/login', 'cme\CMELogin::index');
+$routes->post('cme/authenticate', 'cme\CMELogin::authenticate');
+$routes->group('cme', ['filter' => 'authGuard:cme'],  function ($routes) {
+
+
+    $routes->get('logout', 'cme\CMELogin::logout');
+    $routes->get('abstract_list', 'cme\CMEController::index');
+    $routes->post('getCMEPapersToReview', 'cme\CMEController::getCMEPapersToReview');
+    $routes->get('reviewAbstract/(:any)', 'cme\CMEController::reviewAbstract/$1');
+    $routes->post('addReviewData', 'cme\CMEController::addReviewData');
+    $routes->post('uploadReviewerFile', 'cme\CMEController::uploadReviewerFile');
+    $routes->get('getAbstractReview/(:any)', 'cme\CMEController::getAbstractReview/$1');
+    $routes->get('getNextReviewAbstract/(:any)', 'cme\CMEController::getNextReviewAbstract/$1');
+    $routes->post('declineReviewerAbstract', 'cme\CMEController::declineReviewerAbstract');
+    $routes->post('checkAbstractReviewsCount', 'cme\CMEController::checkAbstractReviewsCount');
+
+});
 
 
 ######## ---------- Routes for Deputy  ---------- ##############
@@ -436,6 +455,7 @@ $routes->post('login', 'Login::index');
 $routes->get('home', 'Home::index');
 $routes->get('admin', 'admin\Abstracts\AdminLogin::index');
 $routes->get('reviewer', 'reviewer\ReviewerLogin::index');
+$routes->get('cme', 'cme\CMELogin::index');
 $routes->get('deputy', 'deputy\ReviewerLogin::index');
 $routes->get('reviewers_instruction_pdf', 'PDFController::show_pdf/');
 $routes->get('acceptance', 'acceptance\AcceptanceLogin::index');

@@ -44,5 +44,9 @@ class AbstractCategoriesModel extends Model
         return array_column($this->Get(), $columnKey, $indexKey);
     }
 
+    public function get_array_column(){
+        $abstractCategories = $this->findAll();
+        return (array_column($abstractCategories, 'name', 'id'));
+    }
     
 }
