@@ -590,6 +590,7 @@ function validatedChecked($reviews, $name, $value) {
         $('input[name="mitigation"]').on('change', function(){
             showHideRequestText();
         })
+        showHideRequestText()
 
     })
 
