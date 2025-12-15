@@ -114,6 +114,11 @@ class AbstractServices extends CoreServices
 
         return array_map(function($paperAuthor) use ($userProfilesMap, $usersMap, $acceptanceMap, $paper_id) {
             $authorId = $paperAuthor['author_id'] ?? $paperAuthor->author_id;
+            $userInstitution = $userProfilesMap[$authorId]['institution_id'] ? (new InstitutionServices())->getInstitutionWithAddress($userProfilesMap[$authorId]['institution_id']) : [];
+            if($userInstitution){
+                unset($userInstitution['id']);
+            }
+
             // Return as array
             return [
                 'author_id' => $authorId,
@@ -122,7 +127,7 @@ class AbstractServices extends CoreServices
                 'email' => $usersMap[$authorId]['email'] ?? [],
                 'profile_data' => $userProfilesMap[$authorId] ?? [],
                 'created_at' => $paperAuthor['created_at'] ?? NULL,
-                'institution'=> $userProfilesMap[$authorId]['institution_id'] ? (new InstitutionServices())->getInstitutionWithAddress($userProfilesMap[$authorId]['institution_id']) : [],
+                'institution'=> $userInstitution,
                 'acceptance' => $acceptanceMap[$authorId] ?? [],
                 'designations' => $this->getUserDesignations($userProfilesMap[$authorId]['designations']),
                 'assigned_paper' => $this->getAuthorAssignedPaper([$authorId], $paper_id),

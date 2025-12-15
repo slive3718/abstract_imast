@@ -33,11 +33,7 @@
                                 <a class="dropdown-item text-white" href="<?=base_url()?>/assets/documents/cme/CME_Policies.pdf" target="_blank">CME Policies </a>
                             </li>
                         </ul>
-
-
-
                     </div>
-
                 </li>
                 <li class="nav-item">
                     <a class="nav-link active" aria-current="page" href="<?=base_url()?>/cme/abstract_list">

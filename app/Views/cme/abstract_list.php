@@ -23,16 +23,6 @@
                 <label for="unratedSubmission">Show only unrated submissions</label>
                 <input type="checkbox" name="unratedSubmission" id="unratedSubmission" >
             </div>
-            <div>
-                <label for="divisionFilter"> Category Filter: </label>
-                <select name="divisionFilter" id="divisionFilter" class="form-control" style="width:500px">
-                    <option value="">All Categories</option>
-                    <?php if(isset($categories) && !empty($categories)):
-                        foreach($categories as $category):?>
-                            <option><?=$category['name']?></option>
-                        <?php endforeach; endif ?>
-                </select>
-            </div>
         </div>
 
         <div class="card p-2">
@@ -42,7 +32,6 @@
                 <thead>
                     <th>ID</th>
                     <th>Title</th>
-                    <th>Category</th>
                     <th>Rated?</th>
                     <th>Action</th>
                 </thead>
@@ -66,7 +55,7 @@
         $("#abstractTableBody").on('click', '.reviewBtn', function(){
             let abstract_id = $(this).attr('abstract_id')
 
-            window.location.href= baseUrlReviewer+"reviewAbstract/"+abstract_id;
+            window.location.href= baseUrlReviewer+"reviewCMEAbstract/"+abstract_id;
         })
 
         $('#divisionFilter').on('change', function() {
@@ -136,8 +125,7 @@
                 $('#abstractTableBody').append('<tr>'+
                     '<td>'+val.abstracts.custom_id+'</td>'+
                     '<td>'+val.abstracts.title.replace( /<.*?>/g, '' ) +'</td>'+
-                    '<td>'+(val.abstract_categories ? val.abstract_categories.name : "") +'</td>'+
-                    '<td id="rating_'+val.abstracts.id+'">'+(val.reviews && val.reviews.total_score ? val.reviews.total_score:'')+'</td>'+
+                    '<td id="rating_'+val.abstracts.id+'">'+(val.is_rated ? 'Yes' : '')+'</td>'+
                     '<td>'+reviewBtn +" "+((val.reviews)?'':declinedBtn)+'</td>'+
                     '</tr>')
             })
