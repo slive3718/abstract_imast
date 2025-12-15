@@ -523,10 +523,10 @@
                             </div>
                         </div>
 
-                        <div class="mt-4">
+                        <div class="mt-4 requestTextDiv" style="display: none">
                             <div class="form-group">
-                                <label for="comments" class="form-label fw-bold">Comments*:</label>
-                                <textarea class="form-control" name="comments" id="comments" rows="4" placeholder="Enter any additional comments..."><?= empty($reviews) ? '' : $reviews['comments'] ?></textarea>
+                                <label for="request_text" class="form-label fw-bold">Request:</label>
+                                <textarea class="form-control" name="request_text" id="request_text" rows="4" placeholder="Enter any additional comments..."><?= empty($reviews) ? '' : $reviews['request_text'] ?></textarea>
                             </div>
                         </div>
 
@@ -586,7 +586,23 @@ function validatedChecked($reviews, $name, $value) {
         $('textarea').on('input', function(){
             $(this).removeClass('border-danger');
         })
+
+        $('input[name="mitigation"]').on('change', function(){
+            showHideRequestText();
+        })
+
     })
+
+    function showHideRequestText(){
+        let mitigationValue = $('input[name="mitigation"]:checked').val();
+        if(mitigationValue === '3' || mitigationValue === '4'){
+            $('.requestTextDiv').show();
+            $('#request_text').addClass('required');
+        }else{
+            $('.requestTextDiv').hide();
+            $('#request_text').removeClass('required');
+        }
+    }
 
     window.onload = function(){
         totalScores();
@@ -609,6 +625,7 @@ function validatedChecked($reviews, $name, $value) {
         let formData = new FormData(document.getElementById('formCMRating'));
         formData.append('abstract_id', abstract_id)
         formData.append('cme_reviewer_id', reviewer_id)
+
         $('.required').each(function() {
             let $this = $(this);
             let tag = $this.prop('tagName').toLowerCase();  // 'input', 'select', 'textarea'

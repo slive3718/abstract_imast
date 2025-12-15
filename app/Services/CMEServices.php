@@ -27,7 +27,7 @@ class CMEServices extends CoreServices
             'answer11' => $post['contentValidity6'],
             'answer12' => $post['mitigation'],
             'e_signature' => $post['e_signature'],
-            'comments' => $post['comments'] ?: ''
+            'request_text' => $post['request_text'] ?: ''
         ];
     }
 
