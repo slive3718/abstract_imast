@@ -6,6 +6,8 @@ use App\Models\AbstractSubCategoriesModel;
 use App\Models\AdminAbstractCommentModel;
 use App\Models\AdminAcceptanceModel;
 use App\Models\AuthorAcceptanceModel;
+use App\Models\CMEReviewersModel;
+use App\Models\CMEReviewsModel;
 use App\Models\DesignationsModel;
 use App\Models\DivisionsModel;
 use App\Models\EmailLogsModel;
@@ -45,6 +47,8 @@ class CoreServices extends BaseService
     protected PapersDeputyAcceptanceModel $papersDeputyAcceptanceModel;
     protected PaperUploadsModel $paperUploadsModel;
     protected ReviewerPaperUploadsModel $reviewerPaperUploadsModel;
+    protected CMEReviewersModel $CMEReviewersModel;
+    protected CMEReviewsModel $CMEReviewsModel;
     protected SiteSettingModel $siteSettingModel;
     protected UserModel $userModel;
     protected UsersProfileModel $usersProfileModel;

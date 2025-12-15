@@ -20,7 +20,7 @@ class CMEReviewsModel extends Model
     protected bool $updateOnlyChanged = true;
 
     // Dates
-    protected $useTimestamps = false;
+    protected $useTimestamps = true;
     protected $dateFormat    = 'datetime';
     protected $createdField  = 'created_at';
     protected $updatedField  = 'updated_at';
@@ -34,7 +34,7 @@ class CMEReviewsModel extends Model
 
     // Callbacks
     protected $allowCallbacks = true;
-    protected $beforeInsert   = [];
+    protected $beforeInsert   = ['validateReferences'];
     protected $afterInsert    = [];
     protected $beforeUpdate   = [];
     protected $afterUpdate    = [];
@@ -53,6 +53,45 @@ class CMEReviewsModel extends Model
     protected function excludeDeleted(array $data)
     {
         $this->builder()->where($this->table . '.deleted_at', null);
+        return $data;
+    }
+
+    /**
+     * Prevent zero/negative department IDs
+     */
+    protected function validateReferences(array $data)
+    {
+        if (empty($data['data'])) {
+            throw new \InvalidArgumentException("Empty data provided for validation.");
+        }
+
+        $requiredFields = ['paper_id', 'cme_reviewer_id'];
+
+        foreach ($requiredFields as $field) {
+            // Check if field exists and is valid
+            if (!isset($data['data'][$field])) {
+                throw new \InvalidArgumentException("Field '$field' is required.");
+            }
+
+            $value = $data['data'][$field];
+
+            // Skip validation if value is null (for updates)
+            if ($value === null) {
+                continue;
+            }
+
+            // Check if it's numeric
+            if (!is_numeric($value)) {
+                throw new \InvalidArgumentException("Field '$field' must be a numeric value.");
+            }
+
+            // Convert to integer
+            $intValue = (int)$value;
+            if ($intValue <= 0) {
+                throw new \InvalidArgumentException("Field '$field' must be a positive integer.");
+            }
+        }
+
         return $data;
     }
 

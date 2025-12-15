@@ -175,11 +175,11 @@ $routes->group('cme', ['filter' => 'authGuard:cme'],  function ($routes) {
     $routes->get('logout', 'cme\CMELogin::logout');
     $routes->get('abstract_list', 'cme\CMEController::index');
     $routes->post('getCMEPapersToReview', 'cme\CMEController::getCMEPapersToReview');
-    $routes->get('reviewAbstract/(:any)', 'cme\CMEController::reviewAbstract/$1');
-    $routes->post('addReviewData', 'cme\CMEController::addReviewData');
+    $routes->get('reviewCMEAbstract/(:any)', 'cme\CMEController::reviewCMEAbstract/$1');
+    $routes->post('addCMEReviewData', 'cme\CMEController::addCMEReviewData');
     $routes->post('uploadReviewerFile', 'cme\CMEController::uploadReviewerFile');
-    $routes->get('getAbstractReview/(:any)', 'cme\CMEController::getAbstractReview/$1');
-    $routes->get('getNextReviewAbstract/(:any)', 'cme\CMEController::getNextReviewAbstract/$1');
+    $routes->get('getCMEAbstract/(:any)', 'cme\CMEController::getAbstractReview/$1');
+    $routes->get('getNextCMEAbstract/(:num)', 'cme\CMEController::getNextCMEAbstract/$1');
     $routes->post('declineReviewerAbstract', 'cme\CMEController::declineReviewerAbstract');
     $routes->post('checkAbstractReviewsCount', 'cme\CMEController::checkAbstractReviewsCount');
 
