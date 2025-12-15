@@ -27,34 +27,6 @@
     input {
         border: 2px solid;
     }
-
-    .inputScore{
-        max-width:300px;
-    }
-
-    .parent {
-        display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        grid-template-rows: repeat(5, 1fr);
-        grid-column-gap: 0px;
-        grid-row-gap: 0px;
-    }
-
-    .div1 { grid-area: 1 / 1 / 2 / 3; }
-    .div2 { grid-area: 2 / 1 / 3 / 3; }
-    .div3 { grid-area: 3 / 1 / 4 / 3; }
-    .div4 { grid-area: 1 / 3 / 2 / 4; }
-    .div5 { grid-area: 2 / 3 / 4 / 4; }
-    .div6 { grid-area: 4 / 1 / 5 / 3; }
-    .div7 { grid-area: 5 / 1 / 6 / 3; }
-    .div8 { grid-area: 4 / 3 / 6 / 4; }
-
-    .customTd{
-        width: 30%;
-        vertical-align: top;
-        text-align: right;
-        padding-right: 30px;
-    }
 </style>
 <main>
     <div class="container">
