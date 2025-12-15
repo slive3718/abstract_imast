@@ -14,6 +14,12 @@ class PapersModel extends Model
 
     protected $returnType = 'object';
 
+    protected $useTimestamps = true;
+    protected $dateFormat    = 'datetime';
+    protected $createdField  = 'created_at';
+    protected $updatedField  = 'updated_at';
+    protected $deletedField  = 'deleted_at';
+
     protected $beforeFind = ['excludeDeletedRecords'];
     private $error;
 
