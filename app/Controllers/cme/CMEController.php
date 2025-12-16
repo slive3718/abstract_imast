@@ -3,15 +3,18 @@
 namespace App\Controllers\cme;
 
 use App\Controllers\admin\EmailController;
+use App\Controllers\Author;
 use App\Controllers\BaseController;
 use App\Libraries\Upload;
 use App\Models\AbstractCategoriesModel;
 use App\Models\AbstractSubCategoriesModel;
+use App\Models\AffiliationsModel;
 use App\Models\CMEAssignedPapersModel;
 use App\Models\CMEReviewersModel;
 use App\Models\CMEReviewsModel;
 use App\Models\DesignationsModel;
 use App\Models\DivisionsModel;
+use App\Models\OrganizationsModel;
 use App\Models\PaperAssignedReviewerModel;
 use App\Models\PaperAuthorsModel;
 use App\Models\PaperTypeModel;
@@ -131,6 +134,13 @@ class CMEController extends BaseController
         $data['reviewer_id'] = session('user_id');
         $data['abstract_id'] = $abstract_id;
         $data['reviews'] = $abstractReviewData ?: [];
+        $data['organizations'] = (new OrganizationsModel())->findAll();
+        $data['affiliations'] = (new AffiliationsModel())->findAll();
+
+        foreach ($data['authors'] as $key => $author) {
+            $organizations = (new OrganizationsModel())->get_selected_org($author['author_id']);
+            $data['authors'][$key]['selectedOrganizations'] = $organizations;
+        }
 
         return
             view('cme/common/header', $header_data).

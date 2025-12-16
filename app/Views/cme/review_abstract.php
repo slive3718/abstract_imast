@@ -39,13 +39,13 @@
                 <div class="card-body">
                     <table>
                         <tr>
-                            <td class="customTd">Abstract ID : </td>
+                            <td class="customTd text-end" style="width:250px">Abstract ID : </td>
                             <td>
                                 <?= $abstract['paper']['id'] ?>
                             </td>
                         </tr>
                         <tr>
-                            <td class="customTd">Abstract Title : </td>
+                            <td class="customTd text-end">Abstract Title : </td>
                             <td>
                                 <?= strip_tags($abstract['paper']['title']) ?>
                             </td>
@@ -127,6 +127,100 @@
                                             <?php endif; ?>
                                         </td>
                                     </tr>
+
+                                    <tr>
+                                        <td class="text-end">Signature:</td>
+                                        <td>
+                                            <?= !empty($author['profile_data']['disclosure_signature'])
+                                                ? htmlspecialchars($author['profile_data']['disclosure_signature'])
+                                                : 'N/A'; ?>
+                                            <?=  !empty($author['profile_data']['signature_signed_date']) ? '<span class="small fw-bolder ml-5 badge  bg-info"> Date: '.date('Y-m-d', strtotime($author['profile_data']['signature_signed_date'])).'</span>' : '' ?>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Organizations and Affiliations -->
+                                    <tr>
+                                        <td class="text-end">Organizations and Affiliations:</td>
+                                        <td>
+                                            <?php if (!empty($author['selectedOrganizations'])): ?>
+                                                <?php
+                                                // Create a map of organization IDs for faster lookup
+                                                $organizationMap = array_column($organizations, null, 'organization_id');
+                                                $affiliationMap = array_column($affiliations, null, 'id');
+                                                ?>
+
+                                                <?php foreach ($author['selectedOrganizations'] as $org): ?>
+                                                    <div class="mb-3">
+                                                        <?php
+                                                        $organizationName = $organizationMap[$org['organization_id']]['name'] ?? 'N/A';
+                                                        $customOrganization = $org['custom_organization'] ?? 'N/A';
+                                                        ?>
+                                                        <p class="mb-1">
+                                                            <strong>Name of Corporate Organization:</strong>
+                                                            <?= htmlspecialchars($organizationName) ?>
+                                                            <?= $organizationName == 'Other' ? ($customOrganization ? " ({$customOrganization})" : '') : '' ?>
+                                                        </p>
+
+                                                        <?php if (!empty($org['affiliations'])): ?>
+                                                            <ul class="list-unstyled ms-3">
+                                                                <?php foreach ($org['affiliations'] as $affiliationId): ?>
+                                                                    <?php
+                                                                    $affiliationName = $affiliationMap[$affiliationId]['name'] ?? 'N/A';
+                                                                    ?>
+                                                                    <li>- <?= htmlspecialchars($affiliationName) ?></li>
+                                                                <?php endforeach; ?>
+                                                            </ul>
+                                                        <?php endif; ?>
+
+                                                        <?php if (($org['relationship_ended']) !== null): ?>
+                                                            <p class="mb-1">
+                                                                <strong>Relationship ended:</strong>
+                                                                <?= ($org['relationship_ended']) == '1' ? 'Yes' : 'No' ?>
+                                                            </p>
+                                                        <?php endif; ?>
+                                                    </div>
+                                                <?php endforeach; ?>
+                                            <?php else: ?>
+                                                <p class="text-secondary">No affiliated organizations.</p>
+                                            <?php endif; ?>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Financial Disclosure -->
+                                    <tr>
+                                        <td class="text-end" style="width: 220px;">Financial Disclosure:</td>
+                                        <td>
+                                            <?= ($author['profile_data']['financial_relationship'] === 'Yes')
+                                                ? 'I have held a financial relationship with an ineligible company within the past 24 months.'
+                                                : 'I have NO financial relationship(s) with an ineligible company producing healthcare goods or services.'; ?>
+                                        </td>
+                                    </tr>
+
+                                    <!-- Disclosure Support -->
+                                    <tr>
+                                        <td class="text-end">Disclosure Support:</td>
+                                        <td>
+                                            <input type="checkbox" <?= ($author['profile_data']['disclosure_support'] == 1) ? 'checked' : ''; ?> disabled />
+                                            <label>Practice recommendations that are relevant to the ineligible companies with whom you have relationships/affiliations will be supported by the best available evidence or absent evidence will be consistent with generally accepted medical practice. </label>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="text-end">Disclosure Discussed:</td>
+                                        <td>
+                                            <input type="checkbox" <?= ($author['profile_data']['disclosure_discussed'] == 1) ? 'checked' : ''; ?> disabled />
+                                            <label> All reasonable clinical alternatives will be discussed when making practice recommendations. </label>
+                                        </td>
+                                    </tr>
+
+                                    <tr>
+                                        <td class="text-end">Disclosure Relationship:</td>
+                                        <td>
+                                            <input type="checkbox" <?= ($author['profile_data']['disclosure_relationship'] == 1) ? 'checked' : ''; ?> disabled />
+                                            <label> Relationships with ineligible companies will not bias or otherwise influence your involvement in the CME activity. </label>
+                                        </td>
+                                    </tr>
+
                                     <tr>
                                         <td colspan="2"><br></td>
                                     </tr>
@@ -736,7 +830,7 @@ function validatedChecked($reviews, $name, $value) {
                                     let timerInterval
                                     Swal.fire({
                                         title: 'Saved',
-                                        html: 'All abstracts have been reviewed, Thank you for your participation! <br> You will be automatically redirected to submission menu.',
+                                        html: 'All Papers have been reviewed, Thank you for your participation! <br> You will be automatically redirected to submission menu.',
                                         timer: 10000,
                                         icon: 'success',
                                         timerProgressBar: true,
