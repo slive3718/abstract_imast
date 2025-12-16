@@ -26,7 +26,7 @@
         </div>
 
         <div class="card p-2">
-            <div class="card-header bg-opacity-50"><p>Papers: (Click on a result below to review)</p></div>
+            <div class="card-header bg-opacity-50"><p>Papers: (Click on 'review' to start your reviews)</p></div>
             <div class="card-body">
             <table id="abstractTable" class="table table-striped">
                 <thead>
