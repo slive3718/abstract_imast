@@ -123,6 +123,10 @@
                 if(data.is_session_moderator === '1'){
                     $('#is_session_moderator').prop('checked', true)
                 }
+                if(data.is_cme_reviewer && data.is_cme_reviewer.deleted_at === null){
+                    console.log('here')
+                    $('#is_cme_reviewer').prop('checked', true)
+                }
                 let divisions = JSON.parse(data.profile.division_id);
                 $.each(divisions, function(i, val){
                     $('#division_'+val).prop('checked', true)

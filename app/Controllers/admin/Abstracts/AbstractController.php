@@ -13,6 +13,7 @@ use App\Models\AdminIndividualPanelAcceptanceModel;
 use App\Models\AffiliationsModel;
 use App\Models\AttestationModel;
 use App\Models\AuthorAcceptanceModel;
+use App\Models\CMEReviewersModel;
 use App\Models\DesignationsModel;
 use App\Models\DivisionsModel;
 use App\Models\EmailLogsModel;
@@ -679,6 +680,7 @@ class AbstractController extends BaseController
         $userModel = new UserModel();
         $result = $userModel->find($user_id);
         $result['profile']= (new UsersProfileModel())->where('author_id', $user_id)->first();
+        $result['is_cme_reviewer']= (new CMEReviewersModel())->where('cme_reviewer_id', $user_id)->first();
 
         return json_encode($result);
     }
