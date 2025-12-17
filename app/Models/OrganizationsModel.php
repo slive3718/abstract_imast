@@ -35,4 +35,28 @@ class OrganizationsModel extends Model
         }
         return $data;
     }
+
+    public function get_selected_org($user_id){
+        $UserOrganizationsModel = new UserOrganizationsModel(); // New model to handle user affiliations
+        // Get saved affiliations for the user
+        $savedOrganizations = $UserOrganizationsModel
+            ->where('user_id', $user_id)
+            ->orderBy('id', 'asc') // <-- Order by insertion order
+            ->findAll();
+
+        // Map saved affiliations to an easy-to-use array
+        $selectedOrganizations = [];
+        if (!empty($savedOrganizations)) {
+            foreach ($savedOrganizations as $org) {
+                $selectedOrganizations[$org['id']] = [
+                    'organization_id' => $org['organization_id'], // Fixed ID to match organization_id
+                    'affiliations' => json_decode($org['affiliation'], true) ?? [],
+                    'custom_organization' => $org['custom_organization'] ?? null,
+                    'relationship_ended' => $org['relationship_ended'] ?? null
+                ];
+            }
+        }
+
+        return $selectedOrganizations;
+    }
 }

@@ -7,6 +7,8 @@ use App\Controllers\User;
 
 use App\Models\AbstractReviewModel;
 use App\Models\CitiesModel;
+use App\Models\CMEReviewersModel;
+use App\Models\CMEReviewsModel;
 use App\Models\DesignationsModel;
 use App\Models\DivisionsModel;
 use App\Models\EmailLogsModel;
@@ -518,6 +520,7 @@ class UserManagerController extends BaseController
             $userId = $this->userModel->insert($userFields);
 
             $this->createUserProfile($userId, $post);
+            $this->createCMEReviewer($post);
 
             $this->db->transComplete();
 
@@ -573,7 +576,7 @@ class UserManagerController extends BaseController
             (new UserModel())->update($post['user_id'], $userFields);
 
             $this->updateUserProfile($post['user_id'], $post);
-
+            $this->updateCMEReviewer($post);
 
             $this->db->transComplete();
 
@@ -695,5 +698,55 @@ class UserManagerController extends BaseController
             ]);
         }
     }
+
+    public function updateCMEReviewer(array $post): void
+    {
+
+
+        $cmeReviewersModel = new CMEReviewersModel();
+        try {
+            $existingReviewer = $cmeReviewersModel
+                ->withDeleted()
+                ->where('cme_reviewer_id', $post['user_id'])
+                ->first();
+
+//            print_r($existingReviewer);exit;
+            $shouldBeReviewer = !empty($post['is_cme_reviewer']);
+
+            if ($existingReviewer) {
+                if ($shouldBeReviewer) {
+                    // Restore if soft-deleted
+                    if ($existingReviewer['deleted_at']) {
+                        $cmeReviewersModel
+                            ->where('cme_reviewer_id', $post['user_id'])
+                            ->set('deleted_at', NULL)
+                            ->update();
+                    }
+                } else {
+                    // Remove reviewer status (soft delete)
+                    if (!$existingReviewer['deleted_at']) {
+                        $cmeReviewersModel
+                            ->where('cme_reviewer_id', $post['user_id'])
+                            ->delete();
+                    }
+
+                }
+            } else if ($shouldBeReviewer) {
+                $this->createCMEReviewer($post);
+            }
+        } catch (\Exception $e) {
+            log_message('error', 'Error managing CME reviewer: ' . $e->getMessage());
+            throw $e;
+        }
+
+    }
+
+    public function createCMEReviewer($post){
+        $CMEReviewersModel = new CMEReviewersModel();
+        $CMEReviewersModel->insert(['cme_reviewer_id' => $post['user_id']]);
+    }
+
+
+
 
 }

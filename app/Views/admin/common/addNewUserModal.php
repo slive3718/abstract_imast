@@ -76,7 +76,7 @@
                                 <small>If Regular Reviewer is unchecked above, this new user will only have submission log in permissions</small>
                             </div>
                         </div>
-                        <div class="col-md-12" id="is_deputy_reviewer_div"> <!-- Make the checkbox span the entire row -->
+                        <div class="col-md-12 d-none" id="is_deputy_reviewer_div"> <!-- Make the checkbox span the entire row -->
                             <div class="alert alert-warning mt-3" role="alert">
                                 <div class="form-check form-switch">
                                     <input class="form-check-input" type="checkbox" name="is_deputy_reviewer" id="is_deputy_reviewer" value="1">
@@ -84,6 +84,17 @@
                                 </div>
                                 <i class="bi bi-exclamation-triangle-fill me-2"></i>
                                 <small>If Deputy Reviewer is unchecked above, this new user will only have submission log in permissions</small>
+                            </div>
+                        </div>
+
+                        <div class="col-md-12" id="is_cme_reviewer_div"> <!-- Make the checkbox span the entire row -->
+                            <div class="alert alert-warning mt-3" role="alert">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="is_cme_reviewer" id="is_cme_reviewer" value="1">
+                                    <label class="form-check-label" for="is_cme_reviewer">CME Reviewer</label>
+                                </div>
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                <small>If CME Reviewer is unchecked above, this new user will only have submission log in permissions</small>
                             </div>
                         </div>
 
@@ -223,6 +234,11 @@
                 $('#is_deputy_reviewer').prop('checked', true)
                 $('#is_deputy_reviewer_div').css('display', 'block')
                 $('#is_regular_reviewer_div').css('display', 'none')
+            }
+            if(data.is_cme_reviewer && data.is_cme_reviewer.deleted_at === null){
+                console.log('here')
+                $('#is_cme_reviewer').prop('checked', true)
+                $('#is_cme_reviewer_div').css('display', 'block')
             }
 
             // Set the checkbox based on status

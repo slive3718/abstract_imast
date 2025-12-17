@@ -445,7 +445,6 @@ class Author extends BaseController
         $UserModel = new UserModel();
         $OrganizationsModel = new OrganizationsModel();
         $AffiliationsModel = new AffiliationsModel();
-        $UserOrganizationsModel = new UserOrganizationsModel(); // New model to handle user affiliations
 
         // Get author data
         $author = $UserModel
@@ -454,34 +453,16 @@ class Author extends BaseController
             ->asArray()
             ->first();
 
-        $organizations = $OrganizationsModel->findAll();
-        $affiliations = $AffiliationsModel->findAll();
-
-        // Get saved affiliations for the user
-        $savedOrganizations = $UserOrganizationsModel
-            ->where('user_id', $user_id)
-            ->orderBy('id', 'asc') // <-- Order by insertion order
-            ->findAll();
-
-        // Map saved affiliations to an easy-to-use array
-        $selectedOrganizations = [];
-        if (!empty($savedOrganizations)) {
-            foreach ($savedOrganizations as $org) {
-                $selectedOrganizations[$org['id']] = [
-                    'organization_id' => $org['organization_id'], // Fixed ID to match organization_id
-                    'affiliations' => json_decode($org['affiliation'], true) ?? [],
-                    'custom_organization' => $org['custom_organization'] ?? null,
-                    'relationship_ended' => $org['relationship_ended'] ?? null
-                ];
-            }
-        }
-
         $attestation = (new AttestationModel())->where('author_id', session('user_id'))->first();
 
 
         $header_data = [
             'title' => "Print/Preview/Finalize"
         ];
+
+        $organizations = $OrganizationsModel->findAll();
+        $affiliations = $AffiliationsModel->findAll();
+        $selectedOrganizations = (new OrganizationsModel())->get_selected_org($user_id);
 
         $data = [
             'author' => $author,
