@@ -86,7 +86,15 @@
                                 <td>
                                     <?php if(!empty($authors)):
                                         foreach ($authors  as $index => $author):
-                                            $mapDesignations = implode(', ',  $author['designations']);
+                                            $mapDesignations = array_map(function($designation) use ($author) {
+                                                if(strtolower($designation) == 'other'){
+                                                    return $author['profile_data']['other_designation'];
+                                                }else{
+                                                    return $designation;
+                                                }
+                                            }, $author['designations']);
+
+                                            $mapDesignations = implode(', ',  $mapDesignations);
                                             echo getAuthorTypeBadge($author['assigned_paper'], $index);
                                             ?>
 
@@ -96,7 +104,16 @@
                             </tr>
                             <?php if(!empty($authors)):
                                 foreach ($authors as $index => $author):
-                                    $mapDesignations = implode(', ',  $author['designations']);
+//
+                                    $mapDesignations = array_map(function($designation) use ($author) {
+                                        if(strtolower($designation) == 'other'){
+                                            return $author['profile_data']['other_designation'];
+                                        }else{
+                                            return $designation;
+                                        }
+                                        }, $author['designations']);
+
+                                    $mapDesignations = implode(', ',  $mapDesignations);
                                     ?>
                                     <tr >
                                         <td class="text-end">(<?=($index+1)?>) <?=($author['assigned_paper']['is_presenting_author'] == "Yes")? 'Presenting Author :':'Co-Author :'?></td>
