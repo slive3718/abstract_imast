@@ -125,7 +125,7 @@
                 $('#abstractTableBody').append('<tr>'+
                     '<td>'+val.abstracts.custom_id+'</td>'+
                     '<td>'+val.abstracts.title.replace( /<.*?>/g, '' ) +'</td>'+
-                    '<td id="rating_'+val.abstracts.id+'">'+(val.is_rated ? 'Yes' : '')+'</td>'+
+                    '<td id="rating_'+val.abstracts.id+'">'+(val.is_rated ? val.is_rated : '')+'</td>'+
                     '<td>'+reviewBtn +" "+((val.reviews)?'':declinedBtn)+'</td>'+
                     '</tr>')
             })
