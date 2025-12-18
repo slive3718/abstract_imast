@@ -3,7 +3,7 @@ namespace App\Models;
 
 use CodeIgniter\Model;
 
-class CMEReviewersModel extends Model
+class CMEReviewersModel extends BaseModel
 {
     protected $table = 'cme_reviewers';
 
@@ -69,4 +69,15 @@ class CMEReviewersModel extends Model
         $this->orderBy('id', 'desc');
         return $this->get();
     }
+
+
+    public function getPaperCME($paper_ids){
+        $query =
+            $this->join('cme_assigned_papers cap', 'cme_reviewers.cme_reviewer_id = cap.cme_reviewer_id', 'left')
+                ->join('papers', 'cap.paper_id = papers.id', 'left')
+                ->join($this->sharedDB->database . '.users u', 'cap.cme_reviewer_id = u.id', 'left')
+                ->whereIn('cap.paper_id', $paper_ids);
+        return $query->get()->getResultArray();
+    }
+
 }

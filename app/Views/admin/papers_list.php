@@ -339,6 +339,7 @@
 
                     const category = paper.category.name
                     const assignedReviewers = getAssignedReviewers(paper);
+                    const assignedCMEReviewers = getAssignedCMEReviewers(paper);
 
                     table.append(`
                 <tr class="tableRow" style="cursor:pointer; background-color: ${color}" abstract_id="${paper.id}">
@@ -352,7 +353,7 @@
                     <td><strong class="text-primary">Author Acceptance</strong><br><span id="author-acceptance-${paper.id}"></span></td>
                     <td>${isFlagged}<br>${adminComment}</td>
                     <td>${paper.is_finalized == '1' ? '<span class="badge bg-success">Finalized</span>' : '' }</td>
-                     <td>${assignedReviewers}</td>
+                     <td>${assignedReviewers} ${assignedCMEReviewers}</td>
                     <td style="min-width:96px">${buttons}</td>
                 </tr>
             `);
@@ -549,6 +550,42 @@
                 return `<div class="card bg-transparent shadow-sm p-1 mb-1">
             <div class="d-inline-flex align-items-center">
                 <span class="me-1">${assignedReviewer.name} ${assignedReviewer.surname}</span>
+                ${review}
+            </div>
+        </div>`;
+            }).join('');
+        }
+
+        function getAssignedCMEReviewers(paper){
+            if (!paper.cmeReviewers || !paper.cmeReviewers.length) return '';
+
+            return paper.cmeReviewers.map(cmeReviewer => {
+                let review = '';
+                let hasCOI = false;
+                let hasNA = false;
+                if (cmeReviewer.review) {
+                    let reviewFields = ['review_question_1', 'review_question_2', 'review_question_3'];
+                    reviewFields.forEach(field => {
+                        if (cmeReviewer.review[field] === 'n/a') {
+                            hasNA = true;
+                        }else if (cmeReviewer.review[field] === 'COI') {
+                            hasCOI = true;
+                        }
+                    })
+                }
+
+                if (cmeReviewer.review) {
+                    review = `<span class="badge bg-success ms-2 "><i class="fas fa-check-circle"></i></span>`;
+                    if (hasCOI) {
+                        review = `<span class="badge bg-danger ms-2 "> COI </span>`;
+                    } else if (hasNA) {
+                        review = `<span class="badge bg-warning ms-2 "> N/A </span>`;
+                    }
+                }
+
+                return `<div class="card bg-transparent shadow-sm p-1 mb-1">
+            <div class="d-inline-flex align-items-center">
+                <span class="me-1">${cmeReviewer.name} ${cmeReviewer.surname}</span> <span class="badge bg-info text-white">CME</span>
                 ${review}
             </div>
         </div>`;

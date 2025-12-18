@@ -14,6 +14,7 @@ use App\Models\AffiliationsModel;
 use App\Models\AttestationModel;
 use App\Models\AuthorAcceptanceModel;
 use App\Models\CMEReviewersModel;
+use App\Models\CMEReviewsModel;
 use App\Models\DesignationsModel;
 use App\Models\DivisionsModel;
 use App\Models\EmailLogsModel;
@@ -687,7 +688,9 @@ class AbstractController extends BaseController
 
     public function getAllPapers(){
         $post = $this->request->getPost();
+//        print_R($this->getAllPapersArray($post['submission_type']));exit;
         return $this->response->setJSON(['status' => 200, "message" => 'success', 'data' => $this->getAllPapersArray($post['submission_type'])]??[]);
+
     }
 
     public function getAllPanels(){
@@ -753,6 +756,8 @@ class AbstractController extends BaseController
             $AbstractSubCategoriesModel = new AbstractSubCategoriesModel();
             $PaperAuthorsModel = new PaperAuthorsModel();
             $AbstractReviewModel = new AbstractReviewModel();
+            $CMEReviews = new CMEReviewsModel();
+            $CMEReviewers = new CMEReviewersModel();
 
             $papers = $PapersModel->GetJoinedUser($submission_type)->getResultArray();
             if (empty($papers)) {
@@ -820,6 +825,45 @@ class AbstractController extends BaseController
                     'surname' => $reviewer['surname'],
                     'email' => $reviewer['email'],
                     'review' => $reviewsMap[$reviewKey] ?? null
+                ];
+            }
+
+// Get all CME reviews for these papers
+            $allCmeReviews = $CMEReviews->whereIn('paper_id', $paperIds)->findAll();
+            $CMEReviewsMap = [];
+
+            foreach ($allCmeReviews as $review) {
+                $key = $review['paper_id'] . '_' . $review['cme_reviewer_id'];
+                $CMEReviewsMap[$key] = $review;
+            }
+
+// Get all CME reviewers assigned to these papers
+            $papersAssignedCMEs = $CMEReviewers->getPaperCME($paperIds);
+
+// Build the assigned CME reviewers map with their review data
+            $assignedCMEReviewersMap = [];
+
+            foreach ($papersAssignedCMEs as $cmeReviewers) {
+                $paperId = $cmeReviewers['paper_id'];
+                $reviewerId = $cmeReviewers['cme_reviewer_id'];
+                $reviewKey = $paperId . '_' . $reviewerId;
+
+                if (!isset($assignedCMEReviewersMap[$paperId])) {
+                    $assignedCMEReviewersMap[$paperId] = [];
+                }
+
+                // Safely get the review data if it exists
+                $reviewData = null;
+                if (isset($CMEReviewsMap[$reviewKey])) {
+                    $reviewData = $CMEReviewsMap[$reviewKey];
+                }
+
+                $assignedCMEReviewersMap[$paperId][] = [
+                    'id' => $reviewerId,
+                    'name' => $cmeReviewers['name'] ?? '',
+                    'surname' => $cmeReviewers['surname'] ?? '',
+                    'email' => $cmeReviewers['email'] ?? '',
+                    'review' => $reviewData
                 ];
             }
 
@@ -897,6 +941,7 @@ class AbstractController extends BaseController
                 $paper['category'] = $categoriesMap[$paper['abstract_category']] ?? null;
                 $paper['type'] = $paperTypesMap[$paper['type_id']] ?? [];
                 $paper['assignedReviewers'] = $assignedReviewersMap[$paperId] ?? null;
+                $paper['cmeReviewers'] = $assignedCMEReviewersMap[$paperId] ?? null;
                 $paper['types'] = $paperTypes;
 
                 $paper_array[] = $paper;
