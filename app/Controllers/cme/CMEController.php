@@ -125,9 +125,7 @@ class CMEController extends BaseController
 
     public function reviewCMEAbstract($abstract_id){
 
-        (new CMEAssignedPapersModel())->find(
-            ['cme_reviewer_id'=>session('user_id'), 'paper_id'=>$abstract_id]
-        ) || die('Access denied.');
+        (new CMEAssignedPapersModel())->where(['cme_reviewer_id'=>session('user_id'), 'paper_id'=>$abstract_id])->find() || die('Access denied.');
 
         $data = (new AbstractServices())->view_abstract_data($abstract_id);
         $header_data = [
