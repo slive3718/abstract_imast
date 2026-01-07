@@ -375,7 +375,7 @@
         $('#logoutBtn').on('click', function(e){
 
             e.preventDefault();
-            window.location.href = base_url+'reviewer/logout';
+            window.location.href = base_url+'cme/logout';
         })
     })
     function showPassword(input_id, span_class){
