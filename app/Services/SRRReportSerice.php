@@ -3,12 +3,14 @@
 namespace App\Services;
 
 use App\Models\AbstractCategoriesModel;
+use App\Models\DesignationsModel;
 use App\Models\PaperAuthorsModel;
 use App\Models\PapersModel;
 use App\Models\PaperTypeModel;
 use App\Models\SchedulerModel;
 use App\Models\SchedulerSessionTalksModel;
 use App\Models\UserModel;
+use App\Models\UsersProfileModel;
 use CodeIgniter\Config\BaseService;
 
 class SRRReportSerice extends BaseService
@@ -112,7 +114,7 @@ class SRRReportSerice extends BaseService
         }
         ob_end_clean();
         header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-        header('Content-Disposition: attachment;filename="IMAST_All_Data_Export_' . date('Y-m-d') . '.xlsx"');
+        header('Content-Disposition: attachment;filename="SRR_Report' . date('Y-m-d') . '.xlsx"');
         header('Cache-Control: max-age=0');
 
         $xlsxWriter = \PhpOffice\PhpSpreadsheet\IOFactory::createWriter($excel, 'Xlsx');
@@ -151,6 +153,9 @@ class SRRReportSerice extends BaseService
             ->select('id, name, middle_name, surname, email')
             ->findAll();
         $usersById = array_column($users, null, 'id');
+
+        $usersProfile = (new UsersProfileModel())->findAll();
+        $usersProfileById = array_column($usersProfile, null, 'author_id');
 
         $allCategories = (new AbstractCategoriesModel())->findAll();
         $allCategories = array_column($allCategories, 'name', 'id');
@@ -197,32 +202,25 @@ class SRRReportSerice extends BaseService
                     'Session Start Time'      => date('H:i', strtotime($sessionStart)),
                     'Presentation Start time' => '',
                     'Room'                    => $event['room_id'] ?? '',
-
                     'First Name'     => $user['name'] ?? '',
                     'Middle Name'    => $user['middle_name'] ?? '',
                     'Last Name'      => $user['surname'] ?? '',
                     'Credentials'    => '',
                     'Email Address'  => $user['email'] ?? '',
-
                     'Presentation Title' => '',
                     'Presentation Type'  => '',
-
-
                     'Type' => 'Moderator',
                     'Role' => 'Moderator',
-
                     'Poster Topic'  => '',
                     'Poster Number' => '',
-
                     'AbstractID'         => '',
-
                     '_sort_key' => $sortKey,
                 ];
             }
 
             // 2. Talks / Presenters – after moderators, ordered by time
             foreach ($talks as $talk) {
-
+                
                 if ($talk['scheduler_event_id'] !== $event['id']) {
                     continue;
                 }
@@ -233,6 +231,8 @@ class SRRReportSerice extends BaseService
                 }
 
                 $user = $presenter ? ($usersById[$presenter['author_id']] ?? null) : null;
+                $user['profile'] = $presenter ? ($usersProfileById[$presenter['author_id']] ?? null) : null;
+                $user['designations'] = $presenter ? (new UserServices())->get_designations($user['profile']['designations'], $user['profile']['other_designation']) : null;
 
                 $talkTime = $talk['time_start'] ?? '23:59:59';
                 $talkKey  = $this->makeSortableDatetime($sessionDate, $talkTime);
@@ -243,27 +243,21 @@ class SRRReportSerice extends BaseService
                 $rows[] = [
                     'Session Date'            => date('Y-m-d', strtotime($sessionDate)),
                     'Session Title'           => $event['session_title'] ?? '',
-                    'Session Start Time'      => date('H:i', strtotime($sessionStart)),
-                    'Presentation Start time' => date('H:i', strtotime($talkTime)),
+                    'Session Start Time'      => date('H:i a', strtotime($sessionStart)),
+                    'Presentation Start time' => date('H:i a', strtotime($talkTime)),
                     'Room'                    => $event['room_id'] ?? '',
-
                     'First Name'     => $user['name'] ?? '',
                     'Middle Name'    => $user['middle_name'] ?? '',
                     'Last Name'      => $user['surname'] ?? '',
-                    'Credentials'    => '',
+                    'Credentials'    => !empty($user['designations']['data'] ) ? implode(', ', $user['designations']['data'] ) : '',
                     'Email Address'  => $user['email'] ?? '',
-
-                    'Presentation Title' => $talk['title'] ?? '',
+                    'Presentation Title' => ($talk['type_id'] == '1' ? $talk['assigned_id']:'') .' '. $talk['title'] ?? '',
                     'Presentation Type'  => $paperTypes[$talk['type_id']] ?? 'Unknown',
-
                     'Type' => '',
                     'Role' => 'Presenter',
-
                     'Poster Topic'  => $allCategories[$talk['abstract_category']] ?? '',
                     'Poster Number' => $talk['assigned_id'] ?? '',
-
                      'AbstractID'         => $talk['abstract_id'] ?? '',
-
                     '_sort_key' => $sortKey,
                 ];
             }
@@ -296,6 +290,27 @@ class SRRReportSerice extends BaseService
             ->orderBy('se.session_date', 'asc')
             ->where('is_deleted', 0)
             ->get()->getResultArray();
+    }
+
+    private function mapDesignations($profile): string {
+        $designations = json_decode($profile['designations'] ?? '[]', true);
+        $designationsOptions = (new DesignationsModel())->findAll();
+        $designationsOptions = array_column($designationsOptions, 'name','id');
+
+        if(empty($designations))
+            return '';
+
+        $designationAssigned= [];
+        foreach ($designations as $designationId){
+            if(strtolower($designationsOptions[$designationId]) === 'other'){
+                $designationAssigned[] = $profile['other_designation'] ?: 'None';
+            }else{
+                $designationAssigned[] = $designationsOptions[$designationId];
+            }
+
+        }
+
+        return implode(', ', $designationAssigned);
     }
 
 }

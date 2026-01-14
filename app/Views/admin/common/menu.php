@@ -76,6 +76,7 @@
                             <ul class="dropdown-menu">
                                 <li><a class="dropdown-item" href="<?=base_url().'admin/report/all_abstract_data'?>">All Abstracts Data</a></li>
                                 <li><a class="dropdown-item" href="<?=base_url().'admin/report/agendaToWord'?>">Agenda Report Data</a></li>
+                                <li><a class="dropdown-item" href="<?=base_url().'admin/report/srr_report'?>">SSR Report</a></li>
                             </ul>
                         </div>
                     </li>

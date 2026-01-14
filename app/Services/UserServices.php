@@ -38,13 +38,13 @@ class UserServices extends BaseService
         return $userProfile;
     }
 
-    public function get_designations($designation_ids) :array{
+    public function get_designations($designation_ids, $otherDesignation = null) :array{
         if($designation_ids){
             $designations = (new DesignationsModel())->whereIn('id', json_decode($designation_ids))->findAll();
 
-            $designation_names = $designations ? array_map(function($designation) {
-                if(strtolower($designation['name']) == 13){
-                    return $designation['other_designation'] ?? 'Other';
+            $designation_names = $designations ? array_map(function($designation) use($otherDesignation) {
+                if(strtolower($designation['name']) == 'other'){
+                    return $otherDesignation ?? 'None';
                 }
                 return $designation['name'];
             }, $designations) : [];
