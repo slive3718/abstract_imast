@@ -60,22 +60,17 @@ class SRRReportSerice extends BaseService
             "Session Time",
             "Presentation Start time",
             "Room",
-
             "First Name",
             "Middle Name",
             "Last Name",
             "Credentials",
             "Email Address",
-
             "Presentation Title",
             "Presentation Type",
-
             "Type",
             "Role",
-
             "Poster Topic",
             "Poster Number",
-
             "AbstractID"
         ];
 
@@ -220,7 +215,7 @@ class SRRReportSerice extends BaseService
 
             // 2. Talks / Presenters – after moderators, ordered by time
             foreach ($talks as $talk) {
-                
+
                 if ($talk['scheduler_event_id'] !== $event['id']) {
                     continue;
                 }
