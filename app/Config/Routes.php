@@ -114,6 +114,7 @@ $routes->group('admin', ['filter' => 'authGuard:admin'],  function ($routes) {
     $routes->get('report/all_abstract_data', 'admin\Reports::all_abstract_data');
     $routes->get('report/agendaToWord(:any)', 'admin\Reports::agendaToWord/$1'); //Excel Agenda Export to MS Word
     $routes->get('report/printAll', 'admin\Reports::printAll');
+    $routes->get('report/srr_report', 'admin\Reports::srr_report');
 
     $routes->get('scheduler', 'admin\Abstracts\SchedulerController::index/$1');
     $routes->get('addSchedule', 'admin\Abstracts\SchedulerController::add/$1');
