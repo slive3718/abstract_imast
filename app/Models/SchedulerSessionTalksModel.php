@@ -38,9 +38,26 @@ class SchedulerSessionTalksModel extends Model
         $this->allowedFields = array_diff($this->allowedFields, $excludedFields);
     }
 
+    private function base_query(): object { // no time to refactor, copied the query
+        return $this->builder()->db()->table('scheduler_session_talks sst')
+            ->join('scheduler_events se', 'sst.scheduler_event_id = se.id', 'left');
+    }
+
     function get_talk_schedule_query($abstract_id){
         $query = $this->where('abstract_id', $abstract_id)
             ->join('scheduler_events se', $this->table.'.scheduler_event_id = se.id', 'left');
         return $query;
+    }
+
+    public function getAllTalks($abstract_ids = null): array
+    {
+         $builder = $this->base_query()
+            ->select('*, p.id as paper_id')
+            ->join('papers p', 'sst.abstract_id = p.id');
+
+         if(!empty($abstract_ids))
+             $builder->whereIn('p.id', $abstract_ids);
+
+         return $builder->get()->getResultArray();
     }
 }

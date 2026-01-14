@@ -7,6 +7,7 @@ use App\Controllers\ItineraryController;
 use App\Models\SchedulerDatesModel;
 use App\Models\SchedulerModel;
 use App\Models\SchedulerSessionTalksModel;
+use App\Services\SRRReportSerice;
 
 class Reports extends AbstractController
 {
@@ -479,6 +480,11 @@ class Reports extends AbstractController
 // Clean up the temporary file
         unlink($tempFile);
 
+    }
+
+    public function srr_report(){
+        $srrReportService = (new SRRReportSerice());
+        return $srrReportService->generateReport();
     }
 
 }
