@@ -200,7 +200,7 @@ class SRRReportSerice extends BaseService
                     'First Name'     => $user['name'] ?? '',
                     'Middle Name'    => $user['middle_name'] ?? '',
                     'Last Name'      => $user['surname'] ?? '',
-                    'Credentials'    => '',
+                    'Credentials'    => !empty($user['designations']['data'] ) ? implode(', ', $user['designations']['data'] ) : '',
                     'Email Address'  => $user['email'] ?? '',
                     'Presentation Title' => '',
                     'Presentation Type'  => '',
