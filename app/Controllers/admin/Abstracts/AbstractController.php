@@ -2,6 +2,7 @@
 
 namespace App\Controllers\admin\Abstracts;
 
+use App\Controllers\admin\CMEReviewersController;
 use App\Controllers\BaseController;
 use App\Controllers\User;
 use App\Libraries\PhpMail;
@@ -1225,8 +1226,11 @@ class AbstractController extends BaseController
                }
            }
 
+           $secondArr = (new CMEReviewersController())->getCMEReviewerList();
+           $mergedArray = array_merge($secondArr, $reviewer_array);
+
            if($reviewer_array){
-               return json_encode(['status' => 200, "message" => "", 'data' => $reviewer_array]);
+               return json_encode(['status' => 200, "message" => "", 'data' => $mergedArray]);
            }
        }catch (\Exception $e){
            return json_encode(['status' => 500, "message" => $e->getMessage(), 'data' => '']);
