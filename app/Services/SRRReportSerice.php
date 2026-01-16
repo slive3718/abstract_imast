@@ -385,28 +385,38 @@ class SRRReportSerice extends BaseService
             $talksByEvent[$eventId][] = $talk;
         }
 
+        // ──────────────────────────────────────────────────────────────
+// Replace the current "Process scheduled sessions" part with this
+// ──────────────────────────────────────────────────────────────
+
+// 1. Get ALL scheduled events (even those without talks)
         $rows = [];
 
-        // Process scheduled sessions
-        foreach ($talksByEvent as $eventId => $talksInSession) {
-            $event = $scheduleById[$eventId] ?? null;
-//            if (!$event) continue;
-
+        foreach ($scheduleById as $eventId => $event) {
             $sessionDate  = $event['session_date']   ?? '';
             $sessionStart = $event['session_start_time'] ?? '';
             $roomId       = $event['room_id']        ?? '—';
 
-//            if (empty($sessionDate)) continue;
+            // Skip events without date (invalid or future placeholder)
+            if (empty($sessionDate)) {
+                continue;
+            }
 
             $datePart = date('Ymd', strtotime($sessionDate));
             $roomPart = str_pad((string)$roomId, 6, '0', STR_PAD_LEFT);
             $timePart = $this->makeSortableDatetime($sessionDate, $sessionStart ?: '23:59:59');
             $sessionBaseKey = $datePart . '_' . $roomPart . '_' . $timePart;
 
-            // Moderators - once per session
+            // ─── Moderators (always try to add them - once per session) ───────────────
             $moderatorIds = json_decode($event['session_chair_ids'] ?? '[]', true) ?: [];
+
+            $hasModerators = false;
             foreach ($moderatorIds as $index => $modId) {
-                if (!isset($usersById[$modId])) continue;
+                if (!isset($usersById[$modId])) {
+                    continue;
+                }
+
+                $hasModerators = true;
 
                 $modUser = $usersById[$modId];
                 $modProfile = $usersProfileById[$modId] ?? null;
@@ -426,7 +436,7 @@ class SRRReportSerice extends BaseService
 
                 $rows[] = [
                     'Session Date'            => date('Y-m-d', strtotime($sessionDate)),
-                    'Session Title'           => $event['session_title'] ?? '',
+                    'Session Title'           => $event['session_title'] ?? '(No title)',
                     'Session Start Time'      => $sessionStart ? date('h:i a', strtotime($sessionStart)) : '',
                     'Presentation Start time' => '',
                     'Room'                    => $roomId === 'ZZZ_NO_ROOM' ? '' : $roomId,
@@ -451,8 +461,10 @@ class SRRReportSerice extends BaseService
                 ];
             }
 
-            // Presenters in this session
-            foreach ($talksInSession as $talk) {
+            // ─── Presenters / Talks (only if any exist in this session) ───────────────
+            $talksInThisSession = $talksByEvent[$eventId] ?? [];
+
+            foreach ($talksInThisSession as $talk) {
                 $paperId = $talk['abstract_id'];
                 $paper = $paperById[$paperId] ?? null;
                 if (!$paper) continue;
@@ -478,7 +490,7 @@ class SRRReportSerice extends BaseService
 
                 $rows[] = [
                     'Session Date'            => date('Y-m-d', strtotime($sessionDate)),
-                    'Session Title'           => $event['session_title'] ?? '',
+                    'Session Title'           => $event['session_title'] ?? '(No title)',
                     'Session Start Time'      => $sessionStart ? date('h:i a', strtotime($sessionStart)) : '',
                     'Presentation Start time' => $talkTime !== '23:59:59' ? date('h:i a', strtotime($talkTime)) : '',
                     'Room'                    => $roomId === 'ZZZ_NO_ROOM' ? '' : $roomId,
