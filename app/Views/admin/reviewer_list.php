@@ -53,7 +53,6 @@
     let baseUrlAdmin = "<?=base_url().'admin/'?>";
     $(function(){
         getReviewerList();
-
         $('#showImportModal').on('click', function(){
             $('#importReviewerModal').modal('show')
         })
@@ -114,41 +113,11 @@
         }
 
         $.get(baseUrlAdmin+'getReviewerList', function(response){
+            console.log(response)
             $('#reviewerTableBody').html('');
             $.each(response.data, function(i, val){
-                // console.log(val)
-                let assignPaperBtn = '<button class="btn btn-primary btn-sm showAssignReviewerModal text-nowrap" type="paper" reviewerID="'+val.id+'" > Assign Paper </button>'
-                let assignPanelBtn = '<button class="btn btn-info btn-sm showAssignReviewerModal text-nowrap mt-2" type="panel" reviewerID="'+val.id+'" > Assign Panel </button>'
-                let manageBtn = '<button class="btn btn-success btn-sm manageUserBtn text-nowrap mb-2" type="panel" reviewerID="'+val.user_id+'" > Manage </button>'
-
-                let reviewerType = (val.is_deputy_reviewer === "1")?"Deputy":"Regular"
-
-                let colors = ['bg-primary', 'bg-secondary', 'bg-success', 'bg-danger', 'bg-warning', 'bg-info',];
-                // let categories = val.categories.map((e) => {
-                //     if(e !== null) {
-                //         // let color = colors[e.division_id % colors.length];
-                //         return '<div class="text-nowrap badge ' + color + '">' + e.name + '</div>';
-                //     }else{
-                //         return  ''
-                //     }
-                // }).join('');
-
-               $('#reviewerTableBody').append('<tr>'+
-                '<td>'+val.user_id+'</td>'+
-                '<td>'+val.name+'</td>'+
-                '<td>'+val.surname+'</td>'+
-                '<td class="text-nowrap">'+val.email+'</td>'+
-                   '<td>'+reviewerType+'</td>'+
-                   '<td></td>'+
-                   '<td></td>'+
-                   '<td>'+val.total_reviewed+'/'+val.total_assigned+'</td>'+
-                   '<td></td>'+
-                   '<td>'+manageBtn+'</td>'+
-                // '<td>'+val.total_assigned.length+'</td>'+
-                // '<td id="reviewer_'+val.primary_details.id+'"></td>'+
-                '</tr>')
+                populateReviewersTableRow(val);
             })
-
         },'json').then(function(val){
             $.each(val, function(i, item){
                 $.each(item.total_assigned, function(i, e){
@@ -160,8 +129,44 @@
                 // paging: false
             });
         })
+    }
 
+    function populateReviewersTableRow(val){
+        // console.log(val)
+        let assignPaperBtn = '<button class="btn btn-primary btn-sm showAssignReviewerModal text-nowrap" type="paper" reviewerID="'+val.id+'" > Assign Paper </button>'
+        let assignPanelBtn = '<button class="btn btn-info btn-sm showAssignReviewerModal text-nowrap mt-2" type="panel" reviewerID="'+val.id+'" > Assign Panel </button>'
+        let manageBtn = '<button class="btn btn-success btn-sm manageUserBtn text-nowrap mb-2" type="panel" reviewerID="'+val.user_id+'" > Manage </button>'
 
+        let types = [];
+        if (val.cme_reviewer_id) {
+            types.push("CME");
+        }else{
+            if (val.is_deputy_reviewer == "1") {
+                types.push("Deputy");
+            }
+            if (val.is_regular_reviewer == "1") {
+                types.push("Regular");
+            }
+        }
+
+        let reviewerType = types.length > 0 ? types.join(", ") : "CME";
+
+        let colors = ['bg-primary', 'bg-secondary', 'bg-success', 'bg-danger', 'bg-warning', 'bg-info',];
+
+        $('#reviewerTableBody').append('<tr>'+
+            '<td>'+val.user_id+'</td>'+
+            '<td>'+val.name+'</td>'+
+            '<td>'+val.surname+'</td>'+
+            '<td class="text-nowrap">'+val.email+'</td>'+
+            '<td>'+(reviewerType ? reviewerType : "CME")+'</td>'+
+            '<td></td>'+
+            '<td></td>'+
+            '<td>'+val.total_reviewed+'/'+val.total_assigned+'</td>'+
+            '<td></td>'+
+            '<td>'+manageBtn+'</td>'+
+            // '<td>'+val.total_assigned.length+'</td>'+
+            // '<td id="reviewer_'+val.primary_details.id+'"></td>'+
+            '</tr>')
     }
 
     $('#reviewerTableBody').on('click', '.showAssignReviewerModal', function() {

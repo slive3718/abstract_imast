@@ -56,6 +56,12 @@ class CMEReviewersModel extends BaseModel
         return $data;
     }
 
+    private function baseQuery(): object {
+        $query =
+            $this->select('*, u.id as user_id')
+                ->join($this->sharedDB->database . '.users u', 'cme_reviewers.cme_reviewer_id = u.id', 'left');
+        return $query;
+    }
 
     function is_valid_cme($user_id){
         return $this->where('cme_reviewer_id', $user_id)->get()->getRow() ?? false;
@@ -79,5 +85,13 @@ class CMEReviewersModel extends BaseModel
                 ->whereIn('cap.paper_id', $paper_ids);
         return $query->get()->getResultArray();
     }
+
+    public function getCMEReviewers(): array {
+        $query = $this->baseQuery();
+        $query = $this->join($this->sharedDB->database. '.users_profile up', 'cme_reviewers.cme_reviewer_id = up.author_id', 'left');
+        $query->orderBy('cme_reviewers.id', 'desc');
+        return $query->findAll();
+    }
+
 
 }
