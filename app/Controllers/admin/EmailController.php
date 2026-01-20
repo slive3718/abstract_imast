@@ -15,6 +15,7 @@ use App\Models\PaperTypeModel;
 use App\Models\SchedulerModel;
 use App\Models\SiteSettingModel;
 use App\Models\UsersProfileModel;
+use App\Services\ModeratorServices;
 use App\Services\UserServices;
 use CodeIgniter\Controller;
 use App\Models\UserModel;
@@ -729,7 +730,7 @@ class EmailController extends BaseController
             }
 
         }else if ($post['recipientType'] == 'moderator') {
-            $moderatorEvents = (new UserServices())->get_assigned_moderators_events($arr);
+            $moderatorEvents = (new ModeratorServices())->get_assigned_moderators_events($arr);
             foreach ($moderatorEvents as $val_arr) {
                 $val = $val_arr['user'];
                 $moderatorScheduleEvents = $val_arr['events'];
