@@ -23,7 +23,7 @@
                                 <div class="text-end">
                                     <span>Due Date :  October 23, 2025</span>
                                     <span class="ms-5"> Status :
-                                    <?= ( !empty($author) && !empty($author['signature_signed_date']) ? strtotime($author['signature_signed_date']) > strtotime($disclosure_current)
+                                    <?= ( !empty($author) && $author['financial_relationship'] !== NULL && !empty($author['signature_signed_date']) ? strtotime($author['signature_signed_date']) > strtotime($disclosure_current)
                                         ? '<span class="badge bg-success text-white">Current '.date('m-d-Y',strtotime($author['signature_signed_date'])).' </span>'
                                         : '<span class="badge bg-warning text-dark"> Outdated '.date('m-d-Y',strtotime($author['signature_signed_date'])).' </span>'
                                         : '<span class="badge bg-danger text-white">Incomplete</span>') ?>
