@@ -320,7 +320,7 @@
         $(document).on('click', '.remove-organization', function () {
             $(this).closest('.organization-item').remove();
             organizationCount--;
-            if (organizationCount === 0) $('#add-organization-btn').hide();
+            if (organizationCount === 0) $('#add-organization-btn').show();
         });
 
         // Save Data
