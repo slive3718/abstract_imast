@@ -35,7 +35,7 @@
                     <tr>
                         <td class="fw-bold bg-light">Organizations and Affiliations:</td>
                         <td>
-                            <?php if (!empty($selectedOrganizations)): ?>
+                            <?php if (!empty($selectedOrganizations) && $author['financial_relationship'] === 'Yes'): ?>
                                 <?php
                                 // Create a map of organization IDs for faster lookup
                                 $organizationMap = array_column($organizations, null, 'organization_id');
@@ -84,9 +84,17 @@
                     <tr>
                         <td class="fw-bold bg-light" style="width: 220px;">Financial Disclosure:</td>
                         <td>
-                            <?= (!empty($author['financial_relationship']) && $author['financial_relationship'] === 'Yes')
-                                ? 'I have held a financial relationship with an ineligible company within the past 24 months.'
-                                 ($author['financial_relationship'] == NULL) ? '' : 'I have NO financial relationship(s) with an ineligible company producing healthcare goods or services.': '';?>
+                            <?php
+                            if (!empty($author['financial_relationship'])) {
+                                if ($author['financial_relationship'] === 'Yes') {
+                                    echo 'I have held a financial relationship with an ineligible company within the past 24 months.';
+                                } else {
+                                    echo 'I have NO financial relationship(s) with an ineligible company producing healthcare goods or services.';
+                                }
+                            } else {
+                                echo '';
+                            }
+                            ?>
                         </td>
                     </tr>
 
