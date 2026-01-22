@@ -123,6 +123,7 @@ class CMEReportService extends BaseService
 
         $cmeReviews = $this->loadCmeReviews();
         $users = (new UserModel())->findAll();
+        $users = (array_column($users, null, 'id'));
         $papers = (new PapersModel())->asArray()->findAll();
         $authors = (new PaperAuthorsModel())->getPresentingAuthors()->findALl();
 
