@@ -125,10 +125,11 @@ class CMEReportService extends BaseService
         $users = (new UserModel())->findAll();
         $users = (array_column($users, null, 'id'));
         $papers = (new PapersModel())->asArray()->findAll();
-        $authors = (new PaperAuthorsModel())->getPresentingAuthors()->findALl();
+        $papers = array_column($papers, null, 'id');
+        $presenters = (new PaperAuthorsModel())->getPresentingAuthors()->findALl();
 
         //Note: this will only work because we have a single presenter per paper!
-        $presenter = array_column($authors, null, 'paper_id');
+        $presenter = array_column($presenters, null, 'paper_id');
         $profiles = (new UserProfilesServices())->getProfileWithDisclosureData();
 
         $reportRow[] = [];
@@ -255,8 +256,7 @@ class CMEReportService extends BaseService
 
         $parts = [];
 
-//        print_R($disclosures);exit;
-        if($disclosures['profile']['disclosure_relationship'] === '0')
+        if($disclosures['profile']['financial_relationship'] === 'No')
             return 'No Relationship';
 
         foreach ($disclosures['organizations'] ?? [] as $org) {
