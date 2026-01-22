@@ -59,4 +59,37 @@ class OrganizationsModel extends Model
 
         return $selectedOrganizations;
     }
+
+    public function getUserOrganization(){
+        $UserOrganizationsModel = new UserOrganizationsModel(); // New model to handle user affiliations
+        // Get saved affiliations for the user
+        $savedOrganizations = $UserOrganizationsModel
+            ->orderBy('id', 'asc') // <-- Order by insertion order
+            ->findAll();
+
+        $OrganizationChoices = (new OrganizationsModel())->findAll();
+        $OrganizationChoices = array_column($OrganizationChoices, 'name', 'id');
+
+        $affiliations = (new AffiliationsModel())->findAll();
+        $affiliationsTable = array_column($affiliations, 'name', 'id');
+        // Map saved affiliations to an easy-to-use array
+        $userOrganization = [];
+        if (!empty($savedOrganizations)) {
+            foreach ($savedOrganizations as $org) {
+                $userOrganization[$org['user_id']][] = [
+                    'organization_id' => $org['organization_id'], // Fixed ID to match organization_id
+                    'organization_name'=>$OrganizationChoices[$org['organization_id']] ?? 'Unknown Organization',
+                    'affiliations' => array_map(function($affiliation) use ($affiliationsTable) {
+                        $affiliationName = $affiliationsTable[$affiliation] ?? 'Unknown Affiliation';
+                        return $affiliationName;
+                    },json_decode($org['affiliation'])),
+
+                    'custom_organization' => $org['custom_organization'] ?? null,
+                    'relationship_ended' => $org['relationship_ended'] ?? null
+                ];
+            }
+        }
+
+        return $userOrganization;
+    }
 }

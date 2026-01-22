@@ -7,6 +7,7 @@ use App\Controllers\ItineraryController;
 use App\Models\SchedulerDatesModel;
 use App\Models\SchedulerModel;
 use App\Models\SchedulerSessionTalksModel;
+use App\Services\CMEReportService;
 use App\Services\SRRReportSerice;
 
 class Reports extends AbstractController
@@ -487,4 +488,8 @@ class Reports extends AbstractController
         return $srrReportService->generateReport();
     }
 
+    public function cme_reviews_report(){
+        $cmeReportService = (new CMEReportService());
+        return $cmeReportService->generateCMEReport();
+    }
 }
