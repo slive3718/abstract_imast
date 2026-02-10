@@ -29,7 +29,7 @@
                         <tr>
                             <td class="text-end">Assigned ID : </td>
                             <td >
-                                <input type="text" name="assigned_id" id="assigned_id" value="<?= $papers->assigned_id ?? '' ?>">
+                                <input type="text" name="assigned_id" id="assigned_id" value="<?= $papers['assigned_id'] ?? '' ?>">
                                 <a class="btn btn-primary btn-sm saveAssignedIdBtn" > Save </a>
                             </td>
                         </tr>
