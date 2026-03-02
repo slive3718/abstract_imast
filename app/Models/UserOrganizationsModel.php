@@ -35,4 +35,34 @@ class UserOrganizationsModel extends Model
         }
         return $data;
     }
+
+    function getFullOrganizationsWithAffiliation($user_id){
+        $organizations = (new OrganizationsModel())->findAll();
+        $affiliations = (new AffiliationsModel())->findAll();
+
+        $organizations = array_column($organizations, 'name', 'id');
+        $affiliationsTable = array_column($affiliations, 'name', 'id');
+        // Get saved affiliations for the user
+        $savedOrganizations = $this
+            ->where('user_id', $user_id)
+            ->orderBy('id', 'asc') // <-- Order by insertion order
+            ->findAll();
+
+        // Map saved affiliations to an easy-to-use array
+        $selectedOrganizations = [];
+        if (!empty($savedOrganizations)) {
+            foreach ($savedOrganizations as $org) {
+                $selectedOrganizations[$org['id']] = [
+                    'organization_id' => $organizations[$org['organization_id']], // Fixed ID to match organization_id
+                    'affiliations' => array_map(function($affiliation) use ($affiliationsTable) {
+                        $affiliationName = $affiliationsTable[$affiliation] ?? 'Unknown Affiliation';
+                        return $affiliationName;
+                    },json_decode($org['affiliation'])),
+                    'custom_organization' => $org['custom_organization'] ?? null
+                ];
+            }
+        }
+
+        return  $selectedOrganizations;
+    }
 }
