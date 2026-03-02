@@ -8,6 +8,7 @@ use App\Models\SchedulerDatesModel;
 use App\Models\SchedulerModel;
 use App\Models\SchedulerSessionTalksModel;
 use App\Services\CMEReportService;
+use App\Services\reports\AcceptedAuthorReportServices;
 use App\Services\SRRReportSerice;
 
 class Reports extends AbstractController
@@ -38,7 +39,7 @@ class Reports extends AbstractController
 
         $papers = $this->getAllPapersArray('paper');
 
-//        print_r($papers);exit;
+//        print_r($papers[7]);exit;
         $exportHeader = $this->exportHeader();
         if (!empty($papers)) {
             foreach ($papers as $index => $paper) {
@@ -491,5 +492,10 @@ class Reports extends AbstractController
     public function cme_reviews_report(){
         $cmeReportService = (new CMEReportService());
         return $cmeReportService->generateCMEReport();
+    }
+
+    public function all_accepted_authors_disclosures_report(){
+        $cmeReportService = (new AcceptedAuthorReportServices());
+        return $cmeReportService->all_accepted_authors_disclosures_report();
     }
 }

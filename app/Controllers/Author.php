@@ -186,6 +186,7 @@ class Author extends BaseController
             ->orderBy('id', 'asc') // <-- Order by insertion order
             ->findAll();
 
+//        print_R($savedOrganizations);exit;
         // Map saved affiliations to an easy-to-use array
         $selectedOrganizations = [];
         if (!empty($savedOrganizations)) {

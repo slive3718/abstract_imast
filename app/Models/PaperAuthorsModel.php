@@ -20,6 +20,20 @@ class PaperAuthorsModel extends BaseModel
         $this->allowedFields = $this->db->getFieldNames($this->table);
     }
 
+    protected function withUserAndRemovalStatus()
+    {
+        return $this->select('
+            paper_authors.*,
+            u.name AS user_name,
+            u.surname AS user_surname,
+            u.middle_name AS user_middle,
+            u.email AS user_email,
+            IFNULL(rpa.id, 0) AS is_removed,
+        ')
+            ->join($this->sharedDB->database.'.users u', 'paper_authors.author_id = u.id', 'left')
+            ->join('removed_paper_authors rpa', 'paper_authors.id = rpa.paper_author_id', 'left');
+    }
+
     public function GetJoinedUser($paper_id)
     {
         try {
@@ -111,6 +125,24 @@ class PaperAuthorsModel extends BaseModel
             // Log the error or display an error message
             return json_encode('Database error: ' . $e->getMessage());
         }
+    }
+
+    public function getAuthorsAcceptedByAdmin(int $paperId = null, array $orderBy = null): array
+    {
+        $builder = $this->withUserAndRemovalStatus();
+        $builder->join('admin_abstract_acceptance aaa', 'paper_authors.paper_id = aaa.abstract_id', 'left');
+        $builder->where('aaa.acceptance_confirmation', 1);
+
+        if(!empty($orderBy))
+            $builder->orderBy($orderBy['column'], $orderBy['direction']);
+
+        $builder->orderBy('paper_authors.author_order', 'ASC');
+
+        if ($paperId !== null) {
+            $builder->where('paper_authors.paper_id', $paperId);
+        }
+
+        return $builder->findAll();
     }
 
 }
