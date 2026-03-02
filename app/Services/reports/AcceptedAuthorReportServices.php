@@ -2,6 +2,7 @@
 
 namespace App\Services\reports;
 
+use App\Models\AttestationModel;
 use App\Models\DesignationsModel;
 use App\Models\PaperAuthorsModel;
 use App\Models\RemovedPaperAuthorModel;
@@ -75,6 +76,10 @@ class AcceptedAuthorReportServices extends BaseService
 //        print_r($userInstitutionMap);exit;
         $designations = (new DesignationsModel())->findAll();
         $designationsColumn = (array_column($designations, 'name', 'id'));
+
+        $attestations = (new AttestationModel())->findAll();
+        $attestationsCol = array_column($attestations, null, 'author_id');
+
         $userDesignationsArray = [];
         if (!empty($profileMap)) {
             foreach ($profileMap as $profile) {
@@ -111,7 +116,7 @@ class AcceptedAuthorReportServices extends BaseService
         $headers = [
             'Assigned ID', 'Abstract ID', 'First Name', 'Middle Initial',
             'Last Name', 'Email', 'Degree', 'Full Name', 'Author’s Institution',
-            'Country', 'Disclosure Status', 'Disclosure'
+            'Country', 'Disclosure Status', 'Disclosure', 'Attestation Signature', 'Attestation Date', 'Non-exclusive License Signature', 'Non-exclusive License Date'
         ];
 
         $colHeader = 'A';
@@ -182,7 +187,10 @@ class AcceptedAuthorReportServices extends BaseService
             $sheet->setCellValue('J' . $excelRow, $institution['country'] ?? '');     // Country
             $sheet->setCellValue('K' . $excelRow, $disclosureStatus);
             $sheet->setCellValue('L' . $excelRow, $disclosureText);
-
+            $sheet->setCellValue('M' . $excelRow, $attestationsCol[$authorId]['signature'] ?? '');
+            $sheet->setCellValue('N' . $excelRow, $attestationsCol[$authorId]['date'] ?? '');
+            $sheet->setCellValue('O' . $excelRow, $profileMap[$authorId]['non_exclusive_license_signature'] ?? '');
+            $sheet->setCellValue('P' . $excelRow, $profileMap[$authorId]['non_exclusive_license_date'] ?? '');
             $excelRow++;
 
         }

@@ -78,7 +78,7 @@
                                 <li><a class="dropdown-item" href="<?=base_url().'admin/report/agendaToWord'?>">Agenda Report Data</a></li>
                                 <li><a class="dropdown-item" href="<?=base_url().'admin/report/srr_report'?>">SSR Report</a></li>
                                 <li><a class="dropdown-item" href="<?=base_url().'admin/report/cme_reviews_report'?>">CME Report</a></li>
-                                <li><a class="dropdown-item" href="<?=base_url().'admin/report/all_accepted_authors_disclosures_report'?>">All Authors Disclosure</a></li>
+                                <li><a class="dropdown-item" href="<?=base_url().'admin/report/all_accepted_authors_disclosures_report'?>">All Accepted Authors Disclosure Report</a></li>
                             </ul>
                         </div>
                     </li>
