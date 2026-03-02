@@ -70,7 +70,9 @@ class AcceptedAuthorReportServices extends BaseService
 
         $institutionIds = array_filter($institutionIds);
         $userInstitutionMap = (new InstitutionServices())->getInstitutionsWithAddresses($institutionIds);
+        $userInstitutionMap = (array_column($userInstitutionMap, null, 'id'));
 
+//        print_r($userInstitutionMap);exit;
         $designations = (new DesignationsModel())->findAll();
         $designationsColumn = (array_column($designations, 'name', 'id'));
         $userDesignationsArray = [];
@@ -159,7 +161,7 @@ class AcceptedAuthorReportServices extends BaseService
             else {
                 $disclosureText = '';
             }
-
+            
             $middleName = $detailsMap[$authorId]['middle_name'] ?? '';
             $middleInitial = !empty($middleName) ? ' ' . strtoupper(substr($middleName, 0, 1)) . '.' : '';
             $institution = $userInstitutionMap[$profileMap[$authorId]['institution_id']] ?? [];
