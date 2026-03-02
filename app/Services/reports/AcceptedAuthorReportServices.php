@@ -4,6 +4,7 @@ namespace App\Services\reports;
 
 use App\Models\DesignationsModel;
 use App\Models\PaperAuthorsModel;
+use App\Models\RemovedPaperAuthorModel;
 use App\Models\UserModel;
 use App\Models\UsersProfileModel;
 use App\Models\UserOrganizationsModel;
@@ -49,11 +50,16 @@ class AcceptedAuthorReportServices extends BaseService
             ->whereIn('author_id', $authorsIds)
             ->findAll();
 
+        $PaperAuthorsModel = (new PaperAuthorsModel());
+        $RemovedPaperAuthorsModel = (new RemovedPaperAuthorModel());
 // 3. Fetch ALL relevant papers in ONE query instead of inside the loop
-        $allAssignedPapers = (new PaperAuthorsModel())
+        $allAssignedPapers = $PaperAuthorsModel
             ->select('paper_authors.*, p.*') // specify columns to avoid ID collisions
             ->join('papers p', 'paper_authors.paper_id = p.id', 'left')
             ->whereIn('author_id', $authorsIds)
+            ->whereNotIn($PaperAuthorsModel->table . '.id', function ($builder) use ($RemovedPaperAuthorsModel) {
+                $builder->select('paper_author_id')->from($RemovedPaperAuthorsModel->table);
+            })
             ->findAll();
 
         $institutionIds = array_column($userProfiles, 'institution_id');

@@ -138,6 +138,8 @@ class PaperAuthorsModel extends BaseModel
 
         $builder->orderBy('paper_authors.author_order', 'ASC');
 
+        $builder->where('rpa.id', NULL); // Only include authors that are NOT removed
+
         if ($paperId !== null) {
             $builder->where('paper_authors.paper_id', $paperId);
         }
