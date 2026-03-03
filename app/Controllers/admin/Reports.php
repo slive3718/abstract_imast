@@ -10,7 +10,7 @@ use App\Models\SchedulerSessionTalksModel;
 use App\Services\CMEReportService;
 use App\Services\reports\AcceptedAuthorReportServices;
 use App\Services\reports\AcceptedAuthorsIndexReport;
-use App\Services\reports\PodiumPrecisReport;
+use App\Services\reports\PrecisReportServices;
 use App\Services\SRRReportSerice;
 
 class Reports extends AbstractController
@@ -507,8 +507,16 @@ class Reports extends AbstractController
     }
     public function podium_precis_report()
     {
-        $reportService = (new PodiumPrecisReport());
+        $reportService = (new PrecisReportServices());
         $exportName = 'Podium_Precis_Report';
         $reportService->precis_report(1, $exportName);
     }
+
+    public function ePoint_precis_report()
+    {
+        $reportService = (new PrecisReportServices());
+        $exportName = 'E_Point_Precis_Report';
+        $reportService->precis_report(2, $exportName);
+    }
+
 }
