@@ -9,6 +9,8 @@ use App\Models\SchedulerModel;
 use App\Models\SchedulerSessionTalksModel;
 use App\Services\CMEReportService;
 use App\Services\reports\AcceptedAuthorReportServices;
+use App\Services\reports\AcceptedAuthorsIndexReport;
+use App\Services\reports\PodiumPrecisReport;
 use App\Services\SRRReportSerice;
 
 class Reports extends AbstractController
@@ -495,7 +497,18 @@ class Reports extends AbstractController
     }
 
     public function all_accepted_authors_disclosures_report(){
-        $cmeReportService = (new AcceptedAuthorReportServices());
-        return $cmeReportService->all_accepted_authors_disclosures_report();
+        $acceptedAuthorsService = (new AcceptedAuthorReportServices());
+        return $acceptedAuthorsService->all_accepted_authors_disclosures_report();
+    }
+
+    public function all_accepted_authors_index_report(){
+        $reportService = (new AcceptedAuthorsIndexReport());
+        return $reportService->all_accepted_authors_index_report_word();
+    }
+    public function podium_precis_report()
+    {
+        $reportService = (new PodiumPrecisReport());
+        $exportName = 'Podium_Precis_Report';
+        $reportService->precis_report(1, $exportName);
     }
 }

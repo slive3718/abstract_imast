@@ -51,6 +51,15 @@ class PapersModel extends Model
         }
         return $data;
     }
+
+    protected function getActivePapers(){
+        return $this
+            ->groupStart()
+            ->where('active_status', 1)
+            ->orWhere('deleted_at', NULL)
+            ->groupEnd();
+
+    }
     public function GetJoinedUser($submission_type)
     {
        try {
@@ -81,6 +90,22 @@ class PapersModel extends Model
             // Log the error or display an error message
             return json_encode('Database error: ' . $e->getMessage());
         }
+    }
+
+    public function getPaperWithAdminAcceptance($paperType = null){
+        $builder = $this->getActivePapers()
+            ->join('admin_abstract_acceptance aaa', 'papers.id = aaa.abstract_id', 'left');
+
+        if($paperType)
+            $builder->where('aaa.acceptance_confirmation', '1');
+
+        $builder->groupStart()
+            ->where('aaa.presentation_preference', $paperType)
+            ->groupEnd();
+
+        $builder->orderBy('papers.assigned_id', 'asc');
+
+        return $builder->asArray()->findAll();
     }
 
 }
