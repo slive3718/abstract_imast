@@ -127,6 +127,20 @@ class PaperAuthorsModel extends BaseModel
         }
     }
 
+    public function getAuthorsWithProfiles(array $paperIds): array
+    {
+        $builder = $this->withUserAndRemovalStatus();
+        $builder->whereIn('paper_authors.paper_id', $paperIds);
+        $builder->join($this->sharedDB->database. '.users_profile up', 'u.id = up.author_id', 'left');
+        $builder->select('up.*');
+        $builder->orderBy('author_order', 'asc');
+
+        if(!empty($orderBy))
+            $builder->orderBy($orderBy['column'], $orderBy['direction']);
+
+        return $builder->findAll();
+    }
+
     public function getAuthorsAcceptedByAdmin(int $paperId = null, array $orderBy = null): array
     {
         $builder = $this->withUserAndRemovalStatus();
@@ -147,4 +161,11 @@ class PaperAuthorsModel extends BaseModel
         return $builder->findAll();
     }
 
+    public function getByAuthors($authorsIds): array {
+        return $this->withUserAndRemovalStatus()
+            ->join('papers p', 'paper_authors.paper_id = p.id', 'left')
+            ->select('paper_authors.*, p.*')
+            ->whereIn('author_id', $authorsIds)
+            ->findAll();
+    }
 }

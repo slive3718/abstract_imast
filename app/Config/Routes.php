@@ -117,6 +117,8 @@ $routes->group('admin', ['filter' => 'authGuard:admin'],  function ($routes) {
     $routes->get('report/srr_report', 'admin\Reports::srr_report');
     $routes->get('report/cme_reviews_report', 'admin\Reports::cme_reviews_report');
     $routes->get('report/all_accepted_authors_disclosures_report', 'admin\Reports::all_accepted_authors_disclosures_report');
+    $routes->get('report/all_accepted_authors_index_report', 'admin\Reports::all_accepted_authors_index_report');
+    $routes->get('report/podium_precis_report', 'admin\Reports::podium_precis_report');
 
 
     $routes->get('scheduler', 'admin\Abstracts\SchedulerController::index/$1');
