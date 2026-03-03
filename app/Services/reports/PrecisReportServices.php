@@ -9,7 +9,7 @@ use App\Models\PaperUploadsModel;
 use CodeIgniter\Config\BaseService;
 
 
-class PodiumPrecisReport extends BaseService
+class PrecisReportServices extends BaseService
 {
     function __construct()
     {
