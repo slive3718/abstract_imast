@@ -55,6 +55,8 @@ class PrecisReportServices extends BaseService
                             $designationSelected = $designationsColumn[$designationId];
                             if(strtolower($designationSelected) === 'other')
                                 $designationNames[] = $author['other_designation'];
+                            else if(strtolower($designationSelected) === 'none')
+                                $designationNames[] = '';
                             else
                                 $designationNames[] = $designationSelected;
                         }
