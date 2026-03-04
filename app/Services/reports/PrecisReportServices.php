@@ -55,6 +55,8 @@ class PrecisReportServices extends BaseService
                             $designationSelected = $designationsColumn[$designationId];
                             if(strtolower($designationSelected) === 'other')
                                 $designationNames[] = $author['other_designation'];
+                            else if(strtolower($designationSelected) === 'none')
+                                $designationNames[] = '';
                             else
                                 $designationNames[] = $designationSelected;
                         }
@@ -120,7 +122,7 @@ class PrecisReportServices extends BaseService
                             $middleInitial = ' ' . strtoupper(substr($middle, 0, 1)) . '.';
                         }
 
-                        $fullName = $name .' '. $middleInitial.' '.$surname;
+                        $fullName = $name . $middleInitial.' '.$surname;
 
                         $authorText = $fullName;
                         if (!empty($item['designation_names'])) {
@@ -167,9 +169,9 @@ class PrecisReportServices extends BaseService
                     $content = trim($content ?? '');
                     if ($content !== '' && strtolower($content) !== 'n/a') {
                         $textRun = $section->addTextRun();
-                        $textRun->addText($label, $labelStyle);
-                        $textRun = $section->addTextRun();
-                        $textRun->addText(($content), $textStyle);
+                        $textRun->addText($label . ': ', $labelStyle);
+                        $textRun->addTextBreak(1);               // ← key line
+                        $textRun->addText($content, $textStyle);
                     }
                 }
 
