@@ -89,9 +89,9 @@ class AcceptedAuthorReportServices extends BaseService
                 } else {
                     foreach ($profileDesignationsArray as $profDes) {
                         if (strtolower($designationsColumn[$profDes]) === 'other') {
-                            $userDesignationsArray[$profile['id']]['designations'][] = $profile['other_designation'];
+                            $userDesignationsArray[$profile['author_id']]['designations'][] = $profile['other_designation'];
                         } else {
-                            $userDesignationsArray[$profile['id']]['designations'][] = $designationsColumn[$profDes];
+                            $userDesignationsArray[$profile['author_id']]['designations'][] = $designationsColumn[$profDes];
                         }
                     }
                 }
@@ -171,7 +171,7 @@ class AcceptedAuthorReportServices extends BaseService
             $middleInitial = !empty($middleName) ? ' ' . strtoupper(substr($middleName, 0, 1)) . '.' : '';
             $institution = $userInstitutionMap[$profileMap[$authorId]['institution_id']] ?? [];
             $designationsText = isset($userDesignationsArray[$authorId]['designations']) ? implode(', ', $userDesignationsArray[$authorId]['designations']) : '';
-            $fullNameWithDegree = $detailsMap[$authorId]['name'] . ' ' . $detailsMap[$authorId]['surname'] . $middleInitial . ($designationsText ? ', ' . $designationsText : '');
+            $fullNameWithDegree = $detailsMap[$authorId]['name'] . $middleInitial. ' ' . $detailsMap[$authorId]['surname'] . ($designationsText ? ', ' . $designationsText : '');
 
             $assignedIds = implode(', ', array_filter(array_column($papersMap[$authorId], 'assigned_id')));
             $abstractIds = implode(', ', array_filter(array_column($papersMap[$authorId], 'paper_id')));
