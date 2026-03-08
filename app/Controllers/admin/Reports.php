@@ -40,15 +40,14 @@ class Reports extends AbstractController
         ];
 
         $papers = $this->getAllPapersArray('paper');
-
-//        print_r($papers[7]);exit;
+        
         $exportHeader = $this->exportHeader();
         if (!empty($papers)) {
             foreach ($papers as $index => $paper) {
 
                 $authorList = '';
                 $presentingAuthors = [];
-
+                $seniorAuthor = [];
                 // Extract presenting authors and co-authors
                 foreach ($paper['authors'] as $author) {
                     if ($author) {
@@ -59,7 +58,9 @@ class Reports extends AbstractController
                             $authorList .= "Correspondent: " . $author['user_name'] . ' ' . $author['user_surname'] . ' ';
                         }elseif ($author['is_senior_author'] == 'Yes') {
                             $authorList .= "Senior Author: " . $author['user_name'] . ' ' . $author['user_surname'] . ' ';
+                            $seniorAuthor = $author;
                         }
+                        $authorList .= "\n";
                     }
                 }
 
@@ -129,6 +130,9 @@ class Reports extends AbstractController
                     strip_tags($paper['fda_discuss_product_name']) == '1' ? 'I plan to discuss' : 'I do not plan to discuss',
                     strip_tags($paper['fda_discuss_product_name']) == '1' ? $paper['fda_product_name_explanation'] : '',
                     strip_tags($paper['is_fda_accepted']) ? 'Yes' : 'No',
+                    strip_tags($presentingAuthors[0]['details']['registered_copyright'] ?? ''),
+                    strip_tags($presentingAuthors[0]['details']['non_exclusive_license_signature'] ?? ''),
+                    strip_tags($presentingAuthors[0]['details']['non_exclusive_license_date'] ?? ''),
                     $authorList,
                     $paper['type']['name'],
                     $uploads,
@@ -136,9 +140,12 @@ class Reports extends AbstractController
                     $paper['adminComment'] ? $paper['adminComment']['comment'] : '',
                     $paper['adminComment'] ? $paper['user_name']. ' '. $paper['user_surname']  : '',
                     $paper['adminComment'] ? $paper['user_email'] : '',
+                    $this->formatAuthorName($seniorAuthor),
+                    $this->formatAuthorName($presentingAuthors ? $presentingAuthors[0]: []),
                 ];
 
                 $talkScheduleData = [
+                    $paper->talkSchedule['session_title'] ?? '',
                     $paper->talkSchedule['session_date'] ?? '',
                     $paper->talkSchedule['session_start_time'] ?? '',
                     $paper->talkSchedule['session_end_time'] ?? '',
@@ -154,7 +161,7 @@ class Reports extends AbstractController
                                 $exportData[$index][] = $author['user_name'] ?? '';
                                 $exportData[$index][] = $author['user_middle'] ?? '';
                                 $exportData[$index][] = $author['user_surname'] ?? '';
-                                $exportData[$index][] = !empty($author['designations']) ?  implode(', ', $author['designations']) : '';
+                                $exportData[$index][] = $this->formatDesignations($author['designations'] ?? [], $author['details']['other_designation'] ?? '');
                                 $exportData[$index][] = $author['details']['user_email'] ?? '';
                                 $exportData[$index][] = $author['details']['address'] ?? '';
                                 $exportData[$index][] = $author['details']['city'] ?? '';
@@ -226,6 +233,32 @@ class Reports extends AbstractController
         print_r(json_encode($papers));exit;
     }
 
+    private function formatAuthorName($author = []){
+        if($author) {
+            $middleName = $author['user_middle'] ?? '';
+            $middleInitial = !empty($middleName) ? ' ' . strtoupper(substr($middleName, 0, 1)) . '.' : '';
+            $designationsText = $this->formatDesignations($author['designations'] ?? [], $author['details']['other_designation'] ?? '');
+            return $author['user_name'] . $middleInitial . ' ' . $author['user_surname'] . ($designationsText ? ', ' . $designationsText : '');
+        }
+        return '';
+    }
+
+    private function formatDesignations($designations = [], $otherDesignation = ''): string {
+        $formattedDesignation = [];
+
+        if (isset($designations)) {
+            foreach ($designations as $designation) {
+                if (strtolower($designation) !== 'other') {
+                    $formattedDesignation[] = $designation;
+                }else{
+                    $formattedDesignation[] = $otherDesignation ?? '';
+                }
+            }
+        }
+
+        return implode(', ', $formattedDesignation);
+    }
+
 
     function exportHeader(){
         $exportHeader =  [[
@@ -257,18 +290,22 @@ class Reports extends AbstractController
             'FDA Discuss Product Name',
             'FDA Product Name Explanation',
             'FDA Accepted',
+            'Non-exclusive License Signature',
+            'Non-Exclusive Signature',
+            'Non-Exclusive Date',
             'Authors List',
             'Type',
             'Formal Upload',
-//            'Accepted Session type',
             'Comments to Submitter',
             'Admin comments',
             'Submitter Name',
             'Submitter Email',
-
+            'Senior Author Full Name',
+            'Presenting Author Full Name',
         ]];
 
         $scheduleHeader = [
+            'Session Title',
             'Session Date',
             'Session Start',
             'Session End',
