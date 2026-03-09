@@ -31,6 +31,7 @@ use App\Models\PaperTypeModel;
 use App\Models\PaperUploadsModel;
 use App\Models\ReviewerPaperUploadsModel;
 use App\Models\RoomsModel;
+use App\Models\SchedulerSessionTalksModel;
 use App\Models\SiteSettingModel;
 use App\Models\UserOrganizationsModel;
 use App\Models\UsersProfileModel;
@@ -759,6 +760,7 @@ class AbstractController extends BaseController
             $AbstractReviewModel = new AbstractReviewModel();
             $CMEReviews = new CMEReviewsModel();
             $CMEReviewers = new CMEReviewersModel();
+            $SchedulerModel = (new SchedulerSessionTalksModel());
 
             $papers = $PapersModel->GetJoinedUser($submission_type)->getResultArray();
             if (empty($papers)) {
@@ -907,6 +909,18 @@ class AbstractController extends BaseController
                 $userInstitutionsMap[$authorId] = (new InstitutionServices())->getInstitutionQuery($authorDetails['institution_id']) ?? [];
             }
 
+            $talks = $SchedulerModel->getAllTalks();
+            $talksMap = [];
+            array_map(function($talk) use (&$talksMap){
+               //return talks in format paper_id => [talk details]
+                // Assuming $talk has 'paper_id' and other talk details
+                $paperId = $talk['abstract_id'];
+                if (!isset($talksMap[$paperId])) {
+                    $talksMap[$paperId] = [];
+                }
+                $talksMap[$paperId][] = $talk;
+            },$talks);
+
             $paper_array = [];
             foreach ($papers as $paper) {
                 $user_array = [];
@@ -944,6 +958,7 @@ class AbstractController extends BaseController
                 $paper['assignedReviewers'] = $assignedReviewersMap[$paperId] ?? null;
                 $paper['cmeReviewers'] = $assignedCMEReviewersMap[$paperId] ?? null;
                 $paper['types'] = $paperTypes;
+                $paper['schedulerData'] = $talksMap[$paperId] ?? [];
 
                 $paper_array[] = $paper;
             }
