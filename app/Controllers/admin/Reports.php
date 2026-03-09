@@ -40,7 +40,6 @@ class Reports extends AbstractController
         ];
 
         $papers = $this->getAllPapersArray('paper');
-        
         $exportHeader = $this->exportHeader();
         if (!empty($papers)) {
             foreach ($papers as $index => $paper) {
@@ -145,12 +144,12 @@ class Reports extends AbstractController
                 ];
 
                 $talkScheduleData = [
-                    $paper->talkSchedule['session_title'] ?? '',
-                    $paper->talkSchedule['session_date'] ?? '',
-                    $paper->talkSchedule['session_start_time'] ?? '',
-                    $paper->talkSchedule['session_end_time'] ?? '',
-                    $paper->talkSchedule['time_start'] ?? '',
-                    $paper->talkSchedule['time_end'] ?? '',
+                    $paper['schedulerData'][0]['session_title'] ?? '',
+                    $paper['schedulerData'][0]['session_date'] ?? '',
+                    $paper['schedulerData'][0]['session_start_time'] ?? '',
+                    $paper['schedulerData'][0]['session_end_time'] ?? '',
+                    $paper['schedulerData'][0]['time_start'] ?? '',
+                    $paper['schedulerData'][0]['time_end'] ?? '',
                 ];
                 $exportData[$index] = array_merge($exportData[$index], $talkScheduleData);
                 // Loop through additional presenting authors
