@@ -174,6 +174,7 @@ class Reports extends AbstractController
                                 $exportData[$index][] = isset($author['acceptance']['presentation_file_path']) && isset($author['acceptance']['presentation_saved_name'])
                                     ? base_url() . $author['acceptance']['presentation_file_path'] . '/' . $author['acceptance']['presentation_saved_name']
                                     : '';
+                                $exportData[$index][] = $author['acceptance'] ? $author['acceptance']['impact_statement'] ?? '' : '';
                                 $exportData[$index][] = '';
                             }
                         }
@@ -314,7 +315,7 @@ class Reports extends AbstractController
 
         $exportHeader[0]  = array_merge($exportHeader[0], $scheduleHeader);
 
-       for($i=1; $i<6; $i++){
+       for($i=1; $i<=1; $i++){
            $additionalHeader = [
                'Presenting Author'.$i.' Firstname',
                'Presenting Author'.$i.' MiddleName',
@@ -331,6 +332,7 @@ class Reports extends AbstractController
                'Presenting Author'.$i.' Work Phone',
                'Presenting Author'.$i.' Innovation Celebration',
                'Presenting Author'.$i.' Acceptance Upload',
+               'Presenting Author'.$i.' Impact Statement',
            ];
            $exportHeader[0] = array_merge($exportHeader[0], $additionalHeader);
        }
