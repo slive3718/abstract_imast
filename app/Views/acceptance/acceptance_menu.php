@@ -29,7 +29,7 @@
                                 <?php endif ?>
 
                                 <a id="impactStatement" href="<?=base_url()?>/acceptance/impact_statement/<?=$abstract_id?>" class="btn btn-white btn-sm round-0 text-start ps-0 fw-bold" style="width:80%; border-bottom:1px solid #0d6efd"><num class="btn-sm me-2 text-white " style="background-color:#0d6efd; padding:5px 10px 5px 10px"><?=$stepNumber ++ ?> </num> Impact Statement
-                                    <?=isset($author_acceptance) && (!empty($author_acceptance->presentation_original_name)|| $author_acceptance->presentation_original_name !== '' )? '<span class="float-end text-success"><i class="fw-bold  fas fa-check-circle"> </i> Completed </span>' :'<span class="float-end text-danger"><i class="fw-bold fas fa-exclamation-circle"></i> Incomplete </span>' ?>
+                                    <?=isset($author_acceptance) && (!empty($author_acceptance->impact_statement !== '') )? '<span class="float-end text-success"><i class="fw-bold  fas fa-check-circle"> </i> Completed </span>' :'<span class="float-end text-danger"><i class="fw-bold fas fa-exclamation-circle"></i> Incomplete </span>' ?>
                                 </a>
 
 
