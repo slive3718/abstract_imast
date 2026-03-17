@@ -208,6 +208,9 @@ class AuthorAcceptanceModel extends Model
                     else if($result->presentation_saved_name == ''){
                         return ['status'=>'failed', 'message'=> 'Presentation not found'];
                     }
+                    else if($result->impact_statement == ''){
+                        return ['status'=>'failed', 'message'=> 'Impact Statement is empty'];
+                    }
                 }
 
                 return ['status'=>'success', 'message'=> ''];
