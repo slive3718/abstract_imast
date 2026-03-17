@@ -244,7 +244,7 @@
                                 March 18, 2026
                             </td>
                             <td>
-                                ${(val.author_acceptance_data && val.author_acceptance_data.manuscript_agreement ) ? '<span class="badge bg-success text-white" >Complete </span>' : '<span class="badge bg-danger text-white" >Incomplete </span>'}
+                                ${(val.author_acceptance_data && val.author_acceptance_data.manuscript_agreement ) && (val.author_acceptance_data.presentation_file_path !== '') ? '<span class="badge bg-success text-white" >Complete </span>' : '<span class="badge bg-danger text-white" >Incomplete </span>'}
                             </td>
                             <td>
                                  ${openManuscriptBtn}
@@ -261,7 +261,7 @@
                                 January 15, 2026
                             </td>
                             <td>
-                                ${(val.author_acceptance_data && val.author_acceptance_data.impact_statement_agreement) ? '<span class="badge bg-success text-white" >Complete </span>' : '<span class="badge bg-danger text-white" >Incomplete </span>'}
+                                ${(val.author_acceptance_data && val.author_acceptance_data.impact_statement_agreement) && (val.author_acceptance_data && val.author_acceptance_data.impact_statement !== '')  ? '<span class="badge bg-success text-white" >Complete </span>' : '<span class="badge bg-danger text-white" >Incomplete </span>'}
                             </td>
                             <td>
                                  ${openImpactStatement}
