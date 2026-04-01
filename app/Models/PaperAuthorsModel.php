@@ -27,11 +27,20 @@ class PaperAuthorsModel extends BaseModel
             u.name AS user_name,
             u.surname AS user_surname,
             u.middle_name AS user_middle,
-            u.email AS user_email,
-            IFNULL(rpa.id, 0) AS is_removed,
+            u.email AS user_email
         ')
             ->join($this->sharedDB->database.'.users u', 'paper_authors.author_id = u.id', 'left')
-            ->join('removed_paper_authors rpa', 'paper_authors.id = rpa.paper_author_id', 'left');
+            ->join('removed_paper_authors rpa', 'paper_authors.id = rpa.paper_author_id', 'left')
+            ->where('rpa.id', NULL); // Only include authors that are NOT removed
+    }
+
+    protected function activeUsers()
+    {
+        return $this
+            ->join($this->sharedDB->database.'.users u', 'paper_authors.author_id = u.id', 'left')
+            ->join($this->sharedDB->database.'.users_profile up', 'u.id = up.author_id', 'left')
+            ->join('removed_paper_authors rpa', 'paper_authors.id = rpa.paper_author_id', 'left')
+            ->where('rpa.id', NULL); // Only include authors that are NOT removed
     }
 
     public function GetJoinedUser($paper_id)
@@ -112,9 +121,10 @@ class PaperAuthorsModel extends BaseModel
     {
         try {
             $query =  $this->table('paper_authors')
-                ->select('paper_authors.*, u.name as user_name, u.middle_name as user_middle, u.surname as user_surname,  IFNULL(rpa.id, 0) as is_removed')
+                ->select('paper_authors.*, u.name as user_name, u.middle_name as user_middle, u.surname as user_surname')
                 ->join($this->sharedDB->database.'.users u', 'paper_authors.author_id = u.id', 'left')
-                ->join('removed_paper_authors rpa', 'paper_authors.id = rpa.paper_author_id', 'left');
+                ->join('removed_paper_authors rpa', 'paper_authors.id = rpa.paper_author_id', 'left')
+                ->wherE('rpa.id', NULL); // Only include authors that are NOT removed
             if($paper_id){
                 $query  ->where('paper_authors.paper_id', $paper_id);
             }
@@ -127,10 +137,13 @@ class PaperAuthorsModel extends BaseModel
         }
     }
 
-    public function getAuthorsWithProfiles(array $paperIds): array
+    public function getAuthorsWithProfilesQuery(array $paperIds = []): object
     {
         $builder = $this->withUserAndRemovalStatus();
-        $builder->whereIn('paper_authors.paper_id', $paperIds);
+
+        if(!empty($paperIds))
+            $builder->whereIn('paper_authors.paper_id', $paperIds);
+
         $builder->join($this->sharedDB->database. '.users_profile up', 'u.id = up.author_id', 'left');
         $builder->select('up.*');
         $builder->orderBy('author_order', 'asc');
@@ -138,27 +151,13 @@ class PaperAuthorsModel extends BaseModel
         if(!empty($orderBy))
             $builder->orderBy($orderBy['column'], $orderBy['direction']);
 
-        return $builder->findAll();
+        return $builder;
     }
 
-    public function getAuthorsAcceptedByAdmin(int $paperId = null, array $orderBy = null): array
+
+    public function getAuthorsWithProfiles(array $paperIds = []): array
     {
-        $builder = $this->withUserAndRemovalStatus();
-        $builder->join('admin_abstract_acceptance aaa', 'paper_authors.paper_id = aaa.abstract_id', 'left');
-        $builder->where('aaa.acceptance_confirmation', 1);
-
-        if(!empty($orderBy))
-            $builder->orderBy($orderBy['column'], $orderBy['direction']);
-
-        $builder->orderBy('paper_authors.author_order', 'ASC');
-
-        $builder->where('rpa.id', NULL); // Only include authors that are NOT removed
-
-        if ($paperId !== null) {
-            $builder->where('paper_authors.paper_id', $paperId);
-        }
-
-        return $builder->findAll();
+        return $this->getAuthorsWithProfilesQuery()->findAll();
     }
 
     public function getByAuthors($authorsIds): array {
@@ -167,5 +166,9 @@ class PaperAuthorsModel extends BaseModel
             ->select('paper_authors.*, p.*')
             ->whereIn('author_id', $authorsIds)
             ->findAll();
+    }
+
+    public function getMembershipAllAuthors(){
+        return $this->activeUsersBaseQuery();
     }
 }

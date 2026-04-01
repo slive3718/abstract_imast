@@ -10,6 +10,7 @@ use App\Models\SchedulerSessionTalksModel;
 use App\Services\CMEReportService;
 use App\Services\reports\AcceptedAuthorReportServices;
 use App\Services\reports\AcceptedAuthorsIndexReport;
+use App\Services\reports\MembershipReportServices;
 use App\Services\reports\PrecisReportServices;
 use App\Services\SRRReportSerice;
 
@@ -557,4 +558,10 @@ class Reports extends AbstractController
         $reportService->precis_report(2, $exportName);
     }
 
+    public function membership_report()
+    {
+        $reportService = (new MembershipReportServices());
+        $exportName = 'Membershiup Report';
+        $reportService->membership_report([1,2,3,4,5], $exportName);
+    }
 }

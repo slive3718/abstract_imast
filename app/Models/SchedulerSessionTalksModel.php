@@ -60,4 +60,9 @@ class SchedulerSessionTalksModel extends Model
 
          return $builder->get()->getResultArray();
     }
+
+    public function getAbstractSchedules(){
+        return $this->base_query();
+
+    }
 }

@@ -906,7 +906,7 @@ class AbstractController extends BaseController
                 }, $designations);
 
                 // Pre-process institution once
-                $userInstitutionsMap[$authorId] = (new InstitutionServices())->getInstitutionQuery($authorDetails['institution_id']) ?? [];
+                $userInstitutionsMap[$authorId] = (new InstitutionServices())->getInstitutionQuery($authorDetails['institution_id'])->first() ?? [];
             }
 
             $talks = $SchedulerModel->getAllTalks();
@@ -1383,7 +1383,6 @@ class AbstractController extends BaseController
         // Batch load all authors for all papers
         $allAuthors = $paperAuthorsModel->getAuthors()
             ->whereIn('paper_id', $paperIds)
-            ->where('rpa.id', NULL)
             ->findAll();
         $authorsByPaper = [];
         $presentingAuthorsByPaper = [];
