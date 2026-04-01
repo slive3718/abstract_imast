@@ -82,6 +82,7 @@
                                 <li><a class="dropdown-item" href="<?=base_url().'admin/report/all_accepted_authors_index_report'?>">All Accepted Authors Index Report</a></li>
                                 <li><a class="dropdown-item" href="<?=base_url().'admin/report/podium_precis_report'?>">All Podium to Word</a></li>
                                 <li><a class="dropdown-item" href="<?=base_url().'admin/report/ePoint_precis_report'?>">All ePoint to Word</a></li>
+                                <li><a class="dropdown-item" href="<?=base_url().'admin/report/membership_report'?>">Membership Report</a></li>
                             </ul>
                         </div>
                     </li>

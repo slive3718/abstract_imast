@@ -120,6 +120,7 @@ $routes->group('admin', ['filter' => 'authGuard:admin'],  function ($routes) {
     $routes->get('report/all_accepted_authors_index_report', 'admin\Reports::all_accepted_authors_index_report');
     $routes->get('report/podium_precis_report', 'admin\Reports::podium_precis_report');
     $routes->get('report/ePoint_precis_report', 'admin\Reports::ePoint_precis_report');
+    $routes->get('report/membership_report', 'admin\Reports::membership_report');
 
 
     $routes->get('scheduler', 'admin\Abstracts\SchedulerController::index/$1');

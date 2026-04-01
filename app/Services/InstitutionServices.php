@@ -140,20 +140,23 @@ class InstitutionServices extends BaseService
         return $result;
     }
 
-    public function getInstitutionQuery($institution_id){
+    public function getInstitutionQuery($institution_id = null){
 
         $query = (new InstitutionModel());
         $query->select('
-        institution.name as institution_name,
-        ci.name as institution_city,
-        co.name as institution_country,
-       ')
+            institution.id as institution_id,
+            institution.name as institution_name,
+            ci.name as institution_city,
+            co.name as institution_country,
+            st.name as institution_state,
+           ')
             ->join($this->defaultDB->database. '.cities ci', 'institution.city_id = ci.id', 'left')
             ->join($this->defaultDB->database. '.countries co', 'ci.country_id = co.id', 'left')
-            ->where('institution.id', $institution_id);
+            ->join($this->defaultDB->database. '.states st', 'ci.state_id = st.id', 'left');
+        if($institution_id){
+            $query->where('institution.id', $institution_id);
+        }
 
-        $result = $query->first();
-        return $result;
-
+        return $query;
     }
 }

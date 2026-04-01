@@ -92,9 +92,13 @@ class PapersModel extends Model
         }
     }
 
-    public function getPaperWithAdminAcceptance($paperType = null){
-        $builder = $this->getActivePapers()
+    public function activePapersWithAcceptance(){
+        return $this->getActivePapers()
             ->join('admin_abstract_acceptance aaa', 'papers.id = aaa.abstract_id', 'left');
+    }
+
+    public function activePapersWithAcceptanceFilter($paperType = null){
+        $builder = $this->activePapersWithAcceptance();
 
         if($paperType)
             $builder->where('aaa.acceptance_confirmation', '1');

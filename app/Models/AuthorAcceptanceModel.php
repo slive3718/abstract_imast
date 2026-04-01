@@ -262,6 +262,10 @@ class AuthorAcceptanceModel extends Model
         return $author_papers;
     }
 
+    function getAllAcceptance(){
+
+    }
+
     function get_accepted_panelist_abstracts(){
         $author_papers = $this->db->table('paper_authors')
             ->where('paper_authors.author_id', session('user_id'))

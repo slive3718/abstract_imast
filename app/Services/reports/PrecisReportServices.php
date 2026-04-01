@@ -18,7 +18,7 @@ class PrecisReportServices extends BaseService
 
 
     public function precis_report($acceptance_type, $exportName){
-        $podiumPapers = (new PapersModel())->getPaperWithAdminAcceptance($acceptance_type);
+        $podiumPapers = (new PapersModel())->activePapersWithAcceptanceFilter($acceptance_type);
         $podiumPapersIds = array_column($podiumPapers, 'abstract_id');
 
         // Fetch all authors and paper uploads for all podium papers in one query
