@@ -485,21 +485,19 @@
             if (!paper.authors) return;
 
             paper.authors.forEach((author, i) => {
-                if(author.is_removed === '0') {
-                    const institution = author.institution ? ` <i class='badge bg-info'>(${author.institution.name})</i>` : '';
-                    const copyrightStatus = (author.details && author.details.financial_relationship !== null && author.details.signature_signed_date !== null && $currentDisclosureDate && (author.details.signature_signed_date > $currentDisclosureDate))
-                        ? "<i class='ms-2 fas fa-check text-success'></i>"
-                        : "<i class='ms-2 fas fa-times text-danger'></i>";
+                const institution = author.institution ? ` <i class='badge bg-info'>(${author.institution.name})</i>` : '';
+                const copyrightStatus = (author.details && author.details.financial_relationship !== null && author.details.signature_signed_date !== null && $currentDisclosureDate && (author.details.signature_signed_date > $currentDisclosureDate))
+                    ? "<i class='ms-2 fas fa-check text-success'></i>"
+                    : "<i class='ms-2 fas fa-times text-danger'></i>";
 
-                    $('#authorList_' + author.paper_id).append(`
+                $('#authorList_' + author.paper_id).append(`
                     <div class="text-nowrap author_list_row card p-0 d-block " data-author-id="${author.author_id}">
                         ${author.is_presenting_author === 'Yes' ? '<span class="fw-bolder">Lead Presenter: </span>' : '<span class="fw-bolder">Co Presenter: </span>'}
                         ${author.user_name} ${author.user_surname} ${copyrightStatus}
                     </div>
                 `);
 
-                    $('#author-acceptance-' + author.paper_id).append(`<div class="text-nowrap">${getAuthorAcceptance(paper, author)}</div>`);
-                }
+                $('#author-acceptance-' + author.paper_id).append(`<div class="text-nowrap">${getAuthorAcceptance(paper, author)}</div>`);
             });
 
         }
