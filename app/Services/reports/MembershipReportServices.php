@@ -38,7 +38,7 @@ class MembershipReportServices extends BaseService
         helper('array');
         $this->paperTypes = array_column((new PaperTypeModel())->findAll(), 'name', 'id');
         $this->adminPresentationPreference = array_column((new AdminAcceptanceModel())->findAll(), null, 'abstract_id');
-        $this->categories = array_column((new AbstractCategoriesModel())->findAll(), null, 'id');
+        $this->categories = array_column((new AbstractCategoriesModel())->findAll(), 'name', 'id');
         $this->institutions = array_column((new InstitutionServices())->getInstitutionQuery()->findAll(), null, 'id');
         $this->reviewsByPaper = (new AbstractReviewsServices())->getReviewsMappedByPaper();
         $this->users = array_column((new UserModel())->findAll(), null, 'id');
@@ -237,7 +237,15 @@ class MembershipReportServices extends BaseService
             if (($a['is_removed'] ?? '0') !== '0') continue;
             $name = trim(($a['user_name'] ?? '') . ' ' . ($a['user_surname'] ?? ''));
             if ($name) {
-                $authorsList[] = $i . '. ' . $name;
+                // Build the institution and country part
+                $institutionPart = '';
+                if (!empty($authorInstitution) && !empty($countryInstitution)) {
+                    $institutionPart = ', ' . $authorInstitution . ', ' . $countryInstitution;
+                } elseif (!empty($authorInstitution)) {
+                    $institutionPart = ', ' . $authorInstitution;
+                }
+
+                $authorsList[] = $i . '. ' . $name . $institutionPart;
                 $i++;
             }
         }
@@ -256,7 +264,7 @@ class MembershipReportServices extends BaseService
 
 //        $acceptanceStatus = $this->allAcceptance[$currentAuthor['author_id'] . '_' . $paper['id']]['is_finalized'] === 1 ? '' ?? null;
         return [
-            'AbstractID'                        => $paper['id'] ?? '',
+            'AbstractID'                        => $paper['custom_id'] ?? '',
             'Assigned ID'                       => $paper['assigned_id'] ?? '',
             'Accepted Session Type'             => $adminAcceptancePreference ?? '',
             'Author Name'                       => $authorName,
@@ -269,7 +277,7 @@ class MembershipReportServices extends BaseService
             'Country Institution'               => $countryInstitution,
             'Abstract Title'                    => $paper['title'] ?? '',
             'Authors List'                      => $authorsList,
-            'Presentation Preference'           => $this->paperTypes['type_id'] ?? '',
+            'Presentation Preference'           => $this->paperTypes[$paper['type_id']] ?? '',
             'Basic Science Proposal Format'     => $paper['basic_science_format'] ?? '',
             'Hypothesis'                        => $paper['hypothesis'] ?? '',
             'Category'                          => $this->categories[$paper['abstract_category']] ?? '',
