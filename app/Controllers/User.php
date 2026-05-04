@@ -462,6 +462,7 @@ class User extends BaseController
                     ->join((new CitiesModel())->db->database . '.cities ci', 'i.city_id = ci.id', 'left')
                     ->join((new CountriesModel())->db->database . '.countries co', 'ci.country_id = co.id', 'left')
                     ->like('LOWER(u.surname)', strtolower($post['searchValue']['authorName']))
+                    ->where('u.deleted_at', null)
                     // ->where('u.id !=', session('user_id')) // Uncomment if needed
                     ->findAll();
 
