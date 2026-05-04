@@ -1110,7 +1110,7 @@ class AbstractController extends BaseController
             ->orLike('email', $searchValue)
             ->orLike('surname', $searchValue)
             ->groupEnd()
-                ->where('u.deleted_at', null)
+                ->where('deleted_at', null)
             ->findAll();
 
         return $this->response->setJSON($results);
