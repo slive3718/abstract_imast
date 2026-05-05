@@ -56,12 +56,33 @@ class UserModel extends BaseModel
     protected function prepareData(array $data): array
     {
         $fieldsToClean = ['name', 'surname', 'middle_name'];
+
         foreach ($fieldsToClean as $field) {
             if (isset($data['data'][$field])) {
-                $data['data'][$field] = $this->cleanName($data['data'][$field]);
+                $data['data'][$field] = $this->safeCleanName($data['data'][$field]);
             }
         }
+
         return $data;
+    }
+
+    protected function safeCleanName(string $value): string
+    {
+        // Remove null bytes, vertical tab, form feed, etc.
+        $cleaned = preg_replace('/[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]/', '', $value);
+
+        // Remove zero-width characters (invisible characters)
+        $cleaned = preg_replace('/[\x{200B}-\x{200D}\x{FEFF}]/u', '', $cleaned);
+
+        // Remove bidirectional control characters that could cause display issues
+        $cleaned = preg_replace('/[\x{202A}-\x{202E}\x{2066}-\x{2069}]/u', '', $cleaned);
+
+        $cleaned = str_replace(["\r\n", "\r"], "", $cleaned);
+
+        // Trim to remove leading/trailing whitespace
+        $cleaned = trim($cleaned);
+
+        return $cleaned;
     }
 
     private function cleanName(string $name): string
