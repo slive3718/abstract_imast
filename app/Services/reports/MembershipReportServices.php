@@ -39,7 +39,7 @@ class MembershipReportServices extends BaseService
         $this->paperTypes = array_column((new PaperTypeModel())->findAll(), 'name', 'id');
         $this->adminPresentationPreference = array_column((new AdminAcceptanceModel())->findAll(), null, 'abstract_id');
         $this->categories = array_column((new AbstractCategoriesModel())->findAll(), 'name', 'id');
-        $this->institutions = array_column((new InstitutionServices())->getInstitutionQuery()->findAll(), null, 'id');
+        $this->institutions = array_column((new InstitutionServices())->getInstitutionQuery()->findAll(), null, 'institution_id');
         $this->reviewsByPaper = (new AbstractReviewsServices())->getReviewsMappedByPaper();
         $this->users = array_column((new UserModel())->findAll(), null, 'id');
         $this->schedules = array_column((new SchedulerSessionTalksModel())->getAbstractSchedules()->get()->getResultArray(), null, 'abstract_id');
@@ -88,9 +88,6 @@ class MembershipReportServices extends BaseService
                 }
                 $rows[] = $this->buildRowData($paper, $author, $designationsColumn, $authors, $reviewsText, $totalScore, $avgScore, $olympicScore);
             }
-
-
-
         }
 
         // ====================== Create Excel ======================
