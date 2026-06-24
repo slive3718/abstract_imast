@@ -19,7 +19,7 @@ class LogsService extends BaseService
             '',
             'rexterdayuta@gmail.com',
             'IMAST Declined Participation',
-            'Assigned ID# '.$abstract['assigned_id'].' , Presenting Author:  '.session('name').' '.session('surname').' declined participation in the IMAST 2026 Meeting.',
+            'Assigned ID# '.$abstract['assigned_id'].' , Presenting Author:  '.session('name').' '.session('surname').' declined participation in the IMAST 2027 Meeting.',
         );
 
         if($mail_result->statusCode >= 200 && $mail_result->statusCode < 300 ){
