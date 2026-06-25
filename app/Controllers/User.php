@@ -230,7 +230,7 @@ class User extends BaseController
             'methods'                => 'required',
             'results'                => 'required',
             'conclusions'            => 'required',
-            'paper_type'            => 'required',
+//            'paper_type'            => 'required',
         ];
 
         if (!$this->validate($validationRules)) {
@@ -240,7 +240,7 @@ class User extends BaseController
         // Prepare data for insertion
         $insert_array = [
             'user_id'               => session('user_id'),
-            'type_id'              => isset($post['paper_type']) ? $post['paper_type'] : null,
+//            'type_id'              => isset($post['paper_type']) ? $post['paper_type'] : null,
             'previous_presentation' => isset($post['previous_presentation']) ? $post['previous_presentation'] : null,
             'basic_science_format'  => isset($post['basic_science_format']) ? $post['basic_science_format'] : null,
             'abstract_category'     => isset($post['abstract_category']) ? $post['abstract_category'] : '',
