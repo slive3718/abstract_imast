@@ -12,12 +12,7 @@
                 <div class="card-header text-primary fw-bold"> NOTE FOR SUBMITTERS </div>
                 <div class="card-body text-start">
                     <p>
-                        If you have previously submitted an abstract to a SRS Annual Meeting, please use those credentials to submit for IMAST 2026.
-                    </p>
-                    <p>
-                        If you have previously been an author on an abstract for a SRS Annual Meeting, please
-                        use that email address and password: SRS. You can change your password once you are
-                        logged in under 'Settings'.
+                        If you have previously submitted an abstract to a SRS Annual Meeting, please use those credentials to submit for IMAST 2027.
                     </p>
                 </div>
             </div>
