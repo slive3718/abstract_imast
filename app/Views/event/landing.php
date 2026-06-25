@@ -28,11 +28,13 @@
     <div class="container shadow-lg glass-container container-landing">
         <div class="card">
             <div class="container p-5 ">
-                <p class="text-center mb-3 fw-bolder">33rd Scoliosis Research Society (SRS)</p>
+                <!-- 34th IMAST updated details -->
+                <p class="text-center mb-3 fw-bolder">34th Scoliosis Research Society (SRS)</p>
                 <p class="text-center fw-bolder">International Meeting on Advanced Spine Techniques (IMAST)</p>
-                <p class="text-center fw-bolder">Toronto, ON, Canada<br> April 15-17, 2026 </p>
-                <p class="text-center fw-bolder">Abstract Submission: July 1, 2025 - October 1, 2025</p>
+                <p class="text-center fw-bolder">Copenhagen, Denmark<br> April 7-9, 2027 </p>
+                <p class="text-center fw-bolder">Abstract Submission: July 1, 2026 - October 1, 2026</p>
 
+                <!-- dynamic status block (using same logic, but you can adjust condition as needed) -->
                 <?php if(1 == 1) : ?>
                     <div class="row mt-4">
                         <div class="text-center ">
@@ -59,10 +61,10 @@
 
                 <h6 class="fw-bold mt-5">IMPORTANT DATES</h6>
                 <ul >
-                    <li><strong>Abstract Submission Dates: </strong> July 1 - October 1, 2025, 11:59 PM EDT (US)</li>
-                    <li><strong>Abstract Acceptance Notification via email: </strong> December 10, 2025*</li>
-                    <li><strong>Abstract Presenter Acceptance Deadline:</strong> January 6, 2026*</li>
-                    <li><strong>Meeting Dates:</strong>  <span class="text-danger">April 15-17, 2026</span></li>
+                    <li><strong>Abstract Submission Dates: </strong> July 1 - October 1, 2026, 11:59 PM EDT (US)</li>
+                    <li><strong>Abstract Acceptance Notification via email: </strong> December 10, 2026*</li>
+                    <li><strong>Abstract Presenter Acceptance Deadline:</strong> January 8, 2027*</li>
+                    <li><strong>Meeting Dates:</strong>  <span class="text-danger">April 7-9, 2027</span></li>
                 </ul>
                 <p>*Dates are subject to change.</p>
 
@@ -74,7 +76,7 @@
                 <p>Abstracts can be submitted by SRS Members and non-members.</p>
 
                 <h6 class="fw-bold mt-5">MEETING THEME</h6>
-                <p>The Future of Spine: Driving Innovation & Cultivating Leadership</p>
+                <p>The theme for the 2027 IMAST meeting is xxxxxx</p>
 
                 <h6 class="fw-bold mt-5">ABSTRACT CATEGORIES</h6>
                 <p>Abstract submission to IMAST must fit into one of the following categories to be considered for presentation.</p>
@@ -91,20 +93,21 @@
                     <li>Lumbar Diseases (including Spondylolisthesis)</li>
                     <li>Minimally Invasive Approaches (Lateral access surgery, Endoscopic, Outpatient Surgery)</li>
                     <li>Quality / Safety / Value / Complications</li>
+                    <li>Innovation in Treatment of the Degenerative Spine</li>
                 </ul>
                 <p>
                     <i>*AI & Machine Learning: Abstracts eligible for this category will describe utilization of artificial intelligence, machine learning,
                         predictive analytics, or wearable technology in the diagnosis, treatment planning, intraoperative guidance, or postoperative care of
-                        operative spine pathology.
+                        operative spine pathology, along with risk stratification, patient optimization & outcomes.
                     </i>
                 </p>
 
                 <p>Authors can choose optional sub-categories to further classify their topic. More than one sub-category can be selected:</p>
                 <table class="table table-bordered" style="max-width: 900px;">
                     <thead class="bg-secondary text-white">
-                        <tr>
-                            <th colspan="2" class="text-center">Sub-Categories</th>
-                        </thead>
+                    <tr>
+                        <th colspan="2" class="text-center">Sub-Categories</th>
+                    </thead>
                     <tbody>
                     <tr>
                         <td>
@@ -169,6 +172,11 @@
                 <h6 class="fw-bold mt-5">ONE-YEAR FOLLOW-UP REQUIREMENT</h6>
                 <p>One-year clinical follow-up is required for abstract submission. The one-year follow up rule does not apply to categories of basic science or biomechanical studies or for topics where one-year follow up is irrelevant such as 30-day re-admission rates.</p>
 
+                <!-- new section: Use of AI Tools to Develop Content -->
+                <h6 class="fw-bold mt-5">USE OF AI TOOLS TO DEVELOP CONTENT</h6>
+                <p>Utilizing guidance from the Accrediting Council of Continuing Medical Education (ACCME) regarding responsible use of Artificial Intelligence (AI), SRS requires that you disclose whether AI tools have been used to generate, analyze, or edit your abstract and/or its associated materials, such as uploaded images, figures, or charts. Routine spelling or grammar tools do not require disclosure.</p>
+                <p>If AI was used, the authors of the abstract remain fully accountable for the submitted content and must attest that all AI-assisted content has been human-verified for clinical accuracy, evidence-based integrity, and the absence of commercial bias.</p>
+
                 <h6 class="fw-bold mt-5">DISCLOSURE AND LICENSING REQUIREMENT</h6>
                 <p>ALL authors listed on an abstract will be required to submit a Financial Relationship Disclosure form which must include ALL financial relationships held in the past 24 months with ineligible companies*, regardless of their relevancy to the topic of the abstract(s).</p>
                 <p>If authors on an abstract have not completed these required forms prior to the submission deadline, the abstract will NOT be reviewed or considered for the meeting program.</p>
@@ -209,7 +217,7 @@
                 <p>Failure to address pertinent CME review issues will result in pulling the presentation from the program and in a one-year ban for abstract presentations and a three-year ban for invited presentations.</p>
 
                 <h6 class="fw-bold mt-5">NOTIFICATIONS</h6>
-                <p>All submitters will be notified via email of the status of their submission(s) on December 10, 2025. In the event that you do not receive any notification, please log into the submission site at ANY time to view any recent mail regarding your submissions.</p>
+                <p>All submitters will be notified via email of the status of their submission(s) on December 10, 2026. In the event that you do not receive any notification, please log into the submission site at ANY time to view any recent mail regarding your submissions.</p>
 
                 <h6 class="fw-bold mt-5">TECHNOLOGY TROUBLESHOOTING</h6>
                 <ul>
