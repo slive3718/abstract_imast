@@ -244,7 +244,7 @@ class User extends BaseController
             'previous_presentation' => isset($post['previous_presentation']) ? $post['previous_presentation'] : null,
             'basic_science_format'  => isset($post['basic_science_format']) ? $post['basic_science_format'] : null,
             'abstract_category'     => isset($post['abstract_category']) ? $post['abstract_category'] : '',
-            'title'                => isset($post['abstract_title']) ? $post['abstract_title'] : '',
+            'title'                 => isset($post['abstract_title']) ? trim(preg_replace('/\.$/', '', $post['abstract_title'])) : '',
             'hypothesis'           => isset($post['hypothesis']) ? $post['hypothesis'] : '',
             'study_design'         => isset($post['study_design']) ? $post['study_design'] : '',
             'introduction'         => isset($post['introduction']) ? $post['introduction'] : '',
@@ -304,7 +304,7 @@ class User extends BaseController
             'basic_science_format'   => isset($post['basic_science_format']) ? trim($post['basic_science_format']) : $existingPaper['basic_science_format'],
             'abstract_category'      => isset($post['abstract_category']) ? trim($post['abstract_category']) : $existingPaper['abstract_category'],
             'abstract_subcategories'  => isset($post['abstract_subcategories']) ? json_encode(($post['abstract_subcategories'])) : $existingPaper['abstract_subcategories'],
-            'title'                  => isset($post['abstract_title']) ? trim($post['abstract_title']) : $existingPaper['title'],
+            'title'                  => isset($post['abstract_title']) ? trim(preg_replace('/\.$/', '', $post['abstract_title'])) : $existingPaper['title'],
             'hypothesis'             => isset($post['hypothesis']) ? trim($post['hypothesis']) : $existingPaper['hypothesis'],
             'study_design'           => isset($post['study_design']) ? trim($post['study_design']) : $existingPaper['study_design'],
             'introduction'           => isset($post['introduction']) ? trim($post['introduction']) : $existingPaper['introduction'],
@@ -356,14 +356,12 @@ class User extends BaseController
 
 
     function generateCustomID($paper_id){
-        $nextYear = date('Y') < 2026 ? 2026 : date('Y');
-        $newCustomId = sprintf('%s-%03d', $nextYear, $paper_id);
+        $newCustomId = sprintf('%s-%03d', '2027', $paper_id);
         return $newCustomId;
     }
 
     function generatePanelistCustomID($paper_id){
-        $nextYear = date('Y') < 2026 ? 2026 : date('Y');
-        $newCustomId = sprintf('%s-%03d', $nextYear, $paper_id);
+        $newCustomId = sprintf('%s-%03d', '2027', $paper_id);
         return $newCustomId;
     }
 
