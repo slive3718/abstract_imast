@@ -25,7 +25,7 @@
 
             <form id="abstractSubmissionForm"  action="<?= $actionUrl ?>" method="post">
                 <input type="hidden" value="<?=(isset($paper_id) && !empty($paper_id))? $paper_id : ''?>" name="paper_id">
-                <div class="row">
+                <!--<div class="row">
                     <div class="col mt-4">
                         <div id="questionDiv_division">
                             <h5 class="title">
@@ -34,22 +34,19 @@
                             </h5>
                             <div class="subtitle">Please choose one of the following:</div>
                             <div class="form-check">
-
-<!--                                --><?php //= print_r($paper);exit; ?>
-                                <!--        ##########   Options are Fetched from database Paper Type    #############      -->
-                                <?php if(!empty($paper_type)):
+                                <?php /*if(!empty($paper_type)):
                                     foreach ($paper_type as $type):
                                         if($type->id !== '4'):
-                                            ?>
-                                            <input type="radio" value="<?=$type->id?>" id="paper_type_<?=$type->id?>" name="paper_type" class="form-check-input required" <?=(isset($paper) && $paper['type_id'] && $paper['type_id'] == $type->id? 'checked':'')?> >
-                                            <label class="form-check-label" for="paper_type_<?=$type->id?>"><?=$type->name?></label>
+                                            */?>
+                                            <input type="radio" value="<?php /*=$type->id*/?>" id="paper_type_<?php /*=$type->id*/?>" name="paper_type" class="form-check-input" <?php /*=(isset($paper) && $paper['type_id'] && $paper['type_id'] == $type->id? 'checked':'')*/?> >
+                                            <label class="form-check-label" for="paper_type_<?php /*=$type->id*/?>"><?php /*=$type->name*/?></label>
                                             <br>
-                                        <?php endif; endforeach;
-                                endif?>
+                                        <?php /*endif; endforeach;
+                                endif*/?>
                             </div>
                         </div>
                     </div>
-                </div>
+                </div>-->
 
                 <!-- ##########   Question 1: Previous Presentation ############### -->
                 <div class="row previous-presentation">

@@ -39,7 +39,7 @@
                             <a href="<?= base_url().'author/attestation/'?>"  class="btn btn-light border w-100 text-start d-flex align-items-center mb-2">
                                 <div class="bg-warning text-white px-3 py-2 fw-bold"><?= $stepNumber ++ ?></div>
                                 <div class="flex-grow-1 px-2">
-                                    <strong>Attestation for IMAST 2026</strong>
+                                    <strong>Attestation for IMAST 2027</strong>
                                 </div>
                                 <div class="text-end">
                                     <span >Due Date :  October 23, 2025</span>

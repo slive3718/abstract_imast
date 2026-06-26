@@ -15,7 +15,7 @@
         <div class="row">
             <div class="col-md-12">
                 <div class="alert alert-warning text-center" role="alert">
-                    Submission deadline is now: Thursday, August 15, 2024 at 5 pm ET.
+                    Submission deadline is now: Thursday, October 1, 2026 at 5 pm ET.
                 </div>
             </div>
             <div class="row mt-2">
