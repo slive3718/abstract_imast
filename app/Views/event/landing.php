@@ -35,7 +35,7 @@
                 <p class="text-center fw-bolder">Abstract Submission: July 1, 2026 - October 1, 2026</p>
 
                 <!-- dynamic status block (using same logic, but you can adjust condition as needed) -->
-                <?php if(1 == 1) : ?>
+                <?php if(1 == 2) : ?>
                     <div class="row mt-4">
                         <div class="text-center ">
                             <label class="alert alert-danger text-center glass-content submissionBtn w-700" role="alert">
@@ -76,7 +76,7 @@
                 <p>Abstracts can be submitted by SRS Members and non-members.</p>
 
                 <h6 class="fw-bold mt-5">MEETING THEME</h6>
-                <p>The theme for the 2027 IMAST meeting is xxxxxx</p>
+                <p>Spine Without Borders: Translating Innovation into Practice.</p>
 
                 <h6 class="fw-bold mt-5">ABSTRACT CATEGORIES</h6>
                 <p>Abstract submission to IMAST must fit into one of the following categories to be considered for presentation.</p>
@@ -236,7 +236,7 @@
 
 
 
-                <?php if(1 == 1) : ?>
+                <?php if(1 == 2) : ?>
                     <div class="row mt-4">
                         <div class="text-center ">
                             <label class="alert alert-danger text-center glass-content submissionBtn w-700" role="alert">
