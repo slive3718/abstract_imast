@@ -35,7 +35,7 @@
                 <p class="text-center fw-bolder">Abstract Submission: July 1, 2026 - October 1, 2026</p>
 
                 <!-- dynamic status block (using same logic, but you can adjust condition as needed) -->
-                <?php if(1 == 1) : ?>
+                <?php if(1 == 2) : ?>
                     <div class="row mt-4">
                         <div class="text-center ">
                             <label class="alert alert-danger text-center glass-content submissionBtn w-700" role="alert">
@@ -236,7 +236,7 @@
 
 
 
-                <?php if(1 == 1) : ?>
+                <?php if(1 == 2) : ?>
                     <div class="row mt-4">
                         <div class="text-center ">
                             <label class="alert alert-danger text-center glass-content submissionBtn w-700" role="alert">
