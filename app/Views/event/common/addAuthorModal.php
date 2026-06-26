@@ -68,7 +68,7 @@
                                     <!-- "Other" Designation Input (Hidden Initially) -->
                                     <div id="otherDesignationContainer" class="mt-2" style="display: none;">
                                         <input type="text" name="other_designation" id="other_designation"
-                                               class="form-control shadow-none" placeholder="Enter other designation">
+                                               class="form-control shadow-none" placeholder="Enter other designation" required>
                                     </div>
                                 </div>
 
