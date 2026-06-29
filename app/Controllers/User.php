@@ -1459,12 +1459,18 @@ class User extends BaseController
 
         // Fetch Authors
         $authors = $PaperAuthorsModel
-            ->select('u.*, up.*, paper_authors.*, i.name as institution_name, ci.name as institution_city, co.name as institution_country')
+            ->select('u.*, up.*, paper_authors.*, 
+            i.name as institution_name, ci.name as institution_city,
+             co.name as institution_country, 
+             ad.created_at as disclosure_created,
+             ad.updated_at as disclosure_updated
+             ')
             ->join($this->shared_db_name.'.users u', 'paper_authors.author_id = u.id', 'left')
             ->join($this->shared_db_name.'.users_profile up', 'paper_authors.author_id = up.author_id', 'left')
             ->join($this->shared_db_name.'.institution i', 'up.institution_id = i.id', 'left')
             ->join($CitiesModel->table . ' ci', 'i.city_id = ci.id', 'left')
             ->join($CountriesModel->table . ' co', 'ci.country_id = co.id', 'left')
+            ->join($this->default_db_name.'.app_disclosures ad', 'paper_authors.author_id = ad.author_id', 'left')
             ->whereNotIn('paper_authors.id', function ($builder) {
                 $builder->select('paper_author_id')->from('removed_paper_authors');
             })
