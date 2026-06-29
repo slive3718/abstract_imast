@@ -150,9 +150,9 @@ class InstitutionServices extends BaseService
             co.name as institution_country,
             st.name as institution_state,
            ')
-            ->join($this->defaultDB->database. '.cities ci', 'institution.city_id = ci.id', 'left')
-            ->join($this->defaultDB->database. '.countries co', 'ci.country_id = co.id', 'left')
-            ->join($this->defaultDB->database. '.states st', 'ci.state_id = st.id', 'left');
+            ->join($this->sharedDB->database. '.cities ci', 'institution.city_id = ci.id', 'left')
+            ->join($this->sharedDB->database. '.countries co', 'ci.country_id = co.id', 'left')
+            ->join($this->sharedDB->database. '.states st', 'ci.state_id = st.id', 'left');
         if($institution_id){
             $query->where('institution.id', $institution_id);
         }
