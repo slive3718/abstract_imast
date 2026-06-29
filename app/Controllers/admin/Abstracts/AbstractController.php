@@ -1245,14 +1245,14 @@ class AbstractController extends BaseController
            $secondArr = (new CMEReviewersController())->getCMEReviewerList();
            $mergedArray = array_merge($secondArr, $reviewer_array);
 
-           if($reviewer_array){
-               return json_encode(['status' => 200, "message" => "", 'data' => $mergedArray]);
+               if($reviewer_array){
+                   return json_encode(['status' => 200, "message" => "", 'data' => $mergedArray]);
+               }
+           }catch (\Exception $e){
+               return json_encode(['status' => 500, "message" => $e->getMessage(), 'data' => '']);
            }
-       }catch (\Exception $e){
-           return json_encode(['status' => 500, "message" => $e->getMessage(), 'data' => '']);
-       }
-        return json_encode(['status' => 500, "message" => 'Failed to fetch reviewer', 'data' => '']);
-    }
+            return json_encode(['status' => 500, "message" => 'Failed to fetch reviewer', 'data' => '']);
+        }
 
     public function assignPaperToRegularReviewer(){
         $post = $this->request->getPost();
@@ -1827,10 +1827,12 @@ class AbstractController extends BaseController
         $papers = $papersModel->find($paper_id);
         $UsersProfileModel = (new UsersProfileModel());
         $recentAuthors = (new PaperAuthorsModel())
-            ->join($UsersModel->table, 'paper_authors.author_id = users.id')
+            ->join($this->shared_db_name.'.users u', 'paper_authors.author_id = u.id')
             ->where('paper_id', $paper_id)
             ->where('author_type', 'author')
             ->findAll();
+
+        $disclosure_current_date = (new SiteSettingModel())->where('name', 'disclosure_current_date')->first()['value'];
 
         $header_data = [
             'title' => "Authors and Copyright"
@@ -1838,7 +1840,6 @@ class AbstractController extends BaseController
         $data = [
             'id' => $this->request->uri->getSegment(4),
             'paper_id' => $paper_id,
-//            'disclosure_data' => $papers,
             'abstract_details'=>($papers)?:'',
             'recentAuthors'=>$recentAuthors
         ];
