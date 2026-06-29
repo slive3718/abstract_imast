@@ -79,6 +79,8 @@
 </main>
 
 <script>
+    let previousUrl = "<?= $previous_url ?? ''?>"
+    let previousPage = "<?= $previous_page ?? ''?>"
     $(function() {
         const abstract_id = '<?=$paper_id?>';
 

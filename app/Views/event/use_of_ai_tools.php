@@ -105,6 +105,8 @@
 </main>
 
 <script>
+    let previousUrl = "<?= $previous_url ?? ''?>"
+    let previousPage = "<?= $previous_page ?? ''?>"
     $(function() {
         const abstract_id = '<?=$paper_id?>';
 
@@ -231,7 +233,12 @@
                             title: 'Changes saved',
                             text: 'Success'
                         }).then(() => {
-                            window.location.href = `${base_url}/user/submission_menu/${abstract_id}`;
+
+                            if((previousPage === 'finalize_paper' || previousPage === 'submission_menu') && previousUrl) {
+                                return window.location.href = previousUrl
+                            }
+
+                            window.location.href = "<?= base_url() ?>user/finalize_paper/<?= $paper_id ?>";
                         });
                     } else {
                         Swal.fire({
