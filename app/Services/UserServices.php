@@ -143,6 +143,7 @@ class UserServices extends BaseService
     }
 
     private function getUsersQuery($searchFields = null, $filters = null): object{
+//        print_R($filters);exit;
         $query = $this->model->db->table('users_profile up')
             ->select('
                 up.*, 
@@ -247,8 +248,7 @@ class UserServices extends BaseService
     }
 
     function searchUserByName($post, $searchFields = null, $filters = null): array{
-
-        $query = $this->getUsersQuery($post, $searchFields, $filters);
+        $query = $this->getUsersQuery($searchFields, $filters);
         $query->groupStart();
         $query->like('LOWER(u.surname)', strtolower($post['searchValue']['authorName']));
         $query->orlike('LOWER(u.name)', strtolower($post['searchValue']['authorName']));

@@ -452,7 +452,7 @@ class User extends BaseController
         if($post){
             try {
                 $searchFilter = ['order_by'=>['field'=>'u.surname', 'direction'=>'asc']];
-                $searchResult = (new UserServices())->searchUserByName($post,['institutions'], $searchFilter);
+                $searchResult = (new UserServices())->searchUserByName($post, ['institutions'], $searchFilter);
                 if(($searchResult)){
                     $searchResultStatus = (new AbstractServices())->processEntities($searchResult);
                     return $this->response->setJSON(array('status'=>'200', 'message'=>'Match found', 'data'=>$searchResultStatus));

@@ -167,5 +167,19 @@ class AbstractServices extends CoreServices
         return $designations;
     }
 
+    function processEntities($authors){
+        if (empty($authors))
+            return [];
+        $newAuthorEntities = [];
+        // get the status of disclosure
+        $authorsIds = array_column($authors, 'author_id');
+        $authorsIds = array_unique($authorsIds);
+        $authorsDisclosureStatus = (new AppDisclosureServices())->getBatchStatus($authorsIds);
+        foreach ($authors as &$author){
+            $newAuthorEntities[$author['author_id']] = $author;
+            $newAuthorEntities[$author['author_id']]['disclosureStatus'] = $authorsDisclosureStatus[$author['author_id']] ?? 'none';
+        }
+        return $newAuthorEntities;
+    }
 
 }

@@ -55,6 +55,7 @@
                                             <th>First Name</th>
                                             <th>Last Name</th>
 <!--                                            <th>Email</th>-->
+                                            <th>Disclosure</th>
                                             <th>Institution</th>
                                             <th>Institution City</th>
                                             <th>Institution Country</th>
