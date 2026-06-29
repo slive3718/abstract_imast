@@ -90,7 +90,7 @@
                                     </a>
                                     <?php foreach ($paper->authors as $author) {
                                         // Check if the value of 'is_copyright_agreement_accepted' is 1
-                                        if (!empty($author['signature_signed_date'])) {
+                                        if (!empty($author['disclosure_updated']) || !empty($author['disclosure_created'])) {
                                             // Increment counter
                                             $count++;
                                         }

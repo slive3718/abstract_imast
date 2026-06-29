@@ -90,7 +90,9 @@ class User extends BaseController
          $PaperAuthorsModel = (new PaperAuthorsModel());
          $RemovedPaperAuthorsModel = (new RemovedPaperAuthorModel());
          $authors = $AuthorsModel
+             ->select('*, ad.created_at as disclosure_created, ad.updated_at as disclosure_updated')
              ->join($UsersProfileModel->db->database.'.users_profile', 'paper_authors.author_id = users_profile.author_id', 'left')
+             ->join($this->default_db_name.'.app_disclosures ad', 'paper_authors.author_id = ad.author_id', 'left')
              ->join('removed_paper_authors', 'paper_authors.author_id = removed_paper_authors.paper_author_id', 'left')
              ->whereNotIn($PaperAuthorsModel->table . '.id', function ($builder) use ($RemovedPaperAuthorsModel) {
                  $builder->select('paper_author_id')->from($RemovedPaperAuthorsModel->table);
@@ -103,7 +105,7 @@ class User extends BaseController
          $authorDetailsRequiredFields = [
              'institution_id' => 'Institution',
              'designations' => 'Designations',
-             'signature_signed_date'=> 'Disclosure Signature'
+             'disclosure_updated'=> 'Disclosure'
          ];
 
 
@@ -512,7 +514,7 @@ class User extends BaseController
             $author['mailLogs'] = $mailLogs;
             $author['disclosure'] = $authorDisclosure;
             $author['disclosureStatus'] =  $AppDisclosureService->getStatus($author['author_id'])?? [];;
-            $author['signature_signed_date'] = $authorDisclosure['updated_at'] ?? '';
+            $author['signature_signed_date'] = $authorDisclosure['updated_at'] ??  $authorDisclosure['created_at'] ?? '';
             $paperAuthorsArray[] = $author;
         }
 
@@ -1492,7 +1494,7 @@ class User extends BaseController
         // Validation for Missing Fields
         $authorDetailsRequiredFields = [
             'institution_id' => 'Institution',
-            'signature_signed_date' => 'Disclosure'
+            'disclosure_updated' => 'Disclosure'
         ];
 
         $paperRequiredFields = [

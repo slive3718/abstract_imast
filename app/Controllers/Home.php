@@ -47,10 +47,11 @@ class Home extends BaseController
         foreach ($papers as $paper) {
             // Fetch authors for the paper
             $authorsQuery = "
-                SELECT u.*, up.signature_signed_date
+                SELECT u.*, ad.created_at as disclosure_created, ad.updated_at as disclosure_updated
                 FROM paper_authors pa
                 LEFT JOIN {$this->shared_db_name }.users u ON pa.author_id = u.id
                 LEFT JOIN {$this->shared_db_name }.users_profile up ON pa.author_id = up.author_id
+                LEFT JOIN {$this->default_db_name }.app_disclosures ad ON pa.author_id = ad.author_id
                 WHERE pa.paper_id = ? AND pa.author_type = 'author'
                 AND pa.id NOT IN (
                     SELECT paper_author_id FROM removed_paper_authors
