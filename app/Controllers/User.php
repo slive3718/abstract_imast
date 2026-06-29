@@ -139,8 +139,7 @@ class User extends BaseController
 
 
          //check if use of ai is complete
-//         print_r($paper['ai_used']);exit;
-         if(!$paper['ai_used'] || empty($paper['ai_attestation_date']) ){
+         if(empty($paper['ai_terms']) ){
              $incomplete['ai_disclosure'][] = 1;
          }
 
