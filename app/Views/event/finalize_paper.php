@@ -272,6 +272,98 @@
                                 </td>
                             </tr>
                         <?php endif; ?>
+
+                        <tr>
+                            <td class="text-end">AI Tools Used :</td>
+                            <td>
+                                <?php
+                                if (isset($papers['ai_used'])) {
+                                    if ($papers['ai_used'] == 1) {
+                                        echo '<span class="badge bg-warning text-dark">Yes</span>';
+                                    } else {
+                                        echo '<span class="badge bg-success">No</span>';
+                                    }
+                                } else {
+                                    echo '<span class="badge bg-secondary">Not specified</span>';
+                                }
+                                ?>
+                            </td>
+                            <td style="width: 100px;">
+                                <a href="<?=base_url()?>/use_of_ai/<?=$paper_id?>" class="float-end btn btn-primary btn-sm">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                            </td>
+                        </tr>
+
+                        <?php if (isset($papers['ai_used']) && $papers['ai_used'] == 1): ?>
+                            <tr>
+                                <td class="text-end">AI Tools & Version :</td>
+                                <td><?= !empty($papers['ai_tools']) ? htmlspecialchars($papers['ai_tools']) : 'N/A' ?></td>
+                                <td style="width: 100px;">
+                                    <a href="<?=base_url()?>/use_of_ai/<?=$paper_id?>" class="float-end btn btn-primary btn-sm">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </a>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td class="text-end">AI Purpose of Use :</td>
+                                <td>
+                                    <?php
+                                    if (!empty($papers['ai_purposes'])) {
+                                        $purposes = explode(',', $papers['ai_purposes']);
+                                        $purposeLabels = [
+                                            'conception' => 'Conception/Design',
+                                            'data_collection' => 'Data Collection (e.g. AI XR Measurement) ',
+                                            'data_analysis' => 'Data Analysis',
+                                            'manuscript_prep' => 'Manuscript Preparation/Writing ',
+                                            'other' => 'Other'
+                                        ];
+                                        $purposeDisplay = array_map(function($p) use ($purposeLabels) {
+                                            return $purposeLabels[$p] ?? $p;
+                                        }, $purposes);
+                                        echo implode(', ', $purposeDisplay);
+
+                                        // Show "Other" purpose if specified
+                                        if (in_array('other', $purposes) && !empty($papers['ai_other_purpose'])) {
+                                            echo ' <span class="text-muted">(' . htmlspecialchars($papers['ai_other_purpose']) . ')</span>';
+                                        }
+                                    } else {
+                                        echo 'N/A';
+                                    }
+                                    ?>
+                                </td>
+                                <td style="width: 100px;">
+                                    <a href="<?=base_url()?>/use_of_ai/<?=$paper_id?>" class="float-end btn btn-primary btn-sm">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </a>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td class="text-end">AI Attestation :</td>
+                                <td>
+                                    <?php
+                                    if (isset($papers['ai_attestation']) && $papers['ai_attestation'] == 1) {
+                                        echo '<span class="badge bg-success">Verified</span>';
+                                        if (!empty($papers['ai_attestation_name'])) {
+                                            echo '<br><span>By: ' . htmlspecialchars($papers['ai_attestation_name']) . '</span>';
+                                        }
+                                        if (!empty($papers['ai_attestation_date'])) {
+                                            echo '<br><span>Date: ' . date('F d, Y', strtotime($papers['ai_attestation_date'])) . '</span>';
+                                        }
+                                    } else {
+                                        echo '<span class="badge bg-danger">Not attested</span>';
+                                    }
+                                    ?>
+                                </td>
+                                <td style="width: 100px;">
+                                    <a href="<?=base_url()?>/use_of_ai/<?=$paper_id?>" class="float-end btn btn-primary btn-sm">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </a>
+                                </td>
+                            </tr>
+                        <?php endif; ?>
                         </tbody>
                     </table>
                 </div>
