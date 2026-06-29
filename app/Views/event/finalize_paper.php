@@ -131,11 +131,6 @@
                         <tbody>
                         <?php if ($papers): ?>
                             <tr>
-                                <td class="text-end"  style="width:250px;">Session Types : </td>
-                                <td><?= $papers['type']['name'] ?></td>
-                                <td style="width: 100px;"><a class="float-end btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit </a></td>
-                            </tr>
-                            <tr>
                                 <td class="text-end">Basic Science Proposal Format :</td>
                                 <td><?= htmlspecialchars($papers['basic_science_format']) ?></td>
                                 <td style="width: 100px;"><a href="<?=base_url().'user/edit_papers_submission/'.$paper_id?>" class="float-end btn btn-primary btn-sm"><i class="fas fa-edit"></i> Edit </a></td>
