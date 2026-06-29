@@ -29,6 +29,7 @@ use App\Models\RemovedPaperAuthorModel;
 use App\Models\SiteSettingModel;
 use App\Models\UserModel;
 use App\Services\AbstractServices;
+use App\Services\AppDisclosureServices;
 use App\Services\UserServices;
 use CodeIgniter\HTTP\ResponseInterface;
 use PhpOffice\PhpWord\Style\Paper;
@@ -476,6 +477,7 @@ class User extends BaseController
         $UsersModel = (new UserModel());
         $UsersProfileModel = (new UsersProfileModel());
         $PaperAuthorsModel= (new PaperAuthorsModel());
+        $AppDisclosureService = (new AppDisclosureServices());
 
         $query = $PaperAuthorsModel->select('*, paper_authors.id as id, users.id as author_id, users.name, users.surname, users.middle_name')
             ->join($UsersModel->db->database.'.users', 'paper_authors.author_id = users.id', 'left')
@@ -483,16 +485,16 @@ class User extends BaseController
             ->join('removed_paper_authors', 'paper_authors.id = removed_paper_authors.paper_author_id', 'left')
             ->where('paper_authors.paper_id', $post['paper_id'])
             ->where('author_type', $author_type)
+            ->where('paper_authors.author_id !=', '0')
             ->whereNotIn('paper_authors.id', function ($builder) {
                 $builder->select('paper_author_id')->from('removed_paper_authors');
             })
             ->orderBy('paper_authors.author_order', 'asc')
             ->orderBy('paper_authors.id', 'asc');
 
+        $disclosure = $AppDisclosureService->getMappedAuthorsWithDisclosure();
 // Execute the query
         $paperAuthors = $query->findAll();
-
-
         $paperAuthorsArray = array();
         foreach ($paperAuthors as $author){
             $mailLogs = $LogsModel
@@ -504,8 +506,13 @@ class User extends BaseController
                 ->orderBy('id', 'desc')
                 ->first();
 
+            if(!$author['author_id'])
+                continue;
+            $authorDisclosure = $disclosure[$author['author_id']]['disclosure'] ?? [];
             $author['mailLogs'] = $mailLogs;
-
+            $author['disclosure'] = $authorDisclosure;
+            $author['disclosureStatus'] =  $AppDisclosureService->getStatus($author['author_id'])?? [];;
+            $author['signature_signed_date'] = $authorDisclosure['updated_at'] ?? '';
             $paperAuthorsArray[] = $author;
         }
 

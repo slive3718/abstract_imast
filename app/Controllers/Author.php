@@ -65,7 +65,7 @@ class Author extends BaseController
             ->join($this->default_db_name.'.app_disclosures ad', 'paper_authors.author_id = ad.author_id', 'left')
             ->where('users.id',  session('user_id'))
             ->first();
-        
+
         $disclosureSignedDate = ($author['disclosure_created'] ?? $author['disclosure_updated'] ?? null);
         $author['disclosure_signed_date'] = $disclosureSignedDate;
 
