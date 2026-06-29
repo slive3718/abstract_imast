@@ -688,7 +688,7 @@ function getPaperAuthors(paper_id = null) {
 }
 
 function checkCompleteStatus(author) {
-    const requiredFields = ['email', 'institution_id'];
+    const requiredFields = ['email', 'institution_id', 'designations'];
     return requiredFields.every(field => author[field]);
 }
 
