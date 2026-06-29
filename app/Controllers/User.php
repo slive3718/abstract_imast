@@ -1507,6 +1507,7 @@ class User extends BaseController
             'is_fda_accepted' => 'Fda acceptance is incomplete',
             'custom_id' => 'Paper Submission Custom ID is missing. Please contact administrator.',
             'title' => 'Title is missing.',
+            'type_id' => 'Type of paper is missing.',
             'image_upload_finished' => 'Image Upload is incomplete.'];
 
         $incomplete = [];
