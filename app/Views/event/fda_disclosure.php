@@ -165,7 +165,12 @@
                             title: 'Changes saved',
                             text: 'Success'
                         }).then(() => {
-                            window.location.href = `${base_url}/${event_uri}/user/submission_menu/${abstract_id}`;
+
+                            if((previousPage === 'finalize_paper' || previousPage === 'submission_menu') && previousUrl) {
+                                return window.location.href = previousUrl
+                            }
+
+                            window.location.href = "<?= base_url() ?>use_of_ai/<?= $paper_id ?>";
                         });
                     } else {
                         Swal.fire({
