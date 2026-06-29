@@ -1463,6 +1463,7 @@ class User extends BaseController
              co.name as institution_country, 
              ad.created_at as disclosure_created,
              ad.updated_at as disclosure_updated
+             ad.disclosure_signature as disclosure_signature
              ')
             ->join($this->shared_db_name.'.users u', 'paper_authors.author_id = u.id', 'left')
             ->join($this->shared_db_name.'.users_profile up', 'paper_authors.author_id = up.author_id', 'left')
@@ -1499,7 +1500,7 @@ class User extends BaseController
         // Validation for Missing Fields
         $authorDetailsRequiredFields = [
             'institution_id' => 'Institution',
-            'disclosure_updated' => 'Disclosure'
+            'disclosure_signature' => 'Disclosure'
         ];
 
         $paperRequiredFields = [
