@@ -1463,6 +1463,7 @@ class User extends BaseController
              co.name as institution_country, 
              ad.created_at as disclosure_created,
              ad.updated_at as disclosure_updated
+             ad.disclosure_signature as disclosure_signature
              ')
             ->join($this->shared_db_name.'.users u', 'paper_authors.author_id = u.id', 'left')
             ->join($this->shared_db_name.'.users_profile up', 'paper_authors.author_id = up.author_id', 'left')
@@ -1499,7 +1500,7 @@ class User extends BaseController
         // Validation for Missing Fields
         $authorDetailsRequiredFields = [
             'institution_id' => 'Institution',
-            'disclosure_updated' => 'Disclosure'
+            'disclosure_signature' => 'Disclosure'
         ];
 
         $paperRequiredFields = [
@@ -1534,6 +1535,13 @@ class User extends BaseController
             }
         }
 
+        //check if use of ai is complete
+        if(empty($paper['ai_terms']) ){
+            $incomplete['ai_disclosure'][] = [
+                'required' => "AI Disclosure is required",
+                'message'  => "AI Disclosure is incomplete"
+            ];
+        }
         //find users marked as study group
         $studyGroups = $UsersModel->where('is_study_group', 1)->findAll();
 

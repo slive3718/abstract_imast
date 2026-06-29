@@ -179,7 +179,7 @@
         });
     })
 </script>
-<script  type="text/javascript" src="<?=base_url('assets/js/author_copyright.js')?>"></script>
+<script  type="text/javascript" src="<?=base_url('assets/js/author_copyright.js?v=2')?>"></script>
 <script  type="text/javascript" src="<?=base_url('assets/js/addressAutoComplete.js')?>"></script>
 <script  type="text/javascript" src="<?=base_url('assets/js/institution.js')?>"></script>
 <script  type="text/javascript" src="<?=base_url('assets/js/institution_autocomplete.js')?>"></script>
