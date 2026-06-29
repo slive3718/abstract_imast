@@ -28,6 +28,8 @@ use App\Models\PaperUploadsModel;
 use App\Models\RemovedPaperAuthorModel;
 use App\Models\SiteSettingModel;
 use App\Models\UserModel;
+use App\Services\AbstractServices;
+use App\Services\UserServices;
 use CodeIgniter\HTTP\ResponseInterface;
 use PhpOffice\PhpWord\Style\Paper;
 
@@ -130,6 +132,13 @@ class User extends BaseController
                      $incomplete['paper'][] = 'required ' . $required . ' for paper: ' . $paper->id;
                  }
              }
+         }
+
+
+         //check if use of ai is complete
+//         print_r($paper['ai_used']);exit;
+         if(!$paper['ai_used'] || empty($paper['ai_attestation_date']) ){
+             $incomplete['ai_disclosure'][] = 1;
          }
 
          if($paper['is_finalized'] !== '1'){
@@ -437,43 +446,22 @@ class User extends BaseController
 
     public function search_author_ajax(){
         $post = $this->request->getpost();
-        $UsersModel = (new UserModel());
-        $authorModel = (new UsersProfileModel());
         if($post){
             try {
-                $authors = $authorModel
-                    ->select('
-                        users_profile.*, 
-                        u.id as user_id,
-                        u.email, 
-                        u.surname, 
-                        u.name, 
-                        u.middle_name, 
-                        u.is_study_group, 
-                        i.name as institution_name, 
-                        ci.name as institution_city, 
-                        co.name as institution_country
-                    ')
-                    ->join($UsersModel->db->database.'.users u','users_profile.author_id = u.id', 'right')
-                    ->join($UsersModel->db->database.'.users_profile up', 'u.id = up.author_id', 'right')
-                    ->join((new InstitutionModel())->db->database . '.institution i', 'up.institution_id = i.id', 'left')
-                    ->join((new CitiesModel())->db->database . '.cities ci', 'i.city_id = ci.id', 'left')
-                    ->join((new CountriesModel())->db->database . '.countries co', 'ci.country_id = co.id', 'left')
-                    ->like('LOWER(u.surname)', strtolower($post['searchValue']['authorName']))
-                    ->where('u.deleted_at', null)
-                    // ->where('u.id !=', session('user_id')) // Uncomment if needed
-                    ->findAll();
-
-                if(($authors))
-                    echo json_encode(array('status'=>'200', 'message'=>'Match found', 'data'=>$authors));
+                $searchFilter = ['order_by'=>['field'=>'u.surname', 'direction'=>'asc']];
+                $searchResult = (new UserServices())->searchUserByName($post,['institutions'], $searchFilter);
+                if(($searchResult)){
+                    $searchResultStatus = (new AbstractServices())->processEntities($searchResult);
+                    return $this->response->setJSON(array('status'=>'200', 'message'=>'Match found', 'data'=>$searchResultStatus));
+                }
                 else{
-                    echo json_encode(array('status'=>'204', 'message'=>'No match found','data'=>$authors));
+                    return $this->response->setJSON(array('status'=>'204', 'message'=>'No match found','data'=>$searchResult));
                 }
             }catch (\Exception $e){
-                echo json_encode(array('status'=>'204', 'message'=>$e->getMessage(),'data'=>''));
+                return $this->response->setJSON(array('status'=>'204', 'message'=>$e->getMessage(),'data'=>''));
             }
         }else{
-            echo json_encode(array('status'=>'204', 'message'=>'Missing search value','data'=>''));
+            return $this->response->setJSON(array('status'=>'204', 'message'=>'Missing search value','data'=>''));
         }
     }
 
@@ -1925,8 +1913,6 @@ class User extends BaseController
         $PapersModel = (new PapersModel());
         $AuthorsModel = (new PaperAuthorsModel());
         $UsersProfileModel = (new UsersProfileModel());
-        $PaperAuthorsModel = (new PaperAuthorsModel());
-        $RemovedPaperAuthorsModel = (new RemovedPaperAuthorModel());
         $authors = $AuthorsModel
             ->join($UsersProfileModel->table, 'paper_authors.author_id = users_profile.author_id', 'left')
             ->where('paper_authors.paper_id', $paper_id)->findAll();
@@ -1937,7 +1923,6 @@ class User extends BaseController
             'electronic_signature', 'is_copyright_agreement_accepted', 'institution', 'deg', 'country', 'city', 'province'
         ];
 
-        //         print_r($authors);exit;
         $paperUploads = (new PaperUploadsModel())->where('paper_id', $paper_id)->findAll();
         $paperRequiredFields = [
             'division_id', 'type_id', 'title', 'summary', 'is_ijmc_interested'
@@ -1951,8 +1936,6 @@ class User extends BaseController
                 }
             }
         }
-
-//         print_r($incomplete);exit;
 
         if(!$paperUploads){
             $incomplete['paperUpload'][] = 'required ' . 'Uploads' . ' for paper: ' . $paper_id;
@@ -1970,9 +1953,6 @@ class User extends BaseController
             $incomplete['finalized'][] = 1;
         }
 
-        if(!$event){
-            return "error";
-        }
         $header_data = [
             'title' => "Submission Menu"
         ];
@@ -2473,7 +2453,7 @@ class User extends BaseController
     function send_panelist_email_copyright($paper_id, $panelistCode){
 
         $sendMail = new PhpMail();
-        $from = ['email' => 'imast@owpm2.com', 'name' => 'IMAST 2026'];
+        $from = ['email' => 'imast@owpm2.com', 'name' => 'IMAST 2027'];
 
         $PaperAuthorModel = (new PaperAuthorsModel());
         $PapersModel = (new PapersModel());
@@ -2788,7 +2768,7 @@ class User extends BaseController
                         $PaperTemplates = str_replace('##RECIPIENTS_FULL_NAME##', ucFirst($user['name']) . ' ' . ucFirst($user['surname']), $PaperTemplates);
                         $PaperTemplates = str_replace('##REVIEW_USERNAME##', $user['email'], $PaperTemplates);
                         $PaperTemplates = str_replace('##REVIEW_PASSWORD##', 'Please reset your password in case forgotten. Thank you!', $PaperTemplates);
-                        $from = ['name' => 'IMAST 2026', 'email' => 'imast@owpm2.com'];
+                        $from = ['name' => 'IMAST 2027', 'email' => 'imast@owpm2.com'];
                         $addTo = $user['email'];
                         $subject = $MailTemplates['email_subject'];
                         $addContent = $PaperTemplates;
