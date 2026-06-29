@@ -1462,7 +1462,7 @@ class User extends BaseController
             i.name as institution_name, ci.name as institution_city,
              co.name as institution_country, 
              ad.created_at as disclosure_created,
-             ad.updated_at as disclosure_updated
+             ad.updated_at as disclosure_updated,
              ad.disclosure_signature as disclosure_signature
              ')
             ->join($this->shared_db_name.'.users u', 'paper_authors.author_id = u.id', 'left')
