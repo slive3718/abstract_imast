@@ -1450,7 +1450,7 @@ class User extends BaseController
             ->asArray()
             ->first();
 
-        $paper['type'] = (new PaperTypeModel())->where('id', $paper['type_id'])->asArray()->find();
+        $paper['type'] = (new PaperTypeModel())->where('id', $paper['type_id'])->asArray()->first();
 
 //        print_R($paper);exit;
         if (!$paper) {
