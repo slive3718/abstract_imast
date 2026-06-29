@@ -318,30 +318,100 @@
                                     </td>
                                 </tr>
                             <?php endif;?>
-                            </tbody>
-                        </table>
 
-                        <div class="tracksDiv">
-                            <!--<form name="formTracks">
-                            <table class="table" style="border-bottom-width:4px !important">
-                                <tbody>
+                            <tr>
+                                <td class="text-end">AI Tools Used :</td>
+                                <td>
+                                    <?php
+                                    if (isset($papers['ai_used'])) {
+                                        if ($papers['ai_used'] == 1) {
+                                            echo '<span class="badge bg-warning text-dark">Yes</span>';
+                                        } else {
+                                            echo '<span class="badge bg-success">No</span>';
+                                        }
+                                    } else {
+                                        echo '<span class="badge bg-secondary">Not specified</span>';
+                                    }
+                                    ?>
+                                </td>
+                                <td style="width: 100px;">
+                                    <a href="<?=base_url()?>/use_of_ai/<?=$paper_id?>" class="float-end btn btn-primary btn-sm">
+                                        <i class="fas fa-edit"></i> Edit
+                                    </a>
+                                </td>
+                            </tr>
+
+                            <?php if (isset($papers['ai_used']) && $papers['ai_used'] == 1): ?>
                                 <tr>
-                                    <td class="text-end">Tracks : </td>
-                                    <td>
-                                        <?php /*$tracks = json_decode($papers['tracks']); */?>
-                                        <input type="checkbox" name="tracks[]" id="track1" value="1" <?php /*= !empty($tracks) && (in_array('1', $tracks)) ? 'checked' : '' */?>> <label for="track1" > Casting Designers & Buyers</label> <br>
-                                        <input type="checkbox" name="tracks[]" id="track2" value="2" <?php /*= !empty($tracks) && (in_array('2', $tracks)) ? 'checked' : '' */?>> <label for="track2" > Management</label> <br>
-                                        <input type="checkbox" name="tracks[]" id="track3" value="3" <?php /*= !empty($tracks) && (in_array('3', $tracks)) ? 'checked' : '' */?>> <label for="track3" > Student</label> <br>
-                                        <input type="checkbox" name="tracks[]" id="track4" value="4" <?php /*= !empty($tracks) && (in_array('4', $tracks)) ? 'checked' : '' */?>> <label for="track4" > Technical</label> <Br>
-
-                                        <a class="btn btn-primary mt-2 btn-sm saveTrackBtn" paper_id = "<?php /*=$paper_id*/?>">Save</a>
+                                    <td class="text-end">AI Tools & Version :</td>
+                                    <td><?= !empty($papers['ai_tools']) ? htmlspecialchars($papers['ai_tools']) : 'N/A' ?></td>
+                                    <td style="width: 100px;">
+                                        <a href="<?=base_url()?>/use_of_ai/<?=$paper_id?>" class="float-end btn btn-primary btn-sm">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </a>
                                     </td>
                                 </tr>
-                                </tbody>
-                            </form>-->
-                            </table>
 
-                    </div>
+                                <tr>
+                                    <td class="text-end">AI Purpose of Use :</td>
+                                    <td>
+                                        <?php
+                                        if (!empty($papers['ai_purposes'])) {
+                                            $purposes = explode(',', $papers['ai_purposes']);
+                                            $purposeLabels = [
+                                                'conception' => 'Conception/Design',
+                                                'data_collection' => 'Data Collection (e.g. AI XR Measurement) ',
+                                                'data_analysis' => 'Data Analysis',
+                                                'manuscript_prep' => 'Manuscript Preparation/Writing ',
+                                                'other' => 'Other'
+                                            ];
+                                            $purposeDisplay = array_map(function($p) use ($purposeLabels) {
+                                                return $purposeLabels[$p] ?? $p;
+                                            }, $purposes);
+                                            echo implode(', ', $purposeDisplay);
+
+                                            // Show "Other" purpose if specified
+                                            if (in_array('other', $purposes) && !empty($papers['ai_other_purpose'])) {
+                                                echo ' <span class="text-muted">(' . htmlspecialchars($papers['ai_other_purpose']) . ')</span>';
+                                            }
+                                        } else {
+                                            echo 'N/A';
+                                        }
+                                        ?>
+                                    </td>
+                                    <td style="width: 100px;">
+                                        <a href="<?=base_url()?>/use_of_ai/<?=$paper_id?>" class="float-end btn btn-primary btn-sm">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </a>
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td class="text-end">AI Attestation :</td>
+                                    <td>
+                                        <?php
+                                        if (isset($papers['ai_attestation']) && $papers['ai_attestation'] == 1) {
+                                            echo '<span class="badge bg-success">Verified</span>';
+                                            if (!empty($papers['ai_attestation_name'])) {
+                                                echo '<br><span>By: ' . htmlspecialchars($papers['ai_attestation_name']) . '</span>';
+                                            }
+                                            if (!empty($papers['ai_attestation_date'])) {
+                                                echo '<br><span>Date: ' . date('F d, Y', strtotime($papers['ai_attestation_date'])) . '</span>';
+                                            }
+                                        } else {
+                                            echo '<span class="badge bg-danger">Not attested</span>';
+                                        }
+                                        ?>
+                                    </td>
+                                    <td style="width: 100px;">
+                                        <a href="<?=base_url()?>/use_of_ai/<?=$paper_id?>" class="float-end btn btn-primary btn-sm">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </a>
+                                    </td>
+                                </tr>
+                            <?php endif; ?>
+                            </tbody>
+                        </table>
                 </div>
             </div>
 
@@ -581,37 +651,6 @@
             </div>
         </div>
 
-<!--        <div class="card">-->
-<!--            <div class="card-header" id="deputy-acceptance-header" data-bs-toggle="collapse" data-bs-target="#deputy-acceptance-body" aria-expanded="true" aria-controls="deputy-acceptance-body">-->
-<!--                <div class="card-title fw-bold">-->
-<!--                    Deputy Acceptance Information-->
-<!--                    <span class="more-less fas fa-minus float-end"></span>
-<!--                </div>-->
-<!--            </div>-->
-<!--            <div class="card-body">-->
-<!--                <div id="deputy-acceptance-body" class="collapse show" aria-labelledby="deputy-acceptance-header" data-bs-parent=".card">-->
-<!--                    <table id="acceptanceTable" class="table table-bordered" style="border:2px solid black;">-->
-<!--                        <thead>-->
-<!--                        </thead>-->
-<!--                        <tbody>-->
-<!--                        <tr>-->
-<!--                            <td>Cooper Programm Chair Comments:</td>-->
-<!--                            <td></td>-->
-<!--                        </tr>-->
-<!--                        <tr>-->
-<!--                            <td>Acceptance Status:</td>-->
-<!--                            <td></td>-->
-<!--                        </tr>-->
-<!--                        <tr>-->
-<!--                            <td>Recommended for Publications:</td>-->
-<!--                            <td></td>-->
-<!--                        </tr>-->
-<!--                        </tbody>-->
-<!--                    </table>-->
-<!--                </div>-->
-<!--            </div>-->
-<!--        </div>-->
-
         <div class="card">
             <div class="card-header" id="author-acceptance-header" data-bs-toggle="collapse" data-bs-target="#author-acceptance-body" aria-expanded="true" aria-controls="author-acceptance-body">
                 <div class="card-title fw-bold">
@@ -679,10 +718,9 @@
                 </div>
             </div>
         </div>
-
-
     </div>
 </main>
+
 <script>
     let baseUrlAdmin = "<?=base_url().'admin/'?>";
     $(function(){
@@ -882,8 +920,6 @@
         $('.saveAssignedIdBtn').on('click', function(){
             saveAssignedId();
         })
-
-
     })
 
     function toggleIcon(event) {

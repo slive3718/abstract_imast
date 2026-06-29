@@ -27,6 +27,13 @@
     input {
         border: 2px solid;
     }
+
+    .customTd {
+        width: 150px;
+        text-align: right;
+        padding-right: 10px;
+        font-weight: 600;
+    }
 </style>
 <main>
     <div class="container">
@@ -374,6 +381,78 @@
                                 <td class="customTd">Funded by SRS grant:</td>
                                 <td>
                                     <?php echo $abstract['paper']['is_srs_funded']; ?>
+                                </td>
+                            </tr>
+                        <?php endif; ?>
+
+                        <tr>
+                            <td class="text-end customTd" style="width: 200px">AI Tools Used :</td>
+                            <td>
+                                <?php
+                                if (isset($abstract['paper']['ai_used'])) {
+                                    if ($abstract['paper']['ai_used'] == 1) {
+                                        echo 'Yes';
+                                    } else {
+                                        echo 'No';
+                                    }
+                                } else {
+                                    echo 'Not specified';
+                                }
+                                ?>
+                            </td>
+                        </tr>
+
+                        <?php if (isset($abstract['paper']['ai_used']) && $abstract['paper']['ai_used'] == 1): ?>
+                            <tr>
+                                <td class="text-end customTd">AI Tools & Version :</td>
+                                <td><?= !empty($abstract['paper']['ai_tools']) ? htmlspecialchars($abstract['paper']['ai_tools']) : 'N/A' ?></td>
+                            </tr>
+
+                            <tr>
+                                <td class="text-end customTd">AI Purpose of Use :</td>
+                                <td>
+                                    <?php
+                                    if (!empty($abstract['paper']['ai_purposes'])) {
+                                        $purposes = explode(',', $abstract['paper']['ai_purposes']);
+                                        $purposeLabels = [
+                                            'conception' => 'Conception/Design',
+                                            'data_collection' => 'Data Collection (e.g. AI XR Measurement) ',
+                                            'data_analysis' => 'Data Analysis',
+                                            'manuscript_prep' => 'Manuscript Preparation/Writing ',
+                                            'other' => 'Other'
+                                        ];
+                                        $purposeDisplay = array_map(function($p) use ($purposeLabels) {
+                                            return $purposeLabels[$p] ?? $p;
+                                        }, $purposes);
+                                        echo implode(', ', $purposeDisplay);
+
+                                        // Show "Other" purpose if specified
+                                        if (in_array('other', $purposes) && !empty($abstract['paper']['ai_other_purpose'])) {
+                                            echo ' <span class="text-muted">(' . htmlspecialchars($abstract['paper']['ai_other_purpose']) . ')</span>';
+                                        }
+                                    } else {
+                                        echo 'N/A';
+                                    }
+                                    ?>
+                                </td>
+                            </tr>
+
+                            <tr>
+                                <td class="text-end customTd">AI Attestation :</td>
+                                <td>
+                                    <?php
+                                    if (isset($abstract['paper']['ai_attestation']) && $abstract['paper']['ai_attestation'] == 1) {
+                                        echo '<span class="badge bg-success">Verified</span>';
+                                        if (!empty($abstract['paper']['ai_attestation_name'])) {
+                                            echo '<br><span>By: ' . htmlspecialchars($abstract['paper']['ai_attestation_name']) . '</span>';
+                                        }
+                                        if (!empty($abstract['paper']['ai_attestation_date'])) {
+                                            echo '<br><span>Date: ' . date('F d, Y', strtotime($abstract['paper']['ai_attestation_date'])) . '</span>';
+                                        }
+                                    } else {
+                                        echo '<span class="badge bg-danger">Not attested</span>';
+                                    }
+                                    ?>
                                 </td>
                             </tr>
                         <?php endif; ?>
