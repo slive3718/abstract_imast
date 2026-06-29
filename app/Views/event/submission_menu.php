@@ -9,7 +9,7 @@
         <div class="card">
             <div class="card-body">
                 <div class="alert alert-warning text-center" role="alert">
-                    Submission deadline is now: Thursday, August 15, 2024 at 5 pm ET.
+                    Submission deadline is now: Thursday, October 1, 2026 at 5 pm ET.
                 </div>
                 <div class="alert alert-success text-center" role="alert">
                     Note: Submissions are now open.
@@ -88,6 +88,14 @@
                                 <?php endif?>
                             </a>
 
+                            <a href="<?=base_url()?>use_of_ai/<?=$paper_id?>" class="btn btn-white btn-sm round-0 text-start mt-2 ps-0 fw-bold" style="width:100%; border-bottom:1px solid blue">
+                                <num class="btn-sm me-2 text-white " style="background-color:#0072bb; padding:5px 10px 5px 10px"><?= $stepNumber++ ?> </num> Use of AI Tools
+                                <?php if(!empty($incompleteStatus['ai_disclosure'])):?>
+                                    <span class="float-end text-danger"><i class="fw-bold fas fa-exclamation-circle"></i> Incomplete </span>
+                                <?php else: ?>
+                                    <span class="float-end text-success"><i class="fw-bold fas fa-exclamation-circle"></i> Complete </span>
+                                <?php endif?>
+                            </a>
 
                             <a href="<?=base_url()?>user/finalize_paper/<?=$paper_id?>" class="btn btn-white btn-sm round-0 text-start mt-2 ps-0 fw-bold previewFinalizeBtn" style="width:100%; border-bottom:1px solid blue">
                                 <num class="btn-sm me-2 text-white " style="background-color:#0072bb; padding:5px 10px 5px 10px"><?= $stepNumber++ ?> </num> Print/Preview/Finalize
