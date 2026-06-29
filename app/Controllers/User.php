@@ -1534,6 +1534,13 @@ class User extends BaseController
             }
         }
 
+        //check if use of ai is complete
+        if(empty($paper['ai_terms']) ){
+            $incomplete['ai_disclosure'][] = [
+                'required' => "AI Disclosure is required",
+                'message'  => "AI Disclosure is incomplete"
+            ];
+        }
         //find users marked as study group
         $studyGroups = $UsersModel->where('is_study_group', 1)->findAll();
 
