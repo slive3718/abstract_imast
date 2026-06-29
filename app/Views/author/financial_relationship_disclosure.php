@@ -137,44 +137,29 @@
                                 <li class="list-group-item">
                                     In the context of the relationships/affiliations that you designated, WE ASK THAT YOU ATTEST THAT:
                                 </li>
-<!--                                <li class="list-group-item">-->
-<!--                                    Practice recommendations that are relevant to the ineligible companies with whom you have relationships/affiliations will be supported by the best available evidence or absent evidence will be consistent with generally accepted medical practice.-->
-<!--                                </li>-->
-<!--                                <li class="list-group-item">-->
-<!--                                    All reasonable clinical alternatives will be discussed when making practice recommendations.-->
-<!--                                </li>-->
-<!--                                <li class="list-group-item">-->
-<!--                                    Relationships with ineligible companies will not bias or otherwise influence your involvement in the CME activity.-->
-<!--                                </li>-->
                             </ul>
 
                             <div class="form-check my-2">
-                                <input type="checkbox" class="form-check-input" id="disclosure_support" name="disclosure_support" value="1" <?= ( !empty($author['disclosure_support']) && $author['disclosure_support'] == '1' ? 'checked' : '')?> required>
+                                <input type="checkbox" class="form-check-input" id="disclosure_support" name="disclosure_support" value="1" <?= ( !empty($disclosure['disclosure_support']) && $disclosure['disclosure_support'] == '1' ? 'checked' : '')?> required>
                                 <label class="form-check-label" for="disclosure_support">
                                     Practice recommendations will be supported by the best available evidence.
                                 </label>
                             </div>
 
                             <div class="form-check mb-2">
-                                <input type="checkbox" class="form-check-input" id="disclosure_discussed" name="disclosure_discussed" value="1"  <?= ( !empty($author['disclosure_support']) && $author['disclosure_support'] == '1' ? 'checked' : '')?> required>
+                                <input type="checkbox" class="form-check-input" id="disclosure_discussed" name="disclosure_discussed" value="1"  <?= ( !empty($disclosure['disclosure_support']) && $disclosure['disclosure_discussed'] == '1' ? 'checked' : '')?> required>
                                 <label class="form-check-label" for="disclosure_discussed">
                                     All reasonable clinical alternatives will be discussed.
                                 </label>
                             </div>
 
                             <div class="form-check mb-2">
-                                <input type="checkbox" class="form-check-input" id="disclosure_relationship" name="disclosure_relationship" value="1"  <?= ( !empty($author['disclosure_relationship']) && $author['disclosure_relationship'] == '1' ? 'checked' : '')?> required>
+                                <input type="checkbox" class="form-check-input" id="disclosure_relationship" name="disclosure_relationship" value="1"  <?= ( !empty($disclosure['disclosure_relationship']) && $disclosure['disclosure_relationship'] == '1' ? 'checked' : '')?> required>
                                 <label class="form-check-label" for="disclosure_relationship">
                                     Relationships with ineligible companies will not bias or otherwise influence your involvement in the CME activity.
                                 </label>
                             </div>
                         </div>
-
-                        <ul class="list-group mb-3">
-                            <li class="list-group-item">
-                                Additional information may be requested to mitigate a relevant financial relationship. All identified relevant financial relationships will be mitigated and disclosure made available to activity participants prior to the start of the CME activity.
-                            </li>
-                        </ul>
 
                         <!-- Signature Section -->
                         <div class="mb-4">
@@ -183,7 +168,7 @@
                                     <strong>Electronic Signature:</strong>
                                 </div>
                                 <div class="col-md-8">
-                                    <input id="eSignature" type="text" class="form-control" name="disclosure_signature" value="<?= ( !empty($author['disclosure_signature']) ? $author['disclosure_signature'] : '')?>" required>
+                                    <input id="eSignature" type="text" class="form-control" name="disclosure_signature" value="<?= ( !empty($disclosure['disclosure_signature']) ? $disclosure['disclosure_signature'] : '')?>" required>
                                 </div>
                             </div>
 
@@ -212,7 +197,7 @@
     $(document).ready(function () {
         let organizationCount = 0;
         let selectedOrganizations = `<?= json_encode($selectedOrganizations) ?>`;
-        let financialRelationshipStatus = `<?= ($author['financial_relationship']) ?>`;
+        let financialRelationshipStatus = `<?= ($disclosure['financial_relationship']) ?? ''?>`;
         selectedOrganizations = JSON.parse(selectedOrganizations);
         console.log(selectedOrganizations)
         // Show fields based on radio button selection
