@@ -78,12 +78,14 @@ $(function(){
                 if (response.status === "200") {
                     $('#authorResultTableBody').html('<option> </option');
                     $.each(response.data, function(i, val) {
+                        console.log(val)
                         $('#authorResultTableBody').append(
                             '<tr>' +
                             '<td user-id="' + val.user_id + '" class="authorDataList" value="' + val.name + '"><input type="checkbox"  name="author_checkbox" class="authorCheckbox" user-info="' + val.name + ' ' + val.surname + ' ( ' + val.institution + ' )" user-id="' + val.user_id + '"></td>' +
                             '<td user-id="' + val.user_id + '" class="authorDataList" value="' + val.name + '">' + val.name + '</td>' +
                             '<td user-id="' + val.user_id + '" class="authorDataList" value="' + val.name + '">' + val.surname + '</td>' +
                             // '<td user-id="' + val.user_id + '" class="authorDataList" value="' + val.name + '">' + val.email + '</td>' +
+                            '<td user-id="' + val.user_id + '" class="authorDataList" value="' + val.name + '">' + getDisclosureIcon(val.disclosureStatus) + '</td>' +
                             '<td user-id="' + val.user_id + '" class="authorDataList" value="' + val.name + '">' + (val.institution_name ?? "") + '</td>' +
                             '<td user-id="' + val.user_id + '" class="authorDataList" value="' + val.name + '">' + (val.institution_city ?? "") + '</td>' +
                             '<td user-id="' + val.user_id + '" class="authorDataList" value="' + val.name + '">' + (val.institution_country ?? "") + '</td>' +
@@ -489,7 +491,7 @@ $(function(){
                     $('#studyGroupAffiliatedSwitch').prop('checked', response.data.study_group_affiliation_status == 1);
 
                     // call to fetch dropdown
-                    await toggleStudyGroupDropdown()
+                    // await toggleStudyGroupDropdown()
 
 // Show/hide and set dropdown based on affiliation status
                     if (response.data.study_group_affiliation_status == 1) {
@@ -934,3 +936,8 @@ function addSearchedAuthor(paper_id, selected_user_id){
     });
 }
 
+function getDisclosureIcon(disclosureStatus){
+    return disclosureStatus === 'valid' ? '<span class="badge bg-success text-white">Current</span>'
+        : disclosureStatus === 'incomplete' ? '<span class="badge bg-danger text-white"> Outdated </span>'
+            : disclosureStatus === 'none' ? '<span class="badge bg-warning text-black">None</span>' : '';
+}

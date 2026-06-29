@@ -3,9 +3,17 @@
 namespace App\Services;
 
 
+use App\Models\AppDisclosureModel;
+use App\Models\CitiesModel;
+use App\Models\CMEReviewersModel;
+use App\Models\CountriesModel;
 use App\Models\DesignationsModel;
+use App\Models\DivisionsModel;
+use App\Models\InstitutionModel;
+use App\Models\PaperAuthorsModel;
 use App\Models\SchedulerModel;
 use App\Models\SiteSettingModel;
+use App\Models\StatesModel;
 use App\Models\UserModel;
 use App\Models\UsersProfileModel;
 use CodeIgniter\Config\BaseService;
@@ -17,6 +25,18 @@ class UserServices extends BaseService
     public function __construct() {
 
         $this->request = \Config\Services::request();
+
+        $this->model = model(UserModel::class);
+        $this->profileModel = model(UsersProfileModel::class);
+        $this->cmeModel = model(CMEReviewersModel::class);
+        $this->divisionsModel = model(DivisionsModel::class);
+        $this->institutionsModel = model(InstitutionModel::class);
+        $this->citiesModel = model(CitiesModel::class);
+        $this->countriesModel = model(CountriesModel::class);
+        $this->statesModel = model(StatesModel::class);
+        $this->designationsModel = model(DesignationsModel::class);
+        $this->appDisclosureModel = model(AppDisclosureModel::class);
+        $this->paperAuthorsModel = model(PaperAuthorsModel::class);
     }
 
     public function get_user(int $user_id) : array
@@ -120,6 +140,120 @@ class UserServices extends BaseService
 
         // If we get here, the disclosure is valid
         return 'Complete';
+    }
+
+    private function getUsersQuery($searchFields = null, $filters = null): object{
+//        print_R($filters);exit;
+        $query = $this->model->db->table('users_profile up')
+            ->select('
+                up.*, 
+                u.id as user_id,
+                u.email, 
+                u.surname, 
+                u.name, 
+                u.middle_name, 
+                u.is_study_group,
+                u.is_regular_reviewer,
+                u.is_deputy_reviewer,
+                u.is_session_moderator,
+                u.created_at,
+                u.updated_at,
+                u.deleted_at,
+                up.other_designation
+            ')
+            ->join($this->model->database.'.users u','up.author_id = u.id', 'right');
+
+        if(!empty($searchFields) && in_array('institutions', $searchFields)) {
+            $this->joinInstitutions($query);
+        }
+
+        if(!empty($searchFields) && in_array('divisions', $searchFields)) {
+            $this->joinDivisions($query);
+        }
+
+        if (!empty($searchFields)  && in_array('designations', $searchFields)) {
+            $this->joinDesignations($query);
+        }
+
+        if (!empty($searchFields)  && in_array('cme', $searchFields)) {
+            $this->joinCme($query);
+        }
+
+        if (!empty($searchFields)  && in_array('app_disclosures', $searchFields)) {
+            $this->joinAppDisclosure($query);
+        }
+
+        if (!empty($searchFields)  && in_array('paper_authors', $searchFields)) {
+            $this->joinPaperAuthors($query);
+        }
+
+        if(!empty($filters['order_by'])) {
+            $query->orderBy($filters['order_by']['field'], $filters['order_by']['direction']);
+        }
+
+
+        $query->where('u.deleted_at', null);
+
+        return $query;
+    }
+
+    function joinCme($query): object{
+        return $query->join($this->cmeModel->db->database .'.cme_reviewers cme', 'u.id = cme.cme_reviewer_id', 'left')
+            ->select('cme.id as cme_reviewer_id, cme.deleted_at as cme_reviewer_deleted_at');
+    }
+
+    function joinDesignations($query): object{
+        $query->join(
+            $this->designationsModel->db->database . '.divisions as des',
+            'CONCAT(",", REPLACE(REPLACE(REPLACE(up.division_id, "[", ""), "]", ""), "\"", ""), ",") LIKE CONCAT("%,", des.id, ",%")',
+            'left'
+        )
+            ->select('des.id as division_id, des.name as division_name');
+        return $query;
+    }
+
+    function joinDivisions($query): object{
+        $query->join($this->divisionsModel->db->database . '.divisions d', 'up.division_id = d.id', 'left')
+            ->select('d.id as division_id, d.name as division_name');
+
+        return $query;
+    }
+
+    function joinInstitutions($query): object{
+        $query->join($this->institutionsModel->db->database . '.institution i', 'up.institution_id = i.id', 'left')
+            ->join($this->citiesModel->db->database . '.cities ci', 'i.city_id = ci.id', 'left')
+            ->join($this->statesModel->db->database . '.states s', 'ci.state_id = s.id', 'left')
+            ->join($this->countriesModel->db->database . '.countries co', 'ci.country_id = co.id', 'left')
+            ->select('i.name as institution_name, 
+            ci.name as institution_city, 
+            co.name as institution_country,
+            s.name as institution_state');
+
+        return $query;
+    }
+
+    function joinAppDisclosure($query){
+        $query->join($this->appDisclosureModel->db->database . '.app_disclosures ad', 'u.id = ad.author_id', 'left')
+            ->select('ad.financial_relationship, ad.disclosure_signature, ad.created_at as app_disclosure_created_at,
+             ad.updated_at as app_disclosure_update_at, ad.id as app_disclosure_id');
+
+        return $query;
+    }
+
+    function joinPaperAuthors($query){
+        $query->join($this->paperAuthorsModel->db->database . '.paper_authors pa', 'pa.author_id = u.id', 'left')
+            ->select('pa.paper_id as paper_author_id');
+
+        return $query;
+    }
+
+    function searchUserByName($post, $searchFields = null, $filters = null): array{
+        $query = $this->getUsersQuery($searchFields, $filters);
+        $query->groupStart();
+        $query->like('LOWER(u.surname)', strtolower($post['searchValue']['authorName']));
+        $query->orlike('LOWER(u.name)', strtolower($post['searchValue']['authorName']));
+        $query->groupEnd();
+        return $query->get()->getResultArray();
     }
 
 }

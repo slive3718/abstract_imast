@@ -152,22 +152,30 @@
     $(document).ready(function() {
         function toggleOtherDesignation() {
             let isChecked = $('input[name="designations[]"][value="13"]').is(':checked');
-            $('#otherDesignationContainer').toggle(isChecked);
-
-            // Check if "None" (value = 12) is selected
             let isNoneChecked = $('input[name="designations[]"][value="12"]').is(':checked');
 
-            if (isNoneChecked) {
-                // Uncheck and disable all other checkboxes except "None"
-                $('input[name="designations[]"]').not('[value="12"]').prop('checked', false).prop('disabled', true);
+            if (isChecked && !isNoneChecked) {
+                $('#otherDesignationContainer').show();
+                $('#other_designation').prop('required', true).prop('disabled', false);
             } else {
-                // Enable all checkboxes when "None" is unchecked
+                $('#otherDesignationContainer').hide();
+                $('#other_designation').prop('required', false).prop('disabled', true).val('');
+            }
+
+            if (isNoneChecked) {
+                $('input[name="designations[]"]').not('[value="12"]')
+                    .prop('checked', false)
+                    .prop('disabled', true);
+                $('#otherDesignationContainer').hide();
+                $('#other_designation').prop('required', false).prop('disabled', true).val('');
+            } else {
                 $('input[name="designations[]"]').prop('disabled', false);
             }
         }
+
         // Run on modal load
         $('#addAuthorModal').on('shown.bs.modal', function() {
-            toggleOtherDesignation(); // Check status on modal load
+            toggleOtherDesignation();
         });
 
         // Run when a checkbox is clicked
@@ -175,21 +183,21 @@
             toggleOtherDesignation();
         });
 
-        $('#designations').prepend('<option value=""> -- Select Designation -- </option>')
+        $('#designations').prepend('<option value=""> -- Select Designation -- </option>');
 
         fetchDesignations().then(designations => {
             let designationHTML = `<div class="d-flex flex-wrap gap-3">`;
 
             $.each(designations, function(i, designation) {
                 designationHTML += `
-                                <div class="form-check">
-                                    <input class="form-check-input required" type="checkbox" name="designations[]"
-                                        id="designation_${designation.designation_id}" value="${designation.designation_id}">
-                                    <label class="form-check-label fw-bold" for="designation_${designation.designation_id}">
-                                        ${designation.name}
-                                    </label>
-                                </div>
-                            `;
+                <div class="form-check">
+                    <input class="form-check-input required" type="checkbox" name="designations[]"
+                        id="designation_${designation.designation_id}" value="${designation.designation_id}">
+                    <label class="form-check-label fw-bold" for="designation_${designation.designation_id}">
+                        ${designation.name}
+                    </label>
+                </div>
+            `;
             });
 
             designationHTML += `</div>`;
@@ -198,12 +206,10 @@
 
         $('#studyGroupSwitch').on('change', function(){
             if($('#studyGroupAffiliatedSwitch').is(':checked')){
-                $(this).prop('checked', false)
+                $(this).prop('checked', false);
             }
-        })
-
+        });
     });
-
 
     async function fetchDesignations() {
         try {
@@ -213,12 +219,9 @@
                 method: "POST",
                 dataType: "json"
             });
-
         } catch (error) {
             console.error("Error fetching designations:", error);
-            return []; // Return an empty array if an error occurs
+            return [];
         }
     }
-
-
 </script>

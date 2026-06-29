@@ -6,6 +6,7 @@ use App\Libraries\MailGunEmail;
 use App\Libraries\PhpMail;
 use App\Models\AbstractEventsModel;
 use App\Models\AffiliationsModel;
+use App\Models\AppDisclosureModel;
 use App\Models\AttestationModel;
 use App\Models\Core\Api;
 use App\Models\EmailLogsModel;
@@ -52,29 +53,31 @@ class Author extends BaseController
     }
 
     public function view_copyright(){
-
-        $PaperAuthorsModel = (new PaperAuthorsModel());
-        $author = $PaperAuthorsModel
-            ->join($this->shared_db_name.'.users', 'paper_authors.author_id = users.id', 'left')
-            ->join($this->shared_db_name.'.users_profile', 'paper_authors.author_id = users_profile.author_id', 'left')
-            ->where('users.id',  session('user_id'))
-            ->first();
-
-        $disclosure_current_date = (new SiteSettingModel())->where('name', 'disclosure_current_date')->first()['value'];
-        $disclosure_expire_date = date('Y-m-d', strtotime($disclosure_current_date . ' +1 year'));
-        $isExpired = strtotime($disclosure_current_date) > strtotime($author['signature_signed_date']);
-
-        $attestation = (new AttestationModel())->where('author_id', session('user_id'))->first();
-
         $header_data = [
             'title' => "Author Copyright"
         ];
 
-        $disclosureCurrent = (new SiteSettingModel())->where('name', 'disclosure_current_date')->first()['value'];
+        $PaperAuthorsModel = (new PaperAuthorsModel());
+        $author = $PaperAuthorsModel
+            ->select('users.*, users_profile.*, ad.created_at as disclosure_created, ad.updated_at as disclosure_updated, ad.*')
+            ->join($this->shared_db_name.'.users', 'paper_authors.author_id = users.id', 'left')
+            ->join($this->shared_db_name.'.users_profile', 'paper_authors.author_id = users_profile.author_id', 'left')
+            ->join($this->default_db_name.'.app_disclosures ad', 'paper_authors.author_id = ad.author_id', 'left')
+            ->where('users.id',  session('user_id'))
+            ->first();
+
+        $disclosureSignedDate = ($author['disclosure_created'] ?? $author['disclosure_updated'] ?? null);
+        $author['disclosure_signed_date'] = $disclosureSignedDate;
+
+        $disclosure_current_date = (new SiteSettingModel())->where('name', 'disclosure_current_date')->first()['value'];
+        $disclosure_expire_date = date('Y-m-d', strtotime($disclosure_current_date . ' +1 year'));
+        $isExpired = strtotime($disclosure_current_date) > strtotime($disclosureSignedDate);
+
+        $attestation = (new AttestationModel())->where('author_id', session('user_id'))->first();
         $nonExclusiveCurrent = (new SiteSettingModel())->where('name', 'non_exclusive_current_date')->first()['value'];
         $attestationCurrent = (new SiteSettingModel())->where('name', 'attestation_current_date')->first()['value'];
 
-        if(!$disclosureCurrent || !$nonExclusiveCurrent)
+        if(!$disclosure_current_date || !$nonExclusiveCurrent)
             return('System error: Missing site settings. Please contact support.');
 
         $data = [
@@ -84,7 +87,7 @@ class Author extends BaseController
             'attestation' => !empty($attestation) ? $attestation : null,
             'isExpired' => $isExpired ? 1: 0,
             'paper_types' => (new PaperTypeModel())->findAll()??[],
-            'disclosure_current' => $disclosureCurrent,
+            'disclosure_current' => $disclosure_current_date,
             'non_exclusive_current' => $nonExclusiveCurrent,
             'attestation_current' => $attestationCurrent
         ];
@@ -165,17 +168,9 @@ class Author extends BaseController
             exit;
         }
 
-        $UserModel = new UserModel();
         $OrganizationsModel = new OrganizationsModel();
         $AffiliationsModel = new AffiliationsModel();
         $UserOrganizationsModel = new UserOrganizationsModel(); // New model to handle user affiliations
-
-        // Get author data
-        $author = $UserModel
-            ->join($this->shared_db_name.'.users_profile up', 'users.id = up.author_id', 'left')
-            ->where('users.id', $user_id)
-            ->asArray()
-            ->first();
 
         $organizations = $OrganizationsModel->findAll();
         $affiliations = $AffiliationsModel->findAll();
@@ -186,7 +181,6 @@ class Author extends BaseController
             ->orderBy('id', 'asc') // <-- Order by insertion order
             ->findAll();
 
-//        print_R($savedOrganizations);exit;
         // Map saved affiliations to an easy-to-use array
         $selectedOrganizations = [];
         if (!empty($savedOrganizations)) {
@@ -200,19 +194,18 @@ class Author extends BaseController
             }
         }
 
+        $disclosure = (new AppDisclosureModel())->findByAuthorId($user_id);
 
         $header_data = [
             'title' => "Financial Relationship Disclosure"
         ];
 
         $data = [
-            'author' => $author,
+            'disclosure' => $disclosure,
             'organizations' => $organizations,
             'affiliations' => $affiliations,
             'selectedOrganizations' => $selectedOrganizations
         ];
-
-//        print_r($data);exit;
 
         return view('author/common/header', $header_data)
             . view('author/financial_relationship_disclosure', $data)
@@ -247,94 +240,9 @@ class Author extends BaseController
     }
 
 
-
-//    public function save_financial_relationship() {
-//        $request = $this->request->getPost();
-//
-//        // Log the data for debugging
-//        log_message('debug', print_r($request, true));
-//
-//        // Assuming user ID is stored in session
-//        $userId = session()->get('user_id');
-//
-//        if (!$userId) {
-//            return $this->response->setJSON(['success' => false, 'message' => 'User not logged in']);
-//        }
-//
-//        // Prepare data for updating user profile
-//        $data = [
-//            'financial_relationship' => $request['financial_relationship'] ?? null,
-//            'disclosure_support'     => isset($request['disclosure_support']) ? 1 : 0,
-//            'disclosure_discussed'   => isset($request['disclosure_discussed']) ? 1 : 0,
-//            'disclosure_signature'   => $request['disclosure_signature'] ?? null,
-//            'updated_at'             => date('Y-m-d H:i:s'), // Use `updated_at` for updates
-//        ];
-//
-//        $model = new UsersProfileModel();
-//
-//        // Update the existing user record
-//        $isUpdated = $model->set($data)->where('author_id', $userId)->update();
-//
-//        if ($isUpdated) {
-//            // Save organization data if financial relationship is 'yes'
-//            if ($request['financial_relationship'] === 'yes' && !empty($request['organization'])) {
-//                $db = db_connect();
-//                $builder = $db->table('user_organizations');
-//
-//                $existingIds = [];
-//                foreach ($request['organization'] as $organization) {
-//                    $orgId = $organization['name'] ?? null;
-//                    $affiliations = isset($organization['affiliation']) ? json_encode($organization['affiliation']) : null;
-//                    $otherName = $organization['other_name'] ?? null;
-//
-//                    if ($orgId) {
-//                        $data = [
-//                            'user_id'         => $userId,
-//                            'organization_id' => $orgId,
-//                            'affiliation'     => $affiliations,
-//                            'custom_organization'      => ($orgId == 29) ? $otherName : null,
-//                        ];
-//
-//                        // Try updating existing record
-//                        $exists = $builder
-//                            ->where('user_id', $userId)
-//                            ->where('organization_id', $orgId)
-//                            ->countAllResults();
-//
-//                        if ($exists) {
-//                            // Update existing record
-//                            $builder->where('user_id', $userId)
-//                                ->where('organization_id', $orgId)
-//                                ->update($data);
-//                        } else {
-//                            // Insert new record
-//                            $builder->insert($data);
-//                        }
-//
-//                        // Keep track of valid records
-//                        $existingIds[] = $orgId;
-//                    }
-//                }
-//
-//                // Remove records that are no longer in the request (cleanup step)
-//                if (!empty($existingIds)) {
-//                    $builder->where('user_id', $userId)
-//                        ->whereNotIn('organization_id', $existingIds)
-//                        ->delete();
-//                }
-//            }
-//
-//            return $this->response->setJSON(['success' => true]);
-//        } else {
-//            return $this->response->setJSON(['success' => false, 'message' => 'Failed to update user profile']);
-//        }
-//    }
-
     public function save_financial_relationship() {
         $request = $this->request->getPost();
 
-//        print_r($request);exit;
-        // Log the data for debugging
         log_message('debug', print_r($request, true));
 
         // Assuming user ID is stored in session
@@ -350,17 +258,23 @@ class Author extends BaseController
             'disclosure_support'     => isset($request['disclosure_support']) ? 1 : 0,
             'disclosure_discussed'   => isset($request['disclosure_discussed']) ? 1 : 0,
             'disclosure_signature'   => trim($request['disclosure_signature']) ?? null,
-            'disclosure_relationship'   => isset($request['disclosure_relationship']) ? 1 : 0,
-            'signature_signed_date'   => date('Y-m-d H:i:s'),
-            'updated_at'             => date('Y-m-d H:i:s'), // Use `updated_at` for updates
+            'disclosure_relationship'   => isset($request['disclosure_relationship']) ? 1 : 0
         ];
 
-        $model = new UsersProfileModel();
+        $model = new AppDisclosureModel();
 
-        // Update the existing user record
-        $isUpdated = $model->set($data)->where('author_id', $userId)->update();
+        $existingRecord = $model->where('author_id', $userId)->first();
 
-        if ($isUpdated) {
+        if ($existingRecord) {
+            // Update existing record
+            $dbResult = $model->set($data)->where('author_id', $userId)->update();
+        } else {
+            // Insert new record
+            $data['author_id'] = $userId;
+            $dbResult = $model->insert($data);
+        }
+
+        if ($dbResult) {
             // Save organization data if financial relationship is 'yes'
             if ($request['financial_relationship'] === 'yes' && !empty($request['organization'])) {
                 $db = db_connect();

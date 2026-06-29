@@ -43,7 +43,6 @@ class AbstractServices extends CoreServices
         $deputy_acceptance = $this->papersDeputyAcceptanceModel->where('paper_id', $paper_id)->findAll();
         $admin_acceptance = $this->adminAcceptanceModel->where(['user_id'=>session('user_id'), 'abstract_id'=>$paper_id])->first();
         $paperUploads = $this->paperUploadsModel->where('paper_id', $paper_id)->findAll();
-//        $reviewDetails = $this->review_details($paper_id);
         $email_templates = $this->emailTemplatesModel->findAll();
 
         $adminComment = $this->adminAbstractCommentModel->where(['paper_id'=>$paper_id, 'admin_id'=>session('user_id')])->first();
@@ -113,6 +112,7 @@ class AbstractServices extends CoreServices
         $acceptanceMap = array_column($acceptance, null, 'author_id');
 
         return array_map(function($paperAuthor) use ($userProfilesMap, $usersMap, $acceptanceMap, $paper_id) {
+//            print_R($paperAuthor);exit;
             $authorId = $paperAuthor['author_id'] ?? $paperAuthor->author_id;
             $userInstitution = $userProfilesMap[$authorId]['institution_id'] ? (new InstitutionServices())->getInstitutionWithAddress($userProfilesMap[$authorId]['institution_id']) : [];
             if($userInstitution){
@@ -140,8 +140,6 @@ class AbstractServices extends CoreServices
         return $this->usersProfileModel
             ->whereIn('author_id', $ids)
             ->findAll();
-
-
     }
     private function getUsers($ids) : array{
         return $this->userModel
@@ -169,5 +167,19 @@ class AbstractServices extends CoreServices
         return $designations;
     }
 
+    function processEntities($authors){
+        if (empty($authors))
+            return [];
+        $newAuthorEntities = [];
+        // get the status of disclosure
+        $authorsIds = array_column($authors, 'author_id');
+        $authorsIds = array_unique($authorsIds);
+        $authorsDisclosureStatus = (new AppDisclosureServices())->getBatchStatus($authorsIds);
+        foreach ($authors as &$author){
+            $newAuthorEntities[$author['author_id']] = $author;
+            $newAuthorEntities[$author['author_id']]['disclosureStatus'] = $authorsDisclosureStatus[$author['author_id']] ?? 'none';
+        }
+        return $newAuthorEntities;
+    }
 
 }

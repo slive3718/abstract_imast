@@ -426,6 +426,9 @@ $routes->group('', function ($routes)
     $routes->get('fda/(:any)', 'FDADisclosure::view_fda/$1');
     $routes->post('save_fda_disclosure', 'FDADisclosure::save_fda_disclosure');
 
+    $routes->get('use_of_ai/(:any)', 'UseOfAITools::index/$1');
+    $routes->post('use_of_ai/save', 'UseOfAITools::save');
+
     $routes->get('permissions/(:any)', 'User::view_permissions/$1');
 
 
