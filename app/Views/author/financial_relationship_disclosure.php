@@ -259,11 +259,23 @@
                 }
 
                 const hasAffiliation3 = data.affiliations?.includes('3') || data.affiliations?.includes(3);
+                const hasAffiliation8 = data.affiliations?.includes('8') || data.affiliations?.includes(8);
+
                 if (hasAffiliation3) {
                     $(`#affiliations-stock-${organizationCount}`).show();
                 } else {
                     $(`#affiliations-stock-${organizationCount}`).hide();
                 }
+
+                console.log(data)
+                if (hasAffiliation8) {
+                    $(`.other-affiliation-div`).show();
+                    $(`input[name="organization[${organizationCount}][other_affiliation]"]`).val(data.other_affiliation)
+                } else {
+                    $(`.other-affiliation-div`).hide();
+                    $(`input[name="organization[${organizationCount}][other_affiliation]"]`).val('')
+                }
+
 
                 if (data.affiliations_stocks?.length) {
                     data.affiliations_stocks.forEach(function (affiliationsStocks) {
@@ -321,6 +333,7 @@
 
                 // Find the stock options div within this specific organization
                 let stockOptionsDiv = container.find('.affiliations-stock');
+                let otherAffiliationDiv = container.find('.other-affiliation-div');
 
                 if (selectedValue == '3') {
                     if ($(this).is(':checked')) {
@@ -335,6 +348,18 @@
                         stockOptionsDiv.find('input[type="checkbox"]').prop('checked', false);
                     }
                 }
+
+                // console.log(selectedValue)
+                if(selectedValue == '8'){
+                    if ($(this).is(':checked')) {
+                        otherAffiliationDiv.slideDown();
+                        otherAffiliationDiv.find('input').prop('required', true);
+                    }else{
+                        otherAffiliationDiv.slideUp();
+                        otherAffiliationDiv.find('input').prop('required', false);
+                    }
+                }
+
             });
         }
 

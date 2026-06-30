@@ -190,7 +190,8 @@ class Author extends BaseController
                     'affiliations' => json_decode($org['affiliation'], true) ?? [],
                     'custom_organization' => $org['custom_organization'] ?? null,
                     'relationship_ended' => $org['relationship_ended'] ?? null,
-                    'affiliations_stocks' => json_decode($org['affiliations_stocks']) ?? null
+                    'affiliations_stocks' => json_decode($org['affiliations_stocks']) ?? null,
+                    'other_affiliation' => ($org['other_affiliation']) ?? null
                 ];
             }
         }
@@ -286,6 +287,7 @@ class Author extends BaseController
                     $affiliations = isset($organization['affiliation']) ? json_encode($organization['affiliation']) : null;
                     $otherName = $organization['other_name'] ?? null;
                     $relationshipEnded = $organization['relationship_ended'] ?? null;
+                    $otherAffiliation = $organization['other_affiliation'] ?? null;
 
                     // Handle stock affiliations (affiliation_details)
                     $affiliationDetails = [];
@@ -310,7 +312,8 @@ class Author extends BaseController
                             'affiliation'          => $affiliations,
                             'custom_organization'  => ($orgId == 29) ? $otherName : '',
                             'relationship_ended'   => $relationshipEnded,
-                            'affiliations_stocks'  => $affiliationDetailsJson // Store stock details
+                            'affiliations_stocks'  => $affiliationDetailsJson, // Store stock details
+                            'other_affiliation'  => $otherAffiliation
                         ];
 
                         // ✅ Directly insert without checking for existing records
