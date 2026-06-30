@@ -21,7 +21,7 @@
                                     <strong>Examples of financial relationships include </strong> employee, researcher, consultant, advisor, speaker, independent contractor (including contracted research), royalties or patent beneficiary, executive role, and ownership interest. Individual stocks and stock options should be disclosed; diversified mutual funds do not need to be disclosed. Research funding from ineligible companies should be disclosed by the principal or named investigator even if that individual’s institution receives the research grant and manages the funds.
                                 </p>
                                 <p>
-                                    The intent of disclosure is not to prevent a speaker with a financial or other relationship from making a presentation, but rather to mitigate any conflicts prior to the CME activity so that learners may participate in a balanced, unbiased CME event.
+                                    The intent of disclosure is not to prevent a speaker with a financial or other relationship from making a presentation, but rather to mitigate any relevant financial relationships prior to the CME activity so that learners may participate in a balanced, unbiased CME event.
                                 </p>
                                 <p>
                                     * An ineligible company is an entity whose primary business is producing, marketing, selling, re-selling, or distributing health care goods or services consumed by or on patients. For specific examples of ineligible companies visit accme.org/standards.
@@ -199,7 +199,7 @@
         let selectedOrganizations = `<?= json_encode($selectedOrganizations) ?>`;
         let financialRelationshipStatus = `<?= ($disclosure['financial_relationship']) ?? ''?>`;
         selectedOrganizations = JSON.parse(selectedOrganizations);
-        console.log(selectedOrganizations)
+        // console.log(selectedOrganizations)
         // Show fields based on radio button selection
         $('input[name="financial_relationship"]').change(function () {
             if ($(this).val() === 'yes') {
@@ -245,15 +245,30 @@
             // Directly use the PHP template for rendering
             let html = `<?= view('author/common/organization_template', ['organizationCount' => '${organizationCount}']) ?>`;
             $('#organization-list').append(html);
-
             // Pre-fill data if provided
             if (orgId) {
                 $(`select[name="organization[${organizationCount}][name]"]`).val(data.organization_id);
                 $(`input[name="organization[${organizationCount}][id]"]`).val(data.organization_id);
 
+
                 if (data.affiliations?.length) {
                     data.affiliations.forEach(function (affiliationId) {
+                        // console.log(affiliationId)
                         $(`input[name="organization[${organizationCount}][affiliation][]"][value="${affiliationId}"]`).prop('checked', true);
+                    });
+                }
+
+                const hasAffiliation3 = data.affiliations?.includes('3') || data.affiliations?.includes(3);
+                if (hasAffiliation3) {
+                    $(`#affiliations-stock-${organizationCount}`).show();
+                } else {
+                    $(`#affiliations-stock-${organizationCount}`).hide();
+                }
+
+                if (data.affiliations_stocks?.length) {
+                    data.affiliations_stocks.forEach(function (affiliationsStocks) {
+                        $(`#affiliations-stock-${organizationCount}`).css('display', 'block')
+                        $(`input[name="organization[${organizationCount}][affiliations_stocks][]"][value="${affiliationsStocks}"]`).prop('checked', true);
                     });
                 }
 
@@ -299,6 +314,28 @@
                     otherInput.closest('div').hide();
                 }
             });
+
+            $(document).on('change', '.organizationAffiliation', function () {
+                let selectedValue = $(this).val();
+                let container = $(this).closest('.organization-item'); // Correct way to get the container
+
+                // Find the stock options div within this specific organization
+                let stockOptionsDiv = container.find('.affiliations-stock');
+
+                if (selectedValue == '3') {
+                    if ($(this).is(':checked')) {
+                        stockOptionsDiv.slideDown(); // Or use show() / removeClass
+                    } else {
+                        stockOptionsDiv.slideUp();
+                        stockOptionsDiv.find('input[type="checkbox"]').prop('checked', false);
+                    }
+                } else {
+                    if (!container.find('.organizationAffiliation[value="3"]').is(':checked')) {
+                        stockOptionsDiv.slideUp();
+                        stockOptionsDiv.find('input[type="checkbox"]').prop('checked', false);
+                    }
+                }
+            });
         }
 
         // Remove Organization
@@ -334,10 +371,17 @@
             $('.organization-item').each(function () {
                 let organizationName = $(this).find('select[name^="organization"]').find(":selected").text().trim();
                 let checkedAffiliations = $(this).find('input[name^="organization"][name$="[affiliation][]"]:checked');
+                let hasAffiliation3 = $(this).find('.organizationAffiliation[value="3"]').is(':checked');
+                let hasStock = $(this).find('.stock-required:checked').length > 0;
 
                 if (checkedAffiliations.length === 0) {
                     isValid = false;
                     missingFields.push(`Affiliation for ${organizationName}`);
+                }
+
+                if (hasAffiliation3 && !hasStock) {
+                    isValid = false
+                    missingFields.push(`missing affiliations sub category`);
                 }
             });
 
@@ -350,7 +394,7 @@
 
 
             if (!isValid) {
-                toastr.error('Please fill in the "Specify Other" field for the following organizations: ' + missingFields.join('<br>'));
+                toastr.error(missingFields.join('<br>'));
                 return;
             }
 

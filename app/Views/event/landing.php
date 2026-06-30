@@ -83,7 +83,7 @@
                 <ul>
                     <li>Adolescent Idiopathic Scoliosis (Non-op, Fusion and VBT)</li>
                     <li>Adult Spinal Deformity</li>
-                    <li>AI & Machine Learning**</li>
+                    <li>AI & Machine Learning*</li>
                     <li>Basic Science / Biomechanics / Genetics</li>
                     <li>Cervical Spine: Deformity & Degenerative</li>
                     <li>Early Onset, Neuromuscular, Congenital Scoliosis & Scheuermann's</li>

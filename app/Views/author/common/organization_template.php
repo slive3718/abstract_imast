@@ -28,9 +28,23 @@
         <label class="form-label">Type of Affiliation/Financial Interest</label>
         <?php if(!empty($affiliations)): ?>
         <?php foreach ($affiliations as $affiliation): ?>
-            <div class="form-check">
-                <input type="checkbox" class="form-check-input" name="organization[${organizationCount}][affiliation][]" value="<?= $affiliation['affiliation_id'] ?>">
+            <div class="form-check" data-affiliation-id="<?=$affiliation['id']?>">
+                <input type="checkbox" class="form-check-input organizationAffiliation" name="organization[${organizationCount}][affiliation][]" value="<?= $affiliation['id'] ?>">
                 <label class="form-check-label"><?= htmlspecialchars($affiliation['name']) ?></label>
+
+                <?php if($affiliation['id'] == 3): ?>
+                <div class="affiliations-stock" id="affiliations-stock-${organizationCount}" style="display: none">
+                    <div>
+                        <input type="checkbox" class="stock-required" id="${organizationCount}-stock-opt-1" name="organization[${organizationCount}][affiliations_stocks][]" value="1"> <label for="${organizationCount}-stock-opt-1">Stock ownership: publicly traded company</label>
+                    </div>
+                    <div>
+                        <input type="checkbox" class="stock-required" id="${organizationCount}-stock-opt-2" name="organization[${organizationCount}][affiliations_stocks][]" value="2"> <label for="${organizationCount}-stock-opt-2">Stock ownership: privately held company</label>
+                    </div>
+                    <div>
+                        <input type="checkbox" class="stock-required" id="${organizationCount}-stock-opt-3" name="organization[${organizationCount}][affiliations_stocks][]" value="3"> <label for="${organizationCount}-stock-opt-3">Stock Options</label>
+                    </div>
+                </div>
+                <?php endif ?>
             </div>
         <?php endforeach; ?>
         <?php endif; ?>

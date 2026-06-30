@@ -21,7 +21,7 @@
                                     <strong>Financial Relationship Disclosure</strong>
                                 </div>
                                 <div class="text-end">
-                                    <span>Due Date :  October 23, 2025</span>
+                                    <span>Due Date :  October 01, 2026</span>
                                     <span class="ms-5"> Status :
                                     <?= ( !empty($author) && $author['financial_relationship'] !== NULL && !empty($author['disclosure_created']) ? strtotime($author['disclosure_created']) > strtotime($disclosure_current)
                                         ? '<span class="badge bg-success text-white">Current '.date('m-d-Y',strtotime($author['disclosure_signed_date'])).' </span>'
@@ -38,7 +38,7 @@
                                     <strong>Attestation for IMAST 2027</strong>
                                 </div>
                                 <div class="text-end">
-                                    <span >Due Date :  October 23, 2025</span>
+                                    <span >Due Date :  October 01, 2026</span>
                                     <span class="ms-5"> Status :
                                     <?= ( !empty($attestation) && !empty($attestation['date']) ? strtotime($attestation['date']) > strtotime($attestation_current)
                                         ? '<span class="badge bg-success text-white">Current  '.date('m-d-Y', strtotime($attestation['date'])).'</span>'
