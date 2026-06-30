@@ -371,10 +371,17 @@
             $('.organization-item').each(function () {
                 let organizationName = $(this).find('select[name^="organization"]').find(":selected").text().trim();
                 let checkedAffiliations = $(this).find('input[name^="organization"][name$="[affiliation][]"]:checked');
+                let hasAffiliation3 = $(this).find('.organizationAffiliation[value="3"]').is(':checked');
+                let hasStock = $(this).find('.stock-required:checked').length > 0;
 
                 if (checkedAffiliations.length === 0) {
                     isValid = false;
                     missingFields.push(`Affiliation for ${organizationName}`);
+                }
+
+                if (hasAffiliation3 && !hasStock) {
+                    isValid = false
+                    missingFields.push(`missing affiliations sub category`);
                 }
             });
 
@@ -387,7 +394,7 @@
 
 
             if (!isValid) {
-                toastr.error('Please fill in the "Specify Other" field for the following organizations: ' + missingFields.join('<br>'));
+                toastr.error(missingFields.join('<br>'));
                 return;
             }
 
