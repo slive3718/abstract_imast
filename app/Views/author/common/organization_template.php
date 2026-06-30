@@ -35,13 +35,13 @@
                 <?php if($affiliation['id'] == 3): ?>
                 <div class="affiliations-stock" id="affiliations-stock-${organizationCount}" style="display: none">
                     <div>
-                        <input type="checkbox" class="stock-required" id="stock-opt-1" name="organization[${organizationCount}][affiliations_stocks][]" value="1"> <label for="stock-opt-1">Stock ownership: publicly traded company</label>
+                        <input type="checkbox" class="stock-required" id="${organizationCount}-stock-opt-1" name="organization[${organizationCount}][affiliations_stocks][]" value="1"> <label for="${organizationCount}-stock-opt-1">Stock ownership: publicly traded company</label>
                     </div>
                     <div>
-                        <input type="checkbox" class="stock-required" id="stock-opt-2" name="organization[${organizationCount}][affiliations_stocks][]" value="2"> <label for="stock-opt-2">Stock ownership: privately held company</label>
+                        <input type="checkbox" class="stock-required" id="${organizationCount}-stock-opt-2" name="organization[${organizationCount}][affiliations_stocks][]" value="2"> <label for="${organizationCount}-stock-opt-2">Stock ownership: privately held company</label>
                     </div>
                     <div>
-                        <input type="checkbox" class="stock-required" id="stock-opt-3" name="organization[${organizationCount}][affiliations_stocks][]" value="3"> <label for="stock-opt-3">Stock Options</label>
+                        <input type="checkbox" class="stock-required" id="${organizationCount}-stock-opt-3" name="organization[${organizationCount}][affiliations_stocks][]" value="3"> <label for="${organizationCount}-stock-opt-3">Stock Options</label>
                     </div>
                 </div>
                 <?php endif ?>
