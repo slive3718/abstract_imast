@@ -83,7 +83,7 @@
                 <ul>
                     <li>Adolescent Idiopathic Scoliosis (Non-op, Fusion and VBT)</li>
                     <li>Adult Spinal Deformity</li>
-                    <li>AI & Machine Learning*</li>
+                    <li>AI & Machine Learning**</li>
                     <li>Basic Science / Biomechanics / Genetics</li>
                     <li>Cervical Spine: Deformity & Degenerative</li>
                     <li>Early Onset, Neuromuscular, Congenital Scoliosis & Scheuermann's</li>
@@ -93,10 +93,26 @@
                     <li>Lumbar Diseases (including Spondylolisthesis)</li>
                     <li>Minimally Invasive Approaches (Lateral access surgery, Endoscopic, Outpatient Surgery)</li>
                     <li>Quality / Safety / Value / Complications</li>
-                    <li>Innovation in Treatment of the Degenerative Spine</li>
+                    <li>Innovation in Treatment of the Degenerative Spine*</li>
                 </ul>
+
+                <h6 class="fw-bold mt-5">** Innovation in Treatment of the Degenerative Spine </h6>
                 <p>
-                    <i>*AI & Machine Learning: Abstracts eligible for this category will describe utilization of artificial intelligence, machine learning,
+                    <i>
+                        Abstracts submitted to this category are intended to showcase novel technologies,
+                        techniques, and treatment strategies for cervical and lumbar degenerative conditions.
+                        Relevant topics include, but are not limited to, motion preservation (disc replacement,
+                        facet replacement, and other emerging technologies), minimally invasive and endoscopic surgery,
+                        robotics, navigation, augmented and virtual reality (AR/VR), artificial intelligence, advanced imaging,
+                        digital health, and other technological or procedural innovations that improve the diagnosis, treatment,
+                        or outcomes of patients with degenerative spine disease.
+                    </i>
+                </p>
+
+                <h6 class="fw-bold mt-5">** AI & Machine Learning</h6>
+                <p>
+                    <i>
+                        Abstracts eligible for this category will describe utilization of artificial intelligence, machine learning,
                         predictive analytics, or wearable technology in the diagnosis, treatment planning, intraoperative guidance, or postoperative care of
                         operative spine pathology, along with risk stratification, patient optimization & outcomes.
                     </i>
