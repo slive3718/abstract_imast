@@ -189,7 +189,8 @@ class Author extends BaseController
                     'organization_id' => $org['organization_id'], // Fixed ID to match organization_id
                     'affiliations' => json_decode($org['affiliation'], true) ?? [],
                     'custom_organization' => $org['custom_organization'] ?? null,
-                    'relationship_ended' => $org['relationship_ended'] ?? null
+                    'relationship_ended' => $org['relationship_ended'] ?? null,
+                    'affiliations_stocks' => json_decode($org['affiliations_stocks']) ?? null
                 ];
             }
         }
@@ -284,6 +285,23 @@ class Author extends BaseController
                     $orgId = $organization['name'] ?? null;
                     $affiliations = isset($organization['affiliation']) ? json_encode($organization['affiliation']) : null;
                     $otherName = $organization['other_name'] ?? null;
+                    $relationshipEnded = $organization['relationship_ended'] ?? null;
+
+                    // Handle stock affiliations (affiliation_details)
+                    $affiliationDetails = [];
+                    if (isset($organization['affiliation_details'])) {
+                        // Check if any stock options are selected
+                        if (!empty($organization['affiliation_details'])) {
+                            $affiliationDetails = $organization['affiliation_details'];
+                        }
+                    }
+
+                    // Also check for old 'affiliations_stocks' field name for backward compatibility
+                    if (isset($organization['affiliations_stocks'])) {
+                        $affiliationDetails = array_merge($affiliationDetails, $organization['affiliations_stocks']);
+                    }
+
+                    $affiliationDetailsJson = !empty($affiliationDetails) ? json_encode($affiliationDetails) : null;
 
                     if ($orgId) {
                         $data = [
@@ -291,7 +309,8 @@ class Author extends BaseController
                             'organization_id'      => $orgId,
                             'affiliation'          => $affiliations,
                             'custom_organization'  => ($orgId == 29) ? $otherName : '',
-                            'relationship_ended' => $organization['relationship_ended'] ?? null,
+                            'relationship_ended'   => $relationshipEnded,
+                            'affiliations_stocks'  => $affiliationDetailsJson // Store stock details
                         ];
 
                         // ✅ Directly insert without checking for existing records
