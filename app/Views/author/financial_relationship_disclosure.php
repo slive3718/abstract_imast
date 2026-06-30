@@ -21,7 +21,7 @@
                                     <strong>Examples of financial relationships include </strong> employee, researcher, consultant, advisor, speaker, independent contractor (including contracted research), royalties or patent beneficiary, executive role, and ownership interest. Individual stocks and stock options should be disclosed; diversified mutual funds do not need to be disclosed. Research funding from ineligible companies should be disclosed by the principal or named investigator even if that individual’s institution receives the research grant and manages the funds.
                                 </p>
                                 <p>
-                                    The intent of disclosure is not to prevent a speaker with a financial or other relationship from making a presentation, but rather to mitigate any conflicts prior to the CME activity so that learners may participate in a balanced, unbiased CME event.
+                                    The intent of disclosure is not to prevent a speaker with a financial or other relationship from making a presentation, but rather to mitigate any relevant financial relationships prior to the CME activity so that learners may participate in a balanced, unbiased CME event.
                                 </p>
                                 <p>
                                     * An ineligible company is an entity whose primary business is producing, marketing, selling, re-selling, or distributing health care goods or services consumed by or on patients. For specific examples of ineligible companies visit accme.org/standards.
