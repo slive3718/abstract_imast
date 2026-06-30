@@ -44,6 +44,20 @@
                         <input type="checkbox" class="stock-required" id="${organizationCount}-stock-opt-3" name="organization[${organizationCount}][affiliations_stocks][]" value="3"> <label for="${organizationCount}-stock-opt-3">Stock Options</label>
                     </div>
                 </div>
+                <?php elseif ($affiliation['id'] == 8) :?>
+                    <div class="other-affiliation-div mt-2" style="display: none;">
+                        <div class="form-floating">
+                            <input type="text" class="other-affiliation form-control"
+                                   id="${organizationCount}-other-affiliation"
+                                   placeholder="Other Affiliation"
+                                   name="organization[${organizationCount}][other_affiliation]"
+                                   value="">
+                            <label for="${organizationCount}-other-affiliation">Other Affiliation</label>
+                        </div>
+                        <div class="other-affiliation-error text-danger" style="display: none; font-size: 13px; margin-top: 5px;">
+                            Please specify the other affiliation
+                        </div>
+                    </div>
                 <?php endif ?>
             </div>
         <?php endforeach; ?>
