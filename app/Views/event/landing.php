@@ -90,10 +90,10 @@
                     <li>Emerging and Enabling Technologies (Navigation, Robotics, AR, Optical Nav., Haptic, Endoscopy)</li>
                     <li>Infection, Trauma, Tumor</li>
                     <li>Innovations in Education, Training & Simulation </li>
+                    <li>Innovation in Treatment of the Degenerative Spine*</li>
                     <li>Lumbar Diseases (including Spondylolisthesis)</li>
                     <li>Minimally Invasive Approaches (Lateral access surgery, Endoscopic, Outpatient Surgery)</li>
                     <li>Quality / Safety / Value / Complications</li>
-                    <li>Innovation in Treatment of the Degenerative Spine*</li>
                 </ul>
 
                 <h6 class="fw-bold mt-5">** Innovation in Treatment of the Degenerative Spine </h6>
