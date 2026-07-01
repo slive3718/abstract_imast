@@ -136,7 +136,7 @@ class AppDisclosureServices
     /**
      * Check if author has a valid disclosure
      */
-    public function hasValidDisclosure(int $authorId): bool
+    public function hasValidDisclosure(int $authorId): bool|string
     {
         $disclosure = $this->getDisclosure($authorId);
 
@@ -145,7 +145,7 @@ class AppDisclosureServices
         }
 
         if(!$this->isDisclosureValidDate($disclosure, $this->siteSettingModel->get_current_disclosure_date()))
-            return false;
+            return 'expired';
 
         // These fields should be 1 (true) for valid disclosure
         $requiredFields = [
@@ -233,7 +233,13 @@ class AppDisclosureServices
         }
 
 
-        return $this->hasValidDisclosure($authorId) ? 'valid' : 'incomplete';
+        $status = $this->hasValidDisclosure($authorId);
+
+        if ($status === false) {
+            return 'incomplete';
+        }
+
+        return ($status === 'expired') ? 'expired' : 'valid';
     }
 
     public function getBatchStatus(array $authorIds): array
@@ -262,7 +268,7 @@ class AppDisclosureServices
             $authors[] = [
                 'author_id' => $disclosure['author_id'],
                 'disclosure' => $disclosure,
-                'valid_since' => $disclosure['updated_at'] ?? $disclosure['created_at'] ?? null
+                'valid_since' => $this->getLatestDisclosureDate($disclosure) ?? null,
             ];
         }
 
@@ -291,6 +297,26 @@ class AppDisclosureServices
         }
 
         return $validAuthors;
+    }
+
+    public function getAuthorsByIdWithDisclosures($author_id): array
+    {
+        // Get all disclosures that aren't deleted
+        $disclosure = $this->disclosureModel
+            ->where('author_id', $author_id)
+            ->where('deleted_at', null)
+            ->first();
+
+        if (!$disclosure) {
+            return [];
+        }
+
+        return [
+            'author_id' => $disclosure['author_id'],
+            'disclosure' => $disclosure,
+            'valid_since' => $this->getLatestDisclosureDate($disclosure) ?? null,
+            'disclosure_status' => $this->getStatus($author_id)
+        ];
     }
 
     public function getMappedAuthorsWithDisclosure($search = null): array
@@ -323,11 +349,11 @@ class AppDisclosureServices
     public function getLatestDisclosureDate($disclosure)
     {
         if (!empty($disclosure['updated_at'])) {
-            return $disclosure['updated_at'];
+            return date('Y-m-d', strtotime($disclosure['updated_at']));
         }
 
         if (!empty($disclosure['created_at'])) {
-            return $disclosure['created_at'];
+            return date('Y-m-d', strtotime($disclosure['created_at']));
         }
         // Return a default or null if no date is found
         return null;
