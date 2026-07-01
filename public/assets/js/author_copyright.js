@@ -696,13 +696,12 @@ function getCopyrightStatus(author) {
     // Check if disclosure exists and has a status
     const status = author?.disclosure?.disclosure_status || author?.disclosureStatus;
 
-    if (!status || status === 'incomplete') {
-        return `<small class="text-warning">none</small>`;
-    }
-
     // Get the date from the new structure
     const signedDate = author?.disclosure?.valid_since;
 
+    if (!status || status === 'incomplete' || status === 'none' || !signedDate) {
+        return `<small class="text-warning">none</small>`;
+    }
     // Map status to display
     const isCurrent = status === 'valid';
     const type = isCurrent ? 'success' : 'danger';
