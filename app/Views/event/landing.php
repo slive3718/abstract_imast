@@ -180,7 +180,7 @@
                     <li>No changes can be made to the abstract text after the submission deadline.</li>
                 </ul>
                 <p>Full directions for abstract submission can be found <a href="<?=base_url()?>/public/assets/documents/submission_references/IMAST27_Abstract_Submission_Directions.pdf" target="_blank">here</a>.</p>
-                <p>Please note: In order to successfully receive emails regarding your submission, you must add '@owpm2.com' as a safe sender in your email client. <a href="<?=base_url('assets/documents/Safe_Senders_2025.pdf')?>">Click here</a> for help adding safe senders.</p>
+                <p>Please note: In order to successfully receive emails regarding your submission, you must add '@owpm2.com' as a safe sender in your email client. <a href="https://speakerready.com/abstracts/safe_sender_how_to.pdf" target="_blank">Click here</a> for help adding safe senders.</p>
 
                 <h6 class="fw-bold mt-5">PREVIOUS PUBLICATION</h6>
                 <p>Abstracts which have been published online or in print in a journal at the time of submission are NOT eligible for submission.</p>
@@ -241,7 +241,7 @@
                     <li>Browser back and forward arrows have been disabled. Users must use the page progress bar located at the top left of each page.</li>
                     <li>Inactivity of more than 90 minutes on system pages will result in a session time out. Please save your pages intermittently to avoid loss of data.</li>
                     <li>For technical assistance, please email education@srs.org. Support requests are answered within 1 business day.</li>
-                    <li>In order to successfully receive emails regarding your submission, you must add '@owpm2.com' as a safe sender in your email client. <a href="<?=base_url('assets/documents/Safe_Senders_2025.pdf')?>">Click here</a> for help adding safe senders.</li>
+                    <li>In order to successfully receive emails regarding your submission, you must add '@owpm2.com' as a safe sender in your email client. <a href="https://speakerready.com/abstracts/safe_sender_how_to.pdf" target="_blank">Click here</a> for help adding safe senders.</li>
                 </ul>
 
                 <div class="row mt-5">
