@@ -272,7 +272,7 @@
 
                 <div>
                     <h6 class="fw-bold mt-5">QUESTIONS?</h6>
-                    <p>For further instructions and information on abstract submission, please click <a href="#">here</a>.</p>
+                    <p>For further instructions and information on abstract submission, please click <a href="<?=base_url()?>/public/assets/documents/submission_references/IMAST27_Abstract_Submission_Directions.pdf" target="_blank">here</a>.</p>
                     <p>For any further assistance, please contact <a href="mailto:education@srs.org">education@srs.org</a></p>
                 </div>
             </div>
