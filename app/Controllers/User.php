@@ -512,8 +512,7 @@ class User extends BaseController
             $authorDisclosure = $disclosure[$author['author_id']]['disclosure'] ?? [];
             $author['mailLogs'] = $mailLogs;
             $author['disclosure'] = $AppDisclosureService->getAuthorsByIdWithDisclosures($author['author_id'])?? [];
-            $author['disclosureStatus'] =  $AppDisclosureService->getStatus($author['author_id'])?? [];;
-            $author['signature_signed_date'] = $authorDisclosure['updated_at'] ??  $authorDisclosure['created_at'] ?? '';
+            $author['disclosureStatus'] =  $AppDisclosureService->getStatus($author['author_id'])?? [];
             $paperAuthorsArray[] = $author;
         }
 

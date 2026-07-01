@@ -720,9 +720,7 @@ function getEmailStatus(author) {
 }
 
 function getActionButton(author, emailed) {
-    let isCurrent = author.signature_signed_date
-        ? new Date(formatDate(author.signature_signed_date)) > new Date(disclosure_current_date)
-        : false;
+    let isCurrent = author['disclosureStatus'] === 'valid';
 
     // If the agreement is current, show a success icon
     if (isCurrent) {
@@ -732,7 +730,7 @@ function getActionButton(author, emailed) {
     // If the user is the current user
     if (author.author_id === current_user_id) {
         // If signature is present but not current, show Resend/Email button
-        if (author.signature_signed_date) {
+        if (author['valid_since']) {
             let actionType = emailed !== 'none' ? 'Resend' : 'Email Now';
             return `
                 <a class="btn btn-sm btn-primary text-white resendEmailBtn" 
