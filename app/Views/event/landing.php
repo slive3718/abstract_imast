@@ -90,7 +90,7 @@
                     <li>Emerging and Enabling Technologies (Navigation, Robotics, AR, Optical Nav., Haptic, Endoscopy)</li>
                     <li>Infection, Trauma, Tumor</li>
                     <li>Innovations in Education, Training & Simulation </li>
-                    <li>Innovation in Treatment of the Degenerative Spine*</li>
+                    <li>Innovation in Treatment of the Degenerative Spine**</li>
                     <li>Lumbar Diseases (including Spondylolisthesis)</li>
                     <li>Minimally Invasive Approaches (Lateral access surgery, Endoscopic, Outpatient Surgery)</li>
                     <li>Quality / Safety / Value / Complications</li>
@@ -109,7 +109,7 @@
                     </i>
                 </p>
 
-                <h6 class="fw-bold mt-5">** AI & Machine Learning</h6>
+                <h6 class="fw-bold mt-5">* AI & Machine Learning</h6>
                 <p>
                     <i>
                         Abstracts eligible for this category will describe utilization of artificial intelligence, machine learning,
@@ -197,9 +197,6 @@
                 <p>ALL authors listed on an abstract will be required to submit a Financial Relationship Disclosure form which must include ALL financial relationships held in the past 24 months with ineligible companies*, regardless of their relevancy to the topic of the abstract(s).</p>
                 <p>If authors on an abstract have not completed these required forms prior to the submission deadline, the abstract will NOT be reviewed or considered for the meeting program.</p>
 
-                <div class="mb-4">
-                    Visit this link to disclose: <a onClick="window.location.href='<?=base_url().'author'?>'" class="glass-button btn btn-primary align-center" type="button">Disclosure</a>
-                </div>
 
                 <p><i>*An ineligible company is an entity whose primary business is producing, marketing, selling, re-selling, or distributing health care goods or services consumed by or on patients. For specific examples of ineligible companies visit accme.org/standards.</i></p>
 
