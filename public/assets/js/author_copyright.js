@@ -693,16 +693,22 @@ function checkCompleteStatus(author) {
 }
 
 function getCopyrightStatus(author) {
-    if (!author.signature_signed_date) {
+    // Check if disclosure exists and has a status
+    const status = author?.disclosure?.disclosure_status || author?.disclosureStatus;
+
+    if (!status || status === 'incomplete') {
         return `<small class="text-warning">none</small>`;
     }
 
-    let signedDate = formatDate(author.signature_signed_date);
-    let isCurrent = new Date(signedDate) > new Date(disclosure_current_date);
+    // Get the date from the new structure
+    const signedDate = author?.disclosure?.valid_since;
 
-    return isCurrent
-        ? `<small class="text-success">current : <br>${signedDate}</small>`
-        : `<small class="text-danger">expired : <br>${signedDate}</small>`;
+    // Map status to display
+    const isCurrent = status === 'valid';
+    const type = isCurrent ? 'success' : 'danger';
+    const label = isCurrent ? 'current' : 'expired';
+
+    return `<small class="text-${type}">${label} : <br>${signedDate}</small>`;
 }
 
 function getEmailStatus(author) {
@@ -714,9 +720,7 @@ function getEmailStatus(author) {
 }
 
 function getActionButton(author, emailed) {
-    let isCurrent = author.signature_signed_date
-        ? new Date(formatDate(author.signature_signed_date)) > new Date(disclosure_current_date)
-        : false;
+    let isCurrent = author['disclosureStatus'] === 'valid';
 
     // If the agreement is current, show a success icon
     if (isCurrent) {
@@ -726,7 +730,7 @@ function getActionButton(author, emailed) {
     // If the user is the current user
     if (author.author_id === current_user_id) {
         // If signature is present but not current, show Resend/Email button
-        if (author.signature_signed_date) {
+        if (author['valid_since']) {
             let actionType = emailed !== 'none' ? 'Resend' : 'Email Now';
             return `
                 <a class="btn btn-sm btn-primary text-white resendEmailBtn" 
@@ -811,7 +815,12 @@ function getAuthorRow(index, author, presenting, senior_author, correspondent, c
 }
 
 function formatDate(date) {
-    return new Date(date).toISOString().split('T')[0].replace(/-/g, '/');
+    const d = new Date(date);
+    // Force UTC to avoid any ambiguity
+    const year = d.getUTCFullYear();
+    const month = String(d.getUTCMonth() + 1).padStart(2, '0');
+    const day = String(d.getUTCDate()).padStart(2, '0');
+    return `${year}/${month}/${day}`;
 }
 
 function removePaperAuthor(paper_author_id){
