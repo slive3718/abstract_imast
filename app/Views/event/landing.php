@@ -179,7 +179,7 @@
                     <li>Submitters may revisit the site as often as necessary to edit the submission (finalized or not) at any time before the submission deadline.</li>
                     <li>No changes can be made to the abstract text after the submission deadline.</li>
                 </ul>
-                <p>Full directions for abstract submission can be found <a href="#">here</a>.</p>
+                <p>Full directions for abstract submission can be found <a href="<?=base_url()?>/public/assets/documents/submission_references/IMAST27_Abstract_Submission_Directions.pdf" target="_blank">here</a>.</p>
                 <p>Please note: In order to successfully receive emails regarding your submission, you must add '@owpm2.com' as a safe sender in your email client. <a href="<?=base_url('assets/documents/Safe_Senders_2025.pdf')?>">Click here</a> for help adding safe senders.</p>
 
                 <h6 class="fw-bold mt-5">PREVIOUS PUBLICATION</h6>
@@ -205,7 +205,7 @@
 
                 <h6 class="fw-bold mt-5">SRS PRODUCT-SPECIFIC LANGUAGE POLICY</h6>
                 <p>SRS strongly prefers that pharmaceuticals and proprietary software/databases as well as surgical approaches or specific instrumentation such as "Surgimap, MIMICS, EOS Imaging, ROTEM, XLIF, DLIF, AxiaLIF, Solera, Vertex, Expedium, Mountaineer, Shilla, VEPTR, etc.," are not used in presentations. These terms should be replaced by a generic term or description of the drug, software/database and/or instrumentation or technique unless the use of the term directly impacts learners' understanding of the presentation or data. Instrumentation may also be referred to when the device name is a landmark system that is no longer sold (i.e. Harrington, Cotrel-Dubousset, Luque). It is recognized that studies evaluating a device or devices or comparing different devices or techniques may require the use of product or technique names. If a device trade name or industry developed technique using a trademarked name are used in an abstract or presentation, it will be specifically reviewed by the CME Committee for evaluation of any relevant financial relationships. When there is a known financial relationship, expanded verbal disclosure will be necessary at the time of presentation. Furthermore, if a product name is mentioned, the audience should be informed of why it is necessary to give the name.</p>
-                <p>Please review the <a href="#">SRS Product Translation Glossary</a> for more information.</p>
+                <p>Please review the <a href="https://www.srs.org/Files/IMAST/IMAST2024/Documents/Product-Specific-Language-Policy-and-CME-Glossary.pdf" target="_blank">SRS Product Translation Glossary</a> for more information.</p>
 
                 <h6 class="fw-bold mt-5">ATTENDANCE REQUIREMENTS</h6>
                 <ul>
