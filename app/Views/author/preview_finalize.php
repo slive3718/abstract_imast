@@ -26,12 +26,39 @@
                         <tr>
                             <td class="fw-bold bg-light">Signature:</td>
                             <td>
-                                <?= !empty($author['disclosure_signature'])
-                                    ? htmlspecialchars($author['disclosure_signature'])
-                                    : 'N/A'; ?>
-                                <?=  !empty($author['signature_signed_date']) ? '<span class="small fw-bolder ml-5 badge  bg-info"> Date: '.date('Y-m-d', strtotime($author['signature_signed_date'])).'</span>' : '' ?>
+                                <?php
+                                // Get signature from disclosure array or fallback to old field
+                                $signature = $author['disclosure']['disclosure']['disclosure_signature']
+                                    ?? $author['disclosure_signature']
+                                    ?? null;
+
+                                $signedDate = $author['disclosure']['valid_since']
+                                    ?? $author['disclosure_updated']
+                                    ?? null;
+
+                                $status = $author['disclosure']['disclosure_status'] ?? null;
+
+                                if (!empty($signature)) {
+                                    echo htmlspecialchars($signature);
+                                    if (!empty($signedDate)) {
+                                        // Change badge color based on status
+                                        $badgeColor = match($status) {
+                                            'valid' => 'bg-success',
+                                            'expired' => 'bg-warning text-dark',
+                                            default => 'bg-info'
+                                        };
+                                        echo ' <span class="small fw-bolder ms-2 badge ' . $badgeColor . '">Date: ' . date('Y-m-d', strtotime($signedDate)) . '</span>';
+                                    }
+                                } else {
+                                    echo '<span class="text-muted">N/A</span>';
+                                }
+                                ?>
                             </td>
-                            <td style="width: 65px"><a href="<?=base_url().'author/financial_relationship_disclosure/#eSignature'?>" class="btn btn-primary btn-sm btn-edit"><i class="fas fa-edit"> </i> Edit </a></td>
+                            <td style="width: 65px">
+                                <a href="<?= base_url() . 'author/financial_relationship_disclosure/#eSignature'?>" class="btn btn-primary btn-sm btn-edit">
+                                    <i class="fas fa-edit"></i> Edit
+                                </a>
+                            </td>
                         </tr>
 
                         <!-- Organizations and Affiliations -->

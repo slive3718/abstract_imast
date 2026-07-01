@@ -384,6 +384,7 @@ class Author extends BaseController
             ->first();
 
         $attestation = (new AttestationModel())->where('author_id', session('user_id'))->first();
+        $author['disclosure'] = (new AppDisclosureServices())->getAuthorsByIdWithDisclosures(session('user_id'));
 
 
         $header_data = [
