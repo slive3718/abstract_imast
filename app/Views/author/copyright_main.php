@@ -14,19 +14,31 @@
                     <div class="submission-menu">
                         <div class="container mt-3">
                             <?php $stepNumber = 1; ?>
-                            <!-- Row 1 -->
-                            <a href="<?= base_url().'author/financial_relationship_disclosure/'?>"  class="btn btn-light border w-100 text-start d-flex align-items-center mb-2">
-                                <div class="bg-warning text-white px-3 py-2 fw-bold"> <?= $stepNumber ++ ?></div>
+                            <!-- Row 1: Financial Relationship Disclosure -->
+                            <a href="<?= base_url().'author/financial_relationship_disclosure/'?>" class="btn btn-light border w-100 text-start d-flex align-items-center mb-2">
+                                <div class="bg-warning text-white px-3 py-2 fw-bold"><?= $stepNumber++ ?></div>
                                 <div class="flex-grow-1 px-2">
                                     <strong>Financial Relationship Disclosure</strong>
                                 </div>
                                 <div class="text-end">
-                                    <span>Due Date :  October 01, 2026</span>
-                                    <span class="ms-5"> Status :
-                                    <?= ( !empty($author) && $author['financial_relationship'] !== NULL && !empty($author['disclosure_created']) ? strtotime($author['disclosure_created']) > strtotime($disclosure_current)
-                                        ? '<span class="badge bg-success text-white">Current '.date('m-d-Y',strtotime($author['disclosure_signed_date'])).' </span>'
-                                        : '<span class="badge bg-warning text-dark"> Outdated '.date('m-d-Y',strtotime($author['disclosure_signed_date'])).' </span>'
-                                        : '<span class="badge bg-danger text-white">Incomplete</span>') ?>
+                                    <span>Due Date : October 01, 2026</span>
+                                    <span class="ms-5">Status :
+                                        <?php
+                                        if (!empty($author['disclosure']) && !empty($author['disclosure']['disclosure_status'])) {
+                                            $status = $author['disclosure']['disclosure_status'];
+                                            $date = !empty($author['disclosure']['valid_since']) ? date('m-d-Y', strtotime($author['disclosure']['valid_since'])) : '';
+
+                                            if ($status === 'valid') {
+                                                echo '<span class="badge bg-success text-white">Current ' . $date . '</span>';
+                                            } elseif ($status === 'expired') {
+                                                echo '<span class="badge bg-warning text-dark">Outdated ' . $date . '</span>';
+                                            } else {
+                                                echo '<span class="badge bg-danger text-white">Incomplete</span>';
+                                            }
+                                        } else {
+                                            echo '<span class="badge bg-danger text-white">Incomplete</span>';
+                                        }
+                                        ?>
                                     </span>
                                 </div>
                             </a>
