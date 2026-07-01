@@ -50,7 +50,7 @@
                                         echo ' <span class="small fw-bolder ms-2 badge ' . $badgeColor . '">Date: ' . date('Y-m-d', strtotime($signedDate)) . '</span>';
                                     }
                                 } else {
-                                    echo '<span class="text-muted">N/A</span>';
+                                    echo '<span class="badge bg-danger text-white">None</span>';
                                 }
                                 ?>
                             </td>
