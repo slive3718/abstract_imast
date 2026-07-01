@@ -179,7 +179,7 @@
                     <li>Submitters may revisit the site as often as necessary to edit the submission (finalized or not) at any time before the submission deadline.</li>
                     <li>No changes can be made to the abstract text after the submission deadline.</li>
                 </ul>
-                <p>Full directions for abstract submission can be found <a href="#">here</a>.</p>
+                <p>Full directions for abstract submission can be found <a href="<?=base_url()?>/public/assets/documents/submission_references/IMAST27_Abstract_Submission_Directions.pdf" target="_blank">here</a>.</p>
                 <p>Please note: In order to successfully receive emails regarding your submission, you must add '@owpm2.com' as a safe sender in your email client. <a href="<?=base_url('assets/documents/Safe_Senders_2025.pdf')?>">Click here</a> for help adding safe senders.</p>
 
                 <h6 class="fw-bold mt-5">PREVIOUS PUBLICATION</h6>
