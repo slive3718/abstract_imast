@@ -22,6 +22,7 @@ use App\Models\UserOrganizationsModel;
 use App\Models\UsersProfileModel;
 
 
+use App\Services\AppDisclosureServices;
 use CodeIgniter\HTTP\RequestInterface;
 use CodeIgniter\HTTP\ResponseInterface;
 use Psr\Log\LoggerInterface;
@@ -66,32 +67,20 @@ class Author extends BaseController
             ->where('users.id',  session('user_id'))
             ->first();
 
-        $disclosureSignedDate = ($author['disclosure_created'] ?? $author['disclosure_updated'] ?? null);
-        $author['disclosure_signed_date'] = $disclosureSignedDate;
-
-        $disclosure_current_date = (new SiteSettingModel())->where('name', 'disclosure_current_date')->first()['value'];
-        $disclosure_expire_date = date('Y-m-d', strtotime($disclosure_current_date . ' +1 year'));
-        $isExpired = strtotime($disclosure_current_date) > strtotime($disclosureSignedDate);
-
+        $author['disclosure'] = (new AppDisclosureServices())->getAuthorsByIdWithDisclosures(session('user_id'));
         $attestation = (new AttestationModel())->where('author_id', session('user_id'))->first();
         $nonExclusiveCurrent = (new SiteSettingModel())->where('name', 'non_exclusive_current_date')->first()['value'];
         $attestationCurrent = (new SiteSettingModel())->where('name', 'attestation_current_date')->first()['value'];
 
-        if(!$disclosure_current_date || !$nonExclusiveCurrent)
-            return('System error: Missing site settings. Please contact support.');
-
         $data = [
             'author'=>$author,
-            'disclosure_current_date' => $disclosure_current_date,
-            'disclosure_expire_date' => $disclosure_expire_date,
             'attestation' => !empty($attestation) ? $attestation : null,
-            'isExpired' => $isExpired ? 1: 0,
             'paper_types' => (new PaperTypeModel())->findAll()??[],
-            'disclosure_current' => $disclosure_current_date,
             'non_exclusive_current' => $nonExclusiveCurrent,
             'attestation_current' => $attestationCurrent
         ];
 
+//        print_r($data);exit;
         return
             view('author/common/header', $header_data).
             view('author/copyright_main', $data).
@@ -385,7 +374,11 @@ class Author extends BaseController
 
         // Get author data
         $author = $UserModel
+            ->select('*,
+            ad.financial_relationship, ad.disclosure_support, ad.disclosure_discussed, ad.disclosure_relationship, ad.disclosure_signature,
+            ad.created_at as disclosure_created, ad.updated_at as disclosure_updated')
             ->join($this->shared_db_name.'.users_profile up', 'users.id = up.author_id', 'left')
+            ->join($this->default_db_name. '.app_disclosures ad', 'up.author_id = ad.author_id', 'left')
             ->where('users.id', $user_id)
             ->asArray()
             ->first();
