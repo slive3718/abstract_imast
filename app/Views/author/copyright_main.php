@@ -52,7 +52,7 @@
                                 <div class="text-end">
                                     <span >Due Date :  October 01, 2026</span>
                                     <span class="ms-5"> Status :
-                                    <?= ( !empty($attestation) && !empty($attestation['date']) ? strtotime($attestation['date']) > strtotime($attestation_current)
+                                    <?= ( !empty($attestation) && !empty($attestation['date']) ? strtotime($attestation['date']) >= strtotime($attestation_current)
                                         ? '<span class="badge bg-success text-white">Current  '.date('m-d-Y', strtotime($attestation['date'])).'</span>'
                                         : '<span class="badge bg-warning text-dark"> Outdated '.date('m-d-Y', strtotime($attestation['date'])).'</span>'
                                         : '<span class="badge bg-danger text-white">Incomplete</span>') ?>
