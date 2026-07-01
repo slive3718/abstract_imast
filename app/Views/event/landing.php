@@ -64,7 +64,7 @@
                     <li><strong>Abstract Submission Dates: </strong> July 1 - October 1, 2026, 11:59 PM EDT (US)</li>
                     <li><strong>Abstract Acceptance Notification via email: </strong> December 10, 2026*</li>
                     <li><strong>Abstract Presenter Acceptance Deadline:</strong> January 8, 2027*</li>
-                    <li><strong>Meeting Dates:</strong>  <span class="text-danger">April 7-9, 2027</span></li>
+                    <li><strong>Meeting Dates:</strong>  April 7-9, 2027</li>
                 </ul>
                 <p>*Dates are subject to change.</p>
 
