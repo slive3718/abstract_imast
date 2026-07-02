@@ -52,7 +52,8 @@ class OrganizationsModel extends Model
                     'organization_id' => $org['organization_id'], // Fixed ID to match organization_id
                     'affiliations' => json_decode($org['affiliation'], true) ?? [],
                     'custom_organization' => $org['custom_organization'] ?? null,
-                    'relationship_ended' => $org['relationship_ended'] ?? null
+                    'relationship_ended' => $org['relationship_ended'] ?? null,
+                    'other_affiliation' => $org['other_affiliation'] ?? null
                 ];
             }
         }

@@ -84,16 +84,25 @@
                                             <?= $organizationName == 'Other' ? ($customOrganization ? " ({$customOrganization})" : '') : '' ?>
                                         </p>
 
-                                        <?php if (!empty($org['affiliations'])): ?>
-                                            <ul class="list-unstyled ms-3">
-                                                <?php foreach ($org['affiliations'] as $affiliationId): ?>
-                                                    <?php
-                                                    $affiliationName = $affiliationMap[$affiliationId]['name'] ?? 'N/A';
-                                                    ?>
-                                                    <li>- <?= htmlspecialchars($affiliationName) ?></li>
-                                                <?php endforeach; ?>
-                                            </ul>
-                                        <?php endif; ?>
+                                            <?php if (!empty($org['affiliations'])): ?>
+                                                <ul class="list-unstyled ms-3">
+                                                    <?php foreach ($org['affiliations'] as $affiliationId): ?>
+                                                        <?php
+                                                        $affiliationName = $affiliationMap[$affiliationId]['name'] ?? 'N/A';
+                                                        $otherAffiliationName = '';
+                                                        if ($affiliationId == 8) {
+                                                            $otherAffiliationName = $org['other_affiliation'] ?? 'N/A';
+                                                        }
+                                                        ?>
+                                                        <li>
+                                                            - <?= htmlspecialchars($affiliationName) ?>
+                                                            <?php if (!empty($otherAffiliationName)): ?>
+                                                                <?= ' - '. htmlspecialchars($otherAffiliationName) ?>
+                                                            <?php endif; ?>
+                                                        </li>
+                                                    <?php endforeach; ?>
+                                                </ul>
+                                            <?php endif; ?>
 
                                     <?php if (($org['relationship_ended']) !== null): ?>
                                         <p class="mb-1">
