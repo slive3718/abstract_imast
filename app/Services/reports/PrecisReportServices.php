@@ -103,10 +103,6 @@ class PrecisReportServices extends BaseService
                 $authorItems = [];
                 if (!empty($mappedAuthors[$podiumPaper['abstract_id']])) {
                     foreach ($mappedAuthors[$podiumPaper['abstract_id']] as $item) {
-                        // Skip removed authors
-                        if ($item['is_removed'] !== '0') {
-                            continue;
-                        }
 
                         // Skip if no valid name
                         $surname = trim($item['user_surname'] ?? '');
