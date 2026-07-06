@@ -20,7 +20,7 @@ class PaperAuthorsModel extends BaseModel
         $this->allowedFields = $this->db->getFieldNames($this->table);
     }
 
-    protected function withUserAndRemovalStatus()
+    protected function activeUsers(): object
     {
         return $this->select('
             paper_authors.*,
@@ -34,7 +34,7 @@ class PaperAuthorsModel extends BaseModel
             ->where('rpa.id', NULL); // Only include authors that are NOT removed
     }
 
-    protected function activeUsers()
+    protected function activeUsersWithProfile(): object
     {
         return $this
             ->join($this->sharedDB->database.'.users u', 'paper_authors.author_id = u.id', 'left')
@@ -139,7 +139,7 @@ class PaperAuthorsModel extends BaseModel
 
     public function getAuthorsWithProfilesQuery(array $paperIds = []): object
     {
-        $builder = $this->withUserAndRemovalStatus();
+        $builder = $this->activeUsers();
 
         if(!empty($paperIds))
             $builder->whereIn('paper_authors.paper_id', $paperIds);
@@ -161,7 +161,7 @@ class PaperAuthorsModel extends BaseModel
     }
 
     public function getByAuthors($authorsIds): array {
-        return $this->withUserAndRemovalStatus()
+        return $this->activeUsers()
             ->join('papers p', 'paper_authors.paper_id = p.id', 'left')
             ->select('paper_authors.*, p.*')
             ->whereIn('author_id', $authorsIds)
@@ -170,5 +170,25 @@ class PaperAuthorsModel extends BaseModel
 
     public function getMembershipAllAuthors(){
         return $this->activeUsersBaseQuery();
+    }
+
+    public function getAuthorsAcceptedByAdmin(int $paperId = null, array $orderBy = null): array
+    {
+        $builder = $this->activeUsers();
+        $builder->join('admin_abstract_acceptance aaa', 'paper_authors.paper_id = aaa.abstract_id', 'left');
+        $builder->where('aaa.acceptance_confirmation', 1);
+
+        if(!empty($orderBy))
+            $builder->orderBy($orderBy['column'], $orderBy['direction']);
+
+        $builder->orderBy('paper_authors.author_order', 'ASC');
+
+        $builder->where('rpa.id', NULL); // Only include authors that are NOT removed
+
+        if ($paperId !== null) {
+            $builder->where('paper_authors.paper_id', $paperId);
+        }
+
+        return $builder->findAll();
     }
 }
