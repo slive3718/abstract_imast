@@ -112,4 +112,17 @@ class PapersModel extends Model
         return $builder->asArray()->findAll();
     }
 
+    public function getActivePaperTotalPerCategory(){
+        return $this->getActivePapers()
+            ->select('
+            ac.*, 
+            COUNT(*) as total,
+            SUM(CASE WHEN papers.is_finalized = 1 THEN 1 ELSE 0 END) as total_finalized,
+            COUNT(*) - SUM(CASE WHEN papers.is_finalized = 1 THEN 1 ELSE 0 END) as total_incomplete
+        ')
+            ->join($this->db->table . '.abstract_categories ac', 'papers.abstract_category = ac.id', 'left')
+            ->groupBy('ac.id')  // Group by category ID instead
+            ->asArray()
+            ->find();
+    }
 }

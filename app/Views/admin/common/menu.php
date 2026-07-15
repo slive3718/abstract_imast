@@ -16,6 +16,11 @@
             <ul class="navbar-nav mb-2 mb-lg-0 ms-auto">
                 <?php if(session('user_id') && session('is_super_admin') == 1): ?>
                     <li class="nav-item">
+                        <a href="<?=base_url()?>/admin/statistics" class="btn btn-outline-light mt-2">
+                            Statistics <i class="fa-solid fa-chart-bar"></i>
+                        </a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link" aria-current="page" href="<?=base_url()?>/admin/papers_list">
                             <button type="button" class="btn btn-outline-light">Papers List <i class="fa-solid fa-list"></i></button>
                         </a>

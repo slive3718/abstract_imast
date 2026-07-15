@@ -4,9 +4,6 @@
 
 <main>
     <div class="container-fluid">
-
-
-
         <div class="form-signin w-100 m-auto text-center">
             <form id="formLogin" action="<?=base_url()?>/login/validateLogin" method="post" >
                 <h4 class="mb-3 fw-normal">Admin Login</h4>
@@ -87,17 +84,17 @@
                             }).then((result) => {
                                 /* Read more about handling dismissals below */
                                 if (result.dismiss === Swal.DismissReason.timer) {
-                                    window.location.href="<?=base_url()?>/admin/papers_list";
+                                    window.location.href="<?=base_url()?>/admin/statistics";
                                 }
                             })
                         }else{
-                             Swal.fire(
-                            '',
-                            'User is not admin',
-                            'info'
-                        )
+                            Swal.fire(
+                                '',
+                                'User is not admin',
+                                'info'
+                            )
                         }
-                       
+
                     }else if( response['status'] === 401){
                         Swal.fire(
                             '',
@@ -120,7 +117,7 @@
                 },'json')
         })
 
-       // ############### forgot password ##################
+        // ############### forgot password ##################
 
         $('.forgotPasswordBtn').on('click', function(){
             $('#forgotPasswordModal').modal('show')

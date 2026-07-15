@@ -147,6 +147,8 @@ $routes->group('admin', ['filter' => 'authGuard:admin'],  function ($routes) {
 
     $routes->get('getCMEReviewerList', 'admin\CMEReviewersController::getCMEReviewerList');
 
+//    ####### Statistics
+    $routes->get('statistics', 'admin\StatisticsController::index');
 
 //    ####### FOR BULK IMPORT ASSIGNING OF REVIEWERS
     $routes->get('bulk_assign', 'admin\Abstracts\BulkAssignController::bulk_assign');
