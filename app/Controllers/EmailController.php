@@ -74,13 +74,13 @@ class EmailController extends BaseController
         try {
             // Send email
             $sendMail = new PhpMail();
-            $from = ['email' => 'afs@owpm2.com', 'name' => 'AFS 2026'];
+            $from = ['email' => 'imast@owpm2.com', 'name' => 'AFS 2026'];
             $subject = 'Support Request From ' . $post['fname'] . " " . $post['lname'];
             $message = "First Name: " . $post['fname'] . "<br>";
             $message .= "Last Name: " . $post['lname'] . "<br>";
             $message .= "Email: " . $post['email'] . "<br>";
             $message .= "Message: " . $post['message'] . "<br>";
-            $to = ['rexterdayuta@gmail.com', 'shannon@owpm.com'];
+            $to = ['rexterdayuta@gmail.com', 'shannonmorton544@gmail.com'];
 
             $response = $sendMail->send($from, $to, $subject, $message);
 
