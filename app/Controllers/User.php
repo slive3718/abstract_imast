@@ -1726,7 +1726,7 @@ class User extends BaseController
             $message .= "Last Name: " . $post['lname'] . "<br>";
             $message .= "Email: " . $post['email'] . "<br>";
             $message .= "Message: " . $post['message'] . "<br>";
-            $to = ['rexterdayuta@gmail.com', 'shannon@owpm.com'];
+            $to = ['rexterdayuta@gmail.com', 'shannonmorton544@gmail.com'];
 
             $response = $sendMail->send($from, $to, $subject, $message);
 
