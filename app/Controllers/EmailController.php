@@ -74,7 +74,7 @@ class EmailController extends BaseController
         try {
             // Send email
             $sendMail = new PhpMail();
-            $from = ['email' => 'imast@owpm2.com', 'name' => 'AFS 2026'];
+            $from = ['email' => 'imast@owpm2.com', 'name' => 'IMAST 2026'];
             $subject = 'Support Request From ' . $post['fname'] . " " . $post['lname'];
             $message = "First Name: " . $post['fname'] . "<br>";
             $message .= "Last Name: " . $post['lname'] . "<br>";
