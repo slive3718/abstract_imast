@@ -454,7 +454,11 @@ class User extends BaseController
                 $searchResult = (new UserServices())->searchUserByName($post, ['institutions'], $searchFilter);
                 if(($searchResult)){
                     $searchResultStatus = (new AbstractServices())->processEntities($searchResult);
-                    return $this->response->setJSON(array('status'=>'200', 'message'=>'Match found', 'data'=>$searchResultStatus));
+                    return $this->response->setJSON(array(
+                        'status' => '200',
+                        'message' => 'Match found',
+                        'data' => array_values($searchResultStatus)
+                    ));
                 }
                 else{
                     return $this->response->setJSON(array('status'=>'204', 'message'=>'No match found','data'=>$searchResult));

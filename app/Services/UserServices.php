@@ -249,11 +249,58 @@ class UserServices extends BaseService
 
     function searchUserByName($post, $searchFields = null, $filters = null): array{
         $query = $this->getUsersQuery($searchFields, $filters);
+        $searchTerm = strtolower($post['searchValue']['authorName']);
+
         $query->groupStart();
-        $query->like('LOWER(u.surname)', strtolower($post['searchValue']['authorName']));
-        $query->orlike('LOWER(u.name)', strtolower($post['searchValue']['authorName']));
+        $query->like('LOWER(u.surname)', $searchTerm);
+        $query->orlike('LOWER(u.name)', $searchTerm);
         $query->groupEnd();
-        return $query->get()->getResultArray();
+
+        $results = $query->get()->getResultArray();
+
+        // Sort by relevance
+        usort($results, function($a, $b) use ($searchTerm) {
+            $aName = strtolower($a['name'] ?? '');
+            $aSurname = strtolower($a['surname'] ?? '');
+            $bName = strtolower($b['name'] ?? '');
+            $bSurname = strtolower($b['surname'] ?? '');
+
+            $aScore = $this->getRelevanceScore($aName, $aSurname, $searchTerm);
+            $bScore = $this->getRelevanceScore($bName, $bSurname, $searchTerm);
+
+            if ($aScore !== $bScore) {
+                return $aScore <=> $bScore;
+            }
+
+            // If same score, sort alphabetically by surname then name
+            if ($aSurname !== $bSurname) {
+                return strcmp($aSurname, $bSurname);
+            }
+            return strcmp($aName, $bName);
+        });
+
+        return $results;
+    }
+
+    private function getRelevanceScore($name, $surname, $searchTerm) {
+        // 1. Exact match (highest priority)
+        if ($name === $searchTerm || $surname === $searchTerm) {
+            return 1;
+        }
+
+        // 2. Starts with search term
+        if (strpos($name, $searchTerm) === 0 || strpos($surname, $searchTerm) === 0) {
+            return 2;
+        }
+
+        // 3. Contains search term as a whole word
+        if (preg_match('/\b' . preg_quote($searchTerm, '/') . '\b/i', $name) ||
+            preg_match('/\b' . preg_quote($searchTerm, '/') . '\b/i', $surname)) {
+            return 3;
+        }
+
+        // 4. Contains search term anywhere (lowest priority)
+        return 4;
     }
 
 }
