@@ -9,15 +9,13 @@
             Travel and Expenses
         </div>
         <div class="card-body">
-            <p>
-                Faculty for the 33rd IMAST:
-                <ul>
-                    <li class="mt-3">For all faculty, excluding those who only have moderator duties, SRS will provide complimentary IMAST registration.</li>
-                    <li class="mt-3">SRS staff will register all faculty for IMAST. Instructions for housing can be found on the IMAST website. </li>
-                    <li class="mt-3">All faculty are responsible for their own housing reservations and expenses. </li>
-<!--                    <li class="mt-3"><strong> </strong>: </li>-->
-                </ul>
-            </p>
+            <?php if($admin_acceptance['acceptance_confirmation'] == '1' && $abstract_preference[$admin_acceptance['presentation_preference']] == 'Invited Speaker'): ?>
+                <?= view('acceptance/invited/renders/travel_expense_invited_speaker'); ?>
+            <?php elseif($admin_acceptance['acceptance_confirmation'] == '1' && $abstract_preference[$admin_acceptance['presentation_preference']] == 'Invited Presenter'): ?>
+                <?= view('acceptance/invited/renders/travel_expense_invited_presenter'); ?>
+            <?php else: ?>
+                <?= view('acceptance/invited/renders/travel_expense_invited_faculty'); ?>
+            <?php endif?>
             <form id="agreementForm" class="p-4">
                 <span class="text-danger">*</span> <input type="checkbox" name="travel_and_expense_terms" id="travel_and_expense_terms" value="yes" <?= !empty($acceptanceDetails) && $acceptanceDetails['travel_expenses'] == 'yes' ? 'checked' : ''?> >
                 <label for="travel_and_expense_terms">I understand the travel and expenses terms.</label>

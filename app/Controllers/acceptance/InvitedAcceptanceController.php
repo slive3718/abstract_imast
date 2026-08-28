@@ -66,12 +66,15 @@ class InvitedAcceptanceController extends AcceptanceController
         $header_data = [
             'title' => 'Invited Speaker/Faculty Acceptance '
         ];
+
         $data = [
             'abstract_id' => $abstract_id,
             'acceptanceDetails' => $acceptanceDetails,
             'abstract_preference' => presentation_preferences(),
-            'presentation_data_view' => $this->invited_presentation_data_view($abstract_id)
+            'presentation_data_view' => $this->invited_presentation_data_view($abstract_id),
+            'admin_acceptance' => (new AdminAcceptanceModel())->where('abstract_id', $abstract_id)->first()
         ];
+
         return
             view('acceptance/common/header', $header_data) .
             view('acceptance/invited/travel_and_expense', $data) .

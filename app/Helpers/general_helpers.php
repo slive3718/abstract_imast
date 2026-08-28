@@ -4,10 +4,12 @@ if (!function_exists('presentation_preferences')) {
     function presentation_preferences() : array
     {
         return [
-           1 => 'Podium Presentation',
-           2 => 'E-Point Presentation',
-           3 => 'Podium or E-Point Presentation',
-           4 => 'Invited Faculty',
+            1 => 'Podium Presentation',
+            2 => 'E-Point Presentation',
+            3 => 'Podium or E-Point Presentation',
+            4 => 'Invited Faculty',
+            5 => 'Invited Speaker',
+            6 => 'Invited Presenter',
         ];
     }
 }
