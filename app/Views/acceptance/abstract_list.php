@@ -144,7 +144,7 @@
             let abstract_id = $(this).attr('abstract_id')
             let acceptance_type = $(this).data('accepted-for')
 
-            if ([3, 4].includes(parseInt(acceptance_type))) {
+            if ([3, 4, 6].includes(parseInt(acceptance_type))) {
                 viewAcceptanceInvited(abstract_id);
             }else if([2].includes(parseInt(acceptance_type))) {
                 viewEposterAcceptance(abstract_id);
