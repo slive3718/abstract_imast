@@ -10,7 +10,7 @@
         </div>
         <div class="card-body">
             <p class="fw-bold">Congratulations!</p>
-            <p>It is the distinct pleasure of the Scoliosis Research Society to invite you to present your abstract at the 33rd IMAST, April 15-17, 2026 in Toronto, ON, Canada.</p>
+            <p>It is the distinct pleasure of the Scoliosis Research Society to invite you to present your abstract at the SRS 61st Annual Meeting, September 6-10, 2026 in Sydney, Australia.</p>
 
             <p>
                 You have been invited to participate in the following session:
@@ -30,13 +30,13 @@
                 <div class="form-check">
                     <input class="form-check-input" type="radio" name="participation" id="accept" value="1" <?= !empty($acceptanceDetails) && $acceptanceDetails['acceptance_confirmation'] == 1 ? 'checked' : ''?>>
                     <label class="form-check-label" for="accept">
-                        Yes, I confirm my participation for this assignment at the 33rd IMAST, April 15-17, 2026 in Toronto, ON, Canada.
+                        Yes, I confirm my participation for this assignment at the SRS 61st Annual Meeting, September 6-10, 2026 in Sydney, Australia.
                     </label>
                 </div>
                 <div class="form-check mt-2">
                     <input class="form-check-input" type="radio" name="participation" id="decline" value="2" <?= !empty($acceptanceDetails) && $acceptanceDetails['acceptance_confirmation'] == 2 ? 'checked' : ''?>>
                     <label class="form-check-label" for="decline">
-                        No, I am declining this invitation for the 33rd IMAST, April 15-17, 2026 in Toronto, ON, Canada.
+                        No, I am declining this invitation for the SRS 61st Annual Meeting, September 6-10, 2026 in Sydney, Australia.
                     </label>
                 </div>
                 <button type="submit" class="btn btn-primary mt-4" >Save and Continue</button>
@@ -92,14 +92,24 @@
                 processData: false,
                 contentType: false,
                 success: function(response) {
-                    swal.close();
-                    if(response.status === 'success') {
-                        if(participationValue === '2'){
-                            goFinalize(abstract_id)
-                        }else{
-                            goNext(abstract_id)
+                    swal.close()
+                    swal.fire({
+                        title: "Continue to next page.",
+                        text: "",
+                        icon: "success",
+                        confirmButtonText: "Next",
+                        dangerMode: true,
+                    }).then((willFinalize) => {
+                        if (willFinalize) {
+                            if(response.status === 'success') {
+                                if(participationValue === '2'){
+                                    goAbstractList(abstract_id)
+                                }else{
+                                    goNext(abstract_id)
+                                }
+                            }
                         }
-                    }
+                    });
                 },
                 error: function(xhr, status, error) {
                     swal.close();
@@ -113,8 +123,8 @@
         window.location.href = acceptanceBaseUrl+'manuscript/'+abstract_id
     }
 
-    function goFinalize(abstract_id){
-        window.location.href = acceptanceBaseUrl+'speaker_acceptance_finalize/'+abstract_id
+    function goAbstractList(abstract_id){
+        window.location.href = acceptanceBaseUrl+'abstract_list'
     }
 </script>
 
