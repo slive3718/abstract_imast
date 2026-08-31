@@ -9,7 +9,7 @@
             Travel and Expenses
         </div>
         <div class="card-body">
-            <form id="agreementForm" class="p-4">
+            <form id="agreementForm">
             <?php if($admin_acceptance['acceptance_confirmation'] == '1' && $admin_acceptance['presentation_preference'] == '6'): ?>
                 <?= view('acceptance/invited/renders/travel_expense_invited_speaker'); ?>
             <?php elseif($admin_acceptance['acceptance_confirmation'] == '1' && $admin_acceptance['presentation_preference'] == '5'): ?>
