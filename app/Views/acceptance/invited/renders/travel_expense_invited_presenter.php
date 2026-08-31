@@ -9,4 +9,8 @@
             at: <a href="https://www.srs.org/Meetings-Conferences/Annual-Meeting/61st-Annual-Meeting#registration" target="_blank"><i>https://www.srs.org/Meetings-Conferences/Annual-Meeting/61st-Annual-Meeting#registration</i></a>
         </p>
     </div>
+
+    <span class="text-danger">*</span> <input type="checkbox" name="travel_and_expense_terms" id="travel_and_expense_terms" value="yes" <?= !empty($acceptanceDetails) && $acceptanceDetails['travel_expenses'] == 'yes' ? 'checked' : ''?> >
+    <label for="travel_and_expense_terms">I understand the travel and expenses terms.</label>
+    <br>
 </div>
