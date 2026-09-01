@@ -136,8 +136,6 @@
     $(function(){
 
         FlashHelper.init(flashData, {showConfirmButton: true});
-
-        $('.moderatorDiv').hide();
         getAbstracts();
         getModeratorAcceptance();
         $("#abstractTableBody").on('click', '.openBtn', function(){
@@ -292,8 +290,8 @@
 
     function getModeratorAcceptance(){
         $.get(baseUrlAcceptance+'moderator/schedules', function(response){
-            if(response.data) {
-                $('.moderatorDiv').show();
+            if(response.data && response.data.length > 0) {
+                $('.moderatorDiv').removeClass('d-none');
                 $('#moderatorTableBody').html();
                 $.each(response.data, function (i, val) {
                     console.log(val)
@@ -318,6 +316,8 @@
                         '<td>' + openBtn + '</td>' +
                         '</tr>')
                 })
+            }else{
+                $('.moderatorDiv').addClass('d-none');
             }
         })
     }
