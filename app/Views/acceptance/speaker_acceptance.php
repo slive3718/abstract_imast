@@ -24,7 +24,7 @@
                <li><span class="fw-bolder">Assigned ID: </span>  <?=!empty($abstract_details) ? $abstract_details->assigned_id : ''?></li>
                <li><span class="fw-bolder">Moderator(s): </span>  <?= !empty($abstract_schedule['moderators'])
                         ? implode(', ', array_map(fn($moderator) => $moderator['name'].' '.$moderator['surname'], $abstract_schedule['moderators']))
-                        : '' ?>
+                        : 'TBD' ?>
                 </li>
            </ul>
             <p class="fw-bolder">Please confirm your participation below. Once you have accepted/declined your presentation status, you will not be able to change your decision online.</p>

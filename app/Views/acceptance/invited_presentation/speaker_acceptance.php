@@ -24,7 +24,7 @@
                 <li><span class="fw-bolder">Your Presentation Title: </span>  <?=!empty($abstract_details) ? $abstract_details->title : ''?></li>
                 <li><span class="fw-bolder">Moderator(s): </span>  <?= !empty($abstract_schedule['moderators'])
                         ? implode(', ', array_map(fn($moderator) => $moderator['name'].' '.$moderator['surname'], $abstract_schedule['moderators']))
-                        : '' ?>
+                        : 'TBD' ?>
                 </li>
             </ul>
 
