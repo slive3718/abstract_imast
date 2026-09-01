@@ -32,13 +32,13 @@
                 <div class="form-check">
                     <input class="form-check-input" type="radio" name="participation" id="accept" value="1" <?= !empty($acceptanceDetails) && $acceptanceDetails['acceptance_confirmation'] == 1 ? 'checked' : ''?>>
                     <label class="form-check-label" for="accept">
-                        Yes, I confirm my participation, for this assignment, at the 33rd IMAST.
+                        Yes, I confirm my participation, for this assignment, at the 34th IMAST.
                     </label>
                 </div>
                 <div class="form-check mt-2">
                     <input class="form-check-input" type="radio" name="participation" id="decline" value="2" <?= !empty($acceptanceDetails) && $acceptanceDetails['acceptance_confirmation'] == 2 ? 'checked' : ''?>>
                     <label class="form-check-label" for="decline">
-                        No, I am declining this invitation for the 33rd IMAST.
+                        No, I am declining this invitation for the 34th IMAST.
                     </label>
                 </div>
                 <button type="submit" class="btn btn-primary mt-4" >Save and Continue</button>
