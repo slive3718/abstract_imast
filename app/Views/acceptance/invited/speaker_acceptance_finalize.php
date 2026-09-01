@@ -83,7 +83,7 @@
                     <?php endif ?>
 
     <!--                only for invited faculty-->
-                    <?php if(isset($author_acceptance) && $author_acceptance['acceptance_confirmation'] == 4 ): ?>
+                    <?php if(isset($author_acceptance) && $abstract_preference['presentation_preference'] == '4' ): ?>
                     <div class="col-4 text-end fw-bolder">Innovation Celebration : </div>
                     <div class="col-7"><?= !empty($author_acceptance) && $author_acceptance['celebration_attendance'] == '1' ? 'Yes, I plan to attend the Innovation Celebration. Please register me for this event.' : ' No, I do NOT plan to attend the Innovation Celebration. Please do not register me for this event.'?></div>
                     <div class="col-1">
@@ -91,6 +91,7 @@
                     </div>
                     <?php endif; ?>
                 <?php endif; ?>
+                
             </div>
         </div>
         <div class="mt-3 mb-2 me-3">
