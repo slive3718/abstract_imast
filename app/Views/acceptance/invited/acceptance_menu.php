@@ -18,7 +18,7 @@
                         <div id="landing-page-contents" class="container-fluid p-4">
                             <div class="submission-menu" style="font-family: inherit;">
                                 <?php $stepNumber = 1; ?>
-                                <a id="speakerAcceptance" href="<?=base_url()?>/acceptance/invited_speaker_acceptance/<?=$abstract_id?>" class="btn btn-white btn-sm round-0 text-start ps-0 fw-bold" style="width:80%; border-bottom:1px solid red"><num class="btn-sm me-2 text-white " style="background-color:#FF6600; padding:5px 10px 5px 10px"><?=$stepNumber++?> </num> Invited Speaker
+                                <a id="speakerAcceptance" href="<?=base_url()?>/acceptance/invited_speaker_acceptance/<?=$abstract_id?>" class="btn btn-white btn-sm round-0 text-start ps-0 fw-bold" style="width:80%; border-bottom:1px solid red"><num class="btn-sm me-2 text-white " style="background-color:#FF6600; padding:5px 10px 5px 10px"><?=$stepNumber++?> </num> Participation
                                     <?=isset($author_acceptance) && (!empty($author_acceptance->acceptance_confirmation_date)|| $author_acceptance->acceptance_confirmation_date !== Null )? '<span class="float-end text-success"><i class="fw-bold  fas fa-check-circle"> </i> Completed </span>' :'<span class="float-end text-danger"><i class="fw-bold fas fa-exclamation-circle"></i> Incomplete </span>' ?>
                                 </a>
                                 <?php if(isset($author_acceptance) && $author_acceptance->acceptance_confirmation == 1 ): ?>
