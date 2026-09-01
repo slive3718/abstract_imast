@@ -81,7 +81,11 @@
                     confirmButtonText: "OK"
                 }).then((result) => {
                     if (result.isConfirmed) {
-                        window.location.href = `${acceptanceBaseUrl}/invited_celebration/${abstract_id}`;
+                        if(presPref === '4') {
+                            window.location.href = `${acceptanceBaseUrl}/invited_celebration/${abstract_id}`;
+                        }else{
+                            window.location.href = `${acceptanceBaseUrl}/invited_speaker_acceptance_finalize/${abstract_id}`;
+                        }
                     }
                 });
             },
