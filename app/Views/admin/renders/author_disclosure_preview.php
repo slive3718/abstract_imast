@@ -153,7 +153,7 @@
                     <tr>
                         <td class="fw-bold bg-light">Signature:</td>
                         <td>
-                            <?= $disclosure && htmlspecialchars($disclosure['disclosure_signature'] ?? 'N/A') ?>
+                            <?= ($disclosure && $disclosure['disclosure_signature']) ? htmlspecialchars($disclosure['disclosure_signature']) : 'N/A' ?>
                         </td>
                     </tr>
 
