@@ -110,8 +110,8 @@
                         <td class="fw-bold bg-light" style="width: 220px;">Financial Disclosure:</td>
                         <td>
                             <?php
-                            if (!empty($author['financial_relationship'])) {
-                                if ($author['financial_relationship'] === 'Yes') {
+                            if (!empty($disclosure['financial_relationship'])) {
+                                if (strcmp($disclosure['financial_relationship'], 'yes') === 0) {
                                     echo 'I have held a financial relationship with an ineligible company within the past 24 months.';
                                 } else {
                                     echo 'I have NO financial relationship(s) with an ineligible company producing healthcare goods or services.';
