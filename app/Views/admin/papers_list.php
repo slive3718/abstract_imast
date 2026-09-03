@@ -594,7 +594,12 @@
                 paging: false,
                 dom: 'Bfrtip',
                 buttons: ['copy', 'csv', 'excel', 'pdf', 'print'],
-                buttons: { dom: { button: { className: 'btn btn-outline-primary' } } }
+                buttons: { dom: { button: { className: 'btn btn-outline-primary' } } },
+                columnDefs: [
+                    { orderable: true, targets: 0 },
+                    { orderable: true, targets: 1 },
+                    { orderable: false, targets: '_all' }
+                ]
             });
         }
     }
