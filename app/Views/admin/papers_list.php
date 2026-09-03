@@ -132,7 +132,7 @@
                     $('#regularReviewerTableBody').html('');
                     if(result.data.length > 0) {
                         $.each(result.data, function (i, val) {
-                            console.log(val)
+                            // console.log(val)
                             let isAssigned = (val.is_assigned && val.is_assigned.is_deleted !== 1 && val.is_assigned.is_declined !== "1") ? 'checked' : '';
                             let selectReviewerBox = '<input type="checkbox" class="selectReviewerBox" name="selectReviewerBox" ' + isAssigned + ' id="" paperID = "' + paper_id + '" reviewerID = "' + val.user_id + '" divisionName="'+val.division[0].name+'">';
                             // console.log(val.emailLog)
@@ -258,26 +258,26 @@
                 confirmButtonColor: '#3085d6',
                 cancelButtonColor: '#d33',
                 confirmButtonText: 'Yes, delete it!'
-                }).then((result) => {
+            }).then((result) => {
                 if (result.isConfirmed) {
                     $.post(baseUrlAdmin+'delete_abstract', {'abstract_id': abstract_id}, function(data){
                         // console.log(data)
 
                         if(data.status == 'success'){
                             Swal.fire(
-                            'Deleted!',
-                            data.msg,
-                            'success'
+                                'Deleted!',
+                                data.msg,
+                                'success'
                             )
                         }else{
                             Swal.fire(
-                            'Error!',
-                            data.msg,
-                            'error'
+                                'Error!',
+                                data.msg,
+                                'error'
                             )
                         }
                     }, 'json')
-                  
+
                     getAbstracts();
                 }
             })
@@ -337,7 +337,7 @@
 
                     const buttons = generateButtons(paper.id);
 
-                    const category = paper.category.name
+                    const category = paper.category
                     const assignedReviewers = getAssignedReviewers(paper);
                     const assignedCMEReviewers = getAssignedCMEReviewers(paper);
 
@@ -364,7 +364,7 @@
                 swal.close();
 
                 $('.author_list_row').on('click', function(e) {
-                    console.log($(this).text());
+                    // console.log($(this).text());
                 });
             } catch (error) {
                 console.error('Error fetching abstracts:', error);
@@ -483,10 +483,9 @@
 
         function populateAuthors(paper) {
             if (!paper.authors) return;
-
             paper.authors.forEach((author, i) => {
                 const institution = author.institution ? ` <i class='badge bg-info'>(${author.institution.name})</i>` : '';
-                const copyrightStatus = (author.details && author.details.financial_relationship !== null && author.details.signature_signed_date !== null && $currentDisclosureDate && (author.details.signature_signed_date > $currentDisclosureDate))
+                const copyrightStatus = (author.details && author.disclosure !== null && $currentDisclosureDate && (author.disclosure.updated_at > $currentDisclosureDate))
                     ? "<i class='ms-2 fas fa-check text-success'></i>"
                     : "<i class='ms-2 fas fa-times text-danger'></i>";
 
@@ -633,7 +632,7 @@
                 type: 'GET',
                 dataType: 'html',  // Expect HTML response
                 success: function(response) {
-                    console.log(response)
+                    // console.log(response)
                     $modalBody.html(response);
                 },
                 error: function(xhr, status, error) {

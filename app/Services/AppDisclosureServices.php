@@ -136,7 +136,7 @@ class AppDisclosureServices
     /**
      * Check if author has a valid disclosure
      */
-    public function hasValidDisclosure(int $authorId): bool|string
+    public function hasValidDisclosure(int $authorId): bool
     {
         $disclosure = $this->getDisclosure($authorId);
 
@@ -145,7 +145,7 @@ class AppDisclosureServices
         }
 
         if(!$this->isDisclosureValidDate($disclosure, $this->siteSettingModel->get_current_disclosure_date()))
-            return 'expired';
+            return false;
 
         // These fields should be 1 (true) for valid disclosure
         $requiredFields = [
@@ -233,13 +233,7 @@ class AppDisclosureServices
         }
 
 
-        $status = $this->hasValidDisclosure($authorId);
-
-        if ($status === false) {
-            return 'incomplete';
-        }
-
-        return ($status === 'expired') ? 'expired' : 'valid';
+        return $this->hasValidDisclosure($authorId) ? 'valid' : 'incomplete';
     }
 
     public function getBatchStatus(array $authorIds): array

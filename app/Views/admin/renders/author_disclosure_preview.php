@@ -13,9 +13,10 @@
                 $isCurrent = false;
                 $statusClass = false;
                 $statusText = false;
+                $signedDate = false;
 
-                if (!empty($author['signature_signed_date'])) {
-                    $signedDate = date('Y-m-d', strtotime($author['signature_signed_date']));
+                if (!empty($disclosure['updated_at']) || !empty($disclosure['created_at'])) {
+                    $signedDate = $disclosure['updated_at'] ? date('Y-m-d', strtotime($disclosure['updated_at'])) : date('Y-m-d', strtotime($disclosure['created_at']));
                     $isCurrent = (!empty($currentDisclosureDate) && (strtotime($signedDate) > strtotime($currentDisclosureDate)));
                     $statusClass = $isCurrent ? 'alert-success' : 'alert-danger';
                     $statusText = $isCurrent ? 'Current' : 'Outdated';
@@ -29,13 +30,13 @@
                             <span class="fw-bold bg-light">Completion Status: </span>
                         </td>
                         <td>
-                            <?= empty($author['financial_relationship'] && $isCurrent) ? '<span class="text-danger fw-bolder">Incomplete</span>' :  '<span class="text-success fw-bolder">Completed</span>' ?>
+                            <?= (empty($disclosure) || empty($disclosure['financial_relationship']) && $isCurrent) ? '<span class="text-danger fw-bolder">Incomplete</span>' :  '<span class="text-success fw-bolder">Completed</span>' ?>
                         </td>
                     </tr>
                     <tr>
                         <td class="fw-bold bg-light">Organizations and Affiliations:</td>
                         <td>
-                            <?php if (!empty($selectedOrganizations) && $author['financial_relationship'] === 'Yes'): ?>
+                            <?php if (!empty($selectedOrganizations) && $disclosure &&  strtolower($disclosure['financial_relationship']) === 'yes'): ?>
                                 <?php
                                 // Create a map of organization IDs for faster lookup
                                 $organizationMap = array_column($organizations, null, 'organization_id');
@@ -44,41 +45,41 @@
 
                                 <?php foreach ($selectedOrganizations as $org): ?>
                                     <div class="mb-3">
-                                    <?php
-                                    $organizationName = $organizationMap[$org['organization_id']]['name'] ?? 'N/A';
-                                    $customOrganization = $org['custom_organization'] ?? 'N/A';
-                                    ?>
-                                    <p class="mb-1">
-                                        <strong>
-                                            <?= htmlspecialchars($organizationName) ?>
-                                            <?= $organizationName == 'Other' ? ($customOrganization ? " ({$customOrganization})" : '') : '' ?>
-                                        </strong>
-                                    </p>
+                                        <?php
+                                        $organizationName = $organizationMap[$org['organization_id']]['name'] ?? 'N/A';
+                                        $customOrganization = $org['custom_organization'] ?? 'N/A';
+                                        ?>
+                                        <p class="mb-1">
+                                            <strong>
+                                                <?= htmlspecialchars($organizationName) ?>
+                                                <?= $organizationName == 'Other' ? ($customOrganization ? " ({$customOrganization})" : '') : '' ?>
+                                            </strong>
+                                        </p>
 
-                                    <?php if (!empty($org['affiliations'])): ?>
-                                        <ul class="list-unstyled ms-3">
-                                            <?php foreach ($org['affiliations'] as $affiliationId): ?>
-                                                <?php
-                                                $affiliationName = $affiliationMap[$affiliationId]['name'] ?? 'N/A';
-                                                ?>
-                                                <li>- <?= htmlspecialchars($affiliationName) ?></li>
-                                            <?php endforeach; ?>
-                                        </ul>
-                                    <?php endif; ?>
+                                        <?php if (!empty($org['affiliations'])): ?>
+                                            <ul class="list-unstyled ms-3">
+                                                <?php foreach ($org['affiliations'] as $affiliationId): ?>
+                                                    <?php
+                                                    $affiliationName = $affiliationMap[$affiliationId]['name'] ?? 'N/A';
+                                                    ?>
+                                                    <li>- <?= htmlspecialchars($affiliationName) ?></li>
+                                                <?php endforeach; ?>
+                                            </ul>
+                                        <?php endif; ?>
 
-                                <?php if (($org['relationship_ended']) !== null): ?>
-                                    <p class="mb-1">
-                                        <strong>Relationship ended:</strong>
-                                        <?= ($org['relationship_ended']) == '1' ? 'Yes' : 'No' ?>
-                                    </p>
-                                <?php endif; ?>
+                                        <?php if (($org['relationship_ended']) !== null): ?>
+                                            <p class="mb-1">
+                                                <strong>Relationship ended:</strong>
+                                                <?= ($org['relationship_ended']) == '1' ? 'Yes' : 'No' ?>
+                                            </p>
+                                        <?php endif; ?>
                                     </div>
                                 <?php endforeach; ?>
                             <?php else: ?>
                                 <p class="text-secondary">No affiliated organizations.</p>
                             <?php endif; ?>
                         </td>
-                   </tr>
+                    </tr>
 
                     <!-- Financial Disclosure -->
                     <tr>
@@ -102,7 +103,7 @@
                     <tr>
                         <td class="fw-bold bg-light">Disclosure Support:</td>
                         <td>
-                            <input type="checkbox" <?= ($author['disclosure_support'] == 1) ? 'checked' : ''; ?> disabled />
+                            <input type="checkbox" <?= ($disclosure && $disclosure['disclosure_support'] == 1) ? 'checked' : ''; ?> disabled />
                             <label>Practice recommendations that are relevant to the ineligible companies with whom you have relationships/affiliations will be supported by the best available evidence or absent evidence will be consistent with generally accepted medical practice. </label>
                         </td>
                     </tr>
@@ -110,7 +111,7 @@
                     <tr>
                         <td class="fw-bold bg-light">Disclosure Discussed:</td>
                         <td>
-                            <input type="checkbox" <?= ($author['disclosure_discussed'] == 1) ? 'checked' : ''; ?> disabled />
+                            <input type="checkbox" <?= ($disclosure && $disclosure['disclosure_discussed'] == 1) ? 'checked' : ''; ?> disabled />
                             <label> All reasonable clinical alternatives will be discussed when making practice recommendations. </label>
                         </td>
                     </tr>
@@ -118,7 +119,7 @@
                     <tr>
                         <td class="fw-bold bg-light">Disclosure Relationship:</td>
                         <td>
-                            <input type="checkbox" <?= ($author['disclosure_relationship'] == 1) ? 'checked' : ''; ?> disabled />
+                            <input type="checkbox" <?= ($disclosure && $disclosure['disclosure_relationship'] == 1) ? 'checked' : ''; ?> disabled />
                             <label> Relationships with ineligible companies will not bias or otherwise influence your involvement in the CME activity. </label>
                         </td>
                     </tr>
@@ -128,12 +129,12 @@
                     <tr>
                         <td class="fw-bold bg-light">Signature:</td>
                         <td>
-                            <?= htmlspecialchars($author['disclosure_signature'] ?? 'N/A') ?>
+                            <?= $disclosure && htmlspecialchars($disclosure['disclosure_signature'] ?? 'N/A') ?>
                         </td>
                     </tr>
 
                     <!-- Date Row (only shown if date exists) -->
-                    <?php if (!empty($author['signature_signed_date'])): ?>
+                    <?php if ($signedDate): ?>
                         <tr>
                             <td class="fw-bold bg-light">Signature Date:</td>
                             <td>

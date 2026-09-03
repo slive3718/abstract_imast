@@ -35,6 +35,7 @@ use App\Models\SchedulerSessionTalksModel;
 use App\Models\SiteSettingModel;
 use App\Models\UserOrganizationsModel;
 use App\Models\UsersProfileModel;
+use App\Services\AppDisclosureServices;
 use App\Services\InstitutionServices;
 use CodeIgniter\Controller;
 use App\Models\UserModel;
@@ -912,7 +913,7 @@ class AbstractController extends BaseController
             $talks = $SchedulerModel->getAllTalks();
             $talksMap = [];
             array_map(function($talk) use (&$talksMap){
-               //return talks in format paper_id => [talk details]
+                //return talks in format paper_id => [talk details]
                 // Assuming $talk has 'paper_id' and other talk details
                 $paperId = $talk['abstract_id'];
                 if (!isset($talksMap[$paperId])) {
@@ -920,6 +921,8 @@ class AbstractController extends BaseController
                 }
                 $talksMap[$paperId][] = $talk;
             },$talks);
+
+            $authorsWithDisclosure = (new AppDisclosureServices())->getMappedAuthorsWithDisclosure('valid');
 
             $paper_array = [];
             foreach ($papers as $paper) {
@@ -934,6 +937,7 @@ class AbstractController extends BaseController
                         if (!empty($authorDetails)) {
                             $author['details'] = $authorDetails;
                             $author['acceptance'] = $authorAcceptancesMap[$paperId][$authorId] ?? null;
+                            $author['disclosure'] = $authorsWithDisclosure[$author['author_id']]['disclosure'] ?? null;
                             $author['designations'] = $userDesignationsMap[$authorId] ?? [];
                             $author['institution'] = $userInstitutionsMap[$authorId] ?? [];
                             $user_array[] = $author;
@@ -2223,6 +2227,8 @@ class AbstractController extends BaseController
             ->asArray()
             ->first();
 
+        //fetching disclosure from new table
+        $disclosure = (new AppDisclosureServices())->getDisclosure($user_id);
         $organizations = $OrganizationsModel->findAll();
         $affiliations = $AffiliationsModel->findAll();
 
@@ -2246,15 +2252,9 @@ class AbstractController extends BaseController
         }
 
         $attestation = (new AttestationModel())->where('author_id', $user_id)->first();
-
-
-        $header_data = [
-            'title' => "Print/Preview"
-        ];
-
-
         $data = [
             'author' => $author,
+            'disclosure' => $disclosure,
             'organizations' => $organizations,
             'affiliations' => $affiliations,
             'selectedOrganizations' => $selectedOrganizations,
@@ -2264,5 +2264,4 @@ class AbstractController extends BaseController
 
         return view('admin/renders/author_disclosure_preview', $data);
     }
-
 }
