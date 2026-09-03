@@ -47,117 +47,116 @@
             </div>
         </div>
 
-            <!-- Uploaded File(s) Section -->
-            <div class="card shadow">
-                <div class="card-header" id="file-upload-header">
+        <!-- Uploaded File(s) Section -->
+        <div class="card shadow">
+            <div class="card-header" id="file-upload-header">
                     <span class="collapse-toggle link-primary btn border-0 text-dark fw-bolder" data-bs-toggle="collapse" data-bs-target="#file-upload-body" aria-expanded="true" aria-controls="file-upload-body" >
                         Uploaded File(s)<?=(!isset($authorInfo)? '<span class="text-danger text-sm badge" title="Please complete requirements before finalizing abstract.">
                         <i class="fas fa-exclamation-circle"> INCOMPLETE </i></span>' :'')?>
                     </span>
-                    <a href="<?=base_url()?>/admin/view_paper_presentation_upload/<?=$paper_id?>" class="btn btn-sm btn-primary float-end"><i class="fas fa-edit"></i> Edit</a>
-                </div>
-
-                <div id="file-upload-body" class="collapse show" aria-labelledby="file-upload-header" data-bs-parent="#accordionExample">
-                    <div class="card-body">
-                        <p> (The most recent uploaded file will appear at the top of the list) </p>
-                        <p class="fw-bolder"> Submitter Uploads: </p>
-                        <table class="table" style="margin-bottom:0px !important">
-                            <?php if(!empty($paper_uploads)):
-                                foreach ($paper_uploads as $index => $uploads): ?>
-                                    <div id="uploadDiv_<?=$uploads['id']?>" style="display: block"><a href="<?=base_url($uploads['file_path'].$uploads['file_name'])?>" > <?=$uploads['file_preview_name']?> </a> <span><a href="" class="btn btn-danger btn-sm deleteUploadBtn ms-2" upload_id="<?=$uploads['id']?>"> <i class="fas fa-times text-white me-2"></i>Delete</a></span></div>
-                                <?php endforeach; endif ?>
-                        </table>
-
-                        <p class="mt-4 fw-bolder"> Reviewer Uploads: </p>
-                        <table class="table" style="margin-bottom:0px !important">
-                            <?php if(!empty($paper_reviewer_uploads)):
-                                foreach ($paper_reviewer_uploads as $index => $uploads): ?>
-                                    <a href="<?=base_url($uploads['file_path'].$uploads['file_name'])?>" > <?=$uploads['file_preview_name']?></a>  <br>
-                                <?php endforeach; endif ?>
-                        </table>
-                    </div>
-                </div>
+                <a href="<?=base_url()?>/admin/view_paper_presentation_upload/<?=$paper_id?>" class="btn btn-sm btn-primary float-end"><i class="fas fa-edit"></i> Edit</a>
             </div>
 
-            <!-- Author Information Section -->
-            <div class="card shadow">
-                <div class="card-header" id="author-info-header">
-                    <span class="collapse-toggle link-primary btn border-0 text-dark fw-bolder"  data-bs-toggle="collapse" data-bs-target="#author-info-body" aria-expanded="true" aria-controls="author-info-body" style="cursor: pointer;">
-                        Author Information <?=(!isset($authorInfo)? '<span class="text-danger text-sm badge " title="Please complete requirements before finalizing abstract.">
-                        <i class="fas fa-exclamation-circle" > INCOMPLETE </i></span>' :'')?>
-                    </span>
-                    <a href="<?=base_url()?>/admin/authors_and_copyright/<?=$paper_id?>" class="btn btn-sm btn-primary float-end"><i class="fas fa-edit"></i> Edit</a>
-                </div>
-                <div id="author-info-body" class="collapse show" aria-labelledby="author-info-header" data-bs-parent="#accordionExample">
-                    <div class="card-body">
-                        <table class="table" style="margin-bottom:0px !important">
-                            <tbody>
-                            <tr>
-                                <td class="text-end" style="width:250px">
-                                    Author List:
-                                </td>
-                                <td>
-                                    <?php if($authorInfo):
-                                        foreach ($authorInfo as $index => $author):
-                                            $mapDesignations = getFormattedDesignations($author, $designations);
-                                            echo getAuthorTypeBadge($author, $index);
-                                            ?>
+            <div id="file-upload-body" class="collapse show" aria-labelledby="file-upload-header" data-bs-parent="#accordionExample">
+                <div class="card-body">
+                    <p> (The most recent uploaded file will appear at the top of the list) </p>
+                    <p class="fw-bolder"> Submitter Uploads: </p>
+                    <table class="table" style="margin-bottom:0px !important">
+                        <?php if(!empty($paper_uploads)):
+                            foreach ($paper_uploads as $index => $uploads): ?>
+                                <div id="uploadDiv_<?=$uploads['id']?>" style="display: block"><a href="<?=base_url($uploads['file_path'].$uploads['file_name'])?>" > <?=$uploads['file_preview_name']?> </a> <span><a href="" class="btn btn-danger btn-sm deleteUploadBtn ms-2" upload_id="<?=$uploads['id']?>"> <i class="fas fa-times text-white me-2"></i>Delete</a></span></div>
+                            <?php endforeach; endif ?>
+                    </table>
 
-                                            <?=$author['name'].' '.$author['surname'].' '. implode(', ', $mapDesignations)?> <br>
-                                        <?php endforeach; endif; ?>
-                                </td>
-                            </tr>
-                            <?php if($authorInfo):
-                                foreach ($authorInfo as $index=>$author):
-                                    getFormattedDesignations($author, $designations);
-                                    ?>
-                                    <tr >
-                                        <td class="text-end">(<?=($index+1)?>) <?=($author['is_presenting_author'] == "Yes")? 'Presenting Author :':'Co-Author :'?></td>
-                                        <td><strong><?=UcFirst($author['name']).' '.UcFirst($author['surname']) ?></strong></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-end">Author Info: </td>
-                                        <td >
-                                            Email: <?=$author['email']?><br>
-                                            Institution: <?=implode(', ', $author['institution'])?><br>
-                                            Work Phone: <?=$author['phone']?><br>
-                                            Cell Phone: <?=$author['cellphone']?><br>
-                                            <!--                                Fax: --><?php //=$author['fax']?>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-end">Correspondence :</td>
-                                        <td><?=($author['is_correspondent'])?'Yes':'No'?></td>
-                                    </tr>
-                                    <tr>
-                                        <td class="text-end">Disclosure Status :</td>
-                                        <td>
-                                            <?php if (!empty($author['signature_signed_date'])): ?>
-                                                <?= (!empty($current_disclosure_date) && $author['signature_signed_date'] > $current_disclosure_date)
-                                                    ? '<span class="badge bg-success">Current: '.$author['signature_signed_date'].'</span>'
-                                                    : '<span class="badge bg-danger">Expired: '.$author['signature_signed_date'].'</span>' ?>
-                                                <br>
-                                                Financial Disclosure:
-                                                <?= match($author['financial_relationship']) {
-                                                    'Yes' => 'I have held a financial relationship with an ineligible company within the past 24 months.',
-                                                    'No' => 'I have held NO financial relationship(s) with an ineligible company within the past 24 months.',
-                                                    default => ''
-                                                } ?>
-                                            <?php else: ?>
-                                                <span class="badge bg-warning">None</span>
-                                            <?php endif; ?>
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td colspan="2"><br></td>
-                                    </tr>
-
-                                <?php endforeach; endif; ?>
-                            </tbody>
-                        </table>
-                    </div>
+                    <p class="mt-4 fw-bolder"> Reviewer Uploads: </p>
+                    <table class="table" style="margin-bottom:0px !important">
+                        <?php if(!empty($paper_reviewer_uploads)):
+                            foreach ($paper_reviewer_uploads as $index => $uploads): ?>
+                                <a href="<?=base_url($uploads['file_path'].$uploads['file_name'])?>" > <?=$uploads['file_preview_name']?></a>  <br>
+                            <?php endforeach; endif ?>
+                    </table>
                 </div>
             </div>
+        </div>
+
+        <!-- Author Information Section -->
+        <div class="card shadow">
+            <div class="card-header" id="author-info-header">
+                        <span class="collapse-toggle link-primary btn border-0 text-dark fw-bolder"  data-bs-toggle="collapse" data-bs-target="#author-info-body" aria-expanded="true" aria-controls="author-info-body" style="cursor: pointer;">
+                            Author Information <?=(!isset($authorInfo)? '<span class="text-danger text-sm badge " title="Please complete requirements before finalizing abstract.">
+                            <i class="fas fa-exclamation-circle" > INCOMPLETE </i></span>' :'')?>
+                        </span>
+                <a href="<?=base_url()?>/admin/authors_and_copyright/<?=$paper_id?>" class="btn btn-sm btn-primary float-end"><i class="fas fa-edit"></i> Edit</a>
+            </div>
+            <div id="author-info-body" class="collapse show" aria-labelledby="author-info-header" data-bs-parent="#accordionExample">
+                <div class="card-body">
+                    <table class="table" style="margin-bottom:0px !important">
+                        <tbody>
+                        <tr>
+                            <td class="text-end" style="width:250px">
+                                Author List:
+                            </td>
+                            <td>
+                                <?php if($authorInfo):
+                                    foreach ($authorInfo as $index => $author):
+                                        $mapDesignations = getFormattedDesignations($author, $designations);
+                                        echo getAuthorTypeBadge($author, $index);
+                                        ?>
+
+                                        <?=$author['name'].' '.$author['surname'].' '. implode(', ', $mapDesignations)?> <br>
+                                    <?php endforeach; endif; ?>
+                            </td>
+                        </tr>
+                        <?php if($authorInfo):
+                            foreach ($authorInfo as $index=>$author):
+                                getFormattedDesignations($author, $designations);
+                                ?>
+                                <tr >
+                                    <td class="text-end">(<?=($index+1)?>) <?=($author['is_presenting_author'] == "Yes")? 'Presenting Author :':'Co-Author :'?></td>
+                                    <td><strong><?=UcFirst($author['name']).' '.UcFirst($author['surname']) ?></strong></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-end">Author Info: </td>
+                                    <td >
+                                        Email: <?=$author['email']?><br>
+                                        Institution:  <?= implode(', ', array_splice($author['institution'], 1))?> <br>
+                                        Work Phone: <?=$author['phone']?><br>
+                                        Cell Phone: <?=$author['cellphone']?><br>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="text-end">Correspondence :</td>
+                                    <td><?=($author['is_correspondent'])?'Yes':'No'?></td>
+                                </tr>
+                                <tr>
+                                    <td class="text-end">Disclosure Status :</td>
+                                    <td>
+                                        <?php if (!empty($author['disclosure']['created_at']) || !empty($author['disclosure']['updated_at'])): ?>
+                                            <?= (!empty($current_disclosure_date) && $author['disclosureStatus'] === 'valid')
+                                                    ? '<span class="badge bg-success">Current: '.$author['disclosure']['updated_at'].'</span>'
+                                                    : '<span class="badge bg-danger">Expired: '.$author['disclosure']['updated_at'].'</span>' ?>
+                                            <br>
+                                            Financial Disclosure:
+                                            <?= match(strtolower($author['disclosure']['financial_relationship'])) {
+                                                'yes' => 'I have held a financial relationship with an ineligible company within the past 24 months.',
+                                                'no' => 'I have held NO financial relationship(s) with an ineligible company within the past 24 months.',
+                                                default => ''
+                                            } ?>
+                                        <?php else: ?>
+                                            <span class="badge bg-warning">None</span>
+                                        <?php endif; ?>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2"><br></td>
+                                </tr>
+
+                            <?php endforeach; endif; ?>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
 
             <!-- Paper Information Section -->
             <div class="card shadow">
@@ -573,9 +572,9 @@
                                         <select class="form-select" name="presType" id="presType">
                                             <option value=""> -- Select -- </option>
                                             <?php if(!empty($paper_types)): ?>
-                                            <?php foreach ($paper_types as $paper_type) : ?>
-                                                <option value="<?=$paper_type['type']?>" <?= (!empty($admin_acceptance) && $admin_acceptance['presentation_preference'] == $paper_type['type'] ? 'selected':'')?>><?=$paper_type['name']?></option>
-                                            <?php endforeach; ?>
+                                                <?php foreach ($paper_types as $paper_type) : ?>
+                                                    <option value="<?=$paper_type['type']?>" <?= (!empty($admin_acceptance) && $admin_acceptance['presentation_preference'] == $paper_type['type'] ? 'selected':'')?>><?=$paper_type['name']?></option>
+                                                <?php endforeach; ?>
                                             <?php endif ?>
                                         </select>
 <!--                                        <div id="panel_no" style="display:none; padding-top: 3px;"><br> Poster No.: <input type="text" name="PosterNo" id="PosterNo" class="form-control" size="20" value=""></div>-->
@@ -597,9 +596,9 @@
                                         <option value=""> None  </option>
                                         <!-- Remaining options -->
                                         <?php if(!empty($email_templates)): ?>
-                                        <?php foreach($email_templates as $template): ?>
+                                            <?php foreach($email_templates as $template): ?>
                                                 <option value="<?=$template['id']?>" <?=!empty($admin_acceptance) && $admin_acceptance['email_template_used'] == $template['id'] ? 'selected':''?>> <?=$template['template_name']?>  </option>
-                                        <?php endforeach; ?>
+                                            <?php endforeach; ?>
                                         <?php endif; ?>
                                     </select>
                                 </div>
@@ -720,7 +719,6 @@
         </div>
     </div>
 </main>
-
 <script>
     let baseUrlAdmin = "<?=base_url().'admin/'?>";
     $(function(){
@@ -947,7 +945,7 @@
             processData: false, // Prevent jQuery from automatically transforming the data into a query string
             contentType: false, // Prevent jQuery from setting the content-type header
             success: function(response) {
-              return callback(response)
+                return callback(response)
             },
             error: function(xhr, status, error) {
                 console.error('Error:', error);

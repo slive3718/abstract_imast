@@ -261,10 +261,10 @@ class AbstractController extends BaseController
         $UsersModel = (new UserModel());
         $PapersDeputyAcceptanceModel = (new PapersDeputyAcceptanceModel());
         $AdminAbstractCommentModel = new AdminAbstractCommentModel();
+        $AbstractCategoriesModel = new AbstractCategoriesModel();
         $PaperTypeModel = new PaperTypeModel();
         $SettingsModel = new SiteSettingModel();
-        $AbstractCategoriesModel = new AbstractCategoriesModel();
-        
+        $AppDisclosureService = (new AppDisclosureServices());
         $papers = $PapersModel
             ->select('papers.*, paper_type.name as paper_type_name')
             ->join('paper_type', 'papers.type_id = paper_type.type', 'left')
@@ -279,7 +279,7 @@ class AbstractController extends BaseController
             ->where('paper_id', $paper_id)
             ->orderBy('author_order', 'asc')
             ->findAll();
-//        exit;
+
         $userInfo = $UsersModel->find($papers['user_id']);
         $paper_uploads = $PaperUploadsModel->where('paper_id', $paper_id)->orderBy('id', 'desc')->findAll();
         $paper_reviewer_uploads = (new ReviewerPaperUploadsModel())->where('paper_id', $paper_id)->findAll();
@@ -293,9 +293,15 @@ class AbstractController extends BaseController
             })
             ->findAll();
 
+        $authorsIds = array_column($authors, 'author_id');
+        $allAuthorsDisclosure = $AppDisclosureService->getDisclosures($authorsIds);
+        $allAuthorsDisclosure = array_column($allAuthorsDisclosure, null, 'author_id');
+
         foreach ($authorInfo as &$author){
             $author['acceptance'] = (new AuthorAcceptanceModel())->where(['author_id'=> $author['author_id'], 'abstract_id'=>$paper_id])->first();
             $author['institution'] = $author['institution_id'] ? (new InstitutionServices())->getInstitutionWithAddress($author['institution_id']) : [];
+            $author['disclosure'] = $allAuthorsDisclosure[$author['author_id']] ?? [];
+            $author['disclosureStatus'] = $AppDisclosureService->getStatus($author['author_id']);
         }
 
         $deputy_acceptance = $PapersDeputyAcceptanceModel->where('paper_id', $paper_id)->findAll();
@@ -313,7 +319,8 @@ class AbstractController extends BaseController
         $email_templates = (new EmailTemplatesModel())->findAll();
 
         $adminComment = $AdminAbstractCommentModel->where(['paper_id'=>$paper_id, 'admin_id'=>session('user_id')])->first();
-        $designations = (new DesignationsModel())->findAll();
+        $categories = (new AbstractCategoriesModel())->findAll();
+        $designations = (new DesignationsModel())->findAll() ?? [];
         $designations = array_column($designations,'name','id');
 
         // Fetch Categories
@@ -326,7 +333,7 @@ class AbstractController extends BaseController
             'paper_uploads' => $paper_uploads,
             'deputy_acceptance' => $deputy_acceptance,
             'authors'=>$authors,
-            'review_details'=>$reviewDetails,
+            'review_details'=>$reviewDetails ?? [],
             'email_templates'=>$email_templates,
             'admin_acceptance'=>$admin_acceptance,
             'adminComment' => $adminComment,
