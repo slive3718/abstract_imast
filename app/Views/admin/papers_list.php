@@ -337,7 +337,7 @@
 
                     const buttons = generateButtons(paper.id);
 
-                    const category = paper.category
+                    const category = paper.category?.name || 'N/A'
                     const assignedReviewers = getAssignedReviewers(paper);
                     const assignedCMEReviewers = getAssignedCMEReviewers(paper);
 
