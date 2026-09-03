@@ -2252,7 +2252,9 @@ class AbstractController extends BaseController
                 $selectedOrganizations[$org['id']] = [
                     'organization_id' => $org['organization_id'], // Fixed ID to match organization_id
                     'affiliations' => json_decode($org['affiliation'], true) ?? [],
+                    'affiliations_stocks' => json_decode($org['affiliations_stocks'] ?? '[]', true) ?? [],
                     'custom_organization' => $org['custom_organization'] ?? null,
+                    'other_affiliation' => $org['other_affiliation'] ?? null,
                     'relationship_ended' => $org['relationship_ended'] ?? null
                 ];
             }

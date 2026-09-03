@@ -63,6 +63,30 @@
                                                     $affiliationName = $affiliationMap[$affiliationId]['name'] ?? 'N/A';
                                                     ?>
                                                     <li>- <?= htmlspecialchars($affiliationName) ?></li>
+                                                    
+                                                    <?php if ($affiliationId == 3 && !empty($org['affiliations_stocks'])): ?>
+                                                        <ul class="list-unstyled ms-3 mt-2">
+                                                            <?php
+                                                            $stockLabels = [
+                                                                1 => 'Stock ownership: publicly traded company',
+                                                                2 => 'Stock ownership: privately held company',
+                                                                3 => 'Stock Options'
+                                                            ];
+                                                            foreach ($org['affiliations_stocks'] as $stockId): ?>
+                                                                <li class="text-muted" style="font-size: 0.95rem;">
+                                                                    • <?= htmlspecialchars($stockLabels[$stockId] ?? 'N/A') ?>
+                                                                </li>
+                                                            <?php endforeach; ?>
+                                                        </ul>
+                                                    <?php endif; ?>
+                                                    
+                                                    <?php if ($affiliationId == 8 && !empty($org['other_affiliation'])): ?>
+                                                        <ul class="list-unstyled ms-3 mt-2">
+                                                            <li class="text-muted" style="font-size: 0.95rem;">
+                                                                • <?= htmlspecialchars($org['other_affiliation']) ?>
+                                                            </li>
+                                                        </ul>
+                                                    <?php endif; ?>
                                                 <?php endforeach; ?>
                                             </ul>
                                         <?php endif; ?>

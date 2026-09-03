@@ -58,6 +58,8 @@ class UserOrganizationsModel extends Model
                         $affiliationName = $affiliationsTable[$affiliation] ?? 'Unknown Affiliation';
                         return $affiliationName;
                     },json_decode($org['affiliation'])),
+                    'affiliations_stocks' => json_decode($org['affiliations_stocks'] ?? '[]', true) ?? [],
+                    'other_affiliation' => $org['other_affiliation'] ?? null,
                     'custom_organization' => $org['custom_organization'] ?? null
                 ];
             }
