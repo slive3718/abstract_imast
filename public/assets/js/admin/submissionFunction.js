@@ -315,6 +315,11 @@ $(function() {
         let formData = new FormData($(this)[0]);
         // formData.append('headShot', $('#headShot').prop('files')[0]);
         formData.append('paper_id', paper_id)
+
+        // Remove author_id if it's empty (new author, not editing)
+        if (!formData.get('author_id') || formData.get('author_id') === '0') {
+            formData.delete('author_id');
+        }
         $.ajax({
             url: $(this).attr('action'),
             // headers: {'X-Requested-With': 'XMLHttpRequest'},
