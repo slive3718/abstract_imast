@@ -31,8 +31,17 @@
                                 </tr>
                                 </thead>
                                 <tbody>
+                                <?php
+                                    $totalFinalized = 0;
+                                    $totalIncomplete = 0;
+                                    $total = 0;
+                                ?>
                                 <?php if(!empty($paperTotalPerCategory)): ?>
-                                    <?php foreach($paperTotalPerCategory as $category => $value): ?>
+                                    <?php foreach($paperTotalPerCategory as $category => $value):
+                                        $totalFinalized += $value['total_finalized'];
+                                        $totalIncomplete += $value['total_incomplete'];
+                                        $total += $value['total'];
+                                        ?>
                                         <tr>
                                             <td style="padding: 8px;"><?php echo esc($value['name']); ?></td>
                                             <td style="padding: 8px;"><?php echo esc($value['total_finalized']); ?></td>
@@ -40,6 +49,12 @@
                                             <td style="padding: 8px;"><?php echo esc($value['total']); ?></td>
                                         </tr>
                                     <?php endforeach; endif; ?>
+                                <tr>
+                                    <td>Total</td>
+                                    <td><?php echo esc($totalFinalized); ?></td>
+                                    <td><?php echo esc($totalIncomplete); ?></td>
+                                    <td><?php echo esc($total); ?></td>
+                                </tr>
                                 </tbody>
                             </table>
                         </div>
