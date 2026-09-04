@@ -114,7 +114,7 @@
                                 if (strcmp($disclosure['financial_relationship'], 'yes') === 0) {
                                     echo 'I have held a financial relationship with an ineligible company within the past 24 months.';
                                 } else {
-                                    echo 'I have NO financial relationship(s) with an ineligible company producing healthcare goods or services.';
+                                    echo 'I have held NO financial relationship(s) with an ineligible company producing healthcare goods or services.';
                                 }
                             } else {
                                 echo '';
