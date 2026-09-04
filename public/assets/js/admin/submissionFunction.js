@@ -710,6 +710,12 @@ $(function() {
                 $('.authorList').html('');
                 $.each(response.data, function(index, val){
                     console.log(val)
+                    
+                    // Check if author is blank (missing required fields)
+                    const isBlank = !val.name || !val.surname || !val.email || val.name.trim() === '' || val.surname.trim() === '';
+                    const blankWarning = isBlank ? '<span class="badge bg-danger ms-2">Empty Author - Click Delete to Remove</span>' : '';
+                    const rowClass = isBlank ? 'table-danger' : '';
+                    
                     let complete_status = 1;
                     let presenting = (val.is_presenting_author === 'Yes')?'checked':'unchecked';
                     let correspondent = (val.is_correspondent === 'Yes')?'checked':'unchecked';
@@ -732,9 +738,9 @@ $(function() {
 
                     // console.log(val)
 
-                    $('.authorList').append('<tr class="author_order" author_id="'+val.author_id+'" order="'+val.author_order+'" name="'+val.name+'" paper_authors_id="'+val.ID+'" paper_id="'+val.paper_id+'">'+
+                    $('.authorList').append('<tr class="author_order '+rowClass+'" author_id="'+val.author_id+'" order="'+val.author_order+'" name="'+val.name+'" paper_authors_id="'+val.ID+'" paper_id="'+val.paper_id+'">'+
                         '<td><span class="order_num">'+(index+1)+'</span></td>'+
-                        '<td class="text-nowrap">'+val.name+' '+val.surname+'</td>'+
+                        '<td class="text-nowrap">'+(val.name || '<em class="text-muted">[Empty]</em>')+' '+(val.surname || '')+ blankWarning +'</td>'+
                         '<td class="text-nowrap"><input id="correspondent_'+val.author_id+'" type="checkbox" class="correspondent markedCorrespondent" author-id="'+val.author_id+'" '+correspondent+'> <label for="correspondent_'+val.author_id+'"> Correspondent</label></td>'+
                         '<td class="text-nowrap"><input id="presentingAuthor_'+val.author_id+'" type="checkbox" class="presentingAuthor" name="presentingAuthor" author-id="'+val.author_id+'" id="presenting_author_'+val.author_id+'" '+presenting+' author_name="'+val.name+'" author_surname="'+val.surname+'"> <label for="presentingAuthor_'+val.author_id+'"> Presenting Author </label></td>'+
                         '<td class="text-nowrap"><input id="coAuthor_'+val.author_id+'" type="checkbox" class="co-author" name="co-author" author-id="'+val.author_id+'" id="presenting_author_'+val.author_id+'" '+presenting+' author_name="'+val.name+'" author_surname="'+val.surname+'"> <label  for="coAuthor_'+val.author_id+'"> Co-Author </label></td>'+

@@ -678,6 +678,10 @@ function getPaperAuthors(paper_id = null) {
 
         $.each(response.data, function(index, author) {
             console.log(author)
+
+            // Check if author is blank (missing required fields)
+            const isBlank = !author.name || !author.surname || !author.email || author.name.trim() === '' || author.surname.trim() === '';
+
             let completeStatus = checkCompleteStatus(author);
             let presenting = author.is_presenting_author === 'Yes' ? 'checked' : '';
             let senior_author = author.is_senior_author === 'Yes' ? 'checked' : '';
@@ -687,7 +691,8 @@ function getPaperAuthors(paper_id = null) {
             let emailed = getEmailStatus(author);
             let actionButton = getActionButton(author, emailed);
 
-            $('.authorList').append(getAuthorRow(index, author, presenting, senior_author, correspondent, completeStatus, copyrightStatus, emailed, actionButton));
+            let row = getAuthorRow(index, author, presenting, senior_author, correspondent, completeStatus, copyrightStatus, emailed, actionButton, isBlank);
+            $('.authorList').append(row);
         });
     }, 'json');
 }
@@ -770,11 +775,14 @@ function getActionButton(author, emailed) {
 }
 
 
-function getAuthorRow(index, author, presenting, senior_author, correspondent, completeStatus, copyrightStatus, emailed, actionButton) {
+function getAuthorRow(index, author, presenting, senior_author, correspondent, completeStatus, copyrightStatus, emailed, actionButton, isBlank = false) {
+    const rowClass = isBlank ? 'table-danger' : '';
+    const blankWarning = isBlank ? '<span class="badge bg-danger ms-2">Empty Author - Click Delete to Remove</span>' : '';
+
     return `
-        <tr class="author_order" author_id="${author.author_id}" order="${author.author_order}" name="${author.name}" paper_authors_id="${author.id}" paper_id="${author.paper_id}">
+        <tr class="author_order ${rowClass}" author_id="${author.author_id}" order="${author.author_order}" name="${author.name}" paper_authors_id="${author.id}" paper_id="${author.paper_id}">
             <td><span class="order_num">${index + 1}.</span></td>
-            <td class="text-nowrap">${author.name} ${author.surname}</td>
+            <td class="text-nowrap">${author.name || '<em class="text-muted">[Empty]</em>'} ${author.surname || ''} ${blankWarning}</td>
             <td class="text-nowrap">
                 <input id="correspondent_${author.author_id}" type="checkbox" class="correspondent markedCorrespondent" author-id="${author.author_id}" ${correspondent}>
                 <label for="correspondent_${author.author_id}"> Correspondent</label>

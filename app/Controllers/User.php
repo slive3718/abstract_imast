@@ -1491,6 +1491,9 @@ class User extends BaseController
         }
 
         unset($author);
+        $authors = array_filter($authors, function($author) {
+            return !empty($author['author_id']) ;
+        });
 
         // Fetch User Info
         $userInfo = $UsersModel->find($user_id);
