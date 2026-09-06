@@ -33,14 +33,14 @@
 
                                 <!-- Financial Relationship Options -->
                                 <div class="form-check mb-2">
-                                    <input type="radio" class="form-check-input" name="financial_relationship" id="no_relationship" value="no"  <?= (!empty($author['financial_relationship']) && strtolower($author['financial_relationship']) == 'no') ? 'checked' : '' ?>  required>
+                                    <input type="radio" class="form-check-input" name="financial_relationship" id="no_relationship" value="no"  <?= (!empty($disclosure['financial_relationship']) && strtolower($disclosure['financial_relationship']) === 'no') ? 'checked' : '' ?>  required>
                                     <label class="form-check-label" for="no_relationship">
                                         I have held NO financial relationship(s) with an ineligible company within the past 24 months.
                                     </label>
                                 </div>
 
                                 <div class="form-check mb-4">
-                                    <input type="radio" class="form-check-input" name="financial_relationship" id="yes_relationship" value="yes"  <?= (!empty($author['financial_relationship']) && strtolower($author['financial_relationship']) == 'yes') ? 'checked' : '' ?> required>
+                                    <input type="radio" class="form-check-input" name="financial_relationship" id="yes_relationship" value="yes"  <?= (!empty($disclosure['financial_relationship']) && strtolower($disclosure['financial_relationship']) === 'yes') ? 'checked' : '' ?> required>
                                     <label class="form-check-label" for="yes_relationship">
                                         I have held a financial relationship with an ineligible company within the past 24 months.
                                     </label>
