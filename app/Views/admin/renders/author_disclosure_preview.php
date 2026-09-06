@@ -148,6 +148,14 @@
                         </td>
                     </tr>
 
+                    <!-- Email Row -->
+                    <tr>
+                        <td class="fw-bold bg-light">Email:</td>
+                        <td>
+                            <?= $author['email'] ?: 'N/A' ?>
+                        </td>
+                    </tr>
+
                     <!-- Signature -->
                     <!-- Signature Row -->
                     <tr>
