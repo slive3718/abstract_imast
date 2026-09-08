@@ -14,7 +14,7 @@
             <div class="categories-div">
                 <div class="row">
                     <div class="col-md-12 col-sm-6 card shadow p-0">
-                        <div class="card-header bg-info">
+                        <div class="card-header" style="background-color: #2aa69cc2">
                             <h2 class="text-xl font-semibold mb-2 text-white">Abstract Submissions</h2>
                             <p class="text-gray-700">
                                 This section provides an overview of the paper records in the system, categorized by their respective categories. It shows the total number of papers, how many are complete, and how many are incomplete for each category.
