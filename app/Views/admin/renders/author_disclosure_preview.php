@@ -33,6 +33,25 @@
                             <?= (empty($disclosure) || empty($disclosure['financial_relationship']) && $isCurrent) ? '<span class="text-danger fw-bolder">Incomplete</span>' :  '<span class="text-success fw-bolder">Completed</span>' ?>
                         </td>
                     </tr>
+
+                    <!-- Financial Disclosure -->
+                    <tr>
+                        <td class="fw-bold bg-light" style="width: 220px;">Financial Disclosure:</td>
+                        <td>
+                            <?php
+                            if (!empty($disclosure['financial_relationship'])) {
+                                if (strcmp($disclosure['financial_relationship'], 'yes') === 0) {
+                                    echo 'I have held a financial relationship(s) with an ineligible company within the past 24 months.';
+                                } else {
+                                    echo 'I have held NO financial relationship(s) with an ineligible company within the past 24 months.';
+                                }
+                            } else {
+                                echo '';
+                            }
+                            ?>
+                        </td>
+                    </tr>
+                    
                     <tr>
                         <td class="fw-bold bg-light">Organizations and Affiliations:</td>
                         <td>
@@ -102,24 +121,6 @@
                             <?php else: ?>
                                 <p class="text-secondary">No affiliated organizations.</p>
                             <?php endif; ?>
-                        </td>
-                    </tr>
-
-                    <!-- Financial Disclosure -->
-                    <tr>
-                        <td class="fw-bold bg-light" style="width: 220px;">Financial Disclosure:</td>
-                        <td>
-                            <?php
-                            if (!empty($disclosure['financial_relationship'])) {
-                                if (strcmp($disclosure['financial_relationship'], 'yes') === 0) {
-                                    echo 'I have held a financial relationship(s) with an ineligible company within the past 24 months.';
-                                } else {
-                                    echo 'I have held NO financial relationship(s) with an ineligible company within the past 24 months.';
-                                }
-                            } else {
-                                echo '';
-                            }
-                            ?>
                         </td>
                     </tr>
 
