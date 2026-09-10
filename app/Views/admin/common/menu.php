@@ -20,15 +20,16 @@
                             Statistics <i class="fa-solid fa-chart-bar"></i>
                         </a>
                     </li>
-                    <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="<?=base_url()?>/admin/papers_list">
-                            <button type="button" class="btn btn-outline-light">Papers List <i class="fa-solid fa-list"></i></button>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" aria-current="page" href="<?=base_url()?>/admin/panels_list">
-                            <button type="button" class="btn btn-outline-light">Panels List <i class="fa-solid fa-list"></i></button>
-                        </a>
+                    <li class="nav-item dropdown">
+                        <div class="nav-link">
+                            <button type="button" class="btn btn-outline-light dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                Papers List <i class="fas fa-list"></i>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li><a class="dropdown-item" href="<?=base_url().'admin/papers_list'?>" title="all active papers">Active Papers</a></li>
+                                <li><a class="dropdown-item" href="<?=base_url().'admin/inactive_papers_list'?>" title="all deleted papers">Inactive Papers</a></li>
+                            </ul>
+                        </div>
                     </li>
 
                     <!-- Users Dropdown -->

@@ -36,9 +36,10 @@ $routes->group('admin', ['filter' => 'authGuard:admin'],  function ($routes) {
 
     $routes->get('logout', 'admin\Abstracts\AdminLogin::logout/$1');
     $routes->get('papers_list', 'admin\Abstracts\AbstractController::papers_list');
-    $routes->get('panels_list', 'admin\Abstracts\AbstractController::panels_list');
+    $routes->get('inactive_papers_list', 'admin\Abstracts\AbstractController::inactive_papers_list');
     $routes->get('getAllPanels', 'admin\Abstracts\AbstractController::getAllPanels');
     $routes->post('delete_abstract', 'admin\Abstracts\AbstractController::delete_abstract/$1');
+    $routes->post('restore_abstract', 'admin\Abstracts\AbstractController::restore_abstract/$1');
     $routes->get('reviewer_list', 'admin\Abstracts\AbstractController::reviewer_list');
     $routes->get('getReviewerList', 'admin\Abstracts\AbstractController::getReviewerList');
     $routes->get('exportScores', 'admin\Abstracts\AbstractController::exportScores/$1');

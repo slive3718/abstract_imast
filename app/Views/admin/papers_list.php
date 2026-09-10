@@ -15,7 +15,8 @@
     <div class="container-fluid p-0">
         <div class="card p-0 m-0 shadow-lg">
             <div class="card-body">
-                <div class="customButtonsDiv mx-3 mb-5 float-end">
+                <h5 class="alert-success alert"><?=(empty($is_inactive)) ? 'Showing All Active Papers': 'Showing All Inactive Papers'?></h5>
+                <div class="customButtonsDiv mx-3 float-end">
                     <a href="<?=base_url()?>admin/exportScores" class="btn btn-success text-white position-relative" title="Export all abstract scores to excel">Export All Abstract Scores</a>
                 </div>
                 <div class="">
@@ -79,6 +80,7 @@
 <script>
     let baseUrlAdmin = "<?=base_url().'admin/'?>";
     let $currentDisclosureDate = `<?=$currentDisclosureDate ?? ''?>`
+    const inActivePapers = `<?=!empty($is_inactive) ?? ''?>`
     $(function(){
 
         getAbstracts();
@@ -283,6 +285,42 @@
             })
         })
 
+        $('#abstractTableBody').on('click', '.restoreAbstractBtn', function(){
+            // console.log($(this).attr('abstract_id'))
+            let abstract_id = $(this).attr('abstract_id')
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "You won't be able to revert this!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Yes, restore it!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    $.post(baseUrlAdmin+'restore_abstract', {'abstract_id': abstract_id}, function(data){
+                        // console.log(data)
+
+                        if(data.status == 'success'){
+                            Swal.fire(
+                                'Restored!',
+                                data.msg,
+                                'success'
+                            )
+                        }else{
+                            Swal.fire(
+                                'Error!',
+                                data.msg,
+                                'error'
+                            )
+                        }
+                    }, 'json')
+
+                    getAbstracts();
+                }
+            })
+        })
+
         $('#abstractTableBody ').on('click', '.viewAbstractBtn', function(){
             let abstract_id = $(this).attr('abstract_id');
             if(abstract_id){
@@ -310,8 +348,12 @@
         fetchAllPapers();
 
         async function fetchAllPapers() {
+            console.log(inActivePapers)
             try {
-                const response = await $.post(`${baseUrlAdmin}getAllPapers`, { submission_type: 'paper' });
+                const response = await $.post(`${baseUrlAdmin}getAllPapers`, {
+                    submission_type: 'paper',
+                    active_status: inActivePapers ? '0' : '1'
+                });
 
                 let table =  $('#abstractTableBody');
                 table.empty();
@@ -471,6 +513,9 @@
         </button>
         <button class="btn btn-danger btn-sm deleteAbstractBtn mt-2" abstract_id="${id}">
             <i class="fas fa-times"></i> Delete Abstract
+        </button>
+       <button class="btn btn-secondary btn-sm restoreAbstractBtn mt-2" abstract_id="${id}">
+            <i class="fas fa-check"></i> Restore Abstract
         </button>
     `;
         }

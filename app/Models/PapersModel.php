@@ -60,17 +60,19 @@ class PapersModel extends Model
             ->groupEnd();
 
     }
-    public function GetJoinedUser($submission_type)
+    public function GetJoinedUser($submission_type, $active_status = null)
     {
        try {
-           return $this->table('papers')
-               ->select('papers.*, u.name as user_name, u.surname as user_surname, u.email as user_email, u.middle_name as user_middle')
-                ->join(   $this->shared_db_name.'.users u', 'u.id = papers.user_id', 'left')
-                ->where('active_status', 1)
-                ->where('submission_type =', $submission_type)
-//               ->limit(100)
-                ->get();
-            // return $this->findAll();
+            $query = $this->table('papers');
+                $query->select('papers.*, u.name as user_name, u.surname as user_surname, u.email as user_email, u.middle_name as user_middle');
+                $query->join($this->shared_db_name.'.users u', 'u.id = papers.user_id', 'left');
+                if(!empty($active_status)){
+                    $query->where('active_status', 1);
+                }else{
+                    $query->where('active_status', 0);
+                }
+                $query->where('submission_type =', $submission_type);
+           return $query->get();
         } catch (\CodeIgniter\Database\Exceptions\DatabaseException $e) {
             // Log the error or display an error message
            return json_encode('Database error: ' . $e->getMessage());

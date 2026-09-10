@@ -67,8 +67,6 @@ class AbstractController extends BaseController
     }
 
     public function papers_list(){
-
-
         $header_data = [
             'title' => ''
         ];
@@ -80,6 +78,27 @@ class AbstractController extends BaseController
         $data = [
             'currentDisclosureDate' => $currentDisclosureDate
         ];
+        return
+            view('admin/common/header', $header_data).
+            view('admin/papers_list',$data).
+            view('admin/common/footer')
+            ;
+    }
+
+    public function inactive_papers_list(){
+        $header_data = [
+            'title' => 'Inactive Papers'
+        ];
+
+        $currentDisclosureDate = (new SiteSettingModel())->where(['name' => 'disclosure_current_date'])->first()['value'] ?? '';
+        if(!empty($currentDisclosureDate))
+            $currentDisclosureDate = date('Y-m-d', strtotime($currentDisclosureDate));
+
+        $data = [
+            'currentDisclosureDate' => $currentDisclosureDate,
+            'is_inactive'=>true
+        ];
+
         return
             view('admin/common/header', $header_data).
             view('admin/papers_list',$data).
@@ -699,7 +718,7 @@ class AbstractController extends BaseController
     public function getAllPapers(){
         $post = $this->request->getPost();
 //        print_R($this->getAllPapersArray($post['submission_type']));exit;
-        return $this->response->setJSON(['status' => 200, "message" => 'success', 'data' => $this->getAllPapersArray($post['submission_type'])]??[]);
+        return $this->response->setJSON(['status' => 200, "message" => 'success', 'data' => $this->getAllPapersArray()]);
 
     }
 
@@ -747,7 +766,11 @@ class AbstractController extends BaseController
     }
 
 
-    public function getAllPapersArray($submission_type) {
+    public function getAllPapersArray() {
+        $post = $this->request->getPost();
+        $submission_type = $post['submission_type'] ?? null;
+        $active_status = $post['active_status'] ?? null;
+
         try {
             if (empty($submission_type)) {
                 return [];
@@ -770,7 +793,8 @@ class AbstractController extends BaseController
             $CMEReviewers = new CMEReviewersModel();
             $SchedulerModel = (new SchedulerSessionTalksModel());
 
-            $papers = $PapersModel->GetJoinedUser($submission_type)->getResultArray();
+            $papers = $PapersModel->GetJoinedUser($submission_type, $active_status)->getResultArray();
+
             if (empty($papers)) {
                 return [];
             }
@@ -1217,6 +1241,19 @@ class AbstractController extends BaseController
             return json_encode(['status'=>'error', 'msg'=> $e->getMessage()]);
         }
        
+    }
+
+    public function restore_abstract(){
+        $abstract_id = $_POST['abstract_id'];
+        try{
+            $abstractModel = (new PapersModel())->update($abstract_id, ['active_status'=> 1]);
+            if($abstractModel == 1){
+                session()->setFlashdata(['status'=>'success', 'msg'=> 'Abstract restored successfully']);
+                return json_encode(['status'=>'success', 'msg'=> 'Abstract restored successfully']);
+            }
+        }catch(\Exception $e){
+            return json_encode(['status'=>'error', 'msg'=> $e->getMessage()]);
+        }
     }
  
     public function getReviewerList(){
