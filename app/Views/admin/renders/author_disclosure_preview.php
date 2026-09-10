@@ -38,16 +38,11 @@
                     <tr>
                         <td class="fw-bold bg-light" style="width: 220px;">Financial Disclosure:</td>
                         <td>
-                            <?php
-                            if (!empty($disclosure['financial_relationship'])) {
-                                if (strcmp($disclosure['financial_relationship'], 'yes') === 0) {
-                                    echo 'I have held a financial relationship(s) with an ineligible company within the past 24 months.';
-                                } else {
-                                    echo 'I have held NO financial relationship(s) with an ineligible company within the past 24 months.';
-                                }
-                            } else {
-                                echo '';
-                            }
+                            <?= match ($disclosure['financial_relationship'] ?? null) {
+                                'yes'   => 'I have held a financial relationship(s) with an ineligible company within the past 24 months.',
+                                'no'    => 'I have held NO financial relationship(s) with an ineligible company within the past 24 months.',
+                                default => '',
+                            };
                             ?>
                         </td>
                     </tr>
