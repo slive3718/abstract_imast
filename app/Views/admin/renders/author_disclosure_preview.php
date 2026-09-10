@@ -38,7 +38,7 @@
                     <tr>
                         <td class="fw-bold bg-light" style="width: 220px;">Financial Disclosure:</td>
                         <td>
-                            <?= match ($disclosure['financial_relationship'] ?? null) {
+                            <?= match (!empty($disclosure) && !empty($disclosure['financial_relationship']) ? strtolower($disclosure['financial_relationship']) : null) {
                                 'yes'   => 'I have held a financial relationship(s) with an ineligible company within the past 24 months.',
                                 'no'    => 'I have held NO financial relationship(s) with an ineligible company within the past 24 months.',
                                 default => '',
