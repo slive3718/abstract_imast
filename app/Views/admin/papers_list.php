@@ -511,10 +511,10 @@
         <button class="btn btn-info btn-sm mt-2 acceptanceBtn" abstract_id="${id}">
             <i class="fas fa-list"></i> Acceptance
         </button>
-        <button class="btn btn-danger btn-sm deleteAbstractBtn mt-2" abstract_id="${id}">
+        <button class="btn btn-danger btn-sm deleteAbstractBtn mt-2" ${inActivePapers ? 'hidden' : ''} abstract_id="${id}">
             <i class="fas fa-times"></i> Delete Abstract
         </button>
-       <button class="btn btn-secondary btn-sm restoreAbstractBtn mt-2" abstract_id="${id}">
+       <button class="btn btn-secondary btn-sm restoreAbstractBtn mt-2" ${inActivePapers ? '' : 'hidden'} abstract_id="${id}">
             <i class="fas fa-check"></i> Restore Abstract
         </button>
     `;
