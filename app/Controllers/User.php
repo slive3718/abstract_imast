@@ -541,6 +541,9 @@ class User extends BaseController
         $author_type = (isset($post['author_type']) ? $post['author_type'] : null);
         try {
             if (!empty($post['author_ids']) && $post['paper_id'] !== '') {
+                $post['author_ids'] = array_filter($post['author_ids'], function ($value) {
+                    return $value !== '';
+                });
                 foreach ($post['author_ids'] as $index => $author_id) {
                     $checkAbstractAuthor = $this->checkAbstractAuthor($author_id, $post['paper_id'], $author_type); //Todo: fix cant add multiple author at once
 
