@@ -123,7 +123,7 @@
                         <tr>
                             <td class="fw-bold bg-light" style="width: 220px;">Financial Disclosure:</td>
                             <td>
-                                <?= ($author['financial_relationship'] === 'Yes')
+                                <?= (strtolower($author['financial_relationship']) === 'yes')
                                     ? 'I have held a financial relationship with an ineligible company within the past 24 months.'
                                     : 'I have NO financial relationship(s) with an ineligible company producing healthcare goods or services.'; ?>
                             </td>
