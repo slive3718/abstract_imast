@@ -1,4 +1,4 @@
-
+const role_base_url = current_user_type === 'admin' ? base_url + 'admin/' : base_url + 'user/';
 $(function(){
 
     let selected_user_id = [];
@@ -11,7 +11,7 @@ $(function(){
         $('#addAuthorModal').modal('show');
         $('#saveAuthorBtn').removeClass('updateAuthorBtn')
         $('#saveAuthorBtn').addClass('saveAuthorBtn').text('Save author')
-        $('#formSaveAuthor').attr('action', base_url+'/user/add_author_ajax');
+        $('#formSaveAuthor').attr('action', role_base_url+'add_author_ajax');
         $('#formSaveAuthor').attr('isedit', 0);
     })
 
@@ -137,7 +137,7 @@ $(function(){
             if (result.isConfirmed) {
 
                 $.ajax({
-                    url: base_url+'/user/assign_abstract_author',
+                    url: role_base_url+'assign_abstract_author',
                     headers: {'X-Requested-With': 'XMLHttpRequest'},
                     data: {
                         'author_ids':selected_user_id,
@@ -342,7 +342,7 @@ $(function(){
         if(author_orders.length !== 0 && presenting_authors.length !== 0) {
 
             $.ajax({
-                url: base_url + '/user/update_paper_authors',
+                url: role_base_url + 'update_paper_authors',
                 headers: {'X-Requested-With': 'XMLHttpRequest'},
                 data: {
                     'selectedCorrespondents': selectedCorrespondents,
@@ -359,6 +359,10 @@ $(function(){
                 success: function (response, status) {
                     if (response.status == "200") {
 
+                        if(current_user_type === 'admin'){
+                            toastr.success('Authors saved successfully');
+                            return false;
+                        }
 
                         if((previousPage === 'finalize_paper' || previousPage === 'submission_menu') && previousUrl) {
                             return window.location.href = previousUrl
@@ -478,6 +482,7 @@ $(function(){
                     $('#authorInstitution').val(response.data.institution_name)
                     $('#searchId').val(response.data.institution_id)
                     $('#authorPhone').val((response.data.phone) ?response.data.phone:'' )
+                    $('#cellphone').val((response.data.cellphone) ?response.data.cellphone:'' )
 
                     // Address
                     $('#authorAddress').val(response.data.address)
@@ -571,9 +576,8 @@ $(function(){
             if (result.isConfirmed) {
 
                 $.ajax({
-                    url: base_url + '/user/resend_disclosure_email',
+                    url: base_url + 'user/resend_disclosure_email',
                     data: {
-                        'user_id': $(this).attr('user_id'),
                         'paper_id': paper_id,
                         'author_id': $(this).attr('author_id'),
                         'paper_authors_id': $(this).attr('paper_authors_id'),
@@ -621,7 +625,7 @@ $(function(){
 
         let author_id = $(this).attr('author_id');
         $.ajax({
-            url: base_url+'user/quick_add_author',
+            url: role_base_url+'quick_add_author',
             headers: {'X-Requested-With': 'XMLHttpRequest'},
             data: {
                 'author_id':author_id,
@@ -660,7 +664,7 @@ $(function(){
 
     $('.authorList').on('click','.discloseNowBtn', function(){
         let abstract_id = $(this).attr('abstract_id');
-        window.open(base_url + '/author/view_copyright', '_blank');
+        window.open(role_base_url + 'author/view_copyright', '_blank');
     })
 
     $('.authorList').on('click', '.presentingAuthor', function(){
@@ -746,7 +750,7 @@ function getActionButton(author, emailed) {
                    author_id="${author.author_id}" 
                    paper_authors_id="${author.id}" 
                    paper_id="${author.paper_id}" 
-                   user_id="${author.user_id}">
+                  >
                    <i class="fa-solid fa-square-envelope"></i> ${actionType}
                 </a>`;
         } else {
@@ -756,7 +760,7 @@ function getActionButton(author, emailed) {
                    author_id="${author.author_id}"
                    paper_authors_id="${author.id}"
                    paper_id="${author.paper_id}"
-                   user_id="${author.user_id}">
+                  >
                    <i class="fa-solid fa-square-envelope"></i> Disclose Now
                 </a>`;
         }
@@ -876,7 +880,7 @@ function required_field_missing(field){
 function saveCommentToUpload(review_id, comment, paper_id){  //Saving Submitter Comment/Response on reviewers re-upload
     $.ajax(
         {
-            url: base_url + '/user/saveCommentToUpload',
+            url: role_base_url + 'saveCommentToUpload',
             dataType: 'json', // type of response data
             type: 'POST',
             data: {
@@ -900,7 +904,7 @@ function saveCommentToUpload(review_id, comment, paper_id){  //Saving Submitter 
 
 function addSearchedAuthor(paper_id, selected_user_id){
     $.ajax({
-        url: base_url+'/user/assign_abstract_author',
+        url: role_base_url+'assign_abstract_author',
         headers: {'X-Requested-With': 'XMLHttpRequest'},
         data: {
             'author_ids':selected_user_id,
@@ -924,13 +928,6 @@ function addSearchedAuthor(paper_id, selected_user_id){
                 console.log(response.data.duplicate.length);
                 swal.close();
                 if(response.data.duplicate.length == 0){
-
-                    //task: remove the popup
-                    // Swal.fire(
-                    //     'Success',
-                    //     response.message,
-                    //     'success'
-                    // )
                 }else if(response.data.duplicate.length > 0){
                     let auhtors = '';
                     $.each(response.data.duplicate, function(i, val){

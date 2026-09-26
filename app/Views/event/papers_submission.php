@@ -22,7 +22,6 @@
             }
             ?>
 
-
             <form id="abstractSubmissionForm"  action="<?= $actionUrl ?>" method="post">
                 <input type="hidden" value="<?=(isset($paper_id) && !empty($paper_id))? $paper_id : ''?>" name="paper_id">
                 <div class="row">
@@ -252,19 +251,6 @@
                     </div>
                 </div>
 
-                <!-- ##########   Question 11: Additional Notes ############### -->
-<!--                <div class="row additional-notes">-->
-<!--                    <div class="col mt-4">-->
-<!--                        <div id="additional-notes-container">-->
-<!--                            <label for="additional_notes" class="title">-->
-<!--                                Additional Notes-->
-<!--                            </label>-->
-<!--                            <textarea name="additional_notes" id="additional_notes" class="form-control" rows="4" placeholder="Enter any additional notes...">--><?php //=(!empty($paper) ? $paper['additional_notes'] : '')?><!--</textarea>-->
-<!--                            <label class="counted_words fw-bolder"></label>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                </div>-->
-
                 <!-- ##########   Question 11: Image Caption : for counting purposes only ############### -->
                 <div class="row image_caption" style="display: none">
                     <div class="col mt-4">
@@ -311,29 +297,6 @@
     let previousUrl = "<?= $previous_url ?? ''?>"
     let previousPage = "<?= $previous_page ?? '' ?>"
     $(function(){
-        // $('.summernote').summernote({
-        //     tabsize: 2,
-        //     height: 120,
-        //     toolbar: [
-        //         ['font', ['bold', 'italic', 'underline', 'clear', 'superscript', 'subscript']],
-        //     ]
-        //     ,callbacks: {
-        //         onKeyup: function(e) {
-        //             let idProp = $(this).attr('id');
-        //             let limit =  $(this).attr('limit');
-        //             if( parseInt(countWords($(this).val())) > parseInt(limit) ){
-        //                 $('#'+idProp+'WordsCountExceeded').removeClass('d-none').html(limit+' words limit exceeded!!')
-        //             }else{
-        //                 $('#'+idProp+'WordsCountExceeded').addClass('d-none').html('')
-        //             }
-        //             $('#'+idProp+'WordsCount').html(countWords($(this).val()))
-        //             $('#totalWordsCount').html(countTotalWords())
-        //         }
-        //     },
-        //     disableEnter: true,
-        //     enterHtml: '',
-        // });
-
         abstract_body_counter();
     })
 

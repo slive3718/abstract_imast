@@ -27,7 +27,6 @@
 </html>
 
 <script>
-    let base_url = "<?=base_url()?>";
     let event_uri = "<?=session('event_uri')?>"
     let abstract_id ="<?=isset($abstract_id) ?$abstract_id:''?>"
     let paper_id = "<?=isset($paper_id)?$paper_id:''?>"

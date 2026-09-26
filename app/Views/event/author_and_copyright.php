@@ -165,7 +165,7 @@
     let disclosure_current_date = `<?= $disclosure_current_date ?? ''?>`
     let previousUrl = "<?= $previous_url ?? ''?>"
     let previousPage = "<?= $previous_page ?? '' ?>"
-
+    const current_user_type = "<?=session('user_type')?>"
 </script>
 <script>
     $(function(){

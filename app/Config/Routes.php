@@ -60,7 +60,11 @@ $routes->group('admin', ['filter' => 'authGuard:admin'],  function ($routes) {
     $routes->get('panelist/(:any)', 'admin\Abstracts\AbstractController::panelist/$1');
     $routes->get('permissions/(:any)', 'admin\Abstracts\AbstractController::permissions/$1');
     $routes->post('save_admin_acceptance', 'admin\Abstracts\AbstractController::save_admin_acceptance/$1');
-    $routes->post('update_abstract_ajax', 'admin\Abstracts\AbstractController::update_abstract_ajax');
+    $routes->post('update_paper_ajax', 'admin\Abstracts\AbstractController::update_paper_ajax');
+    $routes->post('assign_abstract_author', 'admin\Abstracts\AbstractController::assign_abstract_author');
+    $routes->post('add_author_ajax', 'admin\Abstracts\AbstractController::add_author_ajax');
+    $routes->post('update_paper_authors', 'admin\Abstracts\AbstractController::update_paper_authors');
+    $routes->post('quick_add_author', 'admin\Abstracts\AbstractController::quick_add_author');
 
     $routes->get('view_abstract_panel/(:any)', 'admin\Abstracts\AbstractController::view_abstract_panel/$1');
     $routes->get('view_individual_panel/(:any)', 'admin\Abstracts\AbstractController::view_individual_panel/$1');

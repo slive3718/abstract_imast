@@ -31,3 +31,6 @@
     <link href="<?=base_url()?>/assets/css/customStyles.css" rel="stylesheet" >
 </head>
 <body>
+<script>
+    let base_url = "<?=base_url()?>";
+</script>

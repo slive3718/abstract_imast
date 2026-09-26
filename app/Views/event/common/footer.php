@@ -31,7 +31,6 @@
 </html>
 
 <script>
-    let base_url = "<?=base_url()?>";
     let event_uri = "<?=session('event_uri')?>"
     let notificationStatus = "<?= (session()->getFlashData('status')) ?>";
     let notificationMessage = "<?= (session()->getFlashData('notification')) ?>";

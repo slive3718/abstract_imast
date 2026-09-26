@@ -35,6 +35,7 @@ use App\Models\SchedulerSessionTalksModel;
 use App\Models\SiteSettingModel;
 use App\Models\UserOrganizationsModel;
 use App\Models\UsersProfileModel;
+use App\Services\AbstractServices;
 use App\Services\AppDisclosureServices;
 use App\Services\InstitutionServices;
 use CodeIgniter\Controller;
@@ -1631,25 +1632,29 @@ class AbstractController extends BaseController
 
     public function edit_papers_submission( $paper_id = null){
 
-        $paper = (new PapersModel())->where('id', $paper_id)->first();
-        $divisions = (new DivisionsModel())->findAll();
+        $paper = (new PapersModel())->where('id', $paper_id)->asArray()->first();
+        $categories = (new AbstractCategoriesModel())->orderBy('name', 'asc')->findAll();
+        $subcategories = (new AbstractSubCategoriesModel())->orderBy('name', 'asc')->findAll();
         $paper_type = (new PaperTypeModel())->findAll();
-
 
         if(!$paper){
             return 'error';
         }
 
         $header_data = [
-            'title' => "Paper Details"
+            'title' => "Abstract Details"
         ];
+
         $data = [
             'paper' => $paper,
             'paper_id'=>$paper_id,
-            'divisions' => $divisions ?? '',
             'paper_type' => $paper_type ?? '',
+            'categories' => $categories ?? '',
+            'subcategories' => $subcategories ?? '',
             'is_edit' => 1
         ];
+
+//        print_r($data['paper']);exit;
         return
             view('admin/common/header', $header_data).
             view('admin/papers_submission',$data).
@@ -1714,53 +1719,38 @@ class AbstractController extends BaseController
             ;
     }
 
-    public function update_abstract_ajax(){
-
-        // Get the POST data
-        $post = $this->request->getPost();
-        $papersModel = (new PapersModel());
-        $update_array = [];
-
-        if (isset($post['division'])) {
-            $update_array['division_id'] = (int)($post['division'] ?? NULL);
-        }
-
-        if (isset($post['paper_type'])) {
-            $update_array['type_id'] = (int)($post['paper_type'] ?? NULL);
-        }
-
-        if (isset($post['title'])) {
-            $update_array['title'] = $post['title'] ?? NULL;
-        }
-
-        if (isset($post['summary'])) {
-            $update_array['summary'] = $post['summary'] ?? NULL;
-        }
-
-        if (isset($post['is_interested'])) {
-            $update_array['is_ijmc_interested'] = (int)($post['is_interested'] ?? NULL);
-        }
-
-        if (isset($post['assigned_id'])) {
-            $update_array['assigned_id'] = trim($post['assigned_id']);
-        }
-
-        try {
-            $affectedRows = $papersModel->where(['id' => $post['paper_id']])->set($update_array)->update();
-        }catch (\Exception $e){
-            session()->setFlashdata('status', 'error');
-            session()->setFlashdata(['notification' => $e->getMessage()]);
-            return json_encode(['status' => 500, 'msg' => "Paper Updated Failed", 'data' =>'']);
-        }
-        // Check if update was successful
-        if ($affectedRows > 0) {
-            // Update was successful
-            session()->setFlashdata('status', 'success');
-            session()->setFlashdata(['notification' => 'Submission Updated Successfully.']);
-            return json_encode(['status' => 200, 'msg' => "Paper Updated Successfully", 'data' => ['insert_id'=>$post['paper_id']]]);
-        }
+    public function update_paper_ajax(){
+       $post = $this->request->getPost();
+       $updateResult = (new AbstractServices())->process_update_paper($post);
+       return $this->response->setJSON($updateResult);
     }
 
+    public function add_author_ajax(){
+        $post = $this->request->getPost();
+        $processAddAuthor = (new AbstractServices())->process_add_author($post);
+        return $this->response->setJSON($processAddAuthor);
+    }
+
+    public function assign_abstract_author($post = null) {
+        if($post == null){
+            $post = $this->request->getPost();
+        }
+        $processAssignment = (new AbstractServices())->proccess_assing_abstract_author($post);
+        return $this->response->setJSON($processAssignment);
+    }
+
+    public function update_paper_authors()
+    {
+        $post = $this->request->getPost();
+        $result = (new AbstractServices())->process_update_paper_author($post);
+        return $this->response->setJSON($result);
+    }
+
+    public function quick_add_author(){
+        $post = $this->request->getPost();
+        $quickAddAuthorResult = (new AbstractServices())->process_quick_add_author($post);
+        return $this->response->setJSON($quickAddAuthorResult);
+    }
     public function update_individual_panel_ajax(){
         $post = $this->request->getPost();
         $PanelistPaperSubModel = (new PanelistPaperSubModel());
@@ -1872,24 +1862,28 @@ class AbstractController extends BaseController
 
         $UsersModel = (new UserModel());
         $papersModel = (new PapersModel());
-        $papers = $papersModel->find($paper_id);
-        $UsersProfileModel = (new UsersProfileModel());
+        $paper = $papersModel->asArray()->find($paper_id);
+
         $recentAuthors = (new PaperAuthorsModel())
-            ->join($this->shared_db_name.'.users u', 'paper_authors.author_id = u.id')
-            ->where('paper_id', $paper_id)
+            ->select('paper_authors.*, u.name, u.surname')
+            ->join($UsersModel->db->database.'.users u', 'paper_authors.author_id = u.id', 'left')
+            ->join($papersModel->table. ' p', 'paper_authors.paper_id = p.id', 'left')
+            ->where('p.user_id', $paper['user_id'])
             ->where('author_type', 'author')
             ->findAll();
 
         $disclosure_current_date = (new SiteSettingModel())->where('name', 'disclosure_current_date')->first()['value'];
 
         $header_data = [
-            'title' => "Authors and Copyright"
+            'title' => "Authors and Disclosure Panel"
         ];
+
         $data = [
             'id' => $this->request->uri->getSegment(4),
             'paper_id' => $paper_id,
-            'abstract_details'=>($papers)?:'',
-            'recentAuthors'=>$recentAuthors
+            'paper'=> $paper ? :'',
+            'recentAuthors'=>$recentAuthors,
+            'disclosure_current_date'=>$disclosure_current_date,
         ];
         return
             view('admin/common/header', $header_data).
@@ -1897,7 +1891,6 @@ class AbstractController extends BaseController
             view('admin/common/footer')
             ;
     }
-
     public function panel_coordinators($paper_id){
 
         $post = $this->request->getPost();
@@ -2243,7 +2236,7 @@ class AbstractController extends BaseController
         return $this->response->setJson((new UserModel())->orderBy('surname', 'ASC')
             ->where('is_deputy_reviewer', 1)
             ->orWhere('is_session_moderator', 1)
-            ->findAll());
+            ->findAll()) ?? [];
     }
 
     public function getAllPaperType(){
