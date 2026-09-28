@@ -713,7 +713,7 @@ class AbstractController extends BaseController
         $result['profile']= (new UsersProfileModel())->where('author_id', $user_id)->first();
         $result['is_cme_reviewer']= (new CMEReviewersModel())->where('cme_reviewer_id', $user_id)->first();
 
-        return json_encode($result);
+        return $this->response->setJSON($result);
     }
 
     public function getAllPapers(){

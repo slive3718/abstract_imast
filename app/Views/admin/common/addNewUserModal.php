@@ -262,7 +262,7 @@
                 console.log(val)
                 $('#division_'+val).prop('checked', true)
             })
-        }, 'json')
+        })
     })
 
     function addUserModal(){

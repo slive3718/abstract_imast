@@ -68,7 +68,7 @@
                     table.clear().draw();
                     if (data.length > 0) {
                         $.each(data, function(i, val) {
-                            let manageBtn = '<button class="btn btn-success btn-sm manageSearchedUserBtn text-nowrap mb-2" type="paper" user_id="'+val.user_id+'" > Manage </button>'
+                            let manageBtn = '<button class="btn btn-success btn-sm manageSearchedUserBtn text-nowrap mb-2" type="paper" user_id="'+val.id+'" > Manage </button>'
                             let deleteBtn = '<button class="btn btn-danger btn-sm deleteUserBtn text-nowrap mb-2 ms-2" data-user_id="'+val.user_id+'" > Delete </button>'
                             table.row.add([
                                 val.name,
@@ -131,7 +131,7 @@
                 $.each(divisions, function(i, val){
                     $('#division_'+val).prop('checked', true)
                 })
-            }, 'json')
+            })
         })
     })
 
