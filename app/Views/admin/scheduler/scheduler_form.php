@@ -133,6 +133,14 @@
             </select>
             <label for="floatingSessionChair7">Session Chair 7</label>
         </div>
+
+        <!-- Session Chair 8 -->
+        <div class="form-floating mb-3">
+            <select class="form-select sessionChairSelect" id="floatingSessionChair8" name="session_chair[]">
+                <option value="" selected>-- Select --</option>
+            </select>
+            <label for="floatingSessionChair8">Session Chair 8</label>
+        </div>
     </div>
 
     <!-- Submit Button -->
