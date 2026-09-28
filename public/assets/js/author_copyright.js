@@ -664,7 +664,7 @@ $(function(){
 
     $('.authorList').on('click','.discloseNowBtn', function(){
         let abstract_id = $(this).attr('abstract_id');
-        window.open(role_base_url + 'author/view_copyright', '_blank');
+        window.open(base_url + 'author/view_copyright', '_blank');
     })
 
     $('.authorList').on('click', '.presentingAuthor', function(){
