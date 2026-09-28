@@ -35,7 +35,7 @@
                             <div class="form-check">
                                 <?php if(!empty($paper_type)):
                                     foreach ($paper_type as $type):
-                                        if($type->id !== '4'):
+                                        if(!in_array($type->id, ['4', '5', '6'])):
                                             ?>
                                             <input type="radio" value="<?=$type->id?>" id="paper_type_<?=$type->id?>" name="paper_type" class="form-check-input" <?=(isset($paper) && $paper['type_id'] && $paper['type_id'] == $type->id? 'checked':'')?> required >
                                             <label class="form-check-label" for="paper_type_<?=$type->id?>"><?=$type->name?></label>
