@@ -466,7 +466,7 @@ class User extends BaseController
         }
 
         $this->validate_user_access($post['paper_id']);
-        $processAssignment = (new AbstractServices())->assign_abstract_author($post);
+        $processAssignment = (new AbstractServices())->proccess_assign_abstract_author($post);
         return $this->response->setJSON($processAssignment);
     }
 

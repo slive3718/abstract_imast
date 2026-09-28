@@ -1735,7 +1735,7 @@ class AbstractController extends BaseController
         if($post == null){
             $post = $this->request->getPost();
         }
-        $processAssignment = (new AbstractServices())->proccess_assing_abstract_author($post);
+        $processAssignment = (new AbstractServices())->proccess_assign_abstract_author($post);
         return $this->response->setJSON($processAssignment);
     }
 

@@ -148,7 +148,7 @@ class AbstractServices extends CoreServices
         }
     }
 
-    function proccess_assing_abstract_author($post){
+    function proccess_assign_abstract_author($post){
         $message = array();
         $duplicate = 0;
         $duplicateAuthor = [];
