@@ -646,7 +646,7 @@ class User extends BaseController
     public function update_paper_authors(){
         $post = $this->request->getPost();
         $this->validate_user_access($post['paper_id']);
-        $updateResult = (new AbstractServices())->process_update_paper($post);
+        $updateResult = (new AbstractServices())->process_update_paper_author($post);
         return $this->response->setJSON($updateResult);
     }
 
