@@ -371,7 +371,7 @@ class User extends BaseController
             'previous_url' => previous_url(),
             'previous_page' => service('uri')->setURI(previous_url())->getSegment($this->setSegment(3))?? '',
         ];
-//        print_r($paper);exit;
+
         return
             view('event/common/header', $header_data).
             view('event/level_of_evidence',$data).
@@ -491,7 +491,6 @@ class User extends BaseController
         }
     }
 
-//
     public function get_institution(){
         $post = $this->request->getPost();
         $institutionModel = (new InstitutionModel());
@@ -610,38 +609,6 @@ class User extends BaseController
             return json_encode(array('status'=>'500', 'message'=>'Transaction failed:','data'=>$e->getMessage()));
         }
     }
-//
-//    public function uploadHeadShot($abstract_id, $author_id){
-//        //  print_r($_FILES);exit;
-//         if ($this->request->getMethod() == 'post') {
-//
-//            $file = $this->request->getFile('headShot');
-//            $file_name = $file->getName();
-//
-//            if ($file->isValid() && ! $file->hasMoved()) {
-//                $newName = $file->getRandomName();
-//                $filePath = "/uploads/abstract/".$abstract_id."/author/".$author_id.'/';
-//                $savePath = FCPATH.$filePath;
-//
-//                if(is_dir(FCPATH.$filePath)) {
-//                if($file->move($savePath, $newName)){
-//                    return array('new_name'=>$newName, 'file_name'=>$file_name,  'savePath'=>$savePath, 'filePath'=>$filePath);
-//                }
-//                }else{
-//                    if(mkdir(FCPATH.$filePath, 0777, true)){
-//                        if($file->move($savePath, $newName)){
-//                            return array('new_name'=>$newName, 'file_name'=>$file_name,  'savePath'=>$savePath, 'filePath'=>$filePath);
-//                        }
-//                    }else{
-//                        return 'error';
-//                    }
-//                }
-//            }else{
-//                return 'invalid file';
-//            }
-//        }
-//
-//    }
 
     public function update_paper_authors(){
         $post = $this->request->getPost();
@@ -650,17 +617,6 @@ class User extends BaseController
         return $this->response->setJSON($updateResult);
     }
 
-
-//
-//    public function add_new_institution(){
-//        $result = $this->api->post("user/add_new_institution/{$this->event_uri}", $_POST);
-//        if(!$result->status){
-//            return (new ErrorHandler($result->data))->errorPage();
-//        }
-//        echo (json_encode(($result)));exit;
-//    }
-//
-//
     public function remove_paper_author() {
         $post = $this->request->getPost();
         $RemovedPaperAuthorModel = new RemovedPaperAuthorModel();
@@ -2225,19 +2181,6 @@ class User extends BaseController
             'division_id', 'type_id', 'title', 'summary', 'is_ijmc_interested'
         ];
 
-//        $incomplete = [];
-//        $incompletePanelists = ($this->verifyPanelist($paper_id, $incomplete));
-//        $incompleteCoordinators = ($this->verifyCoordinators($paper_id, $incomplete));
-
-//        if(!empty($panelists)){
-//            $incomplete[]= $incompletePanelists;
-//        }
-//
-//        if(!empty($coordinators)){
-//            $incomplete[]= $incompleteCoordinators;
-//        }
-
-//        var_dump($incomplete);exit;
         if($paper){
             foreach ($paperRequiredFields as $required) {
                 if($paper->$required == '' ||$paper->$required == null ){
