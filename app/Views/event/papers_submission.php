@@ -306,14 +306,14 @@
             'textarea.countWords',  // Textarea selector
             '.counted_words',       // Word count display
             '#abstract_body_count', // Total word count display
-            'words',
+            'chars',
         );
 
         CharCounterHelper.init(
             'textarea.countWords',  // Textarea selector
             '.counted_words',       // Word count display
             '#image_caption_body_count', // Total word count display
-            'words',
+            'chars',
         );
 
 
