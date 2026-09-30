@@ -34,8 +34,8 @@
                 <div class="row">
                     <div class="col-4 text-end fw-bolder">Participation Status:</div>
                     <div class="col-7">
-                        <?= isset($moderator_acceptance) && $moderator_acceptance['acceptance_confirmation'] == 1 ? "Yes, I confirm my participation, for this assignment, at the 33rd IMAST. " : '' ?>
-                        <?= isset($moderator_acceptance) && $moderator_acceptance['acceptance_confirmation'] == 2 ? "No, I am declining this invitation for the 33rd IMAST. " : '' ?>
+                        <?= isset($moderator_acceptance) && $moderator_acceptance['acceptance_confirmation'] == 1 ? "Yes, I confirm my participation, for this assignment, at the 34th IMAST." : '' ?>
+                        <?= isset($moderator_acceptance) && $moderator_acceptance['acceptance_confirmation'] == 2 ? "No, I am declining this invitation for the 34th IMAST." : '' ?>
                     </div>
 <!--                    <div class="col-1">-->
 <!--                        <span class="float-end"><a class="editBtn btn btn-primary py-0" href="--><?php //=base_url() ?><!--/acceptance/moderator/acceptance/--><?php //= $scheduler_id ?><!--"><i class="fas fa-edit"></i> Edit</a></span>-->
