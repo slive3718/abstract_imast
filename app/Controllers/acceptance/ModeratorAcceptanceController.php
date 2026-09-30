@@ -419,7 +419,7 @@ class ModeratorAcceptanceController extends BaseController
         try {
             $from = ['name'=>env('MAIL_FROM'), 'email'=>env('MAIL_FROM_ADDRESS')];
             $addTo = [$email['email']];
-            $subject = '33rd IMAST Meeting';
+            $subject = '34th IMAST Meeting';
             $acceptance_data = (new AcceptanceService())->acceptance_message($acceptanceModel->acceptance_confirmation);
             $view = view('acceptance/email_templates/acceptance_agree', $acceptance_data);
             $addContent = $view;
