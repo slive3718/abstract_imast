@@ -1,7 +1,7 @@
 <div>
     <div>
         <p>
-            For the 61st Annual Meeting held October 6-10, 2026 in Sydney, Australia,
+            For the 34th International Meeting on Advanced Spine Techniques (IMAST), scheduled for April 7-9, 2027 in Copenhagen, Denmark,
             faculty are responsible for their own travel, registration, housing, and social event add-on costs.
         </p>
         <p>
