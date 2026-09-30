@@ -26,12 +26,12 @@ class AcceptanceService extends BaseService
     public function acceptance_message($acceptance_confirmation) :array{
         if($acceptance_confirmation == 1){
             $acceptance_status = "Acceptance Form Successfully Submitted";
-            $acceptance_message = "Thank you for confirming your participation in the 33rd International Meeting on Advanced Spine Techniques (IMAST), scheduled for April 15-17, 2026 in Toronto, ON, Canada.";
+            $acceptance_message = "Thank you for confirmation your participation in the 34th International Meeting on Advanced Spine Techniques (IMAST), scheduled for April 7-9, 2027 in Copenhagen, Denmark.";
             $data['acceptance_status'] = $acceptance_status;
             $data['acceptance_message'] = $acceptance_message;
         }else{
             $acceptance_status = "Acceptance Form Successfully Submitted";
-            $acceptance_message = "We regret that you are unable to participate in the 33rd International Meeting on Advanced Spine Techniques. ";
+            $acceptance_message = "We regret that you are unable to participate in the 34th International Meeting on Advanced Spine Techniques. ";
             $data['acceptance_status'] = $acceptance_status;
             $data['acceptance_message'] = $acceptance_message;
         }
