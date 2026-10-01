@@ -83,7 +83,7 @@
         $('.finalizeBtn').on('click', function() {
             Swal.fire({
                 title: "Are you sure?",
-                text: "I confirm that all information are complete and correct.",
+                text: "I confirm that all information is complete and correct.",
                 icon: "info",
                 showCancelButton: true,
                 confirmButtonColor: "#3085d6",
