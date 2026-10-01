@@ -320,8 +320,8 @@
         function updateAbstractBodyLimit() {
             const abstractBodyCount = parseInt($('#abstract_body_count').text(), 10) || 0;
             const imageCaptionCount = $('#image_caption').val().length;
-            const remaining = 2500 - abstractBodyCount;
-            $('#remaining_caption_count').text(remaining)
+            const remaining = Math.max(0, 2500 - abstractBodyCount - imageCaptionCount);
+            $('#remaining_caption_count').text(remaining);
             if (abstractBodyCount + imageCaptionCount > 2500) {
                 toastr.error('Total of description already exceeds 2500 characters!')
                 $('#abstract_body_count').closest('div').addClass('text-danger')
