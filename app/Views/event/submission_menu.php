@@ -9,7 +9,7 @@
         <div class="card">
             <div class="card-body">
                 <div class="alert alert-warning text-center" role="alert">
-                    Submission deadline is now: Thursday, October 1, 2026 at 5 pm ET.
+                    Submission deadline is now: Thursday, October 1, 2026 at 11:59pm EDT.
                 </div>
                 <div class="alert alert-success text-center" role="alert">
                     Note: Submissions are now open.
