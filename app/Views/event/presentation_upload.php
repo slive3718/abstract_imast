@@ -36,14 +36,14 @@
 
 
                 <div class="text-center m-auto p-4" style="width: 600px; border:4px dotted black">
-                    Total Abstract Body Count: <span id="abstract_body_count">0 characters</span> <br>
+                    Total Abstract Body Count: <span id="abstract_body_count"><?= (int) ($paper['abstract_body_count'] ?? 0) ?> characters</span> <br>
                     Image Caption Body Count: <span id="image_caption_body_count" >0 characters</span><br>
                     Limit: 2500
                 </div>
 
                 <label for="image_caption" class="fw-bolder"> Image Caption</label>
-                <textarea name="image_caption" id="image_caption" class="form-control countWords" rows="4" placeholder="Please type here for the caption..."><?= !empty($paper) && $paper['image_caption'] ? $paper['image_caption']: ''?></textarea>
-                <label class="counted_words fw-bolder"></label>
+                <textarea name="image_caption" id="image_caption" class="form-control countWordsCaption" rows="4" placeholder="Please type here for the caption..."><?= !empty($paper) && $paper['image_caption'] ? $paper['image_caption']: ''?></textarea>
+                <label class="counted_words_caption fw-bolder"></label>
 
                 <p class="mt-4">Step 3. Finished Uploading, continue.</p>
                 <button class="btn btn-success btn-sm presentationContinueBtn">Continue</button>
@@ -213,12 +213,11 @@
             e.preventDefault();
 
 
-            let abstract_body_count = parseInt(`<?= intval($paper['abstract_body_count']) ?>`) || 0;
-            let image_caption_body_count = parseInt($('#image_caption_body_count').text()) || 0;
+            let abstract_body_count = parseInt($('#abstract_body_count').text(), 10) || 0;
+            let image_caption_body_count = parseInt($('#image_caption_body_count').text(), 10) || 0;
 
-            console.log(image_caption_body_count + abstract_body_count);
             if ((image_caption_body_count + abstract_body_count) > 2500) {
-                toastr.error('Total Words Count Exceed!');
+                toastr.error('Total abstract and caption exceed the 2500 character limit.');
                 return false;
             }
 
@@ -296,30 +295,25 @@
 
     function image_caption_counter(){
         CharCounterHelper.init(
-            'textarea.countWords',  // Textarea selector
-            '.counted_words',       // Word count display
-            '#abstract_body_count', // Total word count display
-            'words',
+            'textarea.countWordsCaption', // Caption textarea selector
+            '.counted_words_caption',     // Caption count display
+            '#image_caption_body_count',  // Total caption count display
+            'chars',
         );
 
-        let abstract_body_character_count = `<?=$paper['abstract_body_count']?>`;
-        $('#abstract_body_count').html(abstract_body_character_count)
-
-        $('textarea.countWords').on('input', function(){
-            let abstract_body_count = $('#abstract_body_count').text();
-            let image_caption_body_count = $('#image_caption_body_count').text();
-
-            if(parseInt(abstract_body_count) + parseInt(image_caption_body_count) > 2500){
-                toastr.error('Total of description already exceed 2500 words!')
+        function updateAbstractBodyLimit() {
+            const abstractBodyCount = parseInt($('#abstract_body_count').text(), 10) || 0;
+            const imageCaptionCount = parseInt($('#image_caption_body_count').text(), 10) || 0;
+            if (abstractBodyCount + imageCaptionCount > 2500) {
                 $('#abstract_body_count').closest('div').addClass('text-danger')
                 $('#abstract_body_count').closest('div').removeClass('text-success')
-            }else{
+            } else {
                 $('#abstract_body_count').closest('div').addClass('text-success')
                 $('#abstract_body_count').closest('div').removeClass('text-danger')
             }
-        })
+        }
 
-        $('textarea.countWords').trigger('input');
+        $('textarea.countWordsCaption').on('input', updateAbstractBodyLimit).trigger('input');
     }
 
     function getPaperUploads(){
@@ -351,4 +345,3 @@
            }})
     }
 </script>
-
