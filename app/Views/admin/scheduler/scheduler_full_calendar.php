@@ -114,6 +114,52 @@
         padding: 16px;
     }
 
+    .calendar-wrapper {
+        position: relative;
+    }
+
+    .calendar-loading-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: 2000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(15, 23, 42, 0.28);
+    }
+
+    .calendar-loading-message {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px 22px;
+        border: 1px solid rgba(13, 110, 253, 0.15);
+        border-radius: 10px;
+        background: #fff;
+        color: #212529;
+        font-weight: 600;
+        box-shadow: 0 8px 28px rgba(15, 23, 42, 0.2);
+    }
+
+    .calendar-loading-overlay[hidden] {
+        display: none;
+    }
+
+    .calendar-loading-spinner {
+        display: block;
+        flex: 0 0 1.5rem;
+        width: 1.5rem;
+        height: 1.5rem;
+        border: 3px solid #cfe2ff;
+        border-top-color: #0d6efd;
+        border-radius: 50%;
+        animation: calendar-spin 0.75s linear infinite;
+    }
+
+    @keyframes calendar-spin {
+        to { transform: rotate(360deg); }
+    }
+
     #abstract_list.open{
         display: block;
     }
@@ -142,8 +188,14 @@
                             </div>
                         </div>
                     </div>
-                    <div  style="width: calc(100% - 80px)">
+                    <div class="calendar-wrapper" style="width: calc(100% - 80px)">
                         <div id='calendar'></div>
+                        <div id="calendar-loading" class="calendar-loading-overlay" role="status" aria-live="polite" hidden>
+                            <div class="calendar-loading-message">
+                                <span class="calendar-loading-spinner" aria-hidden="true"></span>
+                                <span>Updating schedule...</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -190,6 +242,8 @@
     let baseUrlAdmin = "<?=base_url('admin/')?>";
     let eventCalendar;
     let allowedDates = []; // Global for allowed dates
+    let scheduledEventsPromise = null;
+    let calendarLoadingOverlay;
 
     document.addEventListener('DOMContentLoaded', function() {
         renderCalendar();
@@ -198,6 +252,9 @@
     function renderCalendar() {
         getDateAllowed().then(function(allowed) {
             allowedDates = allowed; // Set global
+            const loadingOverlay = document.getElementById('calendar-loading');
+            calendarLoadingOverlay = loadingOverlay;
+
             var timeZoneSelectorEl = document.getElementById('time-zone-selector');
             var calendarEl = document.getElementById('calendar');
             eventCalendar = new FullCalendar.Calendar(calendarEl, {
@@ -255,10 +312,15 @@
                     getScheduledEvents()
                         .then(function(events) {
                             successCallback(events);
+                            hideCalendarLoading();
                         })
                         .catch(function(error) {
                             failureCallback(error);
+                            hideCalendarLoading();
                         });
+                },
+                loading: function(isLoading) {
+                    loadingOverlay.hidden = !isLoading;
                 },
                 datesSet: function(info) {
                     const currentDate = info.view.currentStart.toISOString().split('T')[0];
@@ -445,17 +507,14 @@
         try {
             let response = await updateCalendarEvent(id, start, end, title, room_id);
             if (response.status === 'success') {
-                Swal.fire({
-                    title: "Saved!",
-                    text: "Session saved successfully!",
-                    icon: "success"
-                });
+                refreshScheduledEvents();
             } else {
+                hideCalendarLoading();
                 toastr.error(response.message || "Failed to save session talks!");
                 info.revert();
             }
-            eventCalendar.refetchEvents();
         } catch (error) {
+            hideCalendarLoading();
             toastr.error("Failed to save session talks! Please try again.");
             info.revert();
         }
@@ -466,6 +525,7 @@
     }
 
     function updateCalendarEvent(id, start, end, title, room_id) {
+        showCalendarLoading();
         return $.post(`${baseUrlAdmin}scheduler/move`, {
             start: start,
             end: end,
@@ -475,9 +535,18 @@
         }).done(function(response) {
             return response;
         }).fail(function(jqXHR, textStatus, errorThrown) {
+            hideCalendarLoading();
             toastr.error("Failed to save session talks! Please try again.");
             throw new Error(textStatus);
         });
+    }
+
+    function showCalendarLoading() {
+        calendarLoadingOverlay.hidden = false;
+    }
+
+    function hideCalendarLoading() {
+        calendarLoadingOverlay.hidden = true;
     }
 
     $("#schedulerModal input[type='date']").flatpickr({
@@ -617,7 +686,7 @@
             try {
                 const [rooms, sessionChairs, sessionTypes, sessionTracks] = await Promise.all([
                     schedulerRooms(),
-                    sessionChair(),
+                    sessionChair() ?? [],
                     paperType(),
                     sessionTrack()
                 ]);
@@ -666,9 +735,7 @@
             const start = `${day}T${timeFrom}`;
             const end = `${day}T${timeTo}`;
 
-            updateCalendarEvent(updateID, start, end, sessionTitle, roomId).then(function(){
-                eventCalendar.refetchEvents();
-            });
+            updateCalendarEvent(updateID, start, end, sessionTitle, roomId);
 
             $.ajax({
                 url: `${baseUrlAdmin}scheduler/create`,
@@ -681,11 +748,14 @@
                     if (response.status === 'success') {
                         toastr.success(response.message);
                         modal.modal('hide');
+                        refreshScheduledEvents();
                     } else {
+                        hideCalendarLoading();
                         toastr.error(response.message);
                     }
                 },
                 error: function (jqXHR) {
+                    hideCalendarLoading();
                     toastr.error(jqXHR.responseJSON?.message || 'An error occurred.');
                 }
             });
@@ -768,7 +838,25 @@
         });
     }
 
+    function refreshScheduledEvents() {
+        scheduledEventsPromise = null;
+        showCalendarLoading();
+        eventCalendar.refetchEvents();
+    }
+
     function getScheduledEvents() {
+        if (!scheduledEventsPromise) {
+            scheduledEventsPromise = fetchScheduledEvents().catch(function(error) {
+                scheduledEventsPromise = null;
+                throw error;
+            });
+        }
+
+        return scheduledEventsPromise;
+    }
+
+    function fetchScheduledEvents() {
+        showCalendarLoading();
         return new Promise((resolve, reject) => {
             $.get(baseUrlAdmin + 'scheduler/get', function(response) {
                 const events = [];
@@ -1157,22 +1245,20 @@
                     return;
                 }
 
+                showCalendarLoading();
                 $.post(`${baseUrlAdmin}talks/create`, {
                     talk_details: added_talk_details,
                     removed_talks: removedAddedTalksIds,
                     scheduler_event_id: info.id
                 }, function(response) {
                     if (response.status === 'success') {
-                        Swal.fire({
-                            title: "Saved!",
-                            text: "Session saved successfully!",
-                            icon: "success"
-                        });
-                        eventCalendar.refetchEvents();
+                        refreshScheduledEvents();
                     } else {
+                        hideCalendarLoading();
                         toastr.error(response.message || "Failed to save session talks!");
                     }
                 }).fail(function(jqXHR, textStatus, errorThrown) {
+                    hideCalendarLoading();
                     console.error(`Error: ${textStatus}, Details: ${errorThrown}`);
                     toastr.error("Failed to save session talks! Please try again.");
                 });
@@ -1331,6 +1417,7 @@
             confirmButtonText: "Yes, delete it!"
         }).then((result) => {
             if (result.isConfirmed) {
+                showCalendarLoading();
                 $.post(baseUrlAdmin + `scheduler/delete/${info.id}`, function(data) {
                     if (data && data.status === 'success') {
                         Swal.fire({
@@ -1338,8 +1425,13 @@
                             text: "Your file has been deleted.",
                             icon: "success"
                         });
+                        refreshScheduledEvents();
+                    } else {
+                        hideCalendarLoading();
                     }
-                    eventCalendar.refetchEvents();
+                }).fail(function() {
+                    hideCalendarLoading();
+                    toastr.error("Failed to delete session. Please try again.");
                 });
             }
         });
