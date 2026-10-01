@@ -295,7 +295,7 @@ class User extends BaseController
     {
         $post = $this->request->getPost();
         $updateResult = (new AbstractServices())->process_update_paper($post);
-        return json_encode($updateResult);
+        return $this->response->setJSON($updateResult);
     }
 
 

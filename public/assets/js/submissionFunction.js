@@ -57,17 +57,21 @@ $(function() {
             unhighlight: function(element) {
                 $(element).removeClass('error');
             },
-            submitHandler: function(form) {
+            submitHandler: function(form, event) {
 
-                let button = $(event.submitter); // Get the clicked button
+                let submitter = event && event.submitter ? event.submitter : document.activeElement;
+                let button = $(submitter);
                 let attributes = {};
 
-                $.each(button[0].attributes, function(index, attr) {
-                    attributes[attr.name] = attr.value;
-                });
+                if (button.length) {
+                    $.each(button[0].attributes, function(index, attr) {
+                        attributes[attr.name] = attr.value;
+                    });
+                }
 
-                let abstract_body_count = parseInt($('#abstract_body_count').text());
-                let totalWordsCount = abstract_body_count + + parseInt($('#image_caption_body_count').text())
+                let abstract_body_count = parseInt($('#abstract_body_count').text(), 10) || 0;
+                let image_caption_body_count = parseInt($('#image_caption_body_count').text(), 10) || 0;
+                let totalCharacterCount = abstract_body_count + image_caption_body_count;
 
                 let formData = new FormData(form);
                 formData.append('abstract_body_count', abstract_body_count)
@@ -78,8 +82,8 @@ $(function() {
                     return false;
                 }
 
-                if(totalWordsCount > 2500){
-                    toastr.error('Total words exceed 2500 limit.')
+                if(totalCharacterCount > 2500){
+                    toastr.error('Total abstract and caption exceed the 2500 character limit.')
                     return false;
                 }
 
@@ -102,6 +106,7 @@ $(function() {
                             success: function(response) {
                                 if (response.status === 200) {
 
+                                    console.log(attributes)
                                     if((previousPage === 'finalize_paper' || previousPage === 'submission_menu') && previousUrl) {
                                         return window.location.href = previousUrl
                                     }

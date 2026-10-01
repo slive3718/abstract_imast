@@ -291,6 +291,7 @@
     </div>
 </main>
 <script src="<?=base_url()?>assets/js/helpers.js?v=1"></script>
+<script  type="text/javascript" src="<?=base_url('assets/js/submissionFunction.js?v=2')?>"></script>
 <script>
     let totalWordsCount = 0;
     let userID = `<?=session('user_id')??''?>`;
@@ -310,36 +311,30 @@
         );
 
         CharCounterHelper.init(
-            'textarea.countWords',  // Textarea selector
-            '.counted_words',       // Word count display
+            'textarea.countWordsCaption', // Caption textarea selector
+            '.counted_words_caption',     // Caption count display
             '#image_caption_body_count', // Total word count display
             'chars',
         );
 
-
-        $('textarea.countWords').on('input', function(){
-            let total_body_count = parseInt($('#abstract_body_count').text())
-            let remaining = 2500 - total_body_count;
+        function updateAbstractBodyLimit() {
+            const abstractBodyCount = parseInt($('#abstract_body_count').text(), 10) || 0;
+            const imageCaptionCount = $('#image_caption').val().length;
+            const remaining = 2500 - abstractBodyCount;
             $('#remaining_caption_count').text(remaining)
-        })
-
-
-        $('textarea.countWords').on('input', function(){
-            let abstract_body_count = $('#abstract_body_count').text();
-            let image_caption_body_count = $('#image_caption_body_count').text();
-
-            if(parseInt(abstract_body_count) + parseInt(image_caption_body_count) > 2500){
-                toastr.error('Total of description already exceed 2500 words!')
+            if (abstractBodyCount + imageCaptionCount > 2500) {
+                toastr.error('Total of description already exceeds 2500 characters!')
                 $('#abstract_body_count').closest('div').addClass('text-danger')
                 $('#abstract_body_count').closest('div').removeClass('text-success')
-            }else{
+            } else {
                 $('#abstract_body_count').closest('div').addClass('text-success')
                 $('#abstract_body_count').closest('div').removeClass('text-danger')
             }
-        })
+        }
 
-        $('textarea.countWords').trigger('input');
-        $('textarea.countWordsCaption').trigger('input');
+        $('textarea.countWords, textarea.countWordsCaption').on('input', updateAbstractBodyLimit);
+
+        $('textarea.countWords, textarea.countWordsCaption').trigger('input');
     }
 
 
