@@ -74,14 +74,26 @@
                         </tr>
                     </thead>
                     <tbody id="presenterFormsTableBody">
+                    <?php
+                    $disclosureStatus = $app_disclosure['disclosure_status'] ?? '';
+                    $signedDate       = ($app_disclosure['disclosure']['updated_at']) ?? ($app_disclosure['disclosure']['created_at']) ?? '';
+                    $signedDate       = date("Y-m-d", strtotime($signedDate));
+                    $disclosureUrl    = base_url('author/financial_relationship_disclosure/');
+                    $badge = match ($disclosureStatus) {
+                        'valid'      => '<span class="badge bg-success text-white">Current ' . $signedDate . '</span>',
+                        'incomplete' => '<span class="badge bg-warning text-dark">Outdated ' . $signedDate . '</span>',
+                        default      => '<span class="badge bg-danger text-white">Incomplete</span>',
+                    };
+                    ?>
+
                     <tr>
-                        <td> Financial Relationship Disclosure</td>
-                        <td> January 8, 2027 </td>
-                        <td> <?= ( !empty($user_data) && !empty($user_data['signature_signed_date']) ? strtotime($user_data['signature_signed_date']) > strtotime($disclosure_current)
-                                ? '<span class="badge bg-success text-white">Current '.date('m-d-Y',strtotime($user_data['signature_signed_date'])).' </span>'
-                                : '<span class="badge bg-warning text-dark"> Outdated '.date('m-d-Y',strtotime($user_data['signature_signed_date'])).' </span>'
-                                : '<span class="badge bg-danger text-white">Incomplete</span>') ?></td>
-                        <td class="text-end"> <a href="<?=base_url().'author/financial_relationship_disclosure/'?>" target="_blank" class="btn btn-success btn-sm w-100"> Open </a></td>
+                        <td>Financial Relationship Disclosure</td>
+                        <td>January 8, 2027</td>
+                        <td><?= $badge ?></td>
+                        <td class="text-end">
+                            <a href="<?= $disclosureUrl ?>" target="_blank" rel="noopener noreferrer"
+                               class="btn btn-success btn-sm w-100">Open</a>
+                        </td>
                     </tr>
                    <!-- <tr>
                         <td> Attestation </td>

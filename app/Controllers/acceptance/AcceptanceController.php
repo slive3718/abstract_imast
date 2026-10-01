@@ -13,6 +13,7 @@ use App\Models\SchedulerSessionTalksModel;
 use App\Models\SiteSettingModel;
 use App\Models\UsersProfileModel;
 use App\Services\AcceptanceService;
+use App\Services\AppDisclosureServices;
 use CodeIgniter\Controller;
 use App\Models\UserModel;
 use App\Models\PapersModel;
@@ -69,6 +70,7 @@ class AcceptanceController extends Controller
         $disclosureCurrent = (new SiteSettingModel())->where('name', 'disclosure_current_date')->first()['value'];
         $nonExclusiveCurrent = (new SiteSettingModel())->where('name', 'non_exclusive_current_date')->first()['value'];
 
+        $appDisclosure = (new AppDisclosureServices())->getAuthorsByIdWithDisclosures(session('user_id'));
         if(!$disclosureCurrent || !$nonExclusiveCurrent)
             return('System error: Missing site settings. Please contact support.');
 
@@ -76,7 +78,8 @@ class AcceptanceController extends Controller
             'paper_types' => (new PaperTypeModel())->findAll()??[],
             'user_data' => $userData,
             'disclosure_current' => $disclosureCurrent,
-            'non_exclusive_current' => $nonExclusiveCurrent
+            'non_exclusive_current' => $nonExclusiveCurrent,
+            'app_disclosure' => $appDisclosure
         ];
 
 
