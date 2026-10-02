@@ -107,6 +107,7 @@ class UserModel extends BaseModel
     function validateUser($post){
         $result= $this->select('*')
         ->where('email', $post['email'])
+        ->where('deleted_at', null)
         ->first();
         return($result);
     }
@@ -114,7 +115,11 @@ class UserModel extends BaseModel
 
     public function cred_check(string $email, string $password)
     {
-        $user = $this->db->table('users')->where(['email'=>$email])->get()->getResultObject()[0]??false;
+        $user = $this->db->table('users')
+            ->where(['email'=>$email])
+            ->where('deleted_at', null)
+            ->get()
+            ->getResultObject()[0]??false;
         if (!$user)
         {
             return false;
