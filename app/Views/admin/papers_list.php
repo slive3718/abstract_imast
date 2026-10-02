@@ -185,18 +185,18 @@
             if(isChecked == true){
                 Swal.fire({
                     title: "Are you sure?",
-                    text: "This will send an automatic email notifying the reviewer.",
+                    text: "This will assign the reviewer to the paper.",
                     icon: "warning",
                     showCancelButton: true,
                     confirmButtonColor: "#3085d6",
                     cancelButtonColor: "#d33",
-                    confirmButtonText: "Yes, send and assign it!"
+                    confirmButtonText: "Yes, assign it!"
                 }).then((result) => {
                     if (result.isConfirmed) {
 
                         Swal.fire({
                             title: "Please Wait!",
-                            html: "Sending email to reviewer...",
+                            html: "Assigning reviewer...",
                             allowOutsideClick: false,
                             allowEscapeKey: false,
                             allowEnterKey: false,
