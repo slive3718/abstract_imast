@@ -1309,7 +1309,6 @@ class AbstractController extends BaseController
         $maxAssignedRegular = $SiteSettingModel->where('name', 'regular_reviewer_max_assigned_paper')->first();
         $PaperAssignedReviewerModel = new PaperAssignedReviewerModel();
 
-        $sendMail = new PhpMail();
         $assignedRegular = $PaperAssignedReviewerModel
             ->where('reviewer_type', 'regular')
             ->where('paper_id' , $post['paperID'])
@@ -1317,17 +1316,12 @@ class AbstractController extends BaseController
             ->where('is_declined' , 0)
             ->findAll();
 
-//        print_r($assignedRegular);exit;
-
         $alreadyAssignedReviewer = $PaperAssignedReviewerModel
             ->where('reviewer_type', 'regular')
             ->where('paper_id' , $post['paperID'])
             ->where('reviewer_id' , $post['reviewerID'])
             ->first();
 
-//        print_r($alreadyAssignedReviewer);exit;
-
-//        print_r($post['isChecked'] === "true");exit;
         $insertArray = [
             'paper_id'=>$post['paperID'],
             'reviewer_id'=>$post['reviewerID'],
@@ -1342,47 +1336,10 @@ class AbstractController extends BaseController
                 return json_encode(['status'=> 500, 'message'=> "Only 6 reviewers are allowed!", 'data'=>'']);
             }
         }
-        $EmailTemplates = (new EmailTemplatesModel())->find(7);
-//        print_r($MailTemplates);exit
+
         if(empty($alreadyAssignedReviewer)){
             //insert if not existing
             $PaperAssignedReviewerModel->set($insertArray)->insert();
-
-            $user = (new UserModel())->find($post['reviewerID']);
-
-            $email_body = $EmailTemplates['email_body'];
-            $email_body = str_replace('##ABSTRACT_ID##', $post['paperID'], $email_body);
-            $email_body = str_replace('##RECIPIENTS_FULL_NAME##', ucFirst($user['name']).' '.ucFirst($user['surname']), $email_body);
-            $email_body = str_replace('##REVIEW_USERNAME##', ($user['email']), $email_body);
-            $email_body = str_replace('##REVIEW_PASSWORD##', 'Please reset your password in case forgotten. Thank you!', $email_body);
-
-            $from = ['name'=>env('MAIL_FROM'), 'email'=>env('MAIL_FROM_ADDRESS')];
-            $addTo = $user['email'];
-            $subject = $EmailTemplates['email_subject'];
-            $addContent = $email_body;
-//            $mailResult = $sendMail->send($from, $addTo, $subject, $addContent);
-
-            // ###################  Save to Email logs #####################
-            $email_logs_array = [
-                'user_id' => session('user_id'),
-                'add_to' => ($addTo),
-                'subject' => $subject,
-                'ref_1' => 'assign_paper',
-                'add_content' => $addContent,
-                'send_from' => "PC",
-                'send_to' => "Regular",
-                'level' => "Info",
-                'template_id' => $EmailTemplates['id'],
-                'paper_id' => $post['paperID'],
-                'user_agent' => $this->request->getUserAgent()->getBrowser(),
-                'ip_address' => $this->request->getIPAddress(),
-            ];
-
-//            if($mailResult) {
-//                $email_logs_array['status'] = $mailResult->statusCode;
-//                (new EmailLogsModel())->saveToMailLogs($email_logs_array);
-//            }
-
             return json_encode(['status'=> 200, 'message'=> "success", 'data'=>'']);
         }else{
             //update if existing
