@@ -3,6 +3,7 @@
 namespace App\Controllers\acceptance;
 use App\Libraries\PhpMail;
 use App\Models\AdminAcceptanceModel;
+use App\Models\AppDisclosureModel;
 use App\Models\EmailLogsModel;
 use App\Models\LogsModel;
 use App\Models\PaperAuthorsModel;
@@ -751,16 +752,13 @@ class AcceptanceController extends Controller
 
         $user = (new UserModel())->find(session('user_id'));
         $user['profile'] = (new UsersProfileModel())->where('author_id', session('user_id'))->first();
-
-        $currentDisclosureDate = (new SiteSettingModel())->get_current_disclosure_date('disclosure_current_date');
-        $signatureDate = $user['profile']['signature_signed_date'] ?? null;
-        $isCurrentDisclosure = $signatureDate && strtotime($signatureDate) >=  strtotime($currentDisclosureDate);
+        $isUserValidDisclosure = (new AppDisclosureServices())->getStatus(session('user_id'));
 
         $currentNonExclusiveDate = (new SiteSettingModel())->get_current_nonexclusive_date('non_exclusive_current_date');
         $nonExclusiveDate = $user['profile']['non_exclusive_license_date'] ?? null;
         $isCurrentNonExclusive = $nonExclusiveDate && strtotime($nonExclusiveDate) >= strtotime($currentNonExclusiveDate);
 
-        if(!$isCurrentDisclosure || !$isCurrentNonExclusive){
+        if($isUserValidDisclosure !== 'valid' || !$isCurrentNonExclusive){
             (session())->setFlashdata('info', 'Please complete Financial Disclosures and/or Non Exclusive Forms under presenter forms.');
             return  $this->response->setJSON(['status'=>'info', 'message'=> 'Please complete Financial Disclosures and/or Non Exclusive Forms. Click OK to redirect to main page and update the forms.']);
         }
