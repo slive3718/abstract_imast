@@ -991,7 +991,7 @@
             return false;
         }
         $.ajax({
-            url: baseUrlAdmin + 'update_abstract_ajax',
+            url: baseUrlAdmin + 'update_paper_ajax',
             type: 'POST',
             data: {
                 'assigned_id': assigned_id,

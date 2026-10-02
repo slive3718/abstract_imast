@@ -14,7 +14,7 @@
         <div class="card p-lg-5 p-md-2 p-sm-1 p-xs-1 shadow">
             <?php
             if (session('user_type') == 'admin' && !empty($paper_id)) {
-                $actionUrl = base_url('admin/update_abstract_ajax');
+                $actionUrl = base_url('admin/update_paper_ajax');
             } elseif (!empty($paper_id)) {
                 $actionUrl = base_url('user/update_paper_ajax');
             } else {

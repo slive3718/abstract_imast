@@ -115,6 +115,7 @@ class AbstractServices extends CoreServices
             'author_q_1'          => isset($post['author_q_1']) ? trim($post['author_q_1']) : $existingPaper['author_q_1'],
             'author_q_2'          => isset($post['author_q_2']) ? trim($post['author_q_2']) : $existingPaper['author_q_2'],
             'image_upload_finished'  => isset($post['image_upload_finished']) ? trim($post['image_upload_finished']) : $existingPaper['image_upload_finished'],
+            'assigned_id'  => isset($post['assigned_id']) ? trim($post['assigned_id']) : $existingPaper['assigned_id'], // from admin assigned id
         ];
 
 
