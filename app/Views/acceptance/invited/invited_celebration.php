@@ -10,7 +10,7 @@
         </div>
         <div class="card-body">
             <p>
-                SRS is pleased to offer complimentary registration for IMAST faculty to attend the IMAST Innovation Celebration on Friday, April 17, 2026 from 17:30-19:00. Please indicate whether you plan to attend this event:
+                SRS is pleased to offer complimentary registration for IMAST faculty to attend the IMAST Innovation Celebration on Friday, April 9, 2027 from 17:30-19:00. Please indicate whether you plan to attend this event:
             </p>
            <form id="agreementForm" class="p-4">
                <input type="radio" name="celebration_attendance" id="attending" value="1" <?= !empty($acceptanceDetails) && $acceptanceDetails['celebration_attendance'] === '1' ? 'checked' : ''?> >
