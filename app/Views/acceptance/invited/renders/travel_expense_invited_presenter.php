@@ -4,10 +4,6 @@
             For the 34th International Meeting on Advanced Spine Techniques (IMAST), scheduled for April 7-9, 2027 in Copenhagen, Denmark,
             faculty are responsible for their own travel, registration, housing, and social event add-on costs.
         </p>
-        <p>
-            Meeting registration and housing information can be accessed and complete
-            at: <a href="https://www.srs.org/Meetings-Conferences/Annual-Meeting/61st-Annual-Meeting#registration" target="_blank"><i>https://www.srs.org/Meetings-Conferences/Annual-Meeting/61st-Annual-Meeting#registration</i></a>
-        </p>
     </div>
 
     <span class="text-danger">*</span> <input type="checkbox" name="travel_and_expense_terms" id="travel_and_expense_terms" value="yes" <?= !empty($acceptanceDetails) && $acceptanceDetails['travel_expenses'] == 'yes' ? 'checked' : ''?> >
