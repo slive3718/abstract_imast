@@ -399,7 +399,6 @@
     </div>
 </main>
 <script>
-    let baseUrlAdmin = "<?=base_url().'admin/'?>";
     $(function(){
 
         $('#publishBtn').on('click', function(){

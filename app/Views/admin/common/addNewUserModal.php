@@ -309,7 +309,9 @@
                             });
                             $('#addNewUserModal').modal('hide')
                             $('.doSearchBtn').click();
-                            getReviewerList();
+                            if(typeof getReviewerList === 'function'){
+                                getReviewerList()
+                            }
                         } else {
                             if (data.errors) {
                                 let errorMessages = Object.values(data.errors).join('\n');

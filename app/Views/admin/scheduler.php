@@ -160,7 +160,6 @@
 
 <script src="https://uicdn.toast.com/tui.time-picker/latest/tui-time-picker.js"></script>
 <script>
-    let baseUrlAdmin = "<?=base_url().'/admin/'?>";
     let baseUrlScheduler = "<?=base_url().'/admin/scheduler/'?>";
     const Calendar = tui.Calendar;
     $(function(){

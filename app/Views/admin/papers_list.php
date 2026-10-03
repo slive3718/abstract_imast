@@ -78,7 +78,6 @@
 <?php echo view('admin/common/modal'); ?>
 
 <script>
-    let baseUrlAdmin = "<?=base_url().'admin/'?>";
     let $currentDisclosureDate = `<?=$currentDisclosureDate ?? ''?>`
     const inActivePapers = `<?=!empty($is_inactive) ?? ''?>`
     $(function(){

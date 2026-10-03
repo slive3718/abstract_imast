@@ -48,8 +48,6 @@
 
 
 <script>
-    let baseUrlAdmin = "<?= base_url() . 'admin/' ?>";
-
     $(document).ready(function() {
         $('#emailLogsTable').DataTable({
             processing: true,

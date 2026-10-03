@@ -33,4 +33,5 @@
 <body>
 <script>
     let base_url = "<?=base_url()?>";
+    let baseUrlAdmin = "<?=base_url('admin/')?>";
 </script>

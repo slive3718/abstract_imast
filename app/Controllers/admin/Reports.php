@@ -40,8 +40,14 @@ class Reports extends AbstractController
             'alignment' => ['vertical' => \PhpOffice\PhpSpreadsheet\Style\Alignment::VERTICAL_CENTER],
         ];
 
-        $papers = $this->getAllPapersArray('paper');
+        $papers = $this->getAllPapersArray(
+            'paper',
+            'active'
+        );
+
         $exportHeader = $this->exportHeader();
+        $exportData = [];
+
         if (!empty($papers)) {
             foreach ($papers as $index => $paper) {
 

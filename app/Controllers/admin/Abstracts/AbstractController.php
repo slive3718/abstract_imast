@@ -718,8 +718,12 @@ class AbstractController extends BaseController
 
     public function getAllPapers(){
         $post = $this->request->getPost();
-//        print_R($this->getAllPapersArray($post['submission_type']));exit;
-        return $this->response->setJSON(['status' => 200, "message" => 'success', 'data' => $this->getAllPapersArray()]);
+        $submission_type = $post['submission_type'] ?? null;
+        $active_status = $post['active_status'] ?? null;
+        return $this->response->setJSON([
+            'status' => 200, "message" => 'success',
+            'data' => $this->getAllPapersArray($submission_type, $active_status)
+        ]);
 
     }
 
@@ -767,10 +771,7 @@ class AbstractController extends BaseController
     }
 
 
-    public function getAllPapersArray() {
-        $post = $this->request->getPost();
-        $submission_type = $post['submission_type'] ?? null;
-        $active_status = $post['active_status'] ?? null;
+    public function getAllPapersArray($submission_type = null, $active_status = null): array {
 
         try {
             if (empty($submission_type)) {
@@ -945,8 +946,6 @@ class AbstractController extends BaseController
             $talks = $SchedulerModel->getAllTalks();
             $talksMap = [];
             array_map(function($talk) use (&$talksMap){
-                //return talks in format paper_id => [talk details]
-                // Assuming $talk has 'paper_id' and other talk details
                 $paperId = $talk['abstract_id'];
                 if (!isset($talksMap[$paperId])) {
                     $talksMap[$paperId] = [];

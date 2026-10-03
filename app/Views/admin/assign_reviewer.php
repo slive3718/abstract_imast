@@ -60,7 +60,6 @@
 
 
 <script>
-    let baseUrlAdmin = "<?=base_url().'admin/'?>";
     $(function(){
          
     //    getAuthors();

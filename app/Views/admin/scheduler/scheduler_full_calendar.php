@@ -239,7 +239,6 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
 <script>
-    let baseUrlAdmin = "<?=base_url('admin/')?>";
     let eventCalendar;
     let allowedDates = []; // Global for allowed dates
     let scheduledEventsPromise = null;

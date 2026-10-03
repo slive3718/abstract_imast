@@ -43,7 +43,6 @@
 
 
 <script>
-    let baseUrlAdmin = "<?= base_url() . 'admin/' ?>";
     let unique_code = "<?=$unique_code?>"
     $(document).ready(function() {
         $('#emailLogsTable').DataTable({

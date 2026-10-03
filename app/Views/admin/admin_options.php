@@ -28,7 +28,6 @@
 
 
 <script>
-    let baseUrlAdmin = "<?=base_url().'/'.$event->uri.'/admin/'?>";
     $(function(){
         getAbstracts();
         

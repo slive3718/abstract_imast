@@ -50,7 +50,6 @@
 <?= view('admin/common/assignReviewerModal') ?>
 <?= view('admin/common/addNewUserModal') ?>
 <script>
-    let baseUrlAdmin = "<?=base_url().'admin/'?>";
     $(function(){
         getReviewerList();
         $('#showImportModal').on('click', function(){

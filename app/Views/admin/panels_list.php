@@ -35,7 +35,6 @@
 
 
 <script>
-    let baseUrlAdmin = "<?=base_url().'admin/'?>";
     $(function(){
 
         getAbstracts();

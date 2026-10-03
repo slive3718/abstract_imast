@@ -189,7 +189,6 @@
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 
 <script>
-    let baseUrlAdmin = "<?=base_url('admin/')?>"
     document.addEventListener('DOMContentLoaded', function() {
 
         renderCalendar();
