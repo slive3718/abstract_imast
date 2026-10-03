@@ -33,6 +33,11 @@ class SessionTalksController extends SchedulerController
             view('admin/common/footer');
     }
 
+    private function buildTalkKey($abstractId, $paperSubId = null): string
+    {
+        return (($abstractId ?? 'custom') . '_' . ($paperSubId ?? 'custom'));
+    }
+
     function create()
     {
         $post = $this->request->getPost();
@@ -50,17 +55,32 @@ class SessionTalksController extends SchedulerController
             ->where('scheduler_event_id', $scheduler_event_id)
             ->findAll();
 
-        // Group existing talks by `abstract_id` and `paper_sub_id`
+        // Group existing talks by `abstract_id` and `paper_sub_id`.
         $existingTalksLookup = [];
         foreach ($existingTalks as $existingTalk) {
-            $key = $existingTalk['abstract_id'] . '_' . $existingTalk['paper_sub_id'];
+            $key = $this->buildTalkKey($existingTalk['abstract_id'], $existingTalk['paper_sub_id']);
             $existingTalksLookup[$key] = $existingTalk;
+        }
+
+        $dedupedTalks = [];
+        $seenTalkKeys = [];
+        foreach ($talks as $talk) {
+            $abstractId = $talk['abstract_id'] ?? null;
+            $paperSubId = $talk['paper_sub_id'] ?? null;
+            $key = $this->buildTalkKey($abstractId, $paperSubId);
+
+            if (in_array($key, $seenTalkKeys, true)) {
+                continue;
+            }
+
+            $seenTalkKeys[] = $key;
+            $dedupedTalks[] = $talk;
         }
 
         $talkDataArray = []; // New talks
         $filteredKeys = []; // Track keys of valid talks
-        if ($talks) {
-            foreach ($talks as $index => $talk) {
+        if ($dedupedTalks) {
+            foreach ($dedupedTalks as $index => $talk) {
                 $abstractId = $talk['abstract_id'];
                 $paperSubId = $talk['paper_sub_id'] ?? null;
 
@@ -72,14 +92,13 @@ class SessionTalksController extends SchedulerController
                     'duration' => $talk['duration'],
                     'sort' => $index + 1,
                     'break_duration' => $talk['break_duration'],
-                    'custom_abstract_desc' => $talk['custom_desc'],
+                    'custom_abstract_desc' => $talk['custom_desc'] ?? null,
                     'paper_sub_id' => $paperSubId,
                 ];
 
-                $key = $abstractId . '_' . $paperSubId;
+                $key = $this->buildTalkKey($abstractId, $paperSubId);
 
                 if (isset($existingTalksLookup[$key])) {
-                    // Check if updates are needed
                     $existingTalk = $existingTalksLookup[$key];
                     if (
                         $talkData['time_start'] !== $existingTalk['time_start'] ||
@@ -87,30 +106,39 @@ class SessionTalksController extends SchedulerController
                         $talkData['duration'] !== $existingTalk['duration'] ||
                         $talkData['sort'] !== $existingTalk['sort'] ||
                         $talkData['break_duration'] !== $existingTalk['break_duration'] ||
-                        $talkData['paper_sub_id'] !== $existingTalk['paper_sub_id']
+                        $talkData['paper_sub_id'] !== $existingTalk['paper_sub_id'] ||
+                        ($talkData['custom_abstract_desc'] ?? null) !== ($existingTalk['custom_abstract_desc'] ?? null)
                     ) {
-                        // Update the existing talk
                         $sessionTalks->update($existingTalk['id'], $talkData);
                     }
                 } else {
-                    // Add new talk
                     $talkDataArray[] = $talkData;
                 }
 
-                // Mark this key as processed
                 $filteredKeys[] = $key;
             }
 
-            // Remove talks if any are marked for deletion
+            foreach ($existingTalks as $existingTalk) {
+                $key = $this->buildTalkKey($existingTalk['abstract_id'], $existingTalk['paper_sub_id']);
+                if (!in_array($key, $filteredKeys, true)) {
+                    $sessionTalks->delete($existingTalk['id']);
+                }
+            }
+
             if (!empty($removedTalks)) {
-                $sessionTalks->whereIn('abstract_id', $removedTalks)->delete();
+                $removedTalks = array_values(array_filter((array) $removedTalks, fn($value) => $value !== null && $value !== ''));
+                if ($removedTalks) {
+                    $sessionTalks
+                        ->where('scheduler_event_id', $scheduler_event_id)
+                        ->whereIn('abstract_id', $removedTalks)
+                        ->delete();
+                }
             }
 
             if (!empty($talkDataArray)) {
                 $sessionTalks->insertBatch($talkDataArray);
             }
         } else {
-            // If no talks are provided, delete all associated with the scheduler_event_id
             $sessionTalks->where('scheduler_event_id', $scheduler_event_id)->delete();
         }
 

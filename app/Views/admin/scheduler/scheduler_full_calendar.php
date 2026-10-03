@@ -1037,6 +1037,8 @@
             let durationInMinutes = talkDuration;
             let removedAddedTalksIds = [];
 
+            const getTalkKey = (abstractId, paperSubId = null) => `${abstractId ?? 'custom'}_${paperSubId ?? 'custom'}`;
+
             // Add Abstract Button Click Handler
             schedulerModal.find('#addAbstractBtn').off('click').on('click', async function(e) {
                 e.preventDefault();
@@ -1092,10 +1094,12 @@
                                             start_time: formattedStartTime,
                                             end_time: formattedEndTime,
                                             presenters: presenters,
-                                            break_duration: breakDuration
+                                            break_duration: breakDuration,
+                                            paper_sub_id: null
                                         };
 
-                                        if (!talk_details.some(detail => detail.abstract_id === res.paper.id)) {
+                                        const talkKeyValue = getTalkKey(res.paper.id, talkDetail.paper_sub_id);
+                                        if (!talk_details.some(detail => getTalkKey(detail.abstract_id, detail.paper_sub_id) === talkKeyValue)) {
                                             talk_details.push(talkDetail);
                                         }
 
@@ -1141,14 +1145,13 @@
                         e.preventDefault();
                         let abstractAddedId = $(this).data('abstract-id');
 
-                        tableAddedAbstractArray = tableAddedAbstractArray.filter(item => item['abstract_id'] !== abstractAddedId);
+                        tableAddedAbstractArray = tableAddedAbstractArray.filter(item => item['id'] !== abstractAddedId);
 
                         if (!removedAbstractIds.includes(abstractAddedId)) {
                             removedAbstractIds.push(abstractAddedId);
                         }
 
                         tableAbstract.find(`[data-abstract-id="${abstractAddedId}"]`).closest('tr').show();
-                        tableAddedAbstract.find(`tr[id="${abstractAddedId}"]`).remove();
                         $(this).closest('tr').remove();
 
                         tableAddedAbstract.find('.talk-duration').change();
@@ -1161,14 +1164,21 @@
                     schedulerModal.find('#save-session-talks').off('click').on('click', function () {
                         let talksTable = $('#tableAddedAbstract');
                         let added_talk_details = [];
+                        let seenTalkKeys = new Set();
                         talksTable.find('tr').each(function () {
                             let abstract_id = $(this).attr('id');
                             if (abstract_id) {
+                                let paper_sub_id = $(this).data('paper-sub-id');
+                                let talkKey = getTalkKey(abstract_id, paper_sub_id);
+                                if (seenTalkKeys.has(talkKey)) {
+                                    return;
+                                }
+                                seenTalkKeys.add(talkKey);
+
                                 let start_time = $(this).find('.start-time').text() ?? '';
                                 let end_time = $(this).find('.end-time').text() ?? '';
                                 let talk_duration = $(this).find('.talk-duration').val() ?? '';
                                 let custom_desc = $(this).find('#talk_custom_desc').val() ?? '';
-                                let paper_sub_id = $(this).data('paper-sub-id');
                                 added_talk_details.push({
                                     'duration': talk_duration,
                                     'start_time': start_time,
@@ -1215,20 +1225,25 @@
             });
 
             schedulerModal.find('#addCustomEventBtn').off('click').on('click', function(e) {
+                e.preventDefault();
                 let tableAddedAbstract = $("#tableAddedAbstract");
-                let customEventCount = tableAddedAbstract.find('.customAddedEvent').length;
-                customEventCount++;
+                let customEventId = 1;
+                while (tableAddedAbstract.find('tbody tr').filter(function() {
+                    return this.id === `custom_${customEventId}`;
+                }).length > 0) {
+                    customEventId++;
+                }
 
                 tableAddedAbstract.find('tbody').append(
-                    `<tr id="custom_${customEventCount}" class="customAddedEvent">
+                    `<tr id="custom_${customEventId}" class="customAddedEvent">
                         <td><span class="start-time"></span> - <span class="end-time"></span></td>
                         <td><input type="number" class="talk-duration" style="width:50px" value="${talkDuration}"></td>
                         <td class="text-nowrap "></td>
                         <td><input type="text" name="talk_custom_desc" id="talk_custom_desc"></td>
                         <td class="text-nowrap">
-                            <a class="btn btn-sm moveUp" onclick="moveUp(this)" data-abstract-id="custom_${customEventCount}"  data-initial-time="${sessionStart24}"><i class="fas fa-arrow-up"></i></a>
-                            <a class="btn btn-sm moveDown" onclick="moveDown(this)" data-abstract-id="custom_${customEventCount}"  data-initial-time="${sessionStart24}"><i class="fas fa-arrow-down"></i></a>
-                            <a class="btn btn-sm remove" data-abstract-id="custom_${customEventCount}"><i class="fas fa-trash"></i></a>
+                            <a class="btn btn-sm moveUp" onclick="moveUp(this)" data-abstract-id="custom_${customEventId}"  data-initial-time="${sessionStart24}"><i class="fas fa-arrow-up"></i></a>
+                            <a class="btn btn-sm moveDown" onclick="moveDown(this)" data-abstract-id="custom_${customEventId}"  data-initial-time="${sessionStart24}"><i class="fas fa-arrow-down"></i></a>
+                            <a class="btn btn-sm remove" data-abstract-id="custom_${customEventId}"><i class="fas fa-trash"></i></a>
                         </td>
                     </tr>`
                 );
