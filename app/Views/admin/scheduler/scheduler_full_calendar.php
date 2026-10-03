@@ -895,8 +895,7 @@
                             let talkCustomId = '';
                             let talkPresenters = [];
 
-                            if (talk.abstract) {
-                                console.log(talk)
+                            if (talk.abstract && talk.abstract.custom_id) {
                                 if (talk.abstract.submission_type == 'panel') {
                                     talkPresenters = talk.panelist.name + ' ' + talk.panelist.surname;
                                     talkCustomId = 'Panelist: ' + talk.panelist.custom_id;
@@ -1051,89 +1050,86 @@
                         abstract_ids.push($(this).data('abstract-id'));
                     });
 
-                    await new Promise((resolve, reject) => {
-                        getAbstract(abstract_ids, function (data) {
-                            try {
-                                if (abstract_ids.length > 0) {
+                    if (abstract_ids.length > 0) {
+                        await new Promise((resolve, reject) => {
+                            getAbstract(abstract_ids, function (data) {
+                                try {
                                     $.each(abstract_ids, function (i, abstract_id) {
                                         const index = removedAddedTalksIds.indexOf(abstract_id);
                                         if (index !== -1) {
                                             removedAddedTalksIds.splice(index, 1);
                                         }
                                     });
-                                }
 
-                                if (!data) {
-                                    resolve();
-                                    return;
-                                }
-
-                                let startTime = new Date(info.startStr);
-                                let startDate = new Date(info.startStr);
-                                startDate = startDate.getDate();
-
-                                const processAbstracts = async () => {
-                                    for (let i = 0; i < data.length; i++) {
-                                        const res = data[i];
-                                        let presenters = getPresenters(res.authors);
-                                        let endTime = addDuration(startTime, durationInMinutes);
-
-                                        if (new Date(info.endStr) <= endTime) {
-                                            toastr.error("Time already exceeded!");
-                                            break;
-                                        }
-
-                                        let formattedStartTime = getTimeOfDate(startTime);
-                                        let formattedEndTime = getTimeOfDate(endTime);
-
-                                        talkDetail = {
-                                            abstract_id: res.paper.id,
-                                            session_date: sessionDate,
-                                            custom_id: res.paper.custom_id,
-                                            duration: durationInMinutes,
-                                            start_time: formattedStartTime,
-                                            end_time: formattedEndTime,
-                                            presenters: presenters,
-                                            break_duration: breakDuration,
-                                            paper_sub_id: null
-                                        };
-
-                                        const talkKeyValue = getTalkKey(res.paper.id, talkDetail.paper_sub_id);
-                                        if (!talk_details.some(detail => getTalkKey(detail.abstract_id, detail.paper_sub_id) === talkKeyValue)) {
-                                            talk_details.push(talkDetail);
-                                        }
-
-                                        if (res.paper.submission_type == 'panel') {
-                                            await createPanelTalkRows(res.paper, talkDetail, presenters, formattedStartTime, formattedEndTime, sessionStart24);
-                                            updateTalkDuration(getTimeOfDate(new Date(info.startStr)));
-                                        } else {
-                                            tableAddedAbstract.find('tbody').append(createTalkRow(res.paper, talkDetail, presenters, formattedStartTime, formattedEndTime, sessionStart24));
-                                            updateTalkDuration(getTimeOfDate(new Date(info.startStr)));
-                                        }
-
-                                        tableAddedAbstractArray.push({
-                                            'id': res.paper.id,
-                                            'paper': res.paper,
-                                            'talks': talkDetail,
-                                            'presenters': presenters,
-                                            'formattedStartTime': formattedStartTime,
-                                            'formattedEndTime': formattedEndTime
-                                        });
-
-                                        tableAbstract.find(`[data-abstract-id="${res.paper.id}"]`).closest('tr').hide().find('input[type="checkbox"]').prop('checked', false);
-
-                                        removedAbstractIds.shift(res.paper.id);
-                                        startTime = addDuration(endTime, breakDuration);
+                                    if (!data) {
+                                        resolve();
+                                        return;
                                     }
-                                };
 
-                                processAbstracts().then(resolve).catch(reject);
+                                    let startTime = new Date(info.startStr);
 
-                            } catch (error) {
-                                reject(error);
-                            }
+                                    const processAbstracts = async () => {
+                                        for (let i = 0; i < data.length; i++) {
+                                            const res = data[i];
+                                            let presenters = getPresenters(res.authors);
+                                            let endTime = addDuration(startTime, durationInMinutes);
+
+                                            if (new Date(info.endStr) <= endTime) {
+                                                toastr.error("Time already exceeded!");
+                                                break;
+                                            }
+
+                                            let formattedStartTime = getTimeOfDate(startTime);
+                                            let formattedEndTime = getTimeOfDate(endTime);
+
+                                            talkDetail = {
+                                                abstract_id: res.paper.id,
+                                                session_date: sessionDate,
+                                                custom_id: res.paper.custom_id,
+                                                duration: durationInMinutes,
+                                                start_time: formattedStartTime,
+                                                end_time: formattedEndTime,
+                                                presenters: presenters,
+                                                break_duration: breakDuration,
+                                                paper_sub_id: null
+                                            };
+
+                                            const talkKeyValue = getTalkKey(res.paper.id, talkDetail.paper_sub_id);
+                                            if (!talk_details.some(detail => getTalkKey(detail.abstract_id, detail.paper_sub_id) === talkKeyValue)) {
+                                                talk_details.push(talkDetail);
+                                            }
+
+                                            if (res.paper.submission_type == 'panel') {
+                                                await createPanelTalkRows(res.paper, talkDetail, presenters, formattedStartTime, formattedEndTime, sessionStart24);
+                                            } else {
+                                                tableAddedAbstract.find('tbody').append(createTalkRow(res.paper, talkDetail, presenters, formattedStartTime, formattedEndTime, sessionStart24));
+                                            }
+                                            updateTalkDuration(getTimeOfDate(new Date(info.startStr)));
+
+                                            tableAddedAbstractArray.push({
+                                                'id': res.paper.id,
+                                                'paper': res.paper,
+                                                'talks': talkDetail,
+                                                'presenters': presenters,
+                                                'formattedStartTime': formattedStartTime,
+                                                'formattedEndTime': formattedEndTime
+                                            });
+
+                                            tableAbstract.find(`[data-abstract-id="${res.paper.id}"]`).closest('tr').hide().find('input[type="checkbox"]').prop('checked', false);
+
+                                            removedAbstractIds.shift(res.paper.id);
+                                            startTime = addDuration(endTime, breakDuration);
+                                        }
+                                    };
+
+                                    processAbstracts().then(resolve).catch(reject);
+
+                                } catch (error) {
+                                    reject(error);
+                                }
+                            });
                         });
-                    });
+                    }
 
                     // Duration Change Handler
                     tableAddedAbstract.off('change input', '.talk-duration').on('change input', '.talk-duration', function () {
@@ -1144,6 +1140,8 @@
                     tableAddedAbstract.off('click', '.remove').on('click', '.remove', function (e) {
                         e.preventDefault();
                         let abstractAddedId = $(this).data('abstract-id');
+                        const row = $(this).closest('tr');
+                        const isCustomEvent = row.hasClass('customAddedEvent');
 
                         tableAddedAbstractArray = tableAddedAbstractArray.filter(item => item['id'] !== abstractAddedId);
 
@@ -1152,10 +1150,12 @@
                         }
 
                         tableAbstract.find(`[data-abstract-id="${abstractAddedId}"]`).closest('tr').show();
-                        $(this).closest('tr').remove();
+                        row.remove();
 
                         tableAddedAbstract.find('.talk-duration').change();
-                        removedAddedTalksIds.push(abstractAddedId);
+                        if (!isCustomEvent) {
+                            removedAddedTalksIds.push(abstractAddedId);
+                        }
 
                         updateTalkDuration(getTimeOfDate(new Date(info.startStr)));
                     });
@@ -1188,6 +1188,7 @@
                                     'scheduler_event_id': info.id,
                                     'custom_desc': custom_desc,
                                     'paper_sub_id': paper_sub_id,
+                                    'talk_id': $(this).data('talk-id') || null,
                                 });
                             }
                         });
@@ -1493,6 +1494,8 @@
 
                         const startTime = getTimeOfDate(data.time_start);
                         const endTime = getTimeOfDate(data.time_end);
+                        const isCustomEvent = !data.abstract_custom_id && !data.paper_sub_id;
+                        const rowId = isCustomEvent ? `custom_${data.id}` : data.abstract_id;
 
                         if (data.schedule && data.schedule.length > 0) {
                             $.each(data.schedule, function (j, res) {
@@ -1509,7 +1512,7 @@
                         }
 
                         $("#tableAddedAbstract").find('tbody').append(
-                            `<tr id="${data.abstract_id}" data-paper-sub-id="${data.paper_sub_id}">
+                            `<tr id="${rowId}" class="${isCustomEvent ? 'customAddedEvent' : ''}" data-talk-id="${data.id}" data-paper-sub-id="${data.paper_sub_id || ''}">
                                 <td><span class="start-time">${startTime}</span> - <span class="end-time">${endTime}</span></td>
                                 <td><input type="number" class="talk-duration" style="width:50px" data-abstract-id="${data.abstract_id}" value="${data.duration}"></td>
                                 <td class="text-nowrap">${presentersList || ''}</td>
@@ -1522,9 +1525,9 @@
                                     `}
                                 </td>
                                 <td class="text-nowrap">
-                                    <a class="btn btn-sm moveUp" onclick="moveUp(this)" data-abstract-id="${data.abstract_id}" data-initial-time="${sessionStart24}"><i class="fas fa-arrow-up"></i></a>
-                                    <a class="btn btn-sm moveDown" onclick="moveDown(this)" data-abstract-id="${data.abstract_id}" data-initial-time="${sessionStart24}"><i class="fas fa-arrow-down"></i></a>
-                                    <a class="btn btn-sm remove" data-abstract-id="${data.abstract_id}"><i class="fas fa-trash"></i></a>
+                                    <a class="btn btn-sm moveUp" onclick="moveUp(this)" data-abstract-id="${rowId}" data-initial-time="${sessionStart24}"><i class="fas fa-arrow-up"></i></a>
+                                    <a class="btn btn-sm moveDown" onclick="moveDown(this)" data-abstract-id="${rowId}" data-initial-time="${sessionStart24}"><i class="fas fa-arrow-down"></i></a>
+                                    <a class="btn btn-sm remove" data-abstract-id="${rowId}"><i class="fas fa-trash"></i></a>
                                 </td>
                             </tr>`
                         );

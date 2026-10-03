@@ -101,9 +101,12 @@ class SchedulerController extends BaseController
 
                if($scheduler_event['talks']){
                    foreach ($scheduler_event['talks'] as &$talk){
-                       $query = (new PaperAuthorsModel());
-                       $query->getPresentingAuthors($talk['abstract_id']);
-                       $talk['presenters'] = $query->findAll();
+                       $talk['presenters'] = [];
+                       if (!empty($talk['abstract_id'])) {
+                           $query = (new PaperAuthorsModel());
+                           $query->getPresentingAuthors($talk['abstract_id']);
+                           $talk['presenters'] = $query->findAll();
+                       }
                        if(!empty($talk['presenters'])){
                            foreach ($talk['presenters'] as &$presenter){
                                $presenter['acceptance'] = (new AuthorAcceptanceModel())->where(['abstract_id'=> $talk['abstract_id'], 'author_id'=> $presenter['author_id']])->first() ?? [];
@@ -112,7 +115,9 @@ class SchedulerController extends BaseController
                        if($talk['paper_sub_id']){
                            $talk['panelist'] =  $this->getTalkPanelist($talk['paper_sub_id']);
                        }
-                       $talk['abstract'] = (new PapersModel())->find($talk['abstract_id']);
+                       $talk['abstract'] = !empty($talk['abstract_id'])
+                           ? (new PapersModel())->find($talk['abstract_id'])
+                           : null;
                    }
                }
            }
