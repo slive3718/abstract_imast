@@ -27,22 +27,7 @@ use CodeIgniter\Exceptions\PageNotFoundException;
 
 use App\Models\UserModel;
 use App\Models\PapersModel;
-use App\Models\PaperAuthorModel;
-use App\Models\ReviewerModel;
-use App\Models\AbstractTopicsModel;
-// use App\Models\PopulationModel;
-use App\Models\AbstractReviewModel;
-use App\Models\InstitutionModel;
-use App\Models\AuthorDetailsModel;
-use App\Models\LearningObjectivesModel;
-use App\Models\AbstractFileUploadsModel;
-use App\Models\RemovedDisclosureAuthor;
 
-use App\Models\AcceptanceRoomsModel;
-use App\Models\AbstractCategoriesModel;
-
-use App\Controllers\ExcelController;
-use PhpOffice\PhpWord\Style\Paper;
 
 class SchedulerController extends BaseController
 {
@@ -61,18 +46,11 @@ class SchedulerController extends BaseController
     }
 
     function index($event_uri){
-        $header_data = [
-            'title' => 'AFS Scheduler'
-        ];
+        $header_data = ['title' => 'AFS Scheduler'];
 
-        $data = [
-        ];
-
-        return
-            view('admin/common/header', $header_data).
-            view('admin/scheduler/scheduler_full_calendar',$data).
-            view('admin/common/footer')
-            ;
+        return view('admin/common/header', $header_data)
+            . view('admin/scheduler/scheduler_full_calendar')
+            . view('admin/common/footer');
     }
 
 
@@ -149,17 +127,6 @@ class SchedulerController extends BaseController
             ;
             $scheduled_event = $scheduler_query->first();
             $accepted_abstracts = (new AdminAcceptanceModel())->where('acceptance_confirmation', 1)->orderBy('abstract_id', 'asc')->findAll();
-//            $accepted_panels_group = (new AdminIndividualPanelAcceptanceModel())
-//                ->select('panelist_paper_sub.*, papers.*, users.name as user_name, users.surname as user_surname')
-//                ->join('panelist_paper_sub', 'admin_individual_panel_acceptance.individual_panel_id = panelist_paper_sub.id')
-//                ->join('papers', 'panelist_paper_sub.paper_id = papers.id')
-//                ->join('users', 'papers.user_id = users.id')
-//                ->where('acceptance_confirmation', 1)
-//                ->groupBy('panelist_paper_sub.paper_id')
-//                ->orderBy('individual_panel_id', 'asc')->findAll();
-
-
-            //todo: fetching should come from admin_accepted_abstracts because we need to find all accepted abstracts that have the sub-panel for selecting.
 
             $admin_accepted_panels = (new PapersModel())->select("papers.*, u.name as user_name, u.surname as user_surname")
                 ->join('panelist_paper_sub pps', 'pps.paper_id = papers.id', 'left')
@@ -167,11 +134,10 @@ class SchedulerController extends BaseController
                 ->join($this->shared_db_name. '.users u', 'papers.user_id = u.id', 'left')
                 ->where('aipa.acceptance_confirmation', '1')
                 ->where('aipa.presentation_preference !=', '2')
-                ->where('papers.id IS NOT NULL') // Only fetch children
+                ->where('papers.id IS NOT NULL')
                 ->groupBy('papers.id')->asArray()->findAll();
 
             foreach ($admin_accepted_panels as &$admin_accepted_panel){
-                //todo: fetch all the panelist abstracts that are already accepted by admin
                 $admin_accepted_panel['panelist_abstract'] = (new PanelistPaperSubModel())
                     ->join($this->shared_db_name. '.users u', 'panelist_paper_sub.panelist_id = u.id', 'left')
                     ->join('admin_individual_panel_acceptance aipa', 'panelist_paper_sub.id = aipa.individual_panel_id', 'inner')
@@ -181,25 +147,6 @@ class SchedulerController extends BaseController
                     ->findAll();
             }
 
-
-
-//            $accepted_abstracts_panel  = (new SchedulerSessionTalksModel())->where('scheduler_event_id', $scheduler_id)->findAll();
-//            foreach ($accepted_abstracts_panel as &$talk) {
-//                $talk['abstract'] = (new PapersModel())->asArray()
-//                    ->select('papers.*, u.name as user_name, u.surname as user_surname')
-//                    ->join('users u', 'papers.user_id = u.id', 'left')
-//                    ->find($talk['abstract_id']);
-//                $talk['accepted_abstract_panel'] = (new AdminIndividualPanelAcceptanceModel())
-//                    ->select('pps.*, p.id, admin_individual_panel_acceptance.*') // Select relevant fields
-//                    ->join('panelist_paper_sub pps', 'admin_individual_panel_acceptance.individual_panel_id = pps.id', 'left')
-//                    ->join('papers p', 'pps.paper_id = p.id', 'left')
-//                    ->join('users u', 'pps.panelist_id = u.id', 'left')
-//                    ->where('admin_individual_panel_acceptance.acceptance_confirmation', '1')
-//                    ->where('admin_individual_panel_acceptance.presentation_preference !=', '2')
-//                    ->where('p.id', $talk['abstract_id'])
-//                    ->findAll();
-//            }
-
             if(!empty($accepted_abstracts)){
                 foreach ($accepted_abstracts as &$accepted_abstract){
                     $accepted_abstract['details'] = (new PapersModel())->find($accepted_abstract['abstract_id']);
@@ -207,7 +154,6 @@ class SchedulerController extends BaseController
                     $accepted_abstract['submitter'] = (new UserModel())->find($accepted_abstract['user_id']);
                 }
             }
-
 
             $talks = (new SchedulerSessionTalksModel())->findAll();
             $view_data['scheduled_event'] = $scheduled_event;
@@ -220,13 +166,12 @@ class SchedulerController extends BaseController
                 $scheduled_event['rooms'] = (new RoomsModel())->find($scheduled_event['room_id']);
             }
 
-//            print_R($view_data);exit;
             return $view_data;
         }
         return false;
     }
 
-    public function get_one_new($id){  //fetch all the accepted abstracts by admin.
+    public function get_one_new($id){
         if($id) {
             $scheduler_event = (new SchedulerModel());
             $scheduler_event->where('id', $id);
@@ -236,8 +181,7 @@ class SchedulerController extends BaseController
             TIME(session_start_time) AS start_time, 
             TIME(session_end_time) AS end_time, 
             DATE_FORMAT(session_date, "%Y-%m-%d") AS session_day
-            ')
-            ;
+            ');
             $scheduled_event = $scheduler_event->first();
             $accepted_abstracts = (new AdminAcceptanceModel())->where('acceptance_confirmation', 1)->orderBy('abstract_id', 'asc')->findAll();
             $accepted_panels_group = (new AdminIndividualPanelAcceptanceModel())
@@ -247,15 +191,15 @@ class SchedulerController extends BaseController
 
             if(!empty($accepted_abstracts)){
                 foreach ($accepted_abstracts as &$accepted_abstract){
-                    $accepted_abstract['details'] = (new PapersModel())->where($accepted_abstract['abstract_id']);
+                    $accepted_abstract['details'] = (new PapersModel())->find($accepted_abstract['abstract_id']);
                     $accepted_abstract['authors'] = (new PaperAuthorsModel())->join('users', 'paper_authors.author_id = users.id')->where(['paper_id'=> $accepted_abstract['abstract_id'], 'is_presenting_author'=>'Yes'])->orderBy('author_order', 'asc')->findAll();
                     $accepted_abstract['submitter'] = (new UserModel())->find($accepted_abstract['user_id']);
                 }
             }
 
             foreach ($accepted_panels_group as &$panel_group){
-                $panel_group['panel_subs'] = (new PanelistPaperSubModel())->where('paper_id', $panel_group['paper_id'])->findALl();
-                if($panel_group['panel_subs'] ){
+                $panel_group['panel_subs'] = (new PanelistPaperSubModel())->where('paper_id', $panel_group['paper_id'])->findAll();
+                if($panel_group['panel_subs']){
                     foreach($panel_group['panel_subs'] as &$panel_sub){
                         $panel_sub['details'] = (new PapersModel())->find($panel_sub['paper_id']);
                         $panel_sub['authors'] = (new PaperAuthorsModel())->join('users', 'paper_authors.author_id = users.id')
@@ -265,7 +209,7 @@ class SchedulerController extends BaseController
                                 $builder->select('paper_author_id')->from('removed_paper_authors');
                             })
                             ->findAll();
-                        $panel_sub['submitter'] =  (new UserModel())->find($panel_sub['panelist_id']);
+                        $panel_sub['submitter'] = (new UserModel())->find($panel_sub['panelist_id']);
                     }
                 }
             }
@@ -296,11 +240,14 @@ class SchedulerController extends BaseController
         if(is_array($ids)){
             foreach ($ids as $id){
                 $scheduled_abstract['paper'] = (new PapersModel())->find($id);
-                $scheduled_abstract['submitter'] = (new UserModel())->find($scheduled_abstract['paper']->id);
+                if(!$scheduled_abstract['paper'] || !isset($scheduled_abstract['paper']->id)){
+                    continue;
+                }
+                $scheduled_abstract['submitter'] = (new UserModel())->find($scheduled_abstract['paper']->user_id);
                 $scheduled_abstract['authors'] = (new PaperAuthorsModel())->where(['paper_id'=> $scheduled_abstract['paper']->id, 'is_presenting_author'=>'Yes', 'author_type'=>'author'])->orderBy('author_order', 'asc')->findAll();
                 $scheduled_abstract['panelist_presenters'] = (new PaperAuthorsModel())->where(['paper_id'=> $scheduled_abstract['paper']->id, 'is_presenting_author'=>'Yes', 'author_type'=>'panelist'])->orderBy('author_order', 'asc')->findAll();
                 if(!empty($scheduled_abstract['authors'])){
-                    foreach ( $scheduled_abstract['authors'] as &$author) {
+                    foreach ($scheduled_abstract['authors'] as &$author) {
                         $author['details'] = (new UserModel())->find($author['author_id']);
                     }
                 }
@@ -321,31 +268,18 @@ class SchedulerController extends BaseController
         helper('date');
         $post = $this->request->getPost();
 
-        // Validation rules
         $validationRules = [
             'day' => 'required',
             'time_from' => 'required',
             'time_to' => 'required',
             'session_title' => 'required|string|max_length[255]',
             'session_description' => 'permit_empty|string',
-//            'session_type' => 'required|string|max_length[100]',
-//            'duration_talk' => 'required|integer|greater_than[0]',
-//            'duration_break' => 'permit_empty|integer',
-//            'session_number' => 'required|integer|greater_than[0]',
-//            'rooms' => 'required|integer|greater_than[0]',
         ];
 
-        // Set validation messages (optional)
         $validationMessages = [
-            'day' => [
-                'required' => 'The session date is required.',
-            ],
-            'time_from' => [
-                'required' => 'The start time is required.',
-            ],
-            'time_to' => [
-                'required' => 'The end time is required.',
-            ],
+            'day' => ['required' => 'The session date is required.'],
+            'time_from' => ['required' => 'The start time is required.'],
+            'time_to' => ['required' => 'The end time is required.'],
             'session_title' => [
                 'required' => 'The session title is required.',
                 'max_length' => 'The session title cannot exceed 255 characters.',
@@ -363,13 +297,13 @@ class SchedulerController extends BaseController
         $start = date("H:i", strtotime($post['time_from']));
         $end = date("H:i", strtotime($post['time_to']));
 
-
         if ($start >= $end) {
             return $this->response->setJSON([
                 'status' => 'error',
                 'message' => ['time_from' => 'The start time must be earlier than the end time.'],
             ]);
         }
+
         $chair = [];
 
         if($post['session_chair']){
