@@ -1162,6 +1162,9 @@
 
                     // Save Session Talks
                     schedulerModal.find('#save-session-talks').off('click').on('click', function () {
+                        // Normalize displayed start/end times from current durations before reading rows.
+                        updateTalkDurations(sessionStart24);
+
                         let talksTable = $('#tableAddedAbstract');
                         let added_talk_details = [];
                         let seenTalkKeys = new Set();
@@ -1533,6 +1536,8 @@
                         );
                     }
                 });
+                // Rebuild timeline from duration inputs to avoid stale DB start/end values.
+                updateTalkDurations(sessionStart24);
                 $('#addAbstractBtn').trigger('click');
             }
         }).fail(function () {
