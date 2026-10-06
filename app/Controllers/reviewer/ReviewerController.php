@@ -252,7 +252,7 @@ class ReviewerController extends BaseController
         $categoryName = $paperCategory['name'] ?? '';
         $mail = new PhpMail();
         $from = ['name' => env('MAIL_FROM'), 'email' => env('MAIL_FROM_ADDRESS')];
-        $addTo = [env('EMAIL_BCC_ADDRESS'), env('CLIENT_EMAIL_ADDRESS')];
+        $addTo = [env('EMAIL_BCC_ADDRESS')];
         $subject = 'Reviewer Conflict of Interest Notification';
         $addContent = '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 0 0 16px 0; font-family: Arial, Helvetica, sans-serif;">
                           <tr>
