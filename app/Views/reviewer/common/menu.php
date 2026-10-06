@@ -22,7 +22,7 @@
             <ul class="navbar-nav mb-2 mb-md-0">
                 <?php if((session('user_id'))):?>
                 <li class="nav-item">
-                    <a class="nav-link active" aria-current="page" href="<?=base_url()?>/assets/documents/reviewers/IMAST26_Abstract_Reviewer_Instructions_OneWorld.pdf" target="_blank">
+                    <a class="nav-link active" aria-current="page" href="<?=base_url()?>/assets/documents/reviewers/IMAST27_Abstract_Reviewer_Instructions_OneWorld.pdf" target="_blank">
                         <button type="button" class="btn btn-outline-light">Reviewers Instruction <i class="fas fa-note-sticky"></i></button>
                     </a>
                 </li>
