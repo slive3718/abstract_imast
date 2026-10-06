@@ -210,7 +210,7 @@ class ReviewerController extends BaseController
 
         if (!empty($field_array)) {
             if($field_array['review_question_1']  == 'coi' || $field_array['review_question_2']  == 'coi' || $field_array['review_question_3']  == 'coi'){
-                print_R($this->sendCOIEmail($field_array));exit;
+                ($this->sendCOIEmail($field_array, $paper ));
             }
 
             if(!empty($abstractReviewModel->where(array('abstract_id'=>$_POST['abstract_id'], 'reviewer_id'=>$_POST['reviewer_id']))->get())){
@@ -244,8 +244,12 @@ class ReviewerController extends BaseController
         }
     }
 
-    function sendCOIEmail($field_array): object{
+    function sendCOIEmail($field_array, $paper): object{
         $abstract_id = $field_array['abstract_id'];
+        $reviewerData = (new UserModel())->find($field_array['reviewer_id']);
+        $reviewerFullName = $reviewerData['name'] . ' ' . $reviewerData['surname'];
+        $paperCategory = (new AbstractCategoriesModel())->find($paper->abstract_category);
+        $categoryName = $paperCategory['name'] ?? '';
         $mail = new PhpMail();
         $from = ['name' => env('MAIL_FROM'), 'email' => env('MAIL_FROM_ADDRESS')];
         $addTo = [env('EMAIL_BCC_ADDRESS'), env('CLIENT_EMAIL_ADDRESS')];
@@ -257,7 +261,10 @@ class ReviewerController extends BaseController
                                 Conflict of Interest Notice
                               </p>
                               <p style="margin: 0 0 12px 0; font-size: 15px; line-height: 1.6; color: #333333;">
-                                A reviewer has indicated a <strong style="color: #c0392b;">conflict of interest</strong> for the <strong>abstract ID: </strong> ' . $abstract_id . '
+                                A reviewer has indicated a <strong style="color: #c0392b;">conflict of interest</strong> for the <strong> <br>
+                                abstract ID: </strong> ' . $abstract_id . ' <strong> <br>
+                                Reviewer Name: </strong> ' . $reviewerFullName . ' <strong> <br>
+                                Category Name: </strong> ' . $categoryName . ' <strong>
                               </p>
                               <p style="margin: 0; font-size: 15px; line-height: 1.6; color: #333333;">
                                 Please take the necessary action to reassign this abstract to an alternative reviewer.
