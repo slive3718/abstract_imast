@@ -396,6 +396,7 @@ class EmailController extends BaseController
         $AbstractReview = (new AbstractReviewModel());
         $AssignedReviewer = (new PaperAssignedReviewerModel());
         $assignedReviewer = $AssignedReviewer->where(['reviewer_type'=> 'regular', 'is_deleted'=>0, 'is_declined'=>0])
+            ->groupBy('paper_assigned_reviewer.reviewer_id')
             ->findAll();
         $newArray = array();
         foreach ($assignedReviewer as $reviewer){
