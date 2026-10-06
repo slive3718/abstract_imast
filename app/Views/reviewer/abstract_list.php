@@ -169,8 +169,9 @@
             })
 
             $('#abstractTable').DataTable({
-                // Optional: Disable initial sorting to maintain random order
-                "order": []
+                "order": [],        // keep your existing random order
+                "pageLength": 100,  // default rows per page
+                "lengthMenu": [[25, 50, 100, 250, -1], [25, 50, 100, 250, "All"]]  // dropdown options
             });
         },'json')
     }
