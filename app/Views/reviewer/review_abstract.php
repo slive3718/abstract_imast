@@ -244,7 +244,7 @@
                 </div>
                     <form id="formReviewData">
                         <div class="p-2">
-                            <h6 class="mt-2"><span class="text-danger">*</span> Please rate the abstract from 1-5 (A Score of 1 is the best score, 5 is the worst score) in each of the three categories below. Full instructions can be found <a href="<?=base_url('assets/documents/reviewers/IMAST26_Abstract_Reviewer_Instructions_OneWorld.pdf')?>">here</a>.</h6>
+                            <h6 class="mt-2"><span class="text-danger">*</span> Please rate the abstract from 1-5 (A Score of 1 is the best score, 5 is the worst score) in each of the three categories below. Full instructions can be found <a href="<?=base_url('assets/documents/reviewers/IMAST27_Abstract_Reviewer_Instructions_OneWorld.pdf')?>" target="_blank">here</a>.</h6>
                             <div class="card shadow-sm mt-3">
                                 <div class="card-header bg-light">
                                     <h6 class="card-title mb-0 text-center fw-bolder">Rating Scale</h6>
