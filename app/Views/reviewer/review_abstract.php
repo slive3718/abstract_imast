@@ -304,7 +304,7 @@
                                 <tr>
                                     <td>
                                         <div style="margin-left:5px"><strong>1.	Quality of Content</strong></div>
-                                        <div style="margin-left:20px;margin-bottom:5px"><strong><font color="red">*</font></strong>Is the paper free of commercialism?</div>
+                                        <div style="margin-left:20px;margin-bottom:5px"><strong><font color="red">*</font></strong>Is the paper free of commercialism? Is the abstract well written? Is the content well-organized and communicated effectively?</div>
                                         <div style="margin-left:160px;">
                                             <select name="review_question_1" id="review_question_1" class="requiredSelect form-control border border-primary abstractReviewsScores">
                                                 <?= !empty($abstract_reviews) ? populateOptions($abstract_reviews['review_question_1']) : populateOptions() ?>
@@ -315,7 +315,7 @@
                                 <tr>
                                     <td>
                                         <div style="margin-left:5px"><strong>2.	Study Design</strong></div>
-                                        <div style="margin-left:20px;margin-bottom:5px"><strong><font color="red">*</font></strong>Is the paper free of commercialism?</div>
+                                        <div style="margin-left:20px;margin-bottom:5px"><strong><font color="red">*</font></strong>Is the paper free of commercialism? Is the methodology effective? Is the study design well suited for the research goal?</div>
                                         <div style="margin-left:160px;">
                                             <select name="review_question_2" id="review_question_2" class="requiredSelect form-control border border-primary abstractReviewsScores">
                                                 <?= !empty($abstract_reviews) ? populateOptions($abstract_reviews['review_question_2']) : populateOptions() ?>
@@ -326,7 +326,7 @@
                                 <tr>
                                     <td>
                                         <div style="margin-left:5px"><strong>3.	Innovation </strong></div>
-                                        <div style="margin-left:20px;margin-bottom:5px"><strong><font color="red">*</font></strong>Is the paper free of commercialism?</div>
+                                        <div style="margin-left:20px;margin-bottom:5px"><strong><font color="red">*</font></strong>Is the paper free of commercialism? Is the abstract sharing something new? Does this topic excite you?</div>
                                         <div style="margin-left:160px;">
                                             <select name="review_question_3" id="review_question_3" class="requiredSelect form-control border border-primary abstractReviewsScores">
                                                 <?= !empty($abstract_reviews) ? populateOptions($abstract_reviews['review_question_3']) : populateOptions() ?>
