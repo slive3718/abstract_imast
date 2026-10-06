@@ -209,35 +209,68 @@ class ReviewerController extends BaseController
             ])->findAll();
 
         if (!empty($field_array)) {
-                if(!empty($abstractReviewModel->where(array('abstract_id'=>$_POST['abstract_id'], 'reviewer_id'=>$_POST['reviewer_id']))->get())){
-                    $where = ['abstract_id'=>$_POST['abstract_id'], 'reviewer_id'=>$_POST['reviewer_id']];
-                    $abstractReviewModel->where($where)->set($field_array)->update();
-                    return json_encode(array('status'=>200, 'message'=>'Review successfully updated.'));
-                }else{
+            if($field_array['review_question_1']  == 'coi' || $field_array['review_question_2']  == 'coi' || $field_array['review_question_3']  == 'coi'){
+                print_R($this->sendCOIEmail($field_array));exit;
+            }
+
+            if(!empty($abstractReviewModel->where(array('abstract_id'=>$_POST['abstract_id'], 'reviewer_id'=>$_POST['reviewer_id']))->get())){
+                $where = ['abstract_id'=>$_POST['abstract_id'], 'reviewer_id'=>$_POST['reviewer_id']];
+                $abstractReviewModel->where($where)->set($field_array)->update();
+                return json_encode(array('status'=>200, 'message'=>'Review successfully updated.'));
+            }else{
+                $siteSettings = $SiteSettingsModel->where('name', 'reviewers_reviews_to_close')->first();
+                $abstractReviews = ($abstractReviewModel->where('abstract_id',$_POST['abstract_id']))->findAll();
+                if(count($abstractReviews) >= $siteSettings['value']){
+                    return json_encode(array('status' => 201, 'message' => "Regular Review Task Closed – Paper has been reviewed three times."));
+                }else {
+                    $abstractReviewModel->insert($field_array);
                     $siteSettings = $SiteSettingsModel->where('name', 'reviewers_reviews_to_close')->first();
                     $abstractReviews = ($abstractReviewModel->where('abstract_id',$_POST['abstract_id']))->findAll();
                     if(count($abstractReviews) >= $siteSettings['value']){
-                        return json_encode(array('status' => 201, 'message' => "Regular Review Task Closed – Paper has been reviewed three times."));
-                    }else {
-                        $abstractReviewModel->insert($field_array);
-                        $siteSettings = $SiteSettingsModel->where('name', 'reviewers_reviews_to_close')->first();
-                        $abstractReviews = ($abstractReviewModel->where('abstract_id',$_POST['abstract_id']))->findAll();
-                        if(count($abstractReviews) >= $siteSettings['value']){
 
-                            $emailController = New EmailController();
-                            foreach ($paperReviewers as $reviewers){
-                                $reviewed = $ReviewModel->where(['reviewer_id'=> $reviewers['reviewer_id'], 'abstract_id'=>$_POST['abstract_id']])->findAll();
-                                if(!$reviewed){
-                                    $emailController->sendCustomEmailReviewer(8, $reviewers['reviewer_id'], $_POST['abstract_id'], strip_tags($paper->title));
-                                }
+                        $emailController = New EmailController();
+                        foreach ($paperReviewers as $reviewers){
+                            $reviewed = $ReviewModel->where(['reviewer_id'=> $reviewers['reviewer_id'], 'abstract_id'=>$_POST['abstract_id']])->findAll();
+                            if(!$reviewed){
+                                $emailController->sendCustomEmailReviewer(8, $reviewers['reviewer_id'], $_POST['abstract_id'], strip_tags($paper->title));
                             }
                         }
-                        return json_encode(array('status' => 200, 'message' => 'Review successfully added.'));
                     }
+                    return json_encode(array('status' => 200, 'message' => 'Review successfully added.'));
                 }
-            } else {
-                return json_encode(array('status'=>500, 'message'=>'Error!'));
             }
+        } else {
+            return json_encode(array('status'=>500, 'message'=>'Error!'));
+        }
+    }
+
+    function sendCOIEmail($field_array): object{
+        $abstract_id = $field_array['abstract_id'];
+        $mail = new PhpMail();
+        $from = ['name' => env('MAIL_FROM'), 'email' => env('MAIL_FROM_ADDRESS')];
+        $addTo = [env('EMAIL_BCC_ADDRESS'), env('CLIENT_EMAIL_ADDRESS')];
+        $subject = 'Reviewer Conflict of Interest Notification';
+        $addContent = '<table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="margin: 0 0 16px 0; font-family: Arial, Helvetica, sans-serif;">
+                          <tr>
+                            <td style="background-color: #f8fafc; border-left: 4px solid #1a4f8b; border-radius: 6px; padding: 20px 24px;">
+                              <p style="margin: 0 0 10px 0; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #1a4f8b; font-weight: bold;">
+                                Conflict of Interest Notice
+                              </p>
+                              <p style="margin: 0 0 12px 0; font-size: 15px; line-height: 1.6; color: #333333;">
+                                A reviewer has indicated a <strong style="color: #c0392b;">conflict of interest</strong> for the <strong>abstract ID: </strong> ' . $abstract_id . '
+                              </p>
+                              <p style="margin: 0; font-size: 15px; line-height: 1.6; color: #333333;">
+                                Please take the necessary action to reassign this abstract to an alternative reviewer.
+                              </p>
+                            </td>
+                          </tr>
+                        </table>' ;
+        return $mail->send(
+            $from,
+            $addTo,
+            $subject,
+            $addContent
+        );
     }
 
 
