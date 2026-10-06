@@ -376,13 +376,17 @@ class EmailController extends BaseController
     }
 
     function allRegular(){
-        $deputyUsers = (new UserModel())->where('is_regular_reviewer', 1)->findAll();
+        $regularUsers = (new PaperAssignedReviewerModel())
+            ->join($this->shared_db_name . '.users as users', 'paper_assigned_reviewer.reviewer_id = users.id', 'left')
+            ->where('is_regular_reviewer', 1)
+            ->groupBy('paper_assigned_reviewer.reviewer_id')
+            ->findAll();
 
         $regular = array_map(function($e) {
             $array['details'] = array_merge($e, ['filter' => 'all_regular']);
             $array['filter'] = 'all_regular';
             return $array;
-        }, $deputyUsers);
+        }, $regularUsers);
 
         return $regular;
     }
