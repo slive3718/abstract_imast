@@ -128,8 +128,10 @@ use App\Models\DesignationsModel;
                                  aria-controls="tab-<?= htmlspecialchars($schedule['id'], ENT_QUOTES, 'UTF-8') ?>">
                                 <div class="scheduleTab ">
                                     <h3 class="fw-bolder text-primary mt-4"><?= htmlspecialchars(date('l, M. d, Y', strtotime($schedule['date'])), ENT_QUOTES, 'UTF-8') ?></h3>
-                                    <h4 class="fw-bolder"> CASTEXPO 2025 / Presenting the WFO Technical Forum <br>
-                                        Georgia World Congress Center Atlanta, GA</h4>
+                                    <h4 class="fw-bolder">34th Scoliosis Research Society (SRS) <br>
+                                        International Meeting on Advanced Spine Techniques (IMAST) <br>
+                                        Copenhagen, Denmark,
+                                        April 7-9, 2027</h4>
                                 </div>
                             </div>
                         </div>
