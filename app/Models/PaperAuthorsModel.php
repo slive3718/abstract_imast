@@ -101,7 +101,7 @@ class PaperAuthorsModel extends BaseModel
     {
         try {
             $query =  $this->table('paper_authors')
-                ->select('paper_authors.*, u.name as user_name, u.surname as user_surname,  IFNULL(rpa.id, 0) as is_removed')
+                ->select('paper_authors.*, u.name as user_name, u.surname as user_surname,middle_name,  IFNULL(rpa.id, 0) as is_removed')
                 ->join($this->sharedDB->database.'.users u', 'paper_authors.author_id = u.id', 'left')
                 ->join('removed_paper_authors rpa', 'paper_authors.id = rpa.paper_author_id', 'left');
                 if($paper_id){

@@ -1,3 +1,8 @@
+<?php
+
+use App\Models\DesignationsModel;
+
+?>
 <style>
     .nav-link {
         height: 120px;
@@ -135,8 +140,7 @@
                                     <h4 class="fw-bolder text-primary"><?= htmlspecialchars(ucfirst($event['session_title']), ENT_QUOTES, 'UTF-8') ?> <span class="float-end fw-normal" style="font-size: 16px" ><?=$event['track']['name'] ?? ''?></span></h4>
                                     <h5 class="text-success">
                                         <?= htmlspecialchars(date('h:i a', strtotime($event['session_start_time'])), ENT_QUOTES, 'UTF-8') ?> -
-                                        <?= htmlspecialchars(date('h:i a', strtotime($event['session_end_time'])), ENT_QUOTES, 'UTF-8') ?>  EST |
-                                        <?= htmlspecialchars($event['room_name'], ENT_QUOTES, 'UTF-8') ?>
+                                        <?= htmlspecialchars(date('h:i a', strtotime($event['session_end_time'])), ENT_QUOTES, 'UTF-8') ?>  CEST
                                     </h5>
                                 </div>
                                 <div class="card-body">
@@ -148,10 +152,15 @@
                                                 <?php if (!empty($event['moderators'])): ?>
                                                     <h5 class="text-success fw-bolder">Session Moderator(s):</h5>
                                                     <?php foreach ($event['moderators'] as $moderator): ?>
+                                                    <?php
+                                                        $moderatorDesignationText = '';
+                                                        if (!empty($moderator['designation']) && is_array($moderator['designation'])) {
+                                                            $moderatorDesignationText = implode(', ', array_filter($moderator['designation']));
+                                                        }
+                                                    ?>
                                                         <div>
-                                                            <span class="fw-bolder"><?= htmlspecialchars($moderator['name'] . ' ' . $moderator['surname'], ENT_QUOTES, 'UTF-8') ?><?= $moderator['deg'] ? ', '.htmlspecialchars($moderator['deg'], ENT_QUOTES, 'UTF-8') : ''?>
+                                                            <span class="fw-bolder"><?= htmlspecialchars($moderator['name'] . ' '. $moderator['middle_name']. ' ' . $moderator['surname'], ENT_QUOTES, 'UTF-8') ?><?= $moderatorDesignationText !== '' ? ', ' . htmlspecialchars($moderatorDesignationText, ENT_QUOTES, 'UTF-8') : '' ?>
                                                             </span>
-                                                            <i><?= $moderator['institution'] ? '<br>'.htmlspecialchars($moderator['institution'], ENT_QUOTES, 'UTF-8') : ''?></i>
                                                         </div>
                                                     <?php endforeach; ?>
                                                 <?php endif; ?>
@@ -183,7 +192,6 @@
                                                                             </td>
                                                                             <td style="vertical-align:top;">
                                                                                 <?php if ($talk['abstract_id']): ?>
-                                                                                    <?= htmlspecialchars($talk['custom_id'], ENT_QUOTES, 'UTF-8') ?>
                                                                                     <span class="fw-bolder">
                                                                                         <?= strip_tags($talk['title']) ?>
                                                                                     </span>
@@ -209,7 +217,6 @@
                                                                                                     : '' ?>
                                                                                                 <?= trim($talk['panelist']['user_name'] . ' ' . $talk['panelist']['user_surname']) ?>
                                                                                                 <?= !empty($talk['panelist']['deg']) ? ', ' . htmlspecialchars($talk['panelist']['deg'], ENT_QUOTES, 'UTF-8') : '' ?>
-                                                                                                <i><?= !empty($talk['panelist']['institution']) ? '<br>' . htmlspecialchars($talk['panelist']['institution'], ENT_QUOTES, 'UTF-8') : '' ?></i>
                                                                                                 <?php if (!empty($event['talks'])): ?>
                                                                                                     <div class="accordion mt-2" id="accordionExample">
                                                                                                         <div class="accordion-item">
@@ -229,11 +236,17 @@
                                                                                             </li>
                                                                                         <?php elseif (!empty($talk['presenters'])): ?>
                                                                                             <?php foreach ($talk['presenters'] as $presenter): ?>
+                                                                                                <!--                                                                                                       Designations-->
+                                                                                                <?php
+                                                                                                $presenterDesignationText = '';
+                                                                                                if (!empty($presenter['details']['designation']) && is_array($presenter['details']['designation'])) {
+                                                                                                    $presenterDesignationText = implode(', ', array_filter($presenter['details']['designation']));
+                                                                                                }
+                                                                                                ?>
+
                                                                                                 <li class="list-group-item" style="list-style: none;">
-                                                                                                    <?= trim($presenter['user_name'] . ' ' . $presenter['user_surname']) ?>
+                                                                                                    <?= trim($presenter['user_name'] . ' ' .$presenter['middle_name']. ' ' . $presenter['user_surname']). (!empty($presenterDesignationText) ? ', ' . htmlspecialchars($presenterDesignationText, ENT_QUOTES, 'UTF-8') : '') ?>
                                                                                                     <?php if (!empty($presenter['details'])): ?>
-                                                                                                        <?= !empty($presenter['details']['deg']) ? ', ' . htmlspecialchars($presenter['details']['deg'], ENT_QUOTES, 'UTF-8') : '' ?>
-                                                                                                        <i><?= !empty($presenter['details']['institution']) ? '<br>' . htmlspecialchars($presenter['details']['institution'], ENT_QUOTES, 'UTF-8') : '' ?></i>
                                                                                                         <?php if (!empty($event['talks'])): ?>
                                                                                                             <div class="accordion mt-2" id="accordionExample">
                                                                                                                 <div class="accordion-item">
