@@ -123,6 +123,9 @@
                 if(data.is_session_moderator === '1'){
                     $('#is_session_moderator').prop('checked', true)
                 }
+                if(data.is_table_moderator === '1'){
+                    $('#is_table_moderator').prop('checked', true)
+                }
                 if(data.is_cme_reviewer && data.is_cme_reviewer.deleted_at === null){
                     console.log('here')
                     $('#is_cme_reviewer').prop('checked', true)

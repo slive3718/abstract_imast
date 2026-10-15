@@ -109,6 +109,20 @@
                             </div>
                         </div>
 
+                        <!-- Table Moderators -->
+
+                        <div class="col-md-12" id="is_table_moderators"> <!-- Make the checkbox span the entire row -->
+                            <div class="alert alert-warning mt-3" role="alert">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" name="is_table_moderator" id="is_table_moderator" value="1">
+                                    <label class="form-check-label" for="is_table_moderator">Table Moderator</label>
+                                </div>
+                                <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                                <small>If Table Moderator is checked above, this new user will be available on scheduler table chair</small>
+                            </div>
+                        </div>
+
+
                         <!-- IF checkbox is study group  hide the dropdown of study groups -->
                         <!--                                todo: this will be move to reviewer    -->
                         <div class="col-md-12" id="is_session_moderator_div"> <!-- Make the checkbox span the entire row -->

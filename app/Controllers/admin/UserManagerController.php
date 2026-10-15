@@ -612,6 +612,7 @@ class UserManagerController extends BaseController
             'is_regular_reviewer' => isset($post['is_regular_reviewer']) ? 1 : 0,
             'is_deputy_reviewer' => isset($post['is_deputy_reviewer']) ? 1 : 0,
             'is_session_moderator' => isset($post['is_session_moderator']) ? 1 : 0,
+            'is_table_moderator' => isset($post['is_table_moderator']) ? 1 : 0,
         ];
 
         if (!empty($post['password']) ) {
