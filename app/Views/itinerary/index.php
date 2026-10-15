@@ -99,9 +99,8 @@ use App\Models\DesignationsModel;
                                      role="tab"
                                      aria-controls="tab-<?= htmlspecialchars($schedule['id'], ENT_QUOTES, 'UTF-8') ?>">
                                     <div class="scheduleTab">
-                                        <p class="fw-bolder">Annual Meeting</p>
+                                        <p class="fw-bolder h3"><?= date('l', strtotime($schedule['date'])) ?></p>
                                         <p class="fw-bolder"><?= htmlspecialchars($schedule['date'], ENT_QUOTES, 'UTF-8') ?></p>
-
                                     </div>
                                 </div>
                             </div>
