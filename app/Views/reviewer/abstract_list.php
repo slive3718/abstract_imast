@@ -117,8 +117,13 @@
         return !!(item && item.reviews && item.reviews.total_score);
     }
 
+    function hasValidAbstract(item) {
+        return !!(item && item.abstracts && item.abstracts.id);
+    }
+
     function buildStableReviewerOrder(data) {
-        const currentIds = data.map(item => item.abstracts.id);
+        const validData = Array.isArray(data) ? data.filter(hasValidAbstract) : [];
+        const currentIds = validData.map(item => item.abstracts.id);
         const validIdSet = new Set(currentIds);
         const storedOrder = getStoredOrder().filter(id => validIdSet.has(id));
         const storedIdSet = new Set(storedOrder);
@@ -132,7 +137,7 @@
             orderIndex[id] = index;
         });
 
-        return data.slice().sort((a, b) => {
+        return validData.slice().sort((a, b) => {
             // Show reviewed items first, then follow stable one-time randomized order.
             const reviewedRankA = isReviewed(a) ? 0 : 1;
             const reviewedRankB = isReviewed(b) ? 0 : 1;
@@ -245,11 +250,15 @@
                 let reviewBtn  = '<button class="btn btn-success btn-sm reviewBtn" abstract_id='+val.abstracts.id+'> Review </button>'
                 // let declinedBtn  = '<button class="btn btn-danger btn-sm declineBtn" abstract_id='+val.abstracts.id+'> Decline </button>'
 
+                const abstractTitle = val.abstracts.title ? val.abstracts.title.replace( /<.*?>/g, '' ) : '';
+                const abstractCategory = (val.abstract_categories && val.abstract_categories.name) ? val.abstract_categories.name : '';
+                const totalScore = (val.reviews && val.reviews.total_score) ? val.reviews.total_score : '';
+
                 $('#abstractTableBody').append('<tr>'+
                     '<td>'+val.abstracts.custom_id+'</td>'+
-                    '<td>'+val.abstracts.title.replace( /<.*?>/g, '' ) +'</td>'+
-                    '<td>'+(val.abstract_categories ? val.abstract_categories.name : "") +'</td>'+
-                    '<td id="rating_'+val.abstracts.id+'">'+(val.reviews && val.reviews.total_score ? val.reviews.total_score:'')+'</td>'+
+                    '<td>'+abstractTitle+'</td>'+
+                    '<td>'+abstractCategory+'</td>'+
+                    '<td id="rating_'+val.abstracts.id+'">'+totalScore+'</td>'+
                     '<td>'+reviewBtn+'</td>'+
                     '</tr>')
             })

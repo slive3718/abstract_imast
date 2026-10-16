@@ -88,16 +88,18 @@ class ReviewerController extends BaseController
         $reviewer_abstracts = array();
         foreach($reviewerModel as $reviewer){
             $reviewer['abstracts'] = (new PapersModel())->where('active_status', 1)->find($reviewer['paper_id']);
-//
-            if(isset($reviewer['abstracts'])){
-                $reviewer['abstracts_submitter']= (new UserModel())->find($reviewer['abstracts']->id);
-                $reviewer['abstract_categories'] = (new AbstractCategoriesModel())->where('id', $reviewer['abstracts']->abstract_category)->first();
+
+            if(empty($reviewer['abstracts'])){
+                continue;
             }
+
+            $reviewer['abstracts_submitter']= (new UserModel())->find($reviewer['abstracts']->id);
+            $reviewer['abstract_categories'] = (new AbstractCategoriesModel())->where('id', $reviewer['abstracts']->abstract_category)->first();
             $reviewer['reviews'] = (new AbstractReviewModel())->where(array('abstract_id'=> $reviewer['paper_id'], 'reviewer_id'=>session('user_id')))->first();
             $reviewer_abstracts[] = $reviewer;
         }
 
-        return json_encode(['status'=>200, 'message'=>'', 'data'=>$reviewer_abstracts]);
+        return $this->response->setJSON(['status'=>200, 'message'=>'', 'data'=>$reviewer_abstracts]);
     }
 
 
