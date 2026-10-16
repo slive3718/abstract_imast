@@ -59,6 +59,93 @@
 
 <script>
     let baseUrlReviewer = "<?=base_url().'reviewer/'?>";
+    const reviewerUserId = "<?=session('user_id')?>";
+    const reviewerOrderStorageKey = `reviewer_abstract_order_${reviewerUserId}`;
+
+    function getCookieValue(name) {
+        const match = document.cookie.match(new RegExp('(?:^|; )' + name.replace(/([.$?*|{}()\[\]\\\/\+^])/g, '\\$1') + '=([^;]*)'));
+        return match ? decodeURIComponent(match[1]) : null;
+    }
+
+    function getStoredOrder() {
+        try {
+            const localValue = localStorage.getItem(reviewerOrderStorageKey);
+            if (localValue) {
+                const parsed = JSON.parse(localValue);
+                return Array.isArray(parsed) ? parsed : [];
+            }
+        } catch (e) {
+            // localStorage may be blocked; fall back to cookie.
+        }
+
+        const cookieValue = getCookieValue(reviewerOrderStorageKey);
+        if (!cookieValue) {
+            return [];
+        }
+
+        try {
+            const parsed = JSON.parse(cookieValue);
+            return Array.isArray(parsed) ? parsed : [];
+        } catch (e) {
+            return [];
+        }
+    }
+
+    function setStoredOrder(order) {
+        const normalizedOrder = Array.isArray(order) ? order : [];
+
+        try {
+            localStorage.setItem(reviewerOrderStorageKey, JSON.stringify(normalizedOrder));
+        } catch (e) {
+            // Ignore and still write cookie fallback.
+        }
+
+        const maxAge = 60 * 60 * 24 * 90; // 90 days
+        document.cookie = `${reviewerOrderStorageKey}=${encodeURIComponent(JSON.stringify(normalizedOrder))}; path=/; max-age=${maxAge}; SameSite=Lax`;
+    }
+
+    function shuffleArray(items) {
+        const copy = items.slice();
+        for (let i = copy.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [copy[i], copy[j]] = [copy[j], copy[i]];
+        }
+        return copy;
+    }
+
+    function isReviewed(item) {
+        return !!(item && item.reviews && item.reviews.total_score);
+    }
+
+    function buildStableReviewerOrder(data) {
+        const currentIds = data.map(item => item.abstracts.id);
+        const validIdSet = new Set(currentIds);
+        const storedOrder = getStoredOrder().filter(id => validIdSet.has(id));
+        const storedIdSet = new Set(storedOrder);
+
+        const newIds = currentIds.filter(id => !storedIdSet.has(id));
+        const nextOrder = storedOrder.concat(shuffleArray(newIds));
+        setStoredOrder(nextOrder);
+
+        const orderIndex = {};
+        nextOrder.forEach((id, index) => {
+            orderIndex[id] = index;
+        });
+
+        return data.slice().sort((a, b) => {
+            // Show reviewed items first, then follow stable one-time randomized order.
+            const reviewedRankA = isReviewed(a) ? 0 : 1;
+            const reviewedRankB = isReviewed(b) ? 0 : 1;
+            if (reviewedRankA !== reviewedRankB) {
+                return reviewedRankA - reviewedRankB;
+            }
+
+            const indexA = orderIndex[a.abstracts.id] ?? Number.MAX_SAFE_INTEGER;
+            const indexB = orderIndex[b.abstracts.id] ?? Number.MAX_SAFE_INTEGER;
+            return indexA - indexB;
+        });
+    }
+
     $(function(){
 
         getAbstracts();
@@ -153,9 +240,8 @@
         $.post(baseUrlReviewer+'getAllReviewerAbstracts', function(response){
             // console.log(response[0]);
             $('#abstractTableBody').html('');
-            const shuffledData = response.data.sort(() => Math.random() - 0.5);
-            $.each(shuffledData, function(i, val){
-                console.log(val);
+            const orderedData = buildStableReviewerOrder(response.data || []);
+            $.each(orderedData, function(i, val){
                 let reviewBtn  = '<button class="btn btn-success btn-sm reviewBtn" abstract_id='+val.abstracts.id+'> Review </button>'
                 // let declinedBtn  = '<button class="btn btn-danger btn-sm declineBtn" abstract_id='+val.abstracts.id+'> Decline </button>'
 
