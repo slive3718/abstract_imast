@@ -2195,6 +2195,13 @@ class AbstractController extends BaseController
             ->findAll()) ?? [];
     }
 
+    public function getAllTableModerators(){
+        $this->response->setStatusCode(200);
+        return $this->response->setJson((new UserModel())->orderBy('surname', 'ASC')
+            ->Where('is_table_moderator', 1)
+            ->findAll()) ?? [];
+    }
+
     public function getAllPaperType(){
         $this->response->setStatusCode(200);
         return $this->response->setJson((new PaperTypeModel())->findAll());

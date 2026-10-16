@@ -77,6 +77,23 @@ class SchedulerController extends BaseController
                    }
                }
 
+               if ($scheduler_event['table_moderator_ids']) {
+                   $scheduler_event['table_moderators'] = []; // Initialize the array
+
+                   foreach (json_decode($scheduler_event['table_moderator_ids']) as $table_moderator_id) {
+                       $table_moderator = (new UserModel())->find($table_moderator_id);
+
+                       // Add the acceptance field
+                       $table_moderator['acceptance'] = (new ModeratorAcceptanceModel())
+                           ->where('scheduler_id', $scheduler_event['id'])
+                           ->where('author_id', $table_moderator_id)
+                           ->first() ?? [];
+
+                       // Append to the array
+                       $scheduler_event['table_moderators'][] = $table_moderator;
+                   }
+               }
+
                if($scheduler_event['talks']){
                    foreach ($scheduler_event['talks'] as &$talk){
                        $talk['presenters'] = [];
@@ -325,6 +342,7 @@ class SchedulerController extends BaseController
             'break_duration' => $post['duration_break'],
             'session_number' => $post['session_number'],
             'session_chair_ids' => json_encode($chair),
+            'table_moderator_ids' => json_encode($post['table_moderator'] ?? []),
             'session_track' => $post['session_track'] ?? null,
             'room_id' => $post['rooms'],
         ];

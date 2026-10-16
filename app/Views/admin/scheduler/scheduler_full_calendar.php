@@ -683,9 +683,10 @@
             };
 
             try {
-                const [rooms, sessionChairs, sessionTypes, sessionTracks] = await Promise.all([
+                const [rooms, sessionChairs, tableModerators, sessionTypes, sessionTracks] = await Promise.all([
                     schedulerRooms(),
                     sessionChair() ?? [],
+                    tableModerator() ?? [],
                     paperType(),
                     sessionTrack()
                 ]);
@@ -696,6 +697,10 @@
 
                 if (sessionChairs.length) {
                     populateDropdown('.sessionChairSelect', sessionChairs, ' -- Select Moderator -- ');
+                }
+
+                if (tableModerators.length) {
+                    populateDropdown('.tableModeratorSelect', tableModerators, ' -- Select Moderator -- ');
                 }
 
                 if (sessionTypes.length) {
@@ -781,11 +786,24 @@
     function sessionChair() {
         return new Promise((resolve, reject) => {
             $.post(baseUrlAdmin + 'scheduler/getAllSessionChair', function(sessionChairs) {
-                console.log(sessionChairs)
+                // console.log(sessionChairs)
                 if (sessionChairs.length > 0) {
                     resolve(sessionChairs);
                 } else {
                     reject(new Error('No Session Chair found.'));
+                }
+            }).fail(reject);
+        });
+    }
+
+    function tableModerator() {
+        return new Promise((resolve, reject) => {
+            $.post(baseUrlAdmin + 'scheduler/getAllTableModerators', function(tableModerators) {
+                console.log(tableModerators)
+                if (tableModerators.length > 0) {
+                    resolve(tableModerators);
+                } else {
+                    reject(new Error('No Table Moderators found.'));
                 }
             }).fail(reject);
         });
@@ -866,9 +884,11 @@
                 }
 
                 $.each(response, function(index, res) {
+                    // console.log(res);
                     if (res.presentation_date !== null) {
                         let talkTimeSummary = '';
                         let sessionChairs = '';
+                        let tableModerators = '';
 
                         $.each(res.session_chair, function(i, chairs) {
                             sessionChairs += `Moderator ${i+1}: ${chairs.name + ' ' + chairs.surname}`;
@@ -878,6 +898,17 @@
                                     ${getIcon(chairs.acceptance.is_finalized)} Finalized </span>`;
                             }
                             sessionChairs += `<br>`;
+                        });
+
+
+                        $.each(res.table_moderators, function(i, tableModerator) {
+                            tableModerators += `Moderator ${i+1}: ${tableModerator.name + ' ' + tableModerator.surname}`;
+                            if (tableModerator.acceptance) {
+                                tableModerators += `<span class="text-primary acceptanceStatus" style="display: none">
+                                    ${getIcon(tableModerator.acceptance.acceptance_confirmation)} Acceptance Confirmation
+                                    ${getIcon(tableModerator.acceptance.is_finalized)} Finalized </span>`;
+                            }
+                            tableModerators += `<br>`;
                         });
 
                         $.each(res.talks, function(i, talk) {
@@ -981,9 +1012,16 @@
             schedulerModal.find('#updateID').val(info.id);
             $.get(baseUrlAdmin + `scheduler/get_one_json/${info.id}`, function(data) {
                 let sessionChairs = [];
+                let tableModerators = [];
                 if (data.scheduled_event.session_chair_ids) {
                     sessionChairs = JSON.parse(data.scheduled_event.session_chair_ids);
                 }
+
+                if (data.scheduled_event.table_moderator_ids) {
+                    tableModerators = JSON.parse(data.scheduled_event.table_moderator_ids);
+                }
+
+                console.log(tableModerators)
 
                 $('#floatingDay').val(data.scheduled_event.session_day ?? '');
                 $('#floatingSessionTitle').val(data.scheduled_event.session_title ?? '');
@@ -1004,6 +1042,15 @@
                     }
                 });
 
+                // Prefill table moderators using explicit IDs, mirroring session chair handling.
+                tableModerators.forEach((moderator, index) => {
+                    const elementId = `#floatingTableModerator${index + 1}`;
+                    const $element = $(elementId);
+
+                    if ($element.length) {
+                        $element.val(moderator ?? '').change();
+                    }
+                });
             });
         });
         schedulerModal.find('.modal-title').html(`Manage Session #: ${info.id}`);
@@ -1333,7 +1380,7 @@
             let row = $(`<tr id="${paper.id}">`);
             row.append(`<td><span class="start-time"></span> - <span class="end-time"></span></td>`);
             row.append(`<td><input type="number" class="talk-duration" style="width:50px" data-abstract-id="${paper.id}" value="${talkDetail.duration}"></td>`);
-            row.append(`<td class="text-nowrap ">${presenters}</td>`);
+            row.append(`<td class="text-nowrap">${presenters}</td>`);
             row.append(`<td>Abstract ID: (<span class="fw-bold">${paper.custom_id})</span><br> ${stripTags(paper.title)}</td>`);
             row.append(`
                 <td class="text-nowrap">
@@ -1406,7 +1453,7 @@
             type: 'GET',
             dataType: 'json',
             success: function(data) {
-                console.log(data)
+                // console.log(data)
                 if (data.data && data.data.length > 0) {
                     Swal.fire({
                         title: "Cannot delete!",

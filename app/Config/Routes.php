@@ -133,6 +133,7 @@ $routes->group('admin', ['filter' => 'authGuard:admin'],  function ($routes) {
     $routes->post('scheduler/getAllPapers', 'admin\Abstracts\AbstractController::getAllPapers');
     $routes->post('scheduler/getAllRooms', 'admin\Abstracts\AbstractController::getAllRooms');
     $routes->post('scheduler/getAllSessionChair', 'admin\Abstracts\AbstractController::getAllSessionChair');
+    $routes->post('scheduler/getAllTableModerators', 'admin\Abstracts\AbstractController::getAllTableModerators');
     $routes->post('scheduler/getAllPaperType', 'admin\Abstracts\AbstractController::getAllPaperType');
     $routes->post('scheduler/getSchedulerAllowedDate', 'admin\Abstracts\SchedulerController::getSchedulerAllowedDate');
 

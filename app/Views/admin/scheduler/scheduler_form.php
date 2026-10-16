@@ -72,74 +72,172 @@
         <label for="floatingSessionTracks">Tracks</label>
     </div>
 
+    <div class="card mb-3 p-2 shadow-md bg-primary bg-opacity-50">
+        <h4>Session Chairs</h4>
     <!-- Session Chair 1 -->
-    <div class="form-floating mb-3">
-        <select class="form-select sessionChairSelect" id="floatingSessionChair1" name="session_chair[]">
-            <option value="" selected>-- Select --</option>
-        </select>
-        <label for="floatingSessionChair1">Session Chair 1</label>
+        <div class="form-floating mb-3">
+            <select class="form-select sessionChairSelect" id="floatingSessionChair1" name="session_chair[]">
+                <option value="" selected>-- Select --</option>
+            </select>
+            <label for="floatingSessionChair1">Session Chair 1</label>
+        </div>
+
+        <!-- Session Chair 2 -->
+        <div class="form-floating mb-3">
+            <select class="form-select sessionChairSelect" id="floatingSessionChair2" name="session_chair[]">
+                <option value="" selected>-- Select --</option>
+            </select>
+            <label for="floatingSessionChair2">Session Chair 2</label>
+        </div>
+
+        <!-- Session Chair 3 -->
+        <div class="form-floating mb-3">
+            <select class="form-select sessionChairSelect" id="floatingSessionChair3" name="session_chair[]">
+                <option value="" selected>-- Select --</option>
+            </select>
+            <label for="floatingSessionChair3">Session Chair 3</label>
+        </div>
+
+        <p>
+            <a class="" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
+                Select more moderators here
+            </a>
+        </p>
+        <div class="collapse" id="collapseExample">
+            <!-- Session Chair 4 -->
+            <div class="form-floating mb-3">
+                <select class="form-select sessionChairSelect" id="floatingSessionChair4" name="session_chair[]">
+                    <option value="" selected>-- Select --</option>
+                </select>
+                <label for="floatingSessionChair4">Session Chair 4</label>
+            </div>
+
+            <!-- Session Chair 5 -->
+            <div class="form-floating mb-3">
+                <select class="form-select sessionChairSelect" id="floatingSessionChair5" name="session_chair[]">
+                    <option value="" selected>-- Select --</option>
+                </select>
+                <label for="floatingSessionChair5">Session Chair 5</label>
+            </div>
+
+            <!-- Session Chair 6 -->
+            <div class="form-floating mb-3">
+                <select class="form-select sessionChairSelect" id="floatingSessionChair6" name="session_chair[]">
+                    <option value="" selected>-- Select --</option>
+                </select>
+                <label for="floatingSessionChair6">Session Chair 6</label>
+            </div>
+
+            <!-- Session Chair 7 -->
+            <div class="form-floating mb-3">
+                <select class="form-select sessionChairSelect" id="floatingSessionChair7" name="session_chair[]">
+                    <option value="" selected>-- Select --</option>
+                </select>
+                <label for="floatingSessionChair7">Session Chair 7</label>
+            </div>
+
+            <!-- Session Chair 8 -->
+            <div class="form-floating mb-3">
+                <select class="form-select sessionChairSelect" id="floatingSessionChair8" name="session_chair[]">
+                    <option value="" selected>-- Select --</option>
+                </select>
+                <label for="floatingSessionChair8">Session Chair 8</label>
+            </div>
+        </div>
     </div>
 
-    <!-- Session Chair 2 -->
-    <div class="form-floating mb-3">
-        <select class="form-select sessionChairSelect" id="floatingSessionChair2" name="session_chair[]">
-            <option value="" selected>-- Select --</option>
-        </select>
-        <label for="floatingSessionChair2">Session Chair 2</label>
-    </div>
+<!--    Table Moderators-->
 
-    <!-- Session Chair 3 -->
-    <div class="form-floating mb-3">
-        <select class="form-select sessionChairSelect" id="floatingSessionChair3" name="session_chair[]">
-            <option value="" selected>-- Select --</option>
-        </select>
-        <label for="floatingSessionChair3">Session Chair 3</label>
-    </div>
-
-    <p>
-        <a class="" data-bs-toggle="collapse" href="#collapseExample" role="button" aria-expanded="false" aria-controls="collapseExample">
-            Select more moderators here
-        </a>
-    </p>
-    <div class="collapse" id="collapseExample">
-        <!-- Session Chair 4 -->
+    <div class="card mb-3 p-2 shadow-md bg-secondary bg-opacity-50">
+        <h4>Table Moderators</h4>
+        <!-- Table Moderator 1 -->
         <div class="form-floating mb-3">
-            <select class="form-select sessionChairSelect" id="floatingSessionChair4" name="session_chair[]">
+            <select class="form-select tableModeratorSelect" id="floatingTableModerator1" name="table_moderator[]">
                 <option value="" selected>-- Select --</option>
             </select>
-            <label for="floatingSessionChair4">Session Chair 4</label>
+            <label for="floatingTableModerator1">Table Moderator 1</label>
         </div>
 
-        <!-- Session Chair 5 -->
+        <!-- Table Moderator 2 -->
         <div class="form-floating mb-3">
-            <select class="form-select sessionChairSelect" id="floatingSessionChair5" name="session_chair[]">
+            <select class="form-select tableModeratorSelect" id="floatingTableModerator2" name="table_moderator[]">
                 <option value="" selected>-- Select --</option>
             </select>
-            <label for="floatingSessionChair5">Session Chair 5</label>
+            <label for="floatingTableModerator2">Table Moderator 2</label>
         </div>
 
-        <!-- Session Chair 6 -->
+        <!-- Table Moderator 3 -->
         <div class="form-floating mb-3">
-            <select class="form-select sessionChairSelect" id="floatingSessionChair6" name="session_chair[]">
+            <select class="form-select tableModeratorSelect" id="floatingTableModerator3" name="table_moderator[]">
                 <option value="" selected>-- Select --</option>
             </select>
-            <label for="floatingSessionChair6">Session Chair 6</label>
+            <label for="floatingTableModerator3">Table Moderator 3</label>
         </div>
 
-        <!-- Session Chair 7 -->
-        <div class="form-floating mb-3">
-            <select class="form-select sessionChairSelect" id="floatingSessionChair7" name="session_chair[]">
-                <option value="" selected>-- Select --</option>
-            </select>
-            <label for="floatingSessionChair7">Session Chair 7</label>
-        </div>
+    <!--    Table Moderator Collapse-->
+        <p>
+            <a class="" data-bs-toggle="collapse" href="#collapseTableMod" role="button" aria-expanded="false" aria-controls="collapseTableMod">
+                Select more moderators here
+            </a>
+        </p>
 
-        <!-- Session Chair 8 -->
-        <div class="form-floating mb-3">
-            <select class="form-select sessionChairSelect" id="floatingSessionChair8" name="session_chair[]">
-                <option value="" selected>-- Select --</option>
-            </select>
-            <label for="floatingSessionChair8">Session Chair 8</label>
+        <div class="collapse" id="collapseTableMod">
+            <!-- Table Moderator 4 -->
+            <div class="form-floating mb-3">
+                <select class="form-select tableModeratorSelect" id="floatingTableModerator4" name="table_moderator[]">
+                    <option value="" selected>-- Select --</option>
+                </select>
+                <label for="floatingTableModerator4">Table Moderator 4</label>
+            </div>
+
+            <!-- Table Moderator 5 -->
+            <div class="form-floating mb-3">
+                <select class="form-select tableModeratorSelect" id="floatingTableModerator5" name="table_moderator[]">
+                    <option value="" selected>-- Select --</option>
+                </select>
+                <label for="floatingTableModerator5">Table Moderator 5</label>
+            </div>
+
+            <!-- Table Moderator 6 -->
+            <div class="form-floating mb-3">
+                <select class="form-select tableModeratorSelect" id="floatingTableModerator6" name="table_moderator[]">
+                    <option value="" selected>-- Select --</option>
+                </select>
+                <label for="floatingTableModerator6">Table Moderator 6</label>
+            </div>
+
+            <!-- Table Moderator 7 -->
+            <div class="form-floating mb-3">
+                <select class="form-select tableModeratorSelect" id="floatingTableModerator7" name="table_moderator[]">
+                    <option value="" selected>-- Select --</option>
+                </select>
+                <label for="floatingTableModerator7">Table Moderator 7</label>
+            </div>
+
+            <!-- Table Moderator 8 -->
+            <div class="form-floating mb-3">
+                <select class="form-select tableModeratorSelect" id="floatingTableModerator8" name="table_moderator[]">
+                    <option value="" selected>-- Select --</option>
+                </select>
+                <label for="floatingTableModerator8">Table Moderator 8</label>
+            </div>
+
+            <!-- Table Moderator 9 -->
+            <div class="form-floating mb-3">
+                <select class="form-select tableModeratorSelect" id="floatingTableModerator9" name="table_moderator[]">
+                    <option value="" selected>-- Select --</option>
+                </select>
+                <label for="floatingTableModerator9">Table Moderator 9</label>
+            </div>
+
+            <!-- Table Moderator 10 -->
+            <div class="form-floating mb-3">
+                <select class="form-select tableModeratorSelect" id="floatingTableModerator10" name="table_moderator[]">
+                    <option value="" selected>-- Select --</option>
+                </select>
+                <label for="floatingTableModerator10">Table Moderator 10</label>
+            </div>
+
         </div>
     </div>
 
