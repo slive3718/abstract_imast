@@ -399,13 +399,27 @@
 
     function totalScores(){
         let sum = 0;
+        let hasCOI = false;
+        let hasNA = false;
         $('.abstractReviewsScores').each(function () {
+            if($(this).val() === 'coi'){
+                hasCOI = true;
+            }
+            if($(this).val() === 'n/a'){
+                hasNA = true;
+            }
             var value = parseFloat($(this).val());
             if (!isNaN(value)) {
                 sum += value;
             }
         });
-        $('input[name="total_score"]').val(parseInt(sum));
+        if(hasCOI){
+            $('input[name="total_score"]').val('COI');
+        }else if(hasNA){
+            $('input[name="total_score"]').val('N/A');
+        }else{
+            $('input[name="total_score"]').val(parseInt(sum));
+        }
     }
 
     function submitFormReview() {

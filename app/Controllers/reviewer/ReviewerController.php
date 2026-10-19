@@ -188,7 +188,7 @@ class ReviewerController extends BaseController
             'review_question_1'=>$_POST['review_question_1'],
             'review_question_2'=>$_POST['review_question_2'],
             'review_question_3'=>$_POST['review_question_3'],
-            'total_score'=> isset($_POST['total_score']) ? intVal($_POST['total_score']) : NULL,
+            'total_score'=> isset($_POST['total_score']) ? ($_POST['total_score']) : NULL,
             'reviewer_comment'=>$_POST['reviewer_comment'],
             'is_approved' =>$isApproved,
             'date_time'=>date('Y-m-d H:i:s')
