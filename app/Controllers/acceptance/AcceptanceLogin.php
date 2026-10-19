@@ -74,24 +74,35 @@ class AcceptanceLogin extends Controller
                 ->findAll();
 
             $session_chairs = [];
+            $table_moderators = [];
 
             if ($schedules) {
                 foreach ($schedules as $schedule) {
-                    if (!empty($schedule['session_chair_ids'])) {
+                    if (!empty($schedule['session_chair_ids']) || !empty($schedule['table_moderator_ids'])) {
                         $decodedIds = json_decode($schedule['session_chair_ids'], true);
                         if ($decodedIds) {
                             $session_chairs = array_merge($session_chairs, $decodedIds);
+                        }
+                        $decodedTableModeratorIds = json_decode($schedule['table_moderator_ids'], true);
+                        if ($decodedTableModeratorIds) {
+                            $table_moderators = array_merge($table_moderators, $decodedTableModeratorIds);
                         }
                     }
                 }
             }
 
             $is_moderator = false;
+            $is_table_moderator = false;
             if(in_array($user['id'], $session_chairs)){
                 $is_moderator = true;
             }
+            if(in_array($user['id'], $table_moderators)){
+                $is_table_moderator = true;
+            }
 
-            if(!$presenting_authors && !$panelists && !$is_moderator){
+//            print_r($table_moderators);exit;
+
+            if(!$presenting_authors && !$panelists && !$is_moderator && !$is_table_moderator){
                 $this->response->setStatusCode(404, 'Not Authorized.');
                 return $this->response->setJSON(['status' => 'failed', 'msg' => 'Sorry, there are no accepted paper affiliated with that email address.']);
             }
@@ -132,7 +143,7 @@ class AcceptanceLogin extends Controller
                         return $this->response->setJSON(['status' => 'failed', 'msg' => 'Sorry, there are no presenter roles affiliated with that email address.']);
                     }
                 }
-            }else if($is_moderator){
+            }else if($is_moderator || $is_table_moderator){
                 $session_array = array(
                     'email' => $user['email'],
                     'user_id' => $user['id'],
