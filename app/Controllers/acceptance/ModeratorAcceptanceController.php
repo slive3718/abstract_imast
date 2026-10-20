@@ -58,7 +58,12 @@ class ModeratorAcceptanceController extends BaseController
         $moderator_event = [];
         foreach ($schedules as $schedule) {
             $moderators = json_decode($schedule['session_chair_ids']);
+            $tableModerators = json_decode($schedule['table_moderator_ids']);
             if (is_array($moderators) && in_array(session('user_id'), $moderators)) {
+                $moderator_event[] = $schedule;
+            }
+
+            if (is_array($tableModerators) && in_array(session('user_id'), $tableModerators)) {
                 $moderator_event[] = $schedule;
             }
         }
@@ -505,7 +510,10 @@ class ModeratorAcceptanceController extends BaseController
         $schedule = (new SchedulerModel())
             ->find($event_id);
         $moderators = json_decode($schedule['session_chair_ids']);
+        $tableModerators = json_decode($schedule['table_moderator_ids']);
         if(is_array($moderators) && in_array(session('user_id'), $moderators)){
+            return true;
+        }elseif(is_array($tableModerators) && in_array(session('user_id'), $tableModerators)){
             return true;
         }
         return false;
