@@ -571,9 +571,9 @@
                 if (assignedReviewer.review) {
                     let reviewFields = ['review_question_1', 'review_question_2', 'review_question_3'];
                     reviewFields.forEach(field => {
-                        if (assignedReviewer.review[field] === 'n/a') {
+                        if (assignedReviewer.review[field].toLowerCase() === 'n/a') {
                             hasNA = true;
-                        }else if (assignedReviewer.review[field] === 'COI') {
+                        }else if (assignedReviewer.review[field].toLowerCase() === 'coi') {
                             hasCOI = true;
                         }
                     })
