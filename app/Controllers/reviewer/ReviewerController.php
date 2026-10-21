@@ -104,20 +104,45 @@ class ReviewerController extends BaseController
 
 
 
-    function getNextBiggerValue($array, $target) {
-    $nextBigger = null;
-    foreach ($array as $value) {
-        if ($value > $target && ($nextBigger === null || $value < $nextBigger)) {
-            $nextBigger = $value;
+    public function getNextReviewAbstract(){
+        $reviewerId = session('user_id');
+
+        // Get active paper IDs in a single query
+        $activePapersModel = new PapersModel();
+        $activePapersID = $activePapersModel->select('id')
+            ->where('active_status', 1)
+            ->findColumn('id') ?? []; // findColumn is more efficient
+
+        if (empty($activePapersID)) {
+            return '';
         }
-    }
-        return $nextBigger;
+
+        // Get reviewed paper IDs
+        $reviewModel = new AbstractReviewModel();
+        $reviewedPapersID = $reviewModel->select('abstract_id')
+            ->where('reviewer_id', $reviewerId)
+            ->findColumn('abstract_id') ?? [];
+
+        // Get unreviewed abstracts assigned to this reviewer
+        $assignedModel = new PaperAssignedReviewerModel();
+        $unreviewedAbstracts = $assignedModel->select('paper_id')
+            ->where('reviewer_id', $reviewerId)
+            ->where('reviewer_type', 'regular')
+            ->whereIn('paper_id', $activePapersID);
+
+        // If there are reviewed papers, exclude them
+        if (!empty($reviewedPapersID)) {
+            $unreviewedAbstracts->whereNotIn('paper_id', $reviewedPapersID);
+        }
+
+        $result = $unreviewedAbstracts->first();
+
+        return $result ? $result['paper_id'] : '';
     }
 
-    public function getAbstractReview($review_id){
-        // print_r($review_id);exit;
-        $abstractReviewModel = (new AbstractReviewModel());
-        echo json_encode($abstractReviewModel->find($review_id));
+    function getNextReviewAbstractView(){
+        $nextAbstractID = $this->getNextReviewAbstract();
+        return redirect()->to(base_url().'/reviewer/reviewAbstract/'.$nextAbstractID);
     }
 
 
@@ -348,20 +373,6 @@ class ReviewerController extends BaseController
 // Handling file upload errors
         return json_encode(['status' => 500, 'message' => 'Error uploading file.', 'data' => '']);
 
-    }
-
-    function getNextReviewAbstract($current_abstract_id){
-        $abstractReviews = (new AbstractReviewModel())->where(['reviewer_id'=>session('user_id')])->findAll();
-
-        $reviewer_abstracts = array();
-        if(!empty($abstractReviews)){
-            foreach ($abstractReviews as $reviews){
-                $reviewer_abstracts[] = $reviews['abstract_id'];
-            }
-        }
-
-        $nextBiggerValue = $this->getNextBiggerValue($reviewer_abstracts, $current_abstract_id);
-        echo ($nextBiggerValue);
     }
 
     public function DeclineReviewerAbstract(){
