@@ -421,10 +421,12 @@
             $('input[name="total_score"]').val(parseInt(sum));
         }
 
+        let commentRequired = hasCOI || hasNA;
         $('#reviewer_comment')
-            .toggleClass('requiredText', hasCOI)
-            .prop('required', hasCOI)
-            .attr('aria-required', hasCOI);
+            .toggleClass('requiredText', commentRequired)
+            .prop('required', commentRequired)
+            .attr('aria-required', commentRequired);
+        $('#reviewer_comment_required').toggle(commentRequired);
     }
 
     function submitFormReview() {
