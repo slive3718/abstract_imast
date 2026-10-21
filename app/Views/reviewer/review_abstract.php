@@ -351,10 +351,10 @@
                         <div class="p-3">
                             <div class="card">
                                 <div class="card-header">
-                                    <b>Reviewer Comments</b>
+                                    <b>Reviewer Comments <span id="reviewer_comment_required" class="text-danger" style="display: none;">*</span></b>
                                 </div>
                                 <div class="card-body" style="padding: 0 !important;">
-                                    <textarea class="form-control requiredText" name="reviewer_comment" cols="115" rows="3" id="reviewer_comment" placeholder="Start typing here..."><?=(!empty($abstract_reviews)?$abstract_reviews['reviewer_comment'] !== "" ? $abstract_reviews['reviewer_comment']:'':'')?></textarea>
+                                    <textarea class="form-control" name="reviewer_comment" cols="115" rows="3" id="reviewer_comment" placeholder="Start typing here..."><?=(!empty($abstract_reviews)?$abstract_reviews['reviewer_comment'] !== "" ? $abstract_reviews['reviewer_comment']:'':'')?></textarea>
                                 </div>
                             </div>
                         </div>
@@ -420,6 +420,11 @@
         }else{
             $('input[name="total_score"]').val(parseInt(sum));
         }
+
+        $('#reviewer_comment')
+            .toggleClass('requiredText', hasCOI)
+            .prop('required', hasCOI)
+            .attr('aria-required', hasCOI);
     }
 
     function submitFormReview() {
@@ -449,16 +454,15 @@
 
         $(".requiredText").each(function() {
             if($(this).val().trim() == ''){
+                missing_fields = 1;
+                requiredFieldsArray.push($(this).attr('id'));
                 $(this).addClass('border-danger')
-                return false;
             }
         });
-        // return false;
 
 
         if (missing_fields > 0) {
             toastr.error('Please fill all required fields');
-            console.log(requiredFieldsArray[0])
             window.location.href = "#" + requiredFieldsArray[0];
             $('html, body').animate({
                 scrollTop: $('#' + requiredFieldsArray[0]).offset().top - 200
