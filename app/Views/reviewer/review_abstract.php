@@ -360,7 +360,7 @@
                         </div>
                 </div>
             <div class="mt-4">
-                <input type="button" value="Save" style="width:150px" class="btn btn-success mt-" onclick="submitFormReview();">
+                <button type="button" id="reviewSubmitButton" style="width:150px" class="btn btn-success mt-" onclick="submitFormReview();">Save</button>
             </div>
         </div>
 </main>
@@ -485,8 +485,8 @@
             data: formData,
             contentType: false,
             processData: false,
+            dataType: "json",
             success: function (data) {
-                data = JSON.parse(data)
                 if (data.status == 200) {
                     Swal.fire({
                         title: data.message,
@@ -550,10 +550,14 @@
                                 .fail(function (jqXHR, textStatus, errorThrown) {
                                     // Handle a failed response
                                     console.error(textStatus, errorThrown);
+                                    restoreReviewSubmitButton();
                                 });
+                        } else {
+                            restoreReviewSubmitButton();
                         }
                     })
                 }else if(data.status == 201){
+                    restoreReviewSubmitButton();
                     Swal.fire({
                         title: 'Info',
                         text: data.message,
@@ -567,10 +571,27 @@
 
                         }
                     })
+                } else {
+                    restoreReviewSubmitButton();
                 }
+            },
+            beforeSend: function () {
+                $('#reviewSubmitButton')
+                    .prop('disabled', true)
+                    .html('<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Saving...');
+            },
+            error: function () {
+                toastr.error('An error occurred while saving your review. Please try again.');
+                restoreReviewSubmitButton();
             }
 
-        }, 'json')
+        })
 
+    }
+
+    function restoreReviewSubmitButton() {
+        $('#reviewSubmitButton')
+            .prop('disabled', false)
+            .html('Save');
     }
 </script>
