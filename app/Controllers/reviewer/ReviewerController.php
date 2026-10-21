@@ -135,7 +135,7 @@ class ReviewerController extends BaseController
             $unreviewedAbstracts->whereNotIn('paper_id', $reviewedPapersID);
         }
 
-        $result = $unreviewedAbstracts->first();
+        $result = $unreviewedAbstracts->orderBy('RAND()', '', false)->first();
 
         return $result ? $result['paper_id'] : '';
     }
