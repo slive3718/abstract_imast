@@ -887,11 +887,11 @@
                     // console.log(res);
                     if (res.presentation_date !== null) {
                         let talkTimeSummary = '';
-                        let sessionChairs = '';
-                        let tableModerators = '';
+                        let sessionChairs = 'Session Moderator(s): <br>';
+                        let tableModerators = 'Table Moderator(s): <br>';
 
                         $.each(res.session_chair, function(i, chairs) {
-                            sessionChairs += `Moderator ${i+1}: ${chairs.name + ' ' + chairs.surname}`;
+                            sessionChairs += `${i+1}: ${chairs.name + ' ' + chairs.surname}`;
                             if (chairs.acceptance) {
                                 sessionChairs += `<span class="text-primary acceptanceStatus" style="display: none">
                                     ${getIcon(chairs.acceptance.acceptance_confirmation)} Acceptance Confirmation
@@ -902,7 +902,7 @@
 
 
                         $.each(res.table_moderators, function(i, tableModerator) {
-                            tableModerators += `Moderator ${i+1}: ${tableModerator.name + ' ' + tableModerator.surname}`;
+                            tableModerators += ` ${i+1}: ${tableModerator.name + ' ' + tableModerator.surname}`;
                             if (tableModerator.acceptance) {
                                 tableModerators += `<span class="text-primary acceptanceStatus" style="display: none">
                                     ${getIcon(tableModerator.acceptance.acceptance_confirmation)} Acceptance Confirmation
@@ -961,7 +961,7 @@
 
                         events.push({
                             id: res.id,
-                            title: `<strong>${res.session_title}</strong><br>${getTimeOfDate(res.session_start_time)} - ${getTimeOfDate(res.session_end_time)} <br> ${sessionChairs} <br>${talkTimeSummary}`,
+                            title: `<strong>${res.session_title}</strong><br>${getTimeOfDate(res.session_start_time)} - ${getTimeOfDate(res.session_end_time)} <br> ${sessionChairs}  <br> ${tableModerators} <br> ${talkTimeSummary}`,
                             description: res.description,
                             start: startDate.toISOString(),
                             end: endDate.toISOString(),
@@ -1043,7 +1043,7 @@
                 });
 
                 // Prefill table moderators using explicit IDs, mirroring session chair handling.
-                tableModerators.forEach((moderator, index) => {
+                tableModerators.filter(Boolean).forEach((moderator, index) => {
                     const elementId = `#floatingTableModerator${index + 1}`;
                     const $element = $(elementId);
 

@@ -77,19 +77,24 @@ class SchedulerController extends BaseController
                    }
                }
 
-               if ($scheduler_event['table_moderator_ids']) {
-                   $scheduler_event['table_moderators'] = []; // Initialize the array
+               $scheduler_event['table_moderators'] = [];
+               $table_moderator_ids = json_decode($scheduler_event['table_moderator_ids'] ?? '[]', true);
+               if (is_array($table_moderator_ids)) {
+                   foreach ($table_moderator_ids as $table_moderator_id) {
+                       if (empty($table_moderator_id)) {
+                           continue;
+                       }
 
-                   foreach (json_decode($scheduler_event['table_moderator_ids']) as $table_moderator_id) {
                        $table_moderator = (new UserModel())->find($table_moderator_id);
+                       if (!$table_moderator) {
+                           continue;
+                       }
 
-                       // Add the acceptance field
                        $table_moderator['acceptance'] = (new ModeratorAcceptanceModel())
                            ->where('scheduler_id', $scheduler_event['id'])
                            ->where('author_id', $table_moderator_id)
                            ->first() ?? [];
 
-                       // Append to the array
                        $scheduler_event['table_moderators'][] = $table_moderator;
                    }
                }
@@ -331,6 +336,15 @@ class SchedulerController extends BaseController
             }
         }
 
+        $tableModerators = [];
+        if (!empty($post['table_moderator']) && is_array($post['table_moderator'])) {
+            foreach ($post['table_moderator'] as $tableModerator) {
+                if (!empty($tableModerator)) {
+                    $tableModerators[] = $tableModerator;
+                }
+            }
+        }
+
         $insertFields = [
             'session_date' => date('Y-m-d H:i:s', strtotime($post['day'])),
             'session_start_time' => date('Y-m-d H:i:s', strtotime("$day $start")),
@@ -342,7 +356,7 @@ class SchedulerController extends BaseController
             'break_duration' => $post['duration_break'],
             'session_number' => $post['session_number'],
             'session_chair_ids' => json_encode($chair),
-            'table_moderator_ids' => json_encode($post['table_moderator'] ?? []),
+            'table_moderator_ids' => json_encode($tableModerators),
             'session_track' => $post['session_track'] ?? null,
             'room_id' => $post['rooms'],
         ];
