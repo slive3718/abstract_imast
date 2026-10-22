@@ -153,14 +153,14 @@ use App\Models\DesignationsModel;
                                                 <?php if (!empty($event['moderators'])): ?>
                                                     <h5 class="text-success fw-bolder">Session Moderator(s):</h5>
                                                     <?php foreach ($event['moderators'] as $moderator): ?>
-                                                    <?php
+                                                        <?php
                                                         $moderatorDesignationText = '';
                                                         if (!empty($moderator['designation']) && is_array($moderator['designation'])) {
                                                             $moderatorDesignationText = implode(', ', array_filter($moderator['designation']));
                                                         }
-                                                    ?>
+                                                        ?>
                                                         <div>
-                                                            <span class="fw-bolder"><?= htmlspecialchars($moderator['name'] . ' '. $moderator['middle_name']. ' ' . $moderator['surname'], ENT_QUOTES, 'UTF-8') ?><?= $moderatorDesignationText !== '' ? ', ' . htmlspecialchars($moderatorDesignationText, ENT_QUOTES, 'UTF-8') : '' ?>
+                                                            <span class="fw-bolder"><?= htmlspecialchars($moderator['name'] . ' '. ($moderator['middle_name'] ? $moderator['middle_name'] . '. ' : '') . $moderator['surname'], ENT_QUOTES, 'UTF-8') ?><?= $moderatorDesignationText !== '' ? ', ' . htmlspecialchars($moderatorDesignationText, ENT_QUOTES, 'UTF-8') : '' ?>
                                                             </span>
                                                         </div>
                                                     <?php endforeach; ?>
@@ -182,55 +182,48 @@ use App\Models\DesignationsModel;
                                                         </h2>
                                                     <?php endif ?>
                                                     <div id="talkCollapse-<?= htmlspecialchars($event['id'], ENT_QUOTES, 'UTF-8') ?>" class="accordion-collapse collapse">
-                                                        <div class="accordion-body">
+                                                        <div class="accordion-body p-0">
                                                             <?php if (!empty($event['talks'])): ?>
-                                                                <table class="table table-striped table-bordered">
+                                                                <table class="table table-bordered">
                                                                     <?php foreach ($event['talks'] as $talk): ?>
-                                                                        <tr>
+                                                                        <tr class="table-secondary">
                                                                             <td class="text-nowrap" style="width:80px; vertical-align:top;">
                                                                                 <?= htmlspecialchars(date('h:i a', strtotime($talk['time_start'])), ENT_QUOTES, 'UTF-8') ?> -
                                                                                 <?= htmlspecialchars(date('h:i a', strtotime($talk['time_end'])), ENT_QUOTES, 'UTF-8') ?>
                                                                             </td>
                                                                             <td style="vertical-align:top;">
-                                                                                <?php if ($talk['abstract_id']): ?>
-                                                                                    <span class="fw-bolder">
+                                                                                 <span class="fw-bolder">
+                                                                                    <?php if ($talk['abstract_id']): ?>
+
                                                                                         <?= strip_tags($talk['title']) ?>
-                                                                                    </span>
-                                                                                <?php else: ?>
-                                                                                    <?= strip_tags($talk['custom_abstract_desc']) ?>
-                                                                                <?php endif; ?>
+
+                                                                                    <?php else: ?>
+                                                                                        <?= strip_tags($talk['custom_abstract_desc']) ?>
+                                                                                    <?php endif; ?>
+                                                                                 </span>
                                                                             </td>
                                                                         </tr>
                                                                         <?php if (!empty($talk['presenters']) || !empty($talk['panelist'])): ?>
-                                                                            <tr>
+                                                                            <tr class="" style="background-color:white !important;">
                                                                                 <td>
                                                                                     <p class="fw-bolder">
-                                                                                        <?= $talk['submission_type'] === 'panel' ? 'Panelist(s)' : 'Presenter(s)' ?>
+                                                                                        <!--                                                                                        --><?php //= $talk['submission_type'] === 'panel' ? 'Panelist(s)' : 'Presenter(s)' ?>
                                                                                     </p>
                                                                                 </td>
                                                                                 <td class="p-0">
                                                                                     <ul class="ps-0 list-group">
                                                                                         <?php if ($talk['submission_type'] === 'panel' && !empty($talk['panelist'])): ?>
-                                                                                            <li class="list-group-item" style="list-style: none;">
+                                                                                            <li class="list-group-item " style="list-style: none;">
                                                                                                 <span class="fw-bolder"><?= htmlspecialchars($talk['paper_sub']['custom_id'], ENT_QUOTES, 'UTF-8') ?></span>
                                                                                                 <?= $talk['paper_sub']['individual_panel_title']
-                                                                                                    ? '<span class="fw-bolder">' . strip_tags($talk['paper_sub']['individual_panel_title']) . '</span><br>'
-                                                                                                    : '' ?>
+                                                                                                        ? '<span class="fw-bolder">' . strip_tags($talk['paper_sub']['individual_panel_title']) . '</span><br>'
+                                                                                                        : '' ?>
                                                                                                 <?= trim($talk['panelist']['user_name'] . ' ' . $talk['panelist']['user_surname']) ?>
                                                                                                 <?= !empty($talk['panelist']['deg']) ? ', ' . htmlspecialchars($talk['panelist']['deg'], ENT_QUOTES, 'UTF-8') : '' ?>
                                                                                                 <?php if (!empty($event['talks'])): ?>
                                                                                                     <div class="accordion mt-2" id="accordionExample">
                                                                                                         <div class="accordion-item">
-<!--                                                                                                            <h6 class="accordion-header">-->
-<!--                                                                                                                <button class="accordion-button p-1 bg-primary text-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapse---><?php //= htmlspecialchars($talk['paper_sub']['custom_id'], ENT_QUOTES, 'UTF-8') ?><!--" aria-expanded="true">-->
-<!--                                                                                                                    View Paper Summary-->
-<!--                                                                                                                </button>-->
-<!--                                                                                                            </h6>-->
-<!--                                                                                                            <div id="collapse---><?php //= htmlspecialchars($talk['paper_sub']['custom_id'], ENT_QUOTES, 'UTF-8') ?><!--" class="accordion-collapse collapse">-->
-<!--                                                                                                                <div class="accordion-body">-->
-<!--                                                                                                                    --><?php //= strip_tags($talk['summary']) ?>
-<!--                                                                                                                </div>-->
-<!--                                                                                                            </div>-->
+
                                                                                                         </div>
                                                                                                     </div>
                                                                                                 <?php endif; ?>
@@ -251,16 +244,7 @@ use App\Models\DesignationsModel;
                                                                                                         <?php if (!empty($event['talks'])): ?>
                                                                                                             <div class="accordion mt-2" id="accordionExample">
                                                                                                                 <div class="accordion-item">
-                                                                                                                   <!-- <h6 class="accordion-header">
-                                                                                                                        <button class="accordion-button p-1 bg-primary text-white" type="button" data-bs-toggle="collapse" data-bs-target="#collapse-<?php /*= htmlspecialchars($presenter['id'], ENT_QUOTES, 'UTF-8') */?>" aria-expanded="true">
-                                                                                                                            View Paper Summary
-                                                                                                                        </button>
-                                                                                                                    </h6>
-                                                                                                                    <div id="collapse-<?php /*= htmlspecialchars($presenter['id'], ENT_QUOTES, 'UTF-8') */?>" class="accordion-collapse collapse">
-                                                                                                                        <div class="accordion-body">
-                                                                                                                            <?php /*= strip_tags($talk['summary']) */?>
-                                                                                                                        </div>
-                                                                                                                    </div>-->
+                   
                                                                                                                 </div>
                                                                                                             </div>
                                                                                                         <?php endif; ?>
@@ -288,7 +272,7 @@ use App\Models\DesignationsModel;
                                                             </button>
                                                         </h2>
                                                         <div id="descriptionCollapse-<?= htmlspecialchars($event['id'], ENT_QUOTES, 'UTF-8') ?>" class="accordion-collapse collapse">
-                                                            <div class="accordion-body ">
+                                                            <div class="accordion-body p-0">
                                                                 <?= htmlspecialchars($event['description'], ENT_QUOTES, 'UTF-8') ?>
                                                             </div>
                                                         </div>
