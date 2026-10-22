@@ -165,6 +165,20 @@ use App\Models\DesignationsModel;
                                                         </div>
                                                     <?php endforeach; ?>
                                                 <?php endif; ?>
+                                                <?php if (!empty($event['table_moderators'])): ?>
+                                                    <h5 class="text-primary fw-bolder mt-3">Table Moderator(s):</h5>
+                                                    <?php foreach ($event['table_moderators'] as $tableModerator): ?>
+                                                        <?php
+                                                        $tableModeratorDesignationText = '';
+                                                        if (!empty($tableModerator['designation']) && is_array($tableModerator['designation'])) {
+                                                            $tableModeratorDesignationText = implode(', ', array_filter($tableModerator['designation']));
+                                                        }
+                                                        ?>
+                                                        <div>
+                                                            <span class="fw-bolder"><?= htmlspecialchars($tableModerator['name'] . ' ' . (!empty($tableModerator['middle_name']) ? $tableModerator['middle_name'] . '. ' : '') . $tableModerator['surname'], ENT_QUOTES, 'UTF-8') ?><?= $tableModeratorDesignationText !== '' ? ', ' . htmlspecialchars($tableModeratorDesignationText, ENT_QUOTES, 'UTF-8') : '' ?></span>
+                                                        </div>
+                                                    <?php endforeach; ?>
+                                                <?php endif; ?>
                                             </div>
                                         </div>
 

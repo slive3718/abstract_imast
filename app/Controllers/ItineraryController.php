@@ -72,6 +72,28 @@ class ItineraryController extends BaseController
                             }
                         }
 
+                        $event['table_moderators'] = [];
+                        $table_moderator_ids = json_decode($event['table_moderator_ids'] ?? '[]', true);
+                        $table_moderator_ids = is_array($table_moderator_ids)
+                            ? array_values(array_filter($table_moderator_ids))
+                            : [];
+                        if (!empty($table_moderator_ids)) {
+                            $event['table_moderators'] = (new UserModel())
+                                ->join('users_profile', 'users.id = users_profile.author_id', 'left')
+                                ->whereIn('users.id', $table_moderator_ids)
+                                ->orderBy('users.name', 'asc')
+                                ->findAll();
+
+                            foreach ($event['table_moderators'] as &$moderator) {
+                                $rawDesignations = $moderator['designations'] ?? '[]';
+                                $moderatorDesignations = json_decode($rawDesignations, true);
+                                $moderator['designation'] = $this->getDesignationNames(
+                                    is_array($moderatorDesignations) ? $moderatorDesignations : [],
+                                    $moderator['other_designation'] ?? null
+                                );
+                            }
+                        }
+
                         $event['talks'] = (new SchedulerSessionTalksModel())->join('papers', 'scheduler_session_talks.abstract_id = papers.id', 'left')->where('scheduler_event_id', $event['id'])->orderBy('scheduler_session_talks.sort', 'asc')->findAll();
                         foreach (  $event['talks']  as &$talk) {
                             if($talk['abstract_id']) {
