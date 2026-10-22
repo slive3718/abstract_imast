@@ -151,7 +151,7 @@ use App\Models\DesignationsModel;
                                             <div class="chairDiv">
 
                                                 <?php if (!empty($event['moderators'])): ?>
-                                                    <h5 class="text-success fw-bolder">Session Moderator(s):</h5>
+                                                    <h5 class="text-primary fw-bolder">Session Moderator(s):</h5>
                                                     <?php foreach ($event['moderators'] as $moderator): ?>
                                                         <?php
                                                         $moderatorDesignationText = '';
@@ -244,7 +244,7 @@ use App\Models\DesignationsModel;
                                                                                                         <?php if (!empty($event['talks'])): ?>
                                                                                                             <div class="accordion mt-2" id="accordionExample">
                                                                                                                 <div class="accordion-item">
-                   
+
                                                                                                                 </div>
                                                                                                             </div>
                                                                                                         <?php endif; ?>
