@@ -1,5 +1,8 @@
 -- ####### SQL changes ######
 
+ALTER TABLE `scheduler_session_talks`
+  ADD COLUMN `subtitle` VARCHAR(555) DEFAULT NULL;
+
 
 -- --------------------------------------------------------
 

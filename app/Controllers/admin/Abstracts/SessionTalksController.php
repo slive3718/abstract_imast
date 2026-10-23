@@ -54,9 +54,33 @@ class SessionTalksController extends SchedulerController
             return $this->response->setJSON(['status' => 'error', 'message' => 'Schedule Id not found!']);
         }
 
+        if (!is_array($talks)) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'Invalid talk details.',
+            ])->setStatusCode(400);
+        }
+
+        foreach ($talks as $talk) {
+            if (!is_array($talk)) {
+                return $this->response->setJSON([
+                    'status' => 'error',
+                    'message' => 'Invalid talk details.',
+                ])->setStatusCode(400);
+            }
+
+            $subtitle = $talk['subtitle'] ?? '';
+            if (!is_string($subtitle) || mb_strlen($subtitle) > 555) {
+                return $this->response->setJSON([
+                    'status' => 'error',
+                    'message' => 'Talk subtitles must be 555 characters or fewer.',
+                ])->setStatusCode(400);
+            }
+        }
+
         $sessionTalks = new SchedulerSessionTalksModel();
         $existingTalks = $sessionTalks
-            ->select('id, abstract_id, time_start, time_end, duration, sort, break_duration, paper_sub_id, custom_abstract_desc')
+            ->select('id, abstract_id, time_start, time_end, duration, sort, break_duration, paper_sub_id, custom_abstract_desc, subtitle')
             ->where('scheduler_event_id', $scheduler_event_id)
             ->findAll();
 
@@ -99,6 +123,7 @@ class SessionTalksController extends SchedulerController
                 $paperSubId = $talk['paper_sub_id'] ?? null;
                 $isCustomTalk = $this->isCustomTalk($abstractId);
                 $talkId = $talk['talk_id'] ?? null;
+                $subtitle = $talk['subtitle'] ?? '';
 
                 $talkData = [
                     'abstract_id' => $isCustomTalk ? null : $abstractId,
@@ -109,6 +134,7 @@ class SessionTalksController extends SchedulerController
                     'sort' => $index + 1,
                     'break_duration' => $talk['break_duration'],
                     'custom_abstract_desc' => $talk['custom_desc'] ?? null,
+                    'subtitle' => trim($subtitle) !== '' ? trim($subtitle) : null,
                     'paper_sub_id' => $paperSubId,
                 ];
 
@@ -125,7 +151,8 @@ class SessionTalksController extends SchedulerController
                         $talkData['sort'] !== $existingTalk['sort'] ||
                         $talkData['break_duration'] !== $existingTalk['break_duration'] ||
                         $talkData['paper_sub_id'] !== $existingTalk['paper_sub_id'] ||
-                        ($talkData['custom_abstract_desc'] ?? null) !== ($existingTalk['custom_abstract_desc'] ?? null)
+                        ($talkData['custom_abstract_desc'] ?? null) !== ($existingTalk['custom_abstract_desc'] ?? null) ||
+                        ($talkData['subtitle'] ?? null) !== ($existingTalk['subtitle'] ?? null)
                     ) {
                         $sessionTalks->update($existingTalk['id'], $talkData);
                     }
