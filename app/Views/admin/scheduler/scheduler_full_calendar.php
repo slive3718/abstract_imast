@@ -948,9 +948,9 @@
                                     talkPresenters = talkPresenters.join(', ');
                                     talkCustomId = 'Paper: ' + talk.abstract.custom_id;
                                 }
-                                talkTimeSummary += `<ul class="mt-2 text-wrap"><li title="${startTime} to ${endTime} # ${talkCustomId} ${talkPresenters}">${startTime} - ${endTime} # ${talkCustomId} ${talkPresenters}${talk.subtitle ? `<br><small>${escapeHtml(talk.subtitle)}</small>` : ''}</li></ul>`;
+                                talkTimeSummary += `<ul class="mt-2 text-wrap"><li title="${startTime} to ${endTime} # ${talkCustomId} ${talkPresenters}">${startTime} - ${endTime} # ${talkCustomId} ${talkPresenters}</li></ul>`;
                             } else {
-                                talkTimeSummary += `<ul class="mt-2 text-wrap"><li title="${startTime} to ${endTime}">${startTime} - ${endTime} : ${talk.custom_abstract_desc}${talk.subtitle ? `<br><small>${escapeHtml(talk.subtitle)}</small>` : ''}</li></ul>`;
+                                talkTimeSummary += `<ul class="mt-2 text-wrap"><li title="${startTime} to ${endTime}">${startTime} - ${endTime} : ${talk.custom_abstract_desc}</li></ul>`;
                             }
                         });
 
@@ -1229,7 +1229,6 @@
                                 let end_time = $(this).find('.end-time').text() ?? '';
                                 let talk_duration = $(this).find('.talk-duration').val() ?? '';
                                 let custom_desc = $(this).find('#talk_custom_desc').val() ?? '';
-                                let subtitle = $(this).find('.talk-subtitle').val() ?? '';
                                 added_talk_details.push({
                                     'duration': talk_duration,
                                     'start_time': start_time,
@@ -1238,7 +1237,6 @@
                                     'break_duration': $(".session-break-duration").data('value'),
                                     'scheduler_event_id': info.id,
                                     'custom_desc': custom_desc,
-                                    'subtitle': subtitle,
                                     'paper_sub_id': paper_sub_id,
                                     'talk_id': $(this).data('talk-id') || null,
                                 });
@@ -1293,7 +1291,6 @@
                         <td><input type="number" class="talk-duration" style="width:50px" value="${talkDuration}"></td>
                         <td class="text-nowrap "></td>
                         <td><input type="text" name="talk_custom_desc" id="talk_custom_desc"></td>
-                        <td><input type="text" class="talk-subtitle" maxlength="555" aria-label="Talk subtitle"></td>
                         <td class="text-nowrap">
                             <a class="btn btn-sm moveUp" onclick="moveUp(this)" data-abstract-id="custom_${customEventId}"  data-initial-time="${sessionStart24}"><i class="fas fa-arrow-up"></i></a>
                             <a class="btn btn-sm moveDown" onclick="moveDown(this)" data-abstract-id="custom_${customEventId}"  data-initial-time="${sessionStart24}"><i class="fas fa-arrow-down"></i></a>
@@ -1385,7 +1382,6 @@
             row.append(`<td><input type="number" class="talk-duration" style="width:50px" data-abstract-id="${paper.id}" value="${talkDetail.duration}"></td>`);
             row.append(`<td class="text-nowrap">${presenters}</td>`);
             row.append(`<td>Abstract ID: (<span class="fw-bold">${paper.custom_id})</span><br> ${stripTags(paper.title)}</td>`);
-            row.append('<td><input type="text" class="talk-subtitle" maxlength="555" aria-label="Talk subtitle"></td>');
             row.append(`
                 <td class="text-nowrap">
                     <a class="btn btn-sm moveUp" onclick="moveUp(this)" data-abstract-id="${paper.id}" data-initial-time="${sessionStart24}"><i class="fas fa-arrow-up"></i></a>
@@ -1407,7 +1403,6 @@
                             row.append(`<td><input type="number" class="talk-duration" style="width:50px" data-abstract-id="${paper.id}" value="${talkDetail.duration}"></td>`);
                             row.append(`<td class="text-nowrap">${panel.name + ' '+ panel.surname}</td>`);
                             row.append(`<td>Abstract ID: (<span class="fw-bold">${panel.custom_id})</span><br> ${stripTags(panel.individual_panel_title)}</td>`);
-                            row.append('<td><input type="text" class="talk-subtitle" maxlength="555" aria-label="Talk subtitle"></td>');
                             row.append(`
                                 <td class="text-nowrap">
                                     <a class="btn btn-sm moveUp" onclick="moveUp(this)" data-abstract-id="${paper.id}" data-initial-time="${sessionStart24}"><i class="fas fa-arrow-up"></i></a>
@@ -1521,18 +1516,6 @@
         return $("<div>").html(input).text();
     }
 
-    function escapeHtml(input) {
-        return String(input).replace(/[&<>"']/g, function(character) {
-            return {
-                '&': '&amp;',
-                '<': '&lt;',
-                '>': '&gt;',
-                '"': '&quot;',
-                "'": '&#39;'
-            }[character];
-        });
-    }
-
     function getTalks(talk_details, talkDetail, info, sessionStart24, sessionDate) {
         $.get(`${baseUrlAdmin}/talks/scheduled/${info.id}`, function (response) {
             $("#tableAddedAbstract").find('tbody').html('');
@@ -1591,7 +1574,6 @@
                                         <input type="text" name="talk_custom_desc" id="talk_custom_desc" value="${data.custom_abstract_desc || ''}">
                                     `}
                                 </td>
-                                <td><input type="text" class="talk-subtitle" maxlength="555" aria-label="Talk subtitle" value="${escapeHtml(data.subtitle || '')}"></td>
                                 <td class="text-nowrap">
                                     <a class="btn btn-sm moveUp" onclick="moveUp(this)" data-abstract-id="${rowId}" data-initial-time="${sessionStart24}"><i class="fas fa-arrow-up"></i></a>
                                     <a class="btn btn-sm moveDown" onclick="moveDown(this)" data-abstract-id="${rowId}" data-initial-time="${sessionStart24}"><i class="fas fa-arrow-down"></i></a>

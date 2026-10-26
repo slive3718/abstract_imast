@@ -141,7 +141,6 @@
             <th style="width:50px">Talk Duration</th>
             <th>Presenter</th>
             <th>Abstract Details</th>
-            <th>Subtitle</th>
             <th>Actions</th>
         </tr>
         </thead>
