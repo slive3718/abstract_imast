@@ -215,9 +215,6 @@ use App\Models\DesignationsModel;
                                                                                         <?= strip_tags($talk['custom_abstract_desc']) ?>
                                                                                     <?php endif; ?>
                                                                                  </span>
-                                                                                <?php if (!empty($talk['subtitle'])): ?>
-                                                                                    <div class="small text-muted"><?= htmlspecialchars($talk['subtitle'], ENT_QUOTES, 'UTF-8') ?></div>
-                                                                                <?php endif; ?>
                                                                             </td>
                                                                         </tr>
                                                                         <?php if (!empty($talk['presenters']) || !empty($talk['panelist'])): ?>
