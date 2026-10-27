@@ -200,22 +200,33 @@ use App\Models\DesignationsModel;
                                                             <?php if (!empty($event['talks'])): ?>
                                                                 <table class="table table-bordered">
                                                                     <?php foreach ($event['talks'] as $talk): ?>
+                                                                        <?php
+                                                                        $isHeading = strip_tags($talk['item_type']) === 'heading';
+                                                                        $hasAbstract = !empty($talk['abstract_id']);
+                                                                        ?>
+
                                                                         <tr class="table-secondary">
-                                                                            <td class="text-nowrap" style="width:80px; vertical-align:top;">
-                                                                                <?= htmlspecialchars(date('h:i a', strtotime($talk['time_start'])), ENT_QUOTES, 'UTF-8') ?> -
-                                                                                <?= htmlspecialchars(date('h:i a', strtotime($talk['time_end'])), ENT_QUOTES, 'UTF-8') ?>
-                                                                            </td>
-                                                                            <td style="vertical-align:top;">
-                                                                                 <span class="fw-bolder">
-                                                                                    <?php if ($talk['abstract_id']): ?>
-
-                                                                                        <?= strip_tags($talk['title']) ?>
-
-                                                                                    <?php else: ?>
-                                                                                        <?= strip_tags($talk['custom_abstract_desc']) ?>
-                                                                                    <?php endif; ?>
-                                                                                 </span>
-                                                                            </td>
+                                                                            <?php if (!$isHeading): ?>
+                                                                                <td class="text-nowrap" style="width: 80px; vertical-align: top;">
+                                                                                    <?= htmlspecialchars(date('h:i a', strtotime($talk['time_start'])), ENT_QUOTES, 'UTF-8') ?>
+                                                                                    -
+                                                                                    <?= htmlspecialchars(date('h:i a', strtotime($talk['time_end'])), ENT_QUOTES, 'UTF-8') ?>
+                                                                                </td>
+                                                                                <td style="vertical-align: top;">
+                                                                                    <span class="fw-bolder">
+                                                                                        <?php if ($hasAbstract): ?>
+                                                                                            <?= strip_tags($talk['title']) ?>
+                                                                                        <?php else: ?>
+                                                                                            <?= strip_tags($talk['custom_abstract_desc']) ?>
+                                                                                        <?php endif; ?>
+                                                                                    </span>
+                                                                                </td>
+                                                                            <?php else: ?>
+                                                                                <td></td>
+                                                                                <td class="fw-bolder text-primary">
+                                                                                    <?= strip_tags($talk['item_title']) ?>
+                                                                                </td>
+                                                                            <?php endif; ?>
                                                                         </tr>
                                                                         <?php if (!empty($talk['presenters']) || !empty($talk['panelist'])): ?>
                                                                             <tr class="" style="background-color:white !important;">

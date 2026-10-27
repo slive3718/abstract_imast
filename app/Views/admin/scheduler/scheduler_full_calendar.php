@@ -911,7 +911,13 @@
                             tableModerators += `<br>`;
                         });
 
+
                         $.each(res.talks, function(i, talk) {
+                            if (talk.item_type === 'heading') {
+                                talkTimeSummary += `<div class="mt-2 fw-bold border-bottom pb-1">${(talk.item_title || '')}</div>`;
+                                return;
+                            }
+
                             const startTime = new Date(`${talk.time_start}`).toLocaleTimeString([], {
                                 hour: '2-digit',
                                 minute: '2-digit',
@@ -1189,6 +1195,7 @@
                         let abstractAddedId = $(this).data('abstract-id');
                         const row = $(this).closest('tr');
                         const isCustomEvent = row.hasClass('customAddedEvent');
+                        const isSectionHeading = row.data('item-type') === 'heading';
 
                         tableAddedAbstractArray = tableAddedAbstractArray.filter(item => item['id'] !== abstractAddedId);
 
@@ -1199,8 +1206,7 @@
                         tableAbstract.find(`[data-abstract-id="${abstractAddedId}"]`).closest('tr').show();
                         row.remove();
 
-                        tableAddedAbstract.find('.talk-duration').change();
-                        if (!isCustomEvent) {
+                        if (!isCustomEvent && !isSectionHeading) {
                             removedAddedTalksIds.push(abstractAddedId);
                         }
 
@@ -1215,9 +1221,24 @@
                         let talksTable = $('#tableAddedAbstract');
                         let added_talk_details = [];
                         let seenTalkKeys = new Set();
+                        let hasEmptySectionHeading = false;
                         talksTable.find('tr').each(function () {
                             let abstract_id = $(this).attr('id');
                             if (abstract_id) {
+                                if ($(this).data('item-type') === 'heading') {
+                                    const itemTitle = $(this).find('.section-heading-title').val().trim();
+                                    if (!itemTitle) {
+                                        hasEmptySectionHeading = true;
+                                        return false;
+                                    }
+                                    added_talk_details.push({
+                                        'item_type': 'heading',
+                                        'item_title': itemTitle,
+                                        'talk_id': $(this).data('talk-id') || null,
+                                    });
+                                    return;
+                                }
+
                                 let paper_sub_id = $(this).data('paper-sub-id');
                                 let talkKey = getTalkKey(abstract_id, paper_sub_id);
                                 if (seenTalkKeys.has(talkKey)) {
@@ -1239,9 +1260,15 @@
                                     'custom_desc': custom_desc,
                                     'paper_sub_id': paper_sub_id,
                                     'talk_id': $(this).data('talk-id') || null,
+                                    'item_type': 'talk',
                                 });
                             }
                         });
+
+                        if (hasEmptySectionHeading) {
+                            toastr.error('Enter a Subtitle before saving.');
+                            return false;
+                        }
 
                         if (getTotalDuration(tableAddedAbstract, breakDuration ?? 0) > sessionDuration) {
                             Swal.fire({
@@ -1286,7 +1313,7 @@
                 }
 
                 tableAddedAbstract.find('tbody').append(
-                    `<tr id="custom_${customEventId}" class="customAddedEvent">
+                    `<tr id="custom_${customEventId}" class="customAddedEvent" data-item-type="talk">
                         <td><span class="start-time"></span> - <span class="end-time"></span></td>
                         <td><input type="number" class="talk-duration" style="width:50px" value="${talkDuration}"></td>
                         <td class="text-nowrap "></td>
@@ -1299,6 +1326,29 @@
                     </tr>`
                 );
                 updateTalkDuration(getTimeOfDate(new Date(info.startStr)));
+            });
+
+            schedulerModal.find('#addSectionHeadingBtn').off('click').on('click', function(e) {
+                e.preventDefault();
+                let tableAddedAbstract = $("#tableAddedAbstract");
+                let headingId = 1;
+                while (tableAddedAbstract.find('tbody tr').filter(function() {
+                    return this.id === `section_heading_${headingId}`;
+                }).length > 0) {
+                    headingId++;
+                }
+
+                tableAddedAbstract.find('tbody').append(
+                    `<tr id="section_heading_${headingId}" class="section-heading-row" data-item-type="heading">
+
+                        <td colspan="4"><input type="text" class="section-heading-title form-control" maxlength="555" aria-label="Section heading title" placeholder="Enter Subtitle"></td>
+                        <td class="text-nowrap">
+                            <a class="btn btn-sm moveUp" onclick="moveUp(this)" data-initial-time="${sessionStart24}"><i class="fas fa-arrow-up"></i></a>
+                            <a class="btn btn-sm moveDown" onclick="moveDown(this)" data-initial-time="${sessionStart24}"><i class="fas fa-arrow-down"></i></a>
+                            <a class="btn btn-sm remove" data-abstract-id="section_heading_${headingId}"><i class="fas fa-trash"></i></a>
+                        </td>
+                    </tr>`
+                );
             });
 
             getTalks(talk_details, talkDetail, info, sessionStart24, sessionDate);
@@ -1330,27 +1380,7 @@
             }
 
             function updateTalkDuration(startTime) {
-                let tableAddedAbstract = $("#tableAddedAbstract");
-                let rows = tableAddedAbstract.find(`tbody tr`);
-                let breakDurationVal = schedulerModal.find('.session-break-duration').data('value');
-                let currentStartTime24 = sessionStart24;
-                let duration = 0;
-                let endTime24 = 0;
-
-                rows.each(function (index) {
-                    let row = $(this);
-                    let durationInput = row.find('.talk-duration');
-                    let endTimeElement = row.find('.end-time');
-
-                    duration = parseFloat(durationInput.val());
-                    endTime24 = addMinutesToTime(currentStartTime24, duration);
-
-                    row.find('.start-time').text(getTimeOfDateFrom24hr(currentStartTime24));
-                    row.find('.end-time').text(getTimeOfDateFrom24hr(endTime24));
-                    endTimeElement.text(getTimeOfDateFrom24hr(endTime24));
-
-                    currentStartTime24 = addMinutesToTime(endTime24, breakDurationVal);
-                });
+                updateTalkDurations(sessionStart24);
             }
         });
 
@@ -1377,7 +1407,7 @@
         }
 
         function createTalkRow(paper, talkDetail, presenters, startTime, endTime, sessionStart24) {
-            let row = $(`<tr id="${paper.id}">`);
+            let row = $(`<tr id="${paper.id}" data-item-type="talk">`);
             row.append(`<td><span class="start-time"></span> - <span class="end-time"></span></td>`);
             row.append(`<td><input type="number" class="talk-duration" style="width:50px" data-abstract-id="${paper.id}" value="${talkDetail.duration}"></td>`);
             row.append(`<td class="text-nowrap">${presenters}</td>`);
@@ -1398,7 +1428,7 @@
                 getPanelsAbstract([paper.id]).then(function(panels) {
                     if (panels) {
                         $.each(panels.data[0].panelist_abstract, function(i, panel) {
-                            let row = $(`<tr id="${panel.paper_id}" data-paper-sub-id="${panel.individual_panel_id}">`);
+                            let row = $(`<tr id="${panel.paper_id}" data-item-type="talk" data-paper-sub-id="${panel.individual_panel_id}">`);
                             row.append(`<td><span class="start-time"></span> - <span class="end-time"></span></td>`);
                             row.append(`<td><input type="number" class="talk-duration" style="width:50px" data-abstract-id="${paper.id}" value="${talkDetail.duration}"></td>`);
                             row.append(`<td class="text-nowrap">${panel.name + ' '+ panel.surname}</td>`);
@@ -1522,6 +1552,20 @@
             if (response.status == 'success') {
                 $.each(response.data, function (i, data) {
                     if (data.scheduler_event_id && data.scheduler_event_id == info.id) {
+                        if (data.item_type === 'heading') {
+                            $("#tableAddedAbstract").find('tbody').append(
+                                `<tr id="section_heading_${data.id}" class="section-heading-row" data-item-type="heading" data-talk-id="${data.id}">
+                                    <td colspan="4"><input type="text" class="section-heading-title form-control" maxlength="555" aria-label="Section heading title" value="${(data.item_title || '')}"></td>
+                                    <td class="text-nowrap">
+                                        <a class="btn btn-sm moveUp" onclick="moveUp(this)" data-initial-time="${sessionStart24}"><i class="fas fa-arrow-up"></i></a>
+                                        <a class="btn btn-sm moveDown" onclick="moveDown(this)" data-initial-time="${sessionStart24}"><i class="fas fa-arrow-down"></i></a>
+                                        <a class="btn btn-sm remove" data-abstract-id="section_heading_${data.id}"><i class="fas fa-trash"></i></a>
+                                    </td>
+                                </tr>`
+                            );
+                            return;
+                        }
+
                         let presentersList = '';
                         let display_id = '';
                         let customAbstractTitle = '';
@@ -1562,7 +1606,7 @@
                         }
 
                         $("#tableAddedAbstract").find('tbody').append(
-                            `<tr id="${rowId}" class="${isCustomEvent ? 'customAddedEvent' : ''}" data-talk-id="${data.id}" data-paper-sub-id="${data.paper_sub_id || ''}">
+                            `<tr id="${rowId}" class="${isCustomEvent ? 'customAddedEvent' : ''}" data-item-type="talk" data-talk-id="${data.id}" data-paper-sub-id="${data.paper_sub_id || ''}">
                                 <td><span class="start-time">${startTime}</span> - <span class="end-time">${endTime}</span></td>
                                 <td><input type="number" class="talk-duration" style="width:50px" data-abstract-id="${data.abstract_id}" value="${data.duration}"></td>
                                 <td class="text-nowrap">${presentersList || ''}</td>
@@ -1655,23 +1699,8 @@
 
         const initialTime = element.dataset.initialTime;
         if (nextRow.length) {
-            // Store original times
-            let startA = row.find('.start-time').text();
-            let endA = row.find('.end-time').text();
-            let startB = nextRow.find('.start-time').text();
-            let endB = nextRow.find('.end-time').text();
-
-            // Swap DOM positions
             row.insertAfter(nextRow);
-
-            // Now swap times to switch with positions
-            // After swap, nextRow is now before row, so upper (nextRow) gets original A times, lower (row) gets original B
-            nextRow.find('.start-time').text(startA);
-            nextRow.find('.end-time').text(endA);
-            row.find('.start-time').text(startB);
-            row.find('.end-time').text(endB);
-
-            // No need for full recalc since adjacent swap and times switched
+            updateTalkDurations(initialTime);
         } else {
             toastr.info('This is already the last row.');
         }
@@ -1683,23 +1712,8 @@
 
         const initialTime = element.dataset.initialTime;
         if (prevRow.length) {
-            // Store original times
-            let startA = row.find('.start-time').text();
-            let endA = row.find('.end-time').text();
-            let startB = prevRow.find('.start-time').text();
-            let endB = prevRow.find('.end-time').text();
-
-            // Swap DOM positions
             row.insertBefore(prevRow);
-
-            // Now swap times to switch with positions
-            // After swap, row is now before prevRow, so upper (row) gets original B times, lower (prevRow) gets original A
-            row.find('.start-time').text(startB);
-            row.find('.end-time').text(endB);
-            prevRow.find('.start-time').text(startA);
-            prevRow.find('.end-time').text(endA);
-
-            // No need for full recalc since adjacent swap and times switched
+            updateTalkDurations(initialTime);
         } else {
             toastr.info('This is already the first row.');
         }
@@ -1712,6 +1726,11 @@
         const breakDuration = parseFloat($('.session-break-duration').data('value')) || 0;
         rows.each(function (index) {
             const row = $(this);
+            if (row.data('item-type') === 'heading') {
+                row.find('.start-time, .end-time').empty();
+                return;
+            }
+
             const duration = parseFloat(row.find('.talk-duration').val()) || 0;
             let endTime = addMinutesToTime(currentTime, duration);
             row.find('.start-time').text(getTimeOfDateFrom24hr(currentTime));

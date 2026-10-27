@@ -127,6 +127,7 @@
     </div>
     <button type="button" class="btn btn-secondary" id="addAbstractBtn">Add Abstract(s)</button>
     <button type="button" class="btn btn-secondary ms-2" id="addCustomEventBtn">Add Custom Event</button>
+    <button type="button" class="btn btn-secondary ms-2" id="addSectionHeadingBtn">Add Subtitle</button>
 </form>
 
 <hr style="border: 3px solid black" />
@@ -140,7 +141,7 @@
             <th style="width: 100px;">Time</th>
             <th style="width:50px">Talk Duration</th>
             <th>Presenter</th>
-            <th>Abstract Details</th>
+            <th>Abstract / Section Heading</th>
             <th>Actions</th>
         </tr>
         </thead>

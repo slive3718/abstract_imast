@@ -54,9 +54,43 @@ class SessionTalksController extends SchedulerController
             return $this->response->setJSON(['status' => 'error', 'message' => 'Schedule Id not found!']);
         }
 
+        if (!is_array($talks)) {
+            return $this->response->setJSON([
+                'status' => 'error',
+                'message' => 'Invalid schedule items.',
+            ])->setStatusCode(400);
+        }
+
+        foreach ($talks as $talk) {
+            if (!is_array($talk)) {
+                return $this->response->setJSON([
+                    'status' => 'error',
+                    'message' => 'Invalid schedule items.',
+                ])->setStatusCode(400);
+            }
+
+            $itemType = $talk['item_type'] ?? 'talk';
+            if (!in_array($itemType, ['talk', 'heading'], true)) {
+                return $this->response->setJSON([
+                    'status' => 'error',
+                    'message' => 'Invalid schedule item type.',
+                ])->setStatusCode(400);
+            }
+
+            if ($itemType === 'heading') {
+                $itemTitle = $talk['item_title'] ?? '';
+                if (!is_string($itemTitle) || trim($itemTitle) === '' || mb_strlen($itemTitle) > 555) {
+                    return $this->response->setJSON([
+                        'status' => 'error',
+                        'message' => 'Section headings must have a title of 555 characters or fewer.',
+                    ])->setStatusCode(400);
+                }
+            }
+        }
+
         $sessionTalks = new SchedulerSessionTalksModel();
         $existingTalks = $sessionTalks
-            ->select('id, abstract_id, time_start, time_end, duration, sort, break_duration, paper_sub_id, custom_abstract_desc')
+            ->select('id, item_type, item_title, abstract_id, time_start, time_end, duration, sort, break_duration, paper_sub_id, custom_abstract_desc')
             ->where('scheduler_event_id', $scheduler_event_id)
             ->findAll();
 
@@ -65,7 +99,7 @@ class SessionTalksController extends SchedulerController
         $existingTalksById = [];
         foreach ($existingTalks as $existingTalk) {
             $existingTalksById[$existingTalk['id']] = $existingTalk;
-            if (!$this->isCustomTalk($existingTalk['abstract_id'])) {
+            if (($existingTalk['item_type'] ?? 'talk') !== 'heading' && !$this->isCustomTalk($existingTalk['abstract_id'])) {
                 $key = $this->buildTalkKey($existingTalk['abstract_id'], $existingTalk['paper_sub_id']);
                 $existingTalksLookup[$key] = $existingTalk;
             }
@@ -74,6 +108,11 @@ class SessionTalksController extends SchedulerController
         $dedupedTalks = [];
         $seenTalkKeys = [];
         foreach ($talks as $talk) {
+            if (($talk['item_type'] ?? 'talk') === 'heading') {
+                $dedupedTalks[] = $talk;
+                continue;
+            }
+
             $abstractId = $talk['abstract_id'] ?? null;
             $paperSubId = $talk['paper_sub_id'] ?? null;
             if ($this->isCustomTalk($abstractId)) {
@@ -95,12 +134,48 @@ class SessionTalksController extends SchedulerController
         $processedExistingIds = [];
         if ($dedupedTalks) {
             foreach ($dedupedTalks as $index => $talk) {
+                $talkId = $talk['talk_id'] ?? null;
+                if (($talk['item_type'] ?? 'talk') === 'heading') {
+                    $itemTitle = trim($talk['item_title']);
+                    $headingData = [
+                        'item_type' => 'heading',
+                        'item_title' => $itemTitle,
+                        'abstract_id' => null,
+                        'paper_sub_id' => null,
+                        'scheduler_event_id' => $scheduler_event_id,
+                        'time_start' => null,
+                        'time_end' => null,
+                        'duration' => null,
+                        'sort' => $index + 1,
+                        'break_duration' => null,
+                        'custom_abstract_desc' => null,
+                    ];
+                    $existingHeading = $talkId && isset($existingTalksById[$talkId])
+                        && ($existingTalksById[$talkId]['item_type'] ?? 'talk') === 'heading'
+                        ? $existingTalksById[$talkId]
+                        : null;
+
+                    if ($existingHeading) {
+                        if (
+                            $headingData['item_title'] !== $existingHeading['item_title'] ||
+                            $headingData['sort'] !== $existingHeading['sort']
+                        ) {
+                            $sessionTalks->update($existingHeading['id'], $headingData);
+                        }
+                        $processedExistingIds[] = $existingHeading['id'];
+                    } else {
+                        $talkDataArray[] = $headingData;
+                    }
+                    continue;
+                }
+
                 $abstractId = $talk['abstract_id'] ?? null;
                 $paperSubId = $talk['paper_sub_id'] ?? null;
                 $isCustomTalk = $this->isCustomTalk($abstractId);
-                $talkId = $talk['talk_id'] ?? null;
 
                 $talkData = [
+                    'item_type' => 'talk',
+                    'item_title' => null,
                     'abstract_id' => $isCustomTalk ? null : $abstractId,
                     'scheduler_event_id' => $scheduler_event_id,
                     'time_start' => date('Y-m-d H:i:s', strtotime($talk['start_time'])),
@@ -125,6 +200,7 @@ class SessionTalksController extends SchedulerController
                         $talkData['sort'] !== $existingTalk['sort'] ||
                         $talkData['break_duration'] !== $existingTalk['break_duration'] ||
                         $talkData['paper_sub_id'] !== $existingTalk['paper_sub_id'] ||
+                        ($existingTalk['item_type'] ?? 'talk') !== 'talk' ||
                         ($talkData['custom_abstract_desc'] ?? null) !== ($existingTalk['custom_abstract_desc'] ?? null)
                     ) {
                         $sessionTalks->update($existingTalk['id'], $talkData);
