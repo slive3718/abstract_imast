@@ -1127,7 +1127,7 @@
                                             let presenters = getPresenters(res.authors);
                                             let endTime = addDuration(startTime, durationInMinutes);
 
-                                            if (new Date(info.endStr) <= endTime) {
+                                            if (new Date(info.endStr) < endTime) {
                                                 toastr.error("Time already exceeded!");
                                                 break;
                                             }
