@@ -386,30 +386,50 @@ class SchedulerController extends BaseController
     function move ()
     {
         $post = $this->request->getPost();
+        $schedulerModel = new SchedulerModel();
+        $scheduledEvent = $schedulerModel->find($post['id'] ?? null);
+
+        if (!$scheduledEvent || empty($post['start']) || empty($post['end'])) {
+            return $this->response->setStatusCode(400)->setJSON([
+                'status' => 'error',
+                'message' => 'The session or new schedule time is invalid.',
+            ]);
+        }
+
+        $oldStart = strtotime($scheduledEvent['session_start_time']);
+        $newStart = strtotime($post['start']);
+        $newEnd = strtotime($post['end']);
+        if ($oldStart === false || $newStart === false || $newEnd === false) {
+            return $this->response->setStatusCode(400)->setJSON([
+                'status' => 'error',
+                'message' => 'The new schedule time is invalid.',
+            ]);
+        }
+
         $updateArray = [
-            'session_date'=> date('Y-m-d H:i:s', strtotime( $post['start'])),
-            'session_start_time'=> date('Y-m-d H:i:s', strtotime( $post['start'])),
-            'session_end_time'=> date('Y-m-d H:i:s', strtotime( $post['end'])),
+            'session_date'=> date('Y-m-d H:i:s', $newStart),
+            'session_start_time'=> date('Y-m-d H:i:s', $newStart),
+            'session_end_time'=> date('Y-m-d H:i:s', $newEnd),
         ];
 
-        if($post['room_id']){
+        if (!empty($post['room_id'])) {
             $updateArray['room_id'] = $post['room_id'];
         }
 
         $talkModel = new SchedulerSessionTalksModel();
-        $talks = $talkModel->where('scheduler_event_id', $post['id'])->findAll();
+        $talks = $talkModel->where('scheduler_event_id', $scheduledEvent['id'])->findAll();
         if ($talks) {
-            $startShift = strtotime($post['start']) - strtotime($talks[0]['time_start']);
+            $startShift = $newStart - $oldStart;
             foreach ($talks as $talk) {
                 $fieldUpdate = [
-                    'time_start' => date('Y-m-d H:i', strtotime($talk['time_start']) + $startShift),
-                    'time_end' => date('Y-m-d H:i', strtotime($talk['time_end']) + $startShift),
+                    'time_start' => date('Y-m-d H:i:s', strtotime($talk['time_start']) + $startShift),
+                    'time_end' => date('Y-m-d H:i:s', strtotime($talk['time_end']) + $startShift),
                 ];
                 $talkModel->where('id', $talk['id'])->set($fieldUpdate)->update();
             }
         }
 
-        (new SchedulerModel())->set($updateArray)->where('id', $post['id'])->update();
+        $schedulerModel->set($updateArray)->where('id', $scheduledEvent['id'])->update();
         return $this->response->setJSON(['status' => 'success', 'message' => 'Talks processed successfully!']);
     }
 
