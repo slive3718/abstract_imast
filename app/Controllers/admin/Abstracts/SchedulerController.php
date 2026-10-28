@@ -396,10 +396,9 @@ class SchedulerController extends BaseController
             ]);
         }
 
-        $oldStart = strtotime($scheduledEvent['session_start_time']);
         $newStart = strtotime($post['start']);
         $newEnd = strtotime($post['end']);
-        if ($oldStart === false || $newStart === false || $newEnd === false) {
+        if ($newStart === false || $newEnd === false) {
             return $this->response->setStatusCode(400)->setJSON([
                 'status' => 'error',
                 'message' => 'The new schedule time is invalid.',
@@ -417,10 +416,33 @@ class SchedulerController extends BaseController
         }
 
         $talkModel = new SchedulerSessionTalksModel();
-        $talks = $talkModel->where('scheduler_event_id', $scheduledEvent['id'])->findAll();
-        if ($talks) {
-            $startShift = $newStart - $oldStart;
+        $talks = $talkModel
+            ->where('scheduler_event_id', $scheduledEvent['id'])
+            ->orderBy('sort', 'asc')
+            ->findAll();
+        $firstTalk = null;
+        foreach ($talks as $talk) {
+            if (($talk['item_type'] ?? 'talk') !== 'heading' && !empty($talk['time_start'])) {
+                $firstTalk = $talk;
+                break;
+            }
+        }
+
+        if ($firstTalk) {
+            $firstTalkStart = strtotime($firstTalk['time_start']);
+            if ($firstTalkStart === false) {
+                return $this->response->setStatusCode(400)->setJSON([
+                    'status' => 'error',
+                    'message' => 'The first talk start time is invalid.',
+                ]);
+            }
+
+            $startShift = $newStart - $firstTalkStart;
             foreach ($talks as $talk) {
+                if (($talk['item_type'] ?? 'talk') === 'heading' || empty($talk['time_start']) || empty($talk['time_end'])) {
+                    continue;
+                }
+
                 $fieldUpdate = [
                     'time_start' => date('Y-m-d H:i:s', strtotime($talk['time_start']) + $startShift),
                     'time_end' => date('Y-m-d H:i:s', strtotime($talk['time_end']) + $startShift),
