@@ -65,7 +65,7 @@
                         <tr>
                             <td class="fw-bold bg-light">Organizations and Affiliations:</td>
                             <td>
-                                <?php if (!empty($selectedOrganizations)): ?>
+                                <?php if ((strtolower($author['financial_relationship']) === 'yes') && !empty($selectedOrganizations)): ?>
                                     <?php
                                     // Create a map of organization IDs for faster lookup
                                     $organizationMap = array_column($organizations, null, 'organization_id');
