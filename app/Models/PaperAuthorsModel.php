@@ -43,6 +43,9 @@ class PaperAuthorsModel extends BaseModel
             ->where('rpa.id', NULL); // Only include authors that are NOT removed
     }
 
+    public function getActivePaperAuthors(){
+        return $this->activeUsers();
+    }
     public function GetJoinedUser($paper_id)
     {
         try {

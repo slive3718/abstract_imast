@@ -15,4 +15,32 @@ class AdminAcceptanceModel extends Model
     protected $returnType = 'array';
     private $error;
 
+    public function getAllWithDetails(array $filters = []): array
+    {
+        $builder = $this->db->table($this->table . ' a');
+        // Apply filters
+        if (!empty($filters['status'])) {
+            $builder->where('a.acceptance_confirmation', $filters['status']);
+        }
+
+        if (!empty($filters['user_id'])) {
+            $builder->where('a.user_id', $filters['user_id']);
+        }
+
+        if (!empty($filters['acceptance_type'])) {
+            $builder->where('a.acceptance_type', $filters['acceptance_type']);
+        }
+
+        // Add date range filters if needed
+        if (!empty($filters['start_date'])) {
+            $builder->where('a.acceptance_confirmation_date >=', $filters['start_date']);
+        }
+
+        if (!empty($filters['end_date'])) {
+            $builder->where('a.acceptance_confirmation_date <=', $filters['end_date']);
+        }
+
+        return $builder->get()->getResultArray();
+    }
+
 }

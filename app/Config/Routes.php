@@ -119,6 +119,7 @@ $routes->group('admin', ['filter' => 'authGuard:admin'],  function ($routes) {
     $routes->get('report/all_abstract_data', 'admin\Reports::all_abstract_data');
     $routes->get('report/agendaToWord(:any)', 'admin\Reports::agendaToWord/$1'); //Excel Agenda Export to MS Word
     $routes->get('report/printAll', 'admin\Reports::printAll');
+    $routes->get('report/scores_and_comments_report', 'admin\Reports::scores_and_comments_report');
     $routes->get('report/srr_report', 'admin\Reports::srr_report');
     $routes->get('report/cme_reviews_report', 'admin\Reports::cme_reviews_report');
     $routes->get('report/all_accepted_authors_disclosures_report', 'admin\Reports::all_accepted_authors_disclosures_report');

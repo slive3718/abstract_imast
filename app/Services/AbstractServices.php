@@ -2,8 +2,10 @@
 
 namespace App\Services;
 
+use App\Models\AbstractCategoriesModel;
 use App\Models\PaperAuthorsModel;
 use App\Models\PapersModel;
+use App\Models\PaperTypeModel;
 use App\Models\RemovedPaperAuthorModel;
 use App\Models\SiteSettingModel;
 use App\Models\UserModel;
@@ -11,8 +13,17 @@ use App\Models\UsersProfileModel;
 
 class AbstractServices extends CoreServices
 {
+    protected AbstractCategoriesModel $categoryModel;
+    protected PapersModel $model;
+    protected PaperAuthorsModel $paperAuthorsModel;
+    protected UserModel $userModel;
     public function __construct() {
+        $this->categoryModel = $categoryModel ?? model(AbstractCategoriesModel::class);
+        $this->model    = $paperModel ?? model(PapersModel::class);
+        $this->userModel = $user ??  model(UserModel::class);
+        $this->paperAuthorsModel = $paperAuthorsModel ??  model(PaperAuthorsModel::class);
 
+        $this->paperTypeModel = model(PaperTypeModel::class);
         $this->request = \Config\Services::request();
         $this->initializeModels();
     }
@@ -580,5 +591,17 @@ class AbstractServices extends CoreServices
         }
         return $newAuthorEntities;
     }
+
+    function processMappedCategories(): array{
+        $papers = $this->model->asArray()->findAll();
+        $categories = model(AbstractCategoriesModel::class)->array_column('name', 'id');
+        array_map(function($paper) use ($categories, &$mappedCategories) {
+            $paperCategory = $paper['abstract_category'];
+            $mappedCategories[$paper['id']] = $categories[$paperCategory];
+        }, $papers);
+
+        return $mappedCategories ?? [];
+    }
+
 
 }

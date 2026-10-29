@@ -12,6 +12,7 @@ use App\Services\reports\AcceptedAuthorReportServices;
 use App\Services\reports\AcceptedAuthorsIndexReport;
 use App\Services\reports\MembershipReportServices;
 use App\Services\reports\PrecisReportServices;
+use App\Services\reports\ScoresAndCommentsReport;
 use App\Services\SRRReportSerice;
 
 class Reports extends AbstractController
@@ -569,5 +570,9 @@ class Reports extends AbstractController
         $reportService = (new MembershipReportServices());
         $exportName = 'Membershiup Report';
         $reportService->membership_report([1,2,3,4,5], $exportName);
+    }
+
+    public function scores_and_comments_report(){
+        (new ScoresAndCommentsReport())->generate();
     }
 }

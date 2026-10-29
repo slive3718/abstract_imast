@@ -60,6 +60,14 @@ class PapersModel extends Model
             ->groupEnd();
 
     }
+
+    public function getInActivePapers(){
+        return $this
+            ->groupStart()
+            ->where('active_status', 0)
+            ->orWhere('deleted_at', 1)
+            ->groupEnd();
+    }
     public function GetJoinedUser($submission_type, $active_status = null)
     {
        try {
@@ -126,5 +134,15 @@ class PapersModel extends Model
             ->groupBy('ac.id')  // Group by category ID instead
             ->asArray()
             ->find();
+    }
+
+    function getFinalized()
+    {
+        return $this->where('is_finalized', 1);
+    }
+
+    function getFinalizedPaperIds(){
+        $papers = $this->getFinalized()->asArray()->findAll();
+        return array_column($papers, 'id');
     }
 }
