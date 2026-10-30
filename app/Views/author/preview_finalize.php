@@ -135,7 +135,7 @@
                             <td class="fw-bold bg-light">Disclosure Support:</td>
                             <td>
                                 <input type="checkbox" <?= ($author['disclosure_support'] == 1) ? 'checked' : ''; ?> disabled />
-                                <label>Practice recommendations that are relevant to the ineligible companies with whom you have relationships/affiliations will be supported by the best available evidence or absent evidence will be consistent with generally accepted medical practice. </label>
+                                <label>Practice recommendations will be supported by the best available evidence. </label>
                             </td>
                             <td>
                                 <a href="<?=base_url().'author/financial_relationship_disclosure/#disclosure_support'?>" class="btn btn-primary btn-sm btn-edit">
@@ -148,7 +148,7 @@
                             <td class="fw-bold bg-light">Disclosure Discussed:</td>
                             <td>
                                 <input type="checkbox" <?= ($author['disclosure_discussed'] == 1) ? 'checked' : ''; ?> disabled />
-                                <label> All reasonable clinical alternatives will be discussed when making practice recommendations. </label>
+                                <label>All reasonable clinical alternatives will be discussed. </label>
                             </td>
                             <td>
                                 <a href="<?=base_url().'author/financial_relationship_disclosure/#disclosure_discussed'?>" class="btn btn-primary btn-sm btn-edit">
