@@ -12,19 +12,41 @@
                             <div>
                                 <h5 class="fw-bolder mb-4"> Disclosure Statement </h5>
                                 <p>
-                                    SRS must ensure balance, independence, objectivity and scientific rigor in all educational activities. Therefore, as a person who is in position to influence or control the content of a CME activity, you must disclose <strong>all financial relationships</strong> held in the <strong> past 24 months </strong> with <strong> ineligible companies </strong>.* If the financial relationship has occurred in the past 24 months, but has since ended, we still require you to disclose the relationship.
+                                    SRS must ensure balance, independence, objectivity and scientific rigor in all educational activities.
+                                    Therefore, as a person who is in position to influence or control the content of a CME activity,
+                                    you must disclose <strong>all financial relationships</strong> held in the <strong> past 24 months
+                                    </strong> with <strong> ineligible companies </strong>.* If the financial relationship has occurred in the past 24 months,
+                                    but has since ended, we still require you to disclose the relationship.
+                                </p>
+
+                                <p class="fw-bolder">
+                                    *An ineligible company is an entity whose primary business is producing, marketing, selling, re-selling,
+                                    or distributing health care goods or services consumed by or on patients.
+                                    For specific examples of ineligible companies visit <a href="https://www.accme.org/standards" target="_blank">accme.org/standards</a>.
+                                </p>
+
+                                <p>
+                                    For each financial relationship, include the name of the ineligible company and the nature of the financial relationship(s).
+                                    There is no minimum financial threshold; we ask that you disclose all financial relationships, regardless of the amount,
+                                    with ineligible companies. You should disclose all financial relationships regardless of the potential relevance of each
+                                    relationship to the education you are providing.
                                 </p>
                                 <p>
-                                    For each financial relationship, include the name of the ineligible company and the nature of the financial relationship(s). There is no minimum financial threshold; we ask that you disclose all financial relationships, regardless of the amount, with ineligible companies. You should disclose all financial relationships regardless of the potential relevance of each relationship to the education you are providing.
+                                    <strong>Examples of financial relationships include </strong> employee, researcher, consultant, advisor, speaker,
+                                    independent contractor (including contracted research), royalties or patent beneficiary, executive role, and ownership interest.
+                                    Individual stocks and stock options should be disclosed; diversified mutual funds do not need to be disclosed. Research funding
+                                    from ineligible companies should be disclosed by the principal or named investigator even if that individual’s institution receives
+                                    the research grant and manages the funds.
                                 </p>
                                 <p>
-                                    <strong>Examples of financial relationships include </strong> employee, researcher, consultant, advisor, speaker, independent contractor (including contracted research), royalties or patent beneficiary, executive role, and ownership interest. Individual stocks and stock options should be disclosed; diversified mutual funds do not need to be disclosed. Research funding from ineligible companies should be disclosed by the principal or named investigator even if that individual’s institution receives the research grant and manages the funds.
+                                    The intent of disclosure is not to prevent a speaker with a financial or other relationship from making a presentation,
+                                    but rather to mitigate any relevant financial relationships prior to the CME activity so that learners may participate in a balanced,
+                                    unbiased CME event. The ACCME Standards for Integrity and Independence require that we disqualify individuals who refuse to provide
+                                    this information from involvement in the planning and implementation of accredited continuing education.
                                 </p>
+
                                 <p>
-                                    The intent of disclosure is not to prevent a speaker with a financial or other relationship from making a presentation, but rather to mitigate any relevant financial relationships prior to the CME activity so that learners may participate in a balanced, unbiased CME event.
-                                </p>
-                                <p>
-                                    * An ineligible company is an entity whose primary business is producing, marketing, selling, re-selling, or distributing health care goods or services consumed by or on patients. For specific examples of ineligible companies visit accme.org/standards.
+                                    Thank you for your diligence and assistance. If you have questions, please contact us at <a href="mailto:cme@srs.org" target="_blank">cme@srs.org</a>
                                 </p>
                             </div>
                             <h5 class="mb-4 fw-bold">Financial Relationships</h5>
