@@ -125,7 +125,7 @@
                             <td>
                                 <?= (strtolower($author['financial_relationship']) === 'yes')
                                     ? 'I have held a financial relationship with an ineligible company within the past 24 months.'
-                                    : 'I have held NO financial relationship(s) with an ineligible company within the past 24 months. '; ?>
+                                    : 'I have NO financial relationship(s) with an ineligible company producing healthcare goods or services.'; ?>
                             </td>
                             <td> <a href="<?=base_url().'author/financial_relationship_disclosure/#yes_relationship'?>" class="btn btn-primary btn-sm btn-edit"><i class="fas fa-edit"> </i> Edit </a></td>
                         </tr>
