@@ -39,14 +39,18 @@ class ModeratorServices extends BaseService
         return $moderator_ids;
     }
 
-    function get_assigned_moderators_events($moderators){
+    function get_assigned_moderators_events($moderators, $assignmentField = 'session_chair_ids'){
+        if (!in_array($assignmentField, ['session_chair_ids', 'table_moderator_ids'], true)) {
+            throw new \InvalidArgumentException('Invalid moderator assignment field.');
+        }
+
         $moderators_unique = array_values($moderators);
 
         $assigned_events = [];
         foreach ($moderators_unique as $moderator) {
-            $events = $this->get_assigned_moderator_events($moderator['id'], $moderator['scheduler_id'])->asArray()->findAll();
+            $events = $this->get_assigned_moderator_events($moderator['id'], $moderator['scheduler_id'], $assignmentField)->asArray()->findAll();
             if ($events) {
-                $assigned_events[$moderator['id']] = [
+                $assigned_events[$moderator['id'] . ':' . $moderator['scheduler_id']] = [
                     'user' => $moderator,
                     'events' => $events
                 ];
@@ -56,11 +60,11 @@ class ModeratorServices extends BaseService
         return $assigned_events;
     }
 
-    function get_assigned_moderator_events($moderator_id, $scheduler_id) {
+    function get_assigned_moderator_events($moderator_id, $scheduler_id, $assignmentField = 'session_chair_ids') {
         $result = (new SchedulerModel())
             ->select('scheduler_events.*, r.name as room_name')
             ->join('scheduler_rooms r', 'scheduler_events.room_id = r.id', 'left')
-            ->where("scheduler_events.session_chair_ids LIKE '%\"{$moderator_id}\"%'");
+            ->where("scheduler_events.{$assignmentField} LIKE", '%"' . $moderator_id . '"%');
         if($scheduler_id){
             $result->where("scheduler_events.id", $scheduler_id);
         }

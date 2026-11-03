@@ -272,7 +272,9 @@ class EmailController extends BaseController
             }else if($recipientType == 'panel'){
                 return $this->recipientPanels();
             }else if($recipientType == 'moderator'){
-                return $this->recipientModerators();
+                return $this->recipientModerators('session_chair_ids');
+            }else if($recipientType == 'table_moderator'){
+                return $this->recipientModerators('table_moderator_ids');
             }
         } catch (\Exception $e) {
             return json_encode(['status' => '500', 'message' => $e->getMessage(), 'data' => '']);
@@ -337,20 +339,18 @@ class EmailController extends BaseController
 
 
 
-    public function recipientModerators() { // get all moderators assigned once.
-        $post = $this->request->getPost();
-
+    public function recipientModerators($assignmentField = 'session_chair_ids') {
         $UsersModel = new UserModel();
         $events_result = (new SchedulerModel())->where('is_deleted', 0)->findAll();
 
-        $session_chairs = [];
+        $moderators = [];
 
         foreach ($events_result as &$event) {
-            $session_chair_ids = json_decode($event['session_chair_ids'], true);
+            $moderator_ids = json_decode($event[$assignmentField] ?? '[]', true);
 
-            if (is_array($session_chair_ids) && !empty($session_chair_ids)) {
-                foreach ($session_chair_ids as $id) {
-                    $session_chairs[] = [
+            if (is_array($moderator_ids) && !empty($moderator_ids)) {
+                foreach ($moderator_ids as $id) {
+                    $moderators[] = [
                         'id' => $id,
                         'author_id' => $id,
                         'details' => $UsersModel->find($id) ,// Store moderator details
@@ -359,10 +359,7 @@ class EmailController extends BaseController
                 }
             }
         }
-        $filtered_result = array_values($session_chairs);
-
-        // Return the filtered results as JSON
-        return json_encode(['status' => '200', 'message' => 'success', 'data' => $session_chairs]);
+        return json_encode(['status' => '200', 'message' => 'success', 'data' => $moderators]);
     }
     function allDPC(){
         $deputyUsers = (new UserModel())->where('is_deputy_reviewer', 1)->findAll();
@@ -591,7 +588,7 @@ class EmailController extends BaseController
                             }
                         }
                     }
-                    else if($post['recipientType'] == 'moderator'){
+                    else if($post['recipientType'] == 'moderator' || $post['recipientType'] == 'table_moderator'){
                         $recipient = json_decode($recipient, true);
                         $res = $UsersModel->where('id', $recipient['author_id'])->first();
                         if (!empty($res)) {
@@ -734,8 +731,11 @@ class EmailController extends BaseController
                 $email_array[] = $email_entry;
             }
 
-        }else if ($post['recipientType'] == 'moderator') {
-            $moderatorEvents = (new ModeratorServices())->get_assigned_moderators_events($arr);
+        }else if ($post['recipientType'] == 'moderator' || $post['recipientType'] == 'table_moderator') {
+            $assignmentField = $post['recipientType'] == 'table_moderator'
+                ? 'table_moderator_ids'
+                : 'session_chair_ids';
+            $moderatorEvents = (new ModeratorServices())->get_assigned_moderators_events($arr, $assignmentField);
             foreach ($moderatorEvents as $val_arr) {
                 $val = $val_arr['user'];
                 $moderatorScheduleEvents = $val_arr['events'];

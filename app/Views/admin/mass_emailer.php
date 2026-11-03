@@ -47,6 +47,7 @@
                     <option value="regular"> Regular Reviewers </option>
                     <option value="deputy"> Deputies / Program Chairs </option>
                     <option value="moderator"> Session Chairs </option>
+                    <option value="table_moderator"> Table Chairs </option>
                 </select>
             </div>
 
@@ -117,9 +118,9 @@
                     </div>
 
                     <!--       Moderator Start             -->
-                    <div data-for="moderator">
+                    <div data-for="moderator table_moderator">
                         <input type="checkbox" class="recipientDesignation" id="all_moderators" name="recipientDesignation" value="all_moderators">
-                        <label for="all_moderators">All Moderators</label>
+                        <label for="all_moderators">All Session Chairs</label>
                     </div>
 
 
@@ -358,7 +359,7 @@
         const showRecipientDesignation = (type) => {
             $('.recipientDesignationDiv div').each(function() {
                 const dataFor = $(this).data('for');
-                if (dataFor === type) {
+                if (dataFor && dataFor.split(/\s+/).includes(type)) {
                     $(this).show();
                 } else {
                     $(this).hide();
@@ -415,7 +416,13 @@
                     showRecipientGroupOptions('panel');
                     break;
                 case 'moderator':
+                    $('#all_moderators + label').text('All Session Chairs');
                     showRecipientDesignation('moderator');
+                    showRecipientGroupOptions('moderator');
+                    break;
+                case 'table_moderator':
+                    $('#all_moderators + label').text('All Table Chairs');
+                    showRecipientDesignation('table_moderator');
                     showRecipientGroupOptions('moderator');
                     break;
                 default:
@@ -425,7 +432,7 @@
 
             if (recipientType === 'deputy' || recipientType === 'regular') {
                 $('.recipientsDetailsDiv').css('display', 'block');
-            } else if (recipientType === 'panel' || recipientType === 'moderator') {
+            } else if (recipientType === 'panel' || recipientType === 'moderator' || recipientType === 'table_moderator') {
                 $('.recipientsDetailsDiv').css('display', 'block');
             }
         });
@@ -654,8 +661,9 @@
                 response.data.forEach(function(user) {
                     if (!user || !user.details) return;
 
-                    var showID = (recipientType === 'moderator') ? (user.scheduler_id || '') : (user.paper_id || '');
-                    var idAttr = (recipientType === 'moderator') ? 'author_id="' + user.id + '"' : 'author_id="' + user.details.id + '"';
+                    var isModeratorType = recipientType === 'moderator' || recipientType === 'table_moderator';
+                    var showID = isModeratorType ? (user.scheduler_id || '') : (user.paper_id || '');
+                    var idAttr = isModeratorType ? 'author_id="' + user.id + '"' : 'author_id="' + user.details.id + '"';
 
                     tableHTML += '<tr>' +
                         '<td><input type="checkbox" class="recipientsCheckbox" checked ' + idAttr + ' name="' + user.details.name + '" surname="' + user.details.surname + '" email="' + user.details.email + '" filter="' + (user.filter || '') + '" paper_id="'+user.paper_id+'"  scheduler_id="'+user.scheduler_id+'"></td>' +
