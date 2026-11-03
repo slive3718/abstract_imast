@@ -235,8 +235,8 @@ class ScoresAndCommentsReport extends BaseService
                 ? trim(($reviewer['name'] ?? '') . ' ' . ($reviewer['surname'] ?? ''))
                 : 'Reviewer #' . ($reviewerId ?? '?');
 
-            $scoreRaw = $review['total_score'] ?? '';
-            $score = ($scoreRaw !== '' && $scoreRaw !== 'coi' && $scoreRaw !== 'na') ? (float)$scoreRaw : null;
+            $scoreRaw = strtolower($review['total_score'] ?? '');
+            $score = ($scoreRaw !== '' && $scoreRaw !== 'coi' && $scoreRaw !== 'na' && $scoreRaw !== 'n/a') ? (float)$scoreRaw : null;
 
             $scoresArray[] = $score;
 
@@ -299,7 +299,7 @@ class ScoresAndCommentsReport extends BaseService
             // Sort while preserving keys if needed
             asort($validScores);
             $trimmedScores = array_slice($validScores, 1, -1, true);
-            $olympicScore = round(array_sum($trimmedScores) / count($trimmedScores), 2);
+            $olympicScore = round(array_sum($trimmedScores) / $count, 2);
         }
 
         return $olympicScore ?? 0;
