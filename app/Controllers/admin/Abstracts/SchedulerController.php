@@ -46,7 +46,7 @@ class SchedulerController extends BaseController
     }
 
     function index($event_uri){
-        $header_data = ['title' => 'AFS Scheduler'];
+        $header_data = ['title' => 'IMAST Scheduler'];
 
         return view('admin/common/header', $header_data)
             . view('admin/scheduler/scheduler_full_calendar')
@@ -351,7 +351,7 @@ class SchedulerController extends BaseController
             'session_end_time' => date('Y-m-d H:i:s', strtotime("$day $end")),
             'session_title' => $post['session_title'],
             'description' => $post['session_description'],
-            'paper_type' => $post['session_type'],
+            'paper_type' => $post['session_type'] ?? null,
             'talk_duration' => $post['duration_talk'],
             'break_duration' => $post['duration_break'],
             'session_number' => $post['session_number'],
