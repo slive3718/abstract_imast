@@ -299,7 +299,7 @@ class ScoresAndCommentsReport extends BaseService
             // Sort while preserving keys if needed
             asort($validScores);
             $trimmedScores = array_slice($validScores, 1, -1, true);
-            $olympicScore = round(array_sum($trimmedScores) / $count, 2);
+            $olympicScore = round(array_sum($trimmedScores) / count($trimmedScores), 2);
         }
 
         return $olympicScore ?? 0;
