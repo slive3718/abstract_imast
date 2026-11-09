@@ -19,6 +19,9 @@
                <ul>
                    <li><span class="fw-bolder">Session Type: </span>  <?=!empty($admin_acceptance) && !empty($abstract_preference) ? $abstract_preference[$admin_acceptance['presentation_preference']] : ''?></li>
                    <li><span class="fw-bolder">Your Presentation Title: </span>  <?=!empty($abstract_details) ? $abstract_details->title : ''?></li>
+                   <?php if(!empty($abstract_schedule['subtitle']['item_type']) && $abstract_schedule['subtitle']['item_type'] === 'heading') : ?>
+                       <li><span class="fw-bolder">Session Subtitle: </span> <?= esc($abstract_schedule['subtitle']['item_title']) ?></li>
+                   <?php endif; ?>
                    <li><span class="fw-bolder">Abstract #: </span>  <?=!empty($abstract_details) ? $abstract_details->custom_id : ''?></li>
                    <li><span class="fw-bolder">Assigned ID: </span>  <?=!empty($abstract_details) ? $abstract_details->assigned_id : ''?></li>
                </ul>

@@ -65,4 +65,25 @@ class SchedulerSessionTalksModel extends Model
         return $this->base_query();
 
     }
+
+    public function getHeadings($scheduler_event_id, $sort): array{
+        $items = $this->asArray()
+            ->where('scheduler_event_id', $scheduler_event_id)
+            ->where('is_deleted', 0)
+            ->where('sort <', (int) $sort)
+            ->orderBy('sort', 'ASC')
+            ->orderBy('id', 'ASC')
+            ->findAll();
+
+        $headings = [];
+        foreach ($items as $item) {
+            if (($item['item_type'] ?? 'talk') === 'heading') {
+                $headings[] = $item;
+            } else {
+                $headings = [];
+            }
+        }
+
+        return $headings;
+    }
 }

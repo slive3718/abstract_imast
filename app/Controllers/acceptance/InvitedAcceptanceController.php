@@ -31,6 +31,15 @@ class InvitedAcceptanceController extends AcceptanceController
             ->where('abstract_id', $abstract_id)->first();
 
         if($abstract_schedule){
+            $abstract_schedule['subtitle'] = array_map(fn($item) => [
+                    'item_title' => $item['item_title'],
+                    'item_type' => $item['item_type'],
+                    'sort' => $item['sort']
+                ], (new SchedulerSessionTalksModel())->getHeadings(
+                    $abstract_schedule['scheduler_event_id'],
+                    $abstract_schedule['sort']
+                ));
+
             $abstract_schedule['event'] = (new SchedulerModel())->find($abstract_schedule['scheduler_event_id']) ?? [];
             $abstract_schedule['room']  = (new RoomsModel())->find($abstract_schedule['event']['room_id']);
             foreach (json_decode($abstract_schedule['event']['session_chair_ids']) as &$moderator){
@@ -41,8 +50,6 @@ class InvitedAcceptanceController extends AcceptanceController
 
         $abstract_details = (new PapersModel())->find($abstract_id);
 
-//        print_R($abstract_schedule);exit;
-
         $data = [
             'abstract_id' => $abstract_id,
             'acceptanceDetails' => $acceptanceDetails,
@@ -51,6 +58,7 @@ class InvitedAcceptanceController extends AcceptanceController
             'abstract_schedule' => $abstract_schedule,
             'abstract_details' => $abstract_details
         ];
+
         return
             view('acceptance/common/header', $header_data) .
             view('acceptance/invited/speaker_acceptance', $data) .
@@ -121,8 +129,10 @@ class InvitedAcceptanceController extends AcceptanceController
                 $authorsQuery->whereNotIn('id', $removed_author_ids);
             }
             $authorsQuery->where('paper_id', $abstract_id)
+                ->orderBy('author_order IS NULL', 'asc', false)
                 ->orderBy('author_order', 'asc')
-                ->orderBy('date_time', 'asc');
+                ->orderBy('date_time', 'asc')
+                ->orderBy('id', 'asc');
            $authors = $authorsQuery->asArray()->findALl();
 
         foreach ($authors as $index => &$author) {
@@ -140,7 +150,7 @@ class InvitedAcceptanceController extends AcceptanceController
         $header_data = [
             'title' => 'Acceptance Finalize'
         ];
-// print_R($abstract_details);exit;
+
         $header_data = [
             'title' => 'Acceptance Menu'
         ];
@@ -165,7 +175,6 @@ class InvitedAcceptanceController extends AcceptanceController
 
     public function invited_presentation_data_view($abstract_id)
     {
-//        print_R($abstract_id);exit;
         $removed_author = (new RemovedPaperAuthorModel())->get();
         $removed_paper_author_ids = array();
         if (!empty($removed_author)) {
@@ -184,8 +193,10 @@ class InvitedAcceptanceController extends AcceptanceController
         // Get paper authors query
         $authorsQuery = (new PaperAuthorsModel())
             ->where('paper_id', $abstract_id)
+            ->orderBy('author_order IS NULL', 'asc', false)
             ->orderBy('author_order', 'asc')
-            ->orderBy('date_time', 'asc');
+            ->orderBy('date_time', 'asc')
+            ->orderBy('id', 'asc');
 
         // Only add whereNotIn if there are removed authors
         if (!empty($removed_paper_author_ids)) {
@@ -203,8 +214,6 @@ class InvitedAcceptanceController extends AcceptanceController
         $abstract_schedule = (new SchedulerSessionTalksModel())
             ->where('abstract_id', $abstract_id)->first();
 
-
-//        print_R($abstract_schedule);exit;
         if ($abstract_schedule) {
             $abstract_schedule['event'] = (new SchedulerModel())->find($abstract_schedule['scheduler_event_id']) ?? [];
             $abstract_schedule['room'] = (new RoomsModel())->find($abstract_schedule['event']['room_id']);
@@ -237,8 +246,10 @@ class InvitedAcceptanceController extends AcceptanceController
             $authorsQuery->whereNotIn('id', $removed_author_ids);
         }
         $authorsQuery->where('paper_id', $abstract_id)
+            ->orderBy('author_order IS NULL', 'asc', false)
             ->orderBy('author_order', 'asc')
-            ->orderBy('date_time', 'asc');
+            ->orderBy('date_time', 'asc')
+            ->orderBy('id', 'asc');
         $authors = $authorsQuery->asArray()->findAll();
 
         foreach($authors as $index => &$author){

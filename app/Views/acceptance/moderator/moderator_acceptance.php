@@ -20,6 +20,9 @@
             <ul>
                 <li><span class="fw-bolder">Session Date: </span> <?=!empty($abstract_schedule['event']) ? date('F d, Y', strtotime($abstract_schedule['event']['session_date'])) : ''?></li>
                 <li><span class="fw-bolder">Session Title: </span>  <?=!empty($abstract_schedule['event']) ? ($abstract_schedule['event']['session_title']) : ''?></li>
+                <?php if(!empty($abstract_schedule['subtitle']['item_type']) && $abstract_schedule['subtitle']['item_type'] === 'heading') : ?>
+                    <li><span class="fw-bolder">Session Subtitle: </span> <?= esc($abstract_schedule['subtitle']['item_title']) ?></li>
+                <?php endif; ?>
                 <li><span class="fw-bolder">Session Time:  </span> <?=!empty($abstract_schedule) ? date('H:i', strtotime($abstract_schedule['event']['session_start_time'])) .' - '.date('H:i', strtotime($abstract_schedule['event']['session_end_time'])) : ''?></li>
                 <li><span class="fw-bolder">Moderator(s): </span>  <?= !empty($abstract_schedule['moderators'])
                         ? implode(', ', array_map(fn($moderator) => $moderator['name'].' '.$moderator['surname'], $abstract_schedule['moderators']))
