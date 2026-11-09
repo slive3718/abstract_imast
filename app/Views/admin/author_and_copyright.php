@@ -1,6 +1,6 @@
 
 <link href="<?=base_url()?>/assets/css/jquery_ui_style.css" rel="stylesheet">
-<?php echo view('event/common/menu'); ?>
+<?php echo view('admin/common/menu'); ?>
 <!-- --><?php //print_R($author);exit;?>
 <style>
     .table > :not(caption) > * > * {
@@ -135,13 +135,16 @@
     let current_user_type = "<?=session('user_type')?>"
 </script>
 <script>
+    const admin_acceptance = <?= json_encode($admin_acceptance ?? []) ?>;
     $(function(){
+        // Uncomment if strictly one presenter is allowed
         $(document).on('change', '.presentingAuthor', function() {
-            let selectedPresenter = $('.presentingAuthor:checked').length; // Count checked checkboxes
-
-            if (selectedPresenter > 1) {
-                toastr.info('Only one presenter is allowed.');
-                $(this).prop('checked', false); // Uncheck the last clicked checkbox
+            if(admin_acceptance && admin_acceptance.presentation_preference !== '4') {
+                let selectedPresenter = $('.presentingAuthor:checked').length; // Count checked checkboxes
+                if (selectedPresenter > 1) {
+                    toastr.info('Only one presenter is allowed.');
+                    $(this).prop('checked', false); // Uncheck the last clicked checkbox
+                }
             }
         });
     })

@@ -1829,6 +1829,7 @@ class AbstractController extends BaseController
             ->findAll();
 
         $disclosure_current_date = (new SiteSettingModel())->where('name', 'disclosure_current_date')->first()['value'];
+        $admin_acceptance = (new AdminAcceptanceModel())->where('abstract_id', $paper_id)->first();
 
         $header_data = [
             'title' => "Authors and Disclosure Panel"
@@ -1840,6 +1841,7 @@ class AbstractController extends BaseController
             'paper'=> $paper ? :'',
             'recentAuthors'=>$recentAuthors,
             'disclosure_current_date'=>$disclosure_current_date,
+            'admin_acceptance'=>$admin_acceptance
         ];
         return
             view('admin/common/header', $header_data).
