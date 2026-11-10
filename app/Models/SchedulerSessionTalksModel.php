@@ -76,11 +76,16 @@ class SchedulerSessionTalksModel extends Model
             ->findAll();
 
         $headings = [];
+        $previousItemWasHeading = false;
         foreach ($items as $item) {
             if (($item['item_type'] ?? 'talk') === 'heading') {
+                if (!$previousItemWasHeading) {
+                    $headings = [];
+                }
                 $headings[] = $item;
+                $previousItemWasHeading = true;
             } else {
-                $headings = [];
+                $previousItemWasHeading = false;
             }
         }
 
