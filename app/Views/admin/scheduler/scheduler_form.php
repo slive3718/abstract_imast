@@ -32,12 +32,10 @@
 
     <!-- Session Type -->
     <div class="form-floating mb-3">
-        <select class="form-select" id="floatingSessionType" name="session_type">
+        <select class="form-select" id="floatingSessionType" name="content_tag">
             <option value="" selected>-- Select --</option>
-            <option value="Type 1">Type 1</option>
-            <option value="Type 2">Type 2</option>
         </select>
-        <label for="floatingSessionType">Session Type</label>
+        <label for="floatingSessionType">Content Tags</label>
     </div>
 
     <!-- Duration of Talk -->

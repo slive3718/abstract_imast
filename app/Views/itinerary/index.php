@@ -143,9 +143,12 @@ use App\Models\DesignationsModel;
                                         <?= htmlspecialchars(date('h:i a', strtotime($event['session_start_time'])), ENT_QUOTES, 'UTF-8') ?> -
                                         <?= htmlspecialchars(date('h:i a', strtotime($event['session_end_time'])), ENT_QUOTES, 'UTF-8') ?>  CEST
                                     </h5>
+                                    <div class="h5">Content Tags</div>
+                                    <div>
+                                        <?= htmlspecialchars($event['content_tag'], ENT_QUOTES, 'UTF-8') ?>
+                                    </div>
                                 </div>
                                 <div class="card-body">
-
                                     <div class="row">
                                         <div class="col-3">
                                             <div class="chairDiv">
@@ -183,9 +186,6 @@ use App\Models\DesignationsModel;
                                         </div>
 
                                         <div class="col-9" >
-
-
-
                                             <div class="accordion border-0 talkCollapseItem" id="scheduleAccordion-<?=$event['id']?>" >
                                                 <div class="accordion-item border-0">
                                                     <?php if (!empty($event['talks'])): ?>

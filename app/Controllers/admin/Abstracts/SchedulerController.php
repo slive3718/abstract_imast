@@ -17,7 +17,9 @@ use App\Models\PresentationPreferenceModel;
 use App\Models\RoomsModel;
 use App\Models\SchedulerDatesModel;
 use App\Models\SchedulerModel;
+use App\Models\SchedulerSessionTags;
 use App\Models\SchedulerSessionTalksModel;
+use App\Models\SchedulerSessionTypes;
 use App\Models\TracksModel;
 use CodeIgniter\Controller;
 use App\Models\Core\Api;
@@ -351,7 +353,7 @@ class SchedulerController extends BaseController
             'session_end_time' => date('Y-m-d H:i:s', strtotime("$day $end")),
             'session_title' => $post['session_title'],
             'description' => $post['session_description'],
-            'paper_type' => $post['session_type'] ?? null,
+            'content_tag' => $post['content_tag'] ?? null,
             'talk_duration' => $post['duration_talk'],
             'break_duration' => $post['duration_break'],
             'session_number' => $post['session_number'],
@@ -466,4 +468,8 @@ class SchedulerController extends BaseController
             return $this->response->setJson(['status'=>'success']);
     }
 
+    public function getAllSchedulerSessionTags(){
+        $schedulerSessions = (new SchedulerSessionTags())->findAll();
+        return $this->response->setJson($schedulerSessions);
+    }
 }

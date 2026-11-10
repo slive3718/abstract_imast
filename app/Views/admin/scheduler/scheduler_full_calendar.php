@@ -683,11 +683,11 @@
             };
 
             try {
-                const [rooms, sessionChairs, tableModerators, sessionTypes, sessionTracks] = await Promise.all([
+                const [rooms, sessionChairs, tableModerators, schedulerSessionTypeOptions, sessionTracks] = await Promise.all([
                     schedulerRooms(),
                     sessionChair() ?? [],
                     tableModerator() ?? [],
-                    paperType(),
+                    schedulerSessionTypes(),
                     sessionTrack()
                 ]);
 
@@ -703,8 +703,8 @@
                     populateDropdown('.tableModeratorSelect', tableModerators, ' -- Select Moderator -- ');
                 }
 
-                if (sessionTypes.length) {
-                    populateDropdown('#floatingSessionType', sessionTypes, ' -- Select Session Type -- ');
+                if (schedulerSessionTypeOptions.length) {
+                    populateDropdown('#floatingSessionType', schedulerSessionTypeOptions, ' -- Select Session Tags -- ');
                 }
 
                 if (sessionTracks.length) {
@@ -809,13 +809,13 @@
         });
     }
 
-    function paperType() {
+    function schedulerSessionTypes() {
         return new Promise((resolve, reject) => {
-            $.post(baseUrlAdmin + 'scheduler/getAllPaperType', function(paperTypes) {
-                if (paperTypes.length > 0) {
-                    resolve(paperTypes);
+            $.post(baseUrlAdmin + 'scheduler/getAllSchedulerSessions', function(schedulerSessions) {
+                if (schedulerSessions.length > 0) {
+                    resolve(schedulerSessions);
                 } else {
-                    reject(new Error('No Paper or Abstract found.'));
+                    reject(new Error('No Scheduler Sessions found.'));
                 }
             }).fail(reject);
         });
@@ -1032,7 +1032,7 @@
                 $('#floatingDay').val(data.scheduled_event.session_day ?? '');
                 $('#floatingSessionTitle').val(data.scheduled_event.session_title ?? '');
                 $('#floatingSessionDescription').val(data.scheduled_event.description ?? '');
-                $('#floatingSessionType').val(data.scheduled_event.paper_type ?? '');
+                $('#floatingSessionType').val(data.scheduled_event.content_tag ?? '');
                 $('#floatingDurationTalk').val(data.scheduled_event.talk_duration ?? '');
                 $('#floatingDurationBreak').val(data.scheduled_event.break_duration ?? '');
                 $('#floatingSessionNumber').val(data.scheduled_event.session_number ?? '');
