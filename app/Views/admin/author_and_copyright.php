@@ -139,7 +139,7 @@
     $(function(){
         // Uncomment if strictly one presenter is allowed
         $(document).on('change', '.presentingAuthor', function() {
-            if(admin_acceptance && admin_acceptance.presentation_preference !== '4') {
+            if(admin_acceptance &&  $.inArray(admin_acceptance.presentation_preference, ['4', '5', '6']) === -1) {
                 let selectedPresenter = $('.presentingAuthor:checked').length; // Count checked checkboxes
                 if (selectedPresenter > 1) {
                     toastr.info('Only one presenter is allowed.');
