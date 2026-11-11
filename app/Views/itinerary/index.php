@@ -143,9 +143,8 @@ use App\Models\DesignationsModel;
                                         <?= htmlspecialchars(date('h:i a', strtotime($event['session_start_time'])), ENT_QUOTES, 'UTF-8') ?> -
                                         <?= htmlspecialchars(date('h:i a', strtotime($event['session_end_time'])), ENT_QUOTES, 'UTF-8') ?>  CEST
                                     </h5>
-                                    <div class="h5">Content Tags</div>
                                     <div>
-                                        <?= htmlspecialchars($event['content_tag'], ENT_QUOTES, 'UTF-8') ?>
+                                        <?= htmlspecialchars($event['content_tag_name'] ?? '', ENT_QUOTES, 'UTF-8') ?>
                                     </div>
                                 </div>
                                 <div class="card-body">

@@ -49,7 +49,14 @@ class ItineraryController extends BaseController
     {
         if($scheduledDates){
             foreach ($scheduledDates as &$scheduledDate){
-                $scheduledDate['events']= (new SchedulerModel())->select('scheduler_events.*, scheduler_rooms.name as room_name')->join('scheduler_rooms', 'scheduler_events.room_id = scheduler_rooms.room_id', 'left')->where('is_deleted', 0)->where("DATE_FORMAT(session_date, '%Y-%m-%d')", date('Y-m-d', strtotime($scheduledDate['date'])))->orderBy('scheduler_events.session_start_time', 'asc')->findAll();
+                $scheduledDate['events']= (new SchedulerModel())
+                    ->select('scheduler_events.*, scheduler_rooms.name as room_name, scheduler_session_tags.name as content_tag_name')
+                    ->join('scheduler_rooms', 'scheduler_events.room_id = scheduler_rooms.room_id', 'left')
+                    ->join('scheduler_session_tags', 'scheduler_events.content_tag = scheduler_session_tags.id', 'left')
+                    ->where('is_deleted', 0)
+                    ->where("DATE_FORMAT(session_date, '%Y-%m-%d')", date('Y-m-d', strtotime($scheduledDate['date'])))
+                    ->orderBy('scheduler_events.session_start_time', 'asc')
+                    ->findAll();
                 if($scheduledDate['events']){
                     foreach ($scheduledDate['events'] as &$event) {
                         $event['moderators'] = [];
@@ -129,6 +136,7 @@ class ItineraryController extends BaseController
                 }
             }
         }
+//        print_R($scheduledDates);exit;
         return $scheduledDates;
     }
 
