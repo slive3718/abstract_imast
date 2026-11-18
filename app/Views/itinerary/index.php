@@ -11,6 +11,12 @@ use App\Models\DesignationsModel;
         border-bottom-right-radius : 4px;
         border-bottom-left-radius : 4px;
     }
+    .card > .nav-link {
+        height: 150px;
+        font-family: 'Calibri', Helvetica Neue, Helvetica, sans-serif;
+        font-size: 17px;
+    }
+
     .nav-link.active{
         box-shadow: 0 .5rem 1rem rgba(0,0,0,.15) !important
 
@@ -20,12 +26,12 @@ use App\Models\DesignationsModel;
         width: 900px;
     }
 
-    .scheduleTab .schedule-day {
-        color: #805000;
+    .scheduleTab p:first-child {
+        color: #FBA61C;
     }
 
     .color-yellow{
-        color: #805000;
+        color: #FBA61C;
     }
 
     .scheduleTab p:first-child:active {
@@ -59,11 +65,6 @@ use App\Models\DesignationsModel;
         color: #0549a0 !important;
     }
 
-    .scheduleContent .text-success,
-    .scheduleContent .schedule-time {
-        color: #0f5132 !important;
-    }
-
     .bg-primary{
         background-color: #0549a0 !important;
         color: white
@@ -80,31 +81,28 @@ use App\Models\DesignationsModel;
     <div class="col-md-12 text-center mt-md-4">
         <img id="main-banner" src="<?= base_url('main_banner.png') ?>" class="figure-img" alt="Main Banner">
     </div>
-    <hr aria-hidden="true">
+    <hr>
 </div>
 
-<main id="main-content" class="light-white" tabindex="-1">
-    <h1 class="visually-hidden">IMAST 2027 Schedule</h1>
+<main class="light-white">
     <div class="container shadow-lg glass-container">
-        <nav aria-label="Schedule by day">
+        <nav>
             <div class="nav nav-tabs scheduleTabNav" id="nav-tab" role="tablist">
-                <div class="row g-3 text-center m-auto eventDiv sha" role="presentation">
+                <div class="row g-3 text-center m-auto eventDiv sha">
                     <?php if (!empty($schedules)): ?>
-                        <?php foreach ($schedules as $scheduleIndex => $schedule): ?>
-                            <div class="col" role="presentation">
-                                <button type="button" class="nav-link text-primary<?= $scheduleIndex === 0 ? ' active' : '' ?>"
-                                        id="nav-<?= htmlspecialchars($schedule['id'], ENT_QUOTES, 'UTF-8') ?>"
-                                        data-bs-toggle="tab"
-                                        data-bs-target="#tab-<?= htmlspecialchars($schedule['id'], ENT_QUOTES, 'UTF-8') ?>"
-                                        role="tab"
-                                        aria-controls="tab-<?= htmlspecialchars($schedule['id'], ENT_QUOTES, 'UTF-8') ?>"
-                                        aria-selected="<?= $scheduleIndex === 0 ? 'true' : 'false' ?>"
-                                        tabindex="<?= $scheduleIndex === 0 ? '0' : '-1' ?>">
-                                    <span class="scheduleTab d-block">
-                                        <span class="schedule-day fw-bolder h3 d-block"><?= date('l', strtotime($schedule['date'])) ?></span>
-                                        <span class="fw-bolder d-block"><?= htmlspecialchars($schedule['date'], ENT_QUOTES, 'UTF-8') ?></span>
-                                    </span>
-                                </button>
+                        <?php foreach ($schedules as $schedule): ?>
+                            <div class="col">
+                                <div class="nav-link text-primary"
+                                     id="nav-<?= htmlspecialchars($schedule['id'], ENT_QUOTES, 'UTF-8') ?>"
+                                     data-bs-toggle="tab"
+                                     data-bs-target="#tab-<?= htmlspecialchars($schedule['id'], ENT_QUOTES, 'UTF-8') ?>"
+                                     role="tab"
+                                     aria-controls="tab-<?= htmlspecialchars($schedule['id'], ENT_QUOTES, 'UTF-8') ?>">
+                                    <div class="scheduleTab">
+                                        <p class="fw-bolder h3"><?= date('l', strtotime($schedule['date'])) ?></p>
+                                        <p class="fw-bolder"><?= htmlspecialchars($schedule['date'], ENT_QUOTES, 'UTF-8') ?></p>
+                                    </div>
+                                </div>
                             </div>
                         <?php endforeach; ?>
                     <?php endif; ?>
@@ -114,31 +112,37 @@ use App\Models\DesignationsModel;
 
         <div class="tab-content scheduleContent" id="nav-tabContent">
             <?php if (!empty($schedules)): ?>
-                <?php foreach ($schedules as $scheduleIndex => $schedule): ?>
-                    <div class="tab-pane fade<?= $scheduleIndex === 0 ? ' show active' : '' ?>"
+                <?php foreach ($schedules as $schedule): ?>
+                    <div class="tab-pane fade"
                          id="tab-<?= htmlspecialchars($schedule['id'], ENT_QUOTES, 'UTF-8') ?>"
                          role="tabpanel"
-                         aria-labelledby="nav-<?= htmlspecialchars($schedule['id'], ENT_QUOTES, 'UTF-8') ?>"
-                         tabindex="0">
+                         aria-labelledby="nav-<?= htmlspecialchars($schedule['id'], ENT_QUOTES, 'UTF-8') ?>">
 
                         <div class="card col mb-3 p-3 text-center shadow">
-                            <div class="scheduleTab">
-                                <h2 class="fw-bolder text-primary mt-4"><?= htmlspecialchars(date('l, M. d, Y', strtotime($schedule['date'])), ENT_QUOTES, 'UTF-8') ?></h2>
-                                <p class="fw-bolder">34th Scoliosis Research Society (SRS) <br>
-                                    International Meeting on Advanced Spine Techniques (IMAST) <br>
-                                    Copenhagen, Denmark,
-                                    April 7-9, 2027</p>
+                            <div class="nav-link"
+                                 id="nav-<?= htmlspecialchars($schedule['id'], ENT_QUOTES, 'UTF-8') ?>"
+                                 data-bs-toggle="tab"
+                                 data-bs-target="#tab-<?= htmlspecialchars($schedule['id'], ENT_QUOTES, 'UTF-8') ?>"
+                                 role="tab"
+                                 aria-controls="tab-<?= htmlspecialchars($schedule['id'], ENT_QUOTES, 'UTF-8') ?>">
+                                <div class="scheduleTab ">
+                                    <h3 class="fw-bolder text-primary mt-4"><?= htmlspecialchars(date('l, M. d, Y', strtotime($schedule['date'])), ENT_QUOTES, 'UTF-8') ?></h3>
+                                    <h4 class="fw-bolder">34th Scoliosis Research Society (SRS) <br>
+                                        International Meeting on Advanced Spine Techniques (IMAST) <br>
+                                        Copenhagen, Denmark,
+                                        April 7-9, 2027</h4>
+                                </div>
                             </div>
                         </div>
 
                         <?php if(!empty($schedule['events'] )): foreach ($schedule['events'] as $event): ?>
                             <div class="card text-start shadow">
-                                <div class="card-header bg-none">  <hr aria-hidden="true" style="height: 3px; border-width: 0; color: #805000; background-color: #805000; max-width: 130px; opacity:100%"/>
-                                    <h3 class="fw-bolder text-primary"><?= htmlspecialchars(ucfirst($event['session_title']), ENT_QUOTES, 'UTF-8') ?> <span class="float-end fw-normal" style="font-size: 16px" ><?=$event['track']['name'] ?? ''?></span></h3>
-                                    <p class="schedule-time fw-bolder fs-5">
+                                <div class="card-header bg-none">  <hr style="height: 3px; border-width: 0; color: #FBA61C; background-color: #FBA61C; max-width: 130px; opacity:100%"/>
+                                    <h4 class="fw-bolder text-primary"><?= htmlspecialchars(ucfirst($event['session_title']), ENT_QUOTES, 'UTF-8') ?> <span class="float-end fw-normal" style="font-size: 16px" ><?=$event['track']['name'] ?? ''?></span></h4>
+                                    <h5 class="text-success">
                                         <?= htmlspecialchars(date('h:i a', strtotime($event['session_start_time'])), ENT_QUOTES, 'UTF-8') ?> -
                                         <?= htmlspecialchars(date('h:i a', strtotime($event['session_end_time'])), ENT_QUOTES, 'UTF-8') ?>  CEST
-                                    </p>
+                                    </h5>
                                     <?php if(!empty($event['content_tag_name'])):?>
                                     <div class="fw-bolder text-success p-2 border-success border alert alert-success d-inline-block" style="font-size: 14px">
                                         <?= htmlspecialchars($event['content_tag_name'], ENT_QUOTES, 'UTF-8') ?>
@@ -151,7 +155,7 @@ use App\Models\DesignationsModel;
                                             <div class="chairDiv">
 
                                                 <?php if (!empty($event['moderators'])): ?>
-                                                    <h4 class="text-primary fw-bolder">Session Moderator(s):</h4>
+                                                    <h5 class="text-primary fw-bolder">Session Moderator(s):</h5>
                                                     <?php foreach ($event['moderators'] as $moderator): ?>
                                                         <?php
                                                         $moderatorDesignationText = '';
@@ -166,7 +170,7 @@ use App\Models\DesignationsModel;
                                                     <?php endforeach; ?>
                                                 <?php endif; ?>
                                                 <?php if (!empty($event['table_moderators'])): ?>
-                                                    <h4 class="text-primary fw-bolder mt-3">Table Moderator(s):</h4>
+                                                    <h5 class="text-primary fw-bolder mt-3">Table Moderator(s):</h5>
                                                     <?php foreach ($event['table_moderators'] as $tableModerator): ?>
                                                         <?php
                                                         $tableModeratorDesignationText = '';
@@ -186,20 +190,16 @@ use App\Models\DesignationsModel;
                                             <div class="accordion border-0 talkCollapseItem" id="scheduleAccordion-<?=$event['id']?>" >
                                                 <div class="accordion-item border-0">
                                                     <?php if (!empty($event['talks'])): ?>
-                                                        <h4 class="accordion-header">
-                                                            <button id="talkToggle-<?= htmlspecialchars($event['id'], ENT_QUOTES, 'UTF-8') ?>" class="btn-outline-primary btn-sm accordion-button collapsed fw-bolder" type="button" data-bs-toggle="collapse" data-bs-target="#talkCollapse-<?= htmlspecialchars($event['id'], ENT_QUOTES, 'UTF-8') ?>" aria-controls="talkCollapse-<?= htmlspecialchars($event['id'], ENT_QUOTES, 'UTF-8') ?>" aria-expanded="false">
-                                                                <span class="me-2 toggle-icon" aria-hidden="true">+</span> View Full Session Schedule
+                                                        <h2 class="accordion-header">
+                                                            <button class="btn-outline-primary btn-sm accordion-button collapsed fw-bolder" type="button" data-bs-toggle="collapse" data-bs-target="#talkCollapse-<?= htmlspecialchars($event['id'], ENT_QUOTES, 'UTF-8') ?>" aria-expanded="false">
+                                                                <span class="me-2 toggle-icon">+</span> View Full Session Schedule
                                                             </button>
-                                                        </h4>
-                                                        <div id="talkCollapse-<?= htmlspecialchars($event['id'], ENT_QUOTES, 'UTF-8') ?>" class="accordion-collapse collapse" aria-labelledby="talkToggle-<?= htmlspecialchars($event['id'], ENT_QUOTES, 'UTF-8') ?>">
+                                                        </h2>
+                                                    <?php endif ?>
+                                                    <div id="talkCollapse-<?= htmlspecialchars($event['id'], ENT_QUOTES, 'UTF-8') ?>" class="accordion-collapse collapse">
                                                         <div class="accordion-body p-0">
                                                             <?php if (!empty($event['talks'])): ?>
                                                                 <table class="table table-bordered">
-                                                                    <caption class="visually-hidden">Session schedule and presenters</caption>
-                                                                    <thead class="visually-hidden">
-                                                                        <tr><th scope="col">Time</th><th scope="col">Session details</th></tr>
-                                                                    </thead>
-                                                                    <tbody>
                                                                     <?php foreach ($event['talks'] as $talk): ?>
                                                                         <?php
                                                                         $isHeading = strip_tags($talk['item_type']) === 'heading';
@@ -223,14 +223,20 @@ use App\Models\DesignationsModel;
                                                                                     </span>
                                                                                 </td>
                                                                             <?php else: ?>
-                                                                                <th scope="row" colspan="2" class="fw-bolder text-primary">
+                                                                                <td></td>
+                                                                                <td class="fw-bolder text-primary">
                                                                                     <?= strip_tags($talk['item_title']) ?>
-                                                                                </th>
+                                                                                </td>
                                                                             <?php endif; ?>
                                                                         </tr>
                                                                         <?php if (!empty($talk['presenters']) || !empty($talk['panelist'])): ?>
-                                                                            <tr style="background-color:white !important;">
-                                                                                <td colspan="2" class="p-0">
+                                                                            <tr class="" style="background-color:white !important;">
+                                                                                <td>
+                                                                                    <p class="fw-bolder">
+                                                                                        <!--                                                                                        --><?php //= $talk['submission_type'] === 'panel' ? 'Panelist(s)' : 'Presenter(s)' ?>
+                                                                                    </p>
+                                                                                </td>
+                                                                                <td class="p-0">
                                                                                     <ul class="ps-0 list-group">
                                                                                         <?php if ($talk['submission_type'] === 'panel' && !empty($talk['panelist'])): ?>
                                                                                             <li class="list-group-item " style="list-style: none;">
@@ -240,6 +246,13 @@ use App\Models\DesignationsModel;
                                                                                                         : '' ?>
                                                                                                 <?= trim($talk['panelist']['user_name'] . ' ' . $talk['panelist']['user_surname']) ?>
                                                                                                 <?= !empty($talk['panelist']['deg']) ? ', ' . htmlspecialchars($talk['panelist']['deg'], ENT_QUOTES, 'UTF-8') : '' ?>
+                                                                                                <?php if (!empty($event['talks'])): ?>
+                                                                                                    <div class="accordion mt-2" id="accordionExample">
+                                                                                                        <div class="accordion-item">
+
+                                                                                                        </div>
+                                                                                                    </div>
+                                                                                                <?php endif; ?>
                                                                                             </li>
                                                                                         <?php elseif (!empty($talk['presenters'])): ?>
                                                                                             <?php foreach ($talk['presenters'] as $presenter): ?>
@@ -253,6 +266,15 @@ use App\Models\DesignationsModel;
 
                                                                                                 <li class="list-group-item" style="list-style: none;">
                                                                                                     <?= trim($presenter['user_name'] . ' ' .$presenter['middle_name']. ' ' . $presenter['user_surname']). (!empty($presenterDesignationText) ? ', ' . htmlspecialchars($presenterDesignationText, ENT_QUOTES, 'UTF-8') : '') ?>
+                                                                                                    <?php if (!empty($presenter['details'])): ?>
+                                                                                                        <?php if (!empty($event['talks'])): ?>
+                                                                                                            <div class="accordion mt-2" id="accordionExample">
+                                                                                                                <div class="accordion-item">
+
+                                                                                                                </div>
+                                                                                                            </div>
+                                                                                                        <?php endif; ?>
+                                                                                                    <?php endif; ?>
                                                                                                 </li>
                                                                                             <?php endforeach; ?>
                                                                                         <?php endif; ?>
@@ -261,23 +283,21 @@ use App\Models\DesignationsModel;
                                                                             </tr>
                                                                         <?php endif; ?>
                                                                     <?php endforeach; ?>
-                                                                    </tbody>
                                                                 </table>
                                                             <?php endif; ?>
                                                         </div>
                                                     </div>
-                                                    <?php endif; ?>
 
                                                 </div>
 
                                                 <?php if($event['description']):?>
                                                     <div class="accordion-item border-0">
-                                                        <h4 class="accordion-header">
-                                                            <button id="descriptionToggle-<?= htmlspecialchars($event['id'], ENT_QUOTES, 'UTF-8') ?>" class="btn-primary btn-sm accordion-button collapsed fw-bolder" type="button" data-bs-toggle="collapse" data-bs-target="#descriptionCollapse-<?= htmlspecialchars($event['id'], ENT_QUOTES, 'UTF-8') ?>" aria-controls="descriptionCollapse-<?= htmlspecialchars($event['id'], ENT_QUOTES, 'UTF-8') ?>" aria-expanded="false">
-                                                                <span class="me-2 toggle-icon" aria-hidden="true">+</span> Session Description
+                                                        <h2 class="accordion-header">
+                                                            <button class="btn-primary btn-sm accordion-button collapsed fw-bolder" type="button" data-bs-toggle="collapse" data-bs-target="#descriptionCollapse-<?= htmlspecialchars($event['id'], ENT_QUOTES, 'UTF-8') ?>" aria-expanded="false">
+                                                                <span class="me-2 toggle-icon">+</span> Session Description
                                                             </button>
-                                                        </h4>
-                                                        <div id="descriptionCollapse-<?= htmlspecialchars($event['id'], ENT_QUOTES, 'UTF-8') ?>" class="accordion-collapse collapse" aria-labelledby="descriptionToggle-<?= htmlspecialchars($event['id'], ENT_QUOTES, 'UTF-8') ?>">
+                                                        </h2>
+                                                        <div id="descriptionCollapse-<?= htmlspecialchars($event['id'], ENT_QUOTES, 'UTF-8') ?>" class="accordion-collapse collapse">
                                                             <div class="accordion-body p-0">
                                                                 <?= htmlspecialchars($event['description'], ENT_QUOTES, 'UTF-8') ?>
                                                             </div>
@@ -308,5 +328,14 @@ use App\Models\DesignationsModel;
             });
         });
 
+        const firstTabLink = document.querySelector('.scheduleTabNav .nav-link');
+        if (firstTabLink) {
+            firstTabLink.classList.add('active');
+        }
+
+        const firstTabPane = document.querySelector('.tab-content .tab-pane');
+        if (firstTabPane) {
+            firstTabPane.classList.add('show', 'active');
+        }
     });
 </script>
